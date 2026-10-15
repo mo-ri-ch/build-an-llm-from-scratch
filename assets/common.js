@@ -229,7 +229,7 @@ function setupNeo() {
     box.innerHTML = NEO_SVG;
     const bubble = document.createElement("div");
     bubble.className = "neo-bubble";
-    bubble.innerHTML = `<span class="neo-name">Neo</span>${p.innerHTML}`;
+    bubble.innerHTML = `<span class="neo-name">${p.dataset.name || "Neo"}</span>${p.innerHTML}`;
     box.appendChild(bubble);
     p.replaceWith(box);
   });
