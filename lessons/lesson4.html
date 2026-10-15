@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151111">
+<link rel="stylesheet" href="../assets/style.css?v=202610151115">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -217,21 +217,20 @@ for step in range(300):
     weights.data = weights.data - learning_rate * weights.grad<span class="c">   # d) move</span>
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
-<span class="pout">        <span class="arrow">→</span> Step 0 loss: 3.086
-        <span class="arrow">→</span> Step 50 loss: 0.746
-        <span class="arrow">→</span> Step 100 loss: 0.722
-        <span class="arrow">→</span> Step 150 loss: 0.714
-        <span class="arrow">→</span> Step 200 loss: 0.711
-        <span class="arrow">→</span> Step 250 loss: 0.709</span>
-
+<span class="pout">Step 0 loss: 3.086
+Step 50 loss: 0.746
+Step 100 loss: 0.722
+Step 150 loss: 0.714
+Step 200 loss: 0.711
+Step 250 loss: 0.709</span>
 <span class="c"># What did it learn after 't'?</span>
 probabilities = F.softmax(weights, dim=1)
 t_row = probabilities[char_to_number['t']]
 for char in [' ', '.', 'h']:
     print(repr(char), round(t_row[char_to_number[char]].item(), 3))
-<span class="pout">    <span class="arrow">→</span> ' ' 0.374
-    <span class="arrow">→</span> '.' 0.124
-    <span class="arrow">→</span> 'h' 0.499</span></code></pre>
+<span class="pout">' ' 0.374
+'.' 0.124
+'h' 0.499</span></code></pre>
       <div class="run-area"><button class="run-code" type="button" aria-pressed="false">▶ Run</button></div>
       <details class="unclear">
         <summary>What does each line do?</summary>
@@ -295,13 +294,12 @@ for char in [' ', '.', 'h']:
 <nav class="pagebar" aria-label="Move between parts">
   <div class="inner">
     <button data-page-back>← Previous</button>
-    <span data-page-label></span>
-    <button class="primary" data-page-next>Next →</button>
+    <span data-page-label></span>    <button class="primary" data-page-next>Next →</button>
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151111"></script>
-<script src="../assets/common.js?v=202610151111"></script>
+<script src="../assets/tinylm.js?v=202610151115"></script>
+<script src="../assets/common.js?v=202610151115"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;

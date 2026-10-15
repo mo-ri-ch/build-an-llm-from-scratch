@@ -466,6 +466,15 @@ pre.term-out { margin: 0; border-radius: 0; background: #0f111a; color: #d7f5dd;
 pre.term-out .prompt { color: #7f88a8; }
 
 /* Outputs under each print: hidden until ▶ Run */
-pre.runnable .pout { display: none; color: #A8F0BE; }
-pre.runnable.ran .pout { display: inline; }
-pre.runnable .arrow { color: #FFE45C; }
+/* Output looks like output, not code: a separate light panel under the line */
+pre.runnable .pout { display: none; }
+pre.runnable.ran .pout {
+  display: block; position: relative;
+  margin: 6px -1.2rem 8px; padding: 8px 1.2rem 8px calc(1.2rem + 4px);
+  background: #F1F6EE; color: #1D2238; border-left: 4px solid var(--good);
+  font-size: 0.95em; white-space: pre;
+}
+pre.runnable.ran .pout::after {
+  content: "output"; position: absolute; top: 6px; right: 12px;
+  font-family: var(--body); font-size: 0.7rem; color: var(--good); letter-spacing: 0.02em;
+}

@@ -262,12 +262,8 @@ function setupCopy() {
     b.addEventListener("click", async () => {
       // Copy just the code, without the answers
       const code = (pre.querySelector("code") || pre).cloneNode(true);
-      // Leave out the outputs (and the line break before each one)
-      code.querySelectorAll(".pout").forEach(o => {
-        const before = o.previousSibling;
-        if (before && before.nodeType === 3 && before.textContent.endsWith("\n")) before.textContent = before.textContent.slice(0, -1);
-        o.remove();
-      });
+      // Leave out the outputs
+      code.querySelectorAll(".pout").forEach(o => o.remove());
       const text = code.textContent;
       try {
         await navigator.clipboard.writeText(text);

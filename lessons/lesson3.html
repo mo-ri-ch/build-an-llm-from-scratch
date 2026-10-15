@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151111">
+<link rel="stylesheet" href="../assets/style.css?v=202610151115">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -144,10 +144,9 @@ t_row = probabilities[char_to_number['t']]
 for number in range(vocab_size):
     if t_row[number] &gt; 0:
         print(repr(number_to_char[number]), round(t_row[number].item(), 3))
-<span class="pout">        <span class="arrow">→</span> ' ' 0.375
-        <span class="arrow">→</span> '.' 0.125
-        <span class="arrow">→</span> 'h' 0.5</span>
-
+<span class="pout">' ' 0.375
+'.' 0.125
+'h' 0.5</span>
 <span class="c"># Write new text: roll the weighted dice 40 times</span>
 torch.manual_seed(42)
 current = char_to_number['t']
@@ -157,7 +156,7 @@ for step in range(40):
     current = picked.item()
     output = output + number_to_char[current]
 print(output)
-<span class="pout"><span class="arrow">→</span> t on dog mat mat. sathe log the mat cat t</span></code></pre>
+<span class="pout">t on dog mat mat. sathe log the mat cat t</span></code></pre>
       <div class="run-area"><button class="run-code" type="button" aria-pressed="false">▶ Run</button></div>
       <details class="unclear">
         <summary>What do <code>sum(dim=1, keepdim=True)</code> and <code>multinomial</code> mean?</summary>
@@ -206,13 +205,12 @@ print(output)
 <nav class="pagebar" aria-label="Move between parts">
   <div class="inner">
     <button data-page-back>← Previous</button>
-    <span data-page-label></span>
-    <button class="primary" data-page-next>Next →</button>
+    <span data-page-label></span>    <button class="primary" data-page-next>Next →</button>
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151111"></script>
-<script src="../assets/common.js?v=202610151111"></script>
+<script src="../assets/tinylm.js?v=202610151115"></script>
+<script src="../assets/common.js?v=202610151115"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]

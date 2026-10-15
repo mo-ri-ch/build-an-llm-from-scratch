@@ -22,6 +22,7 @@ for path in sorted(glob.glob("lessons/lesson*.html")):
     start = page.index('data-title="The code"')
     block = re.search(r"<pre[^>]*><code>(.*?)</code></pre>", page[start:], re.S).group(1)
     block = re.sub(r'<span class="c hide">.*?</span>', "", block)   # drop the "# ?" placeholders
+    block = re.sub(r'<span class="pout">.*?</span>', "", block, flags=re.S)   # outputs shown on the page
     code = html.unescape(re.sub(r"<[^>]+>", "", block)).strip("\n")
     code = "\n".join(line for line in code.split("\n") if not line.strip().startswith("→"))   # outputs shown on the page
 
