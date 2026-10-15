@@ -152,9 +152,35 @@ function buildThumbnails(parts, onPick) {
   toggle.className = "thumbs-toggle";
   document.body.appendChild(toggle);
 
+  // Every lesson in order, like a table of contents. The current lesson is open, with its slides indented below it.
+  const toc = document.createElement("ol");
+  toc.className = "toc";
+  aside.appendChild(toc);
+  const file = location.pathname.split("/").pop();
   const list = document.createElement("ol");
   list.className = "thumb-list";
-  aside.appendChild(list);
+
+  LESSONS.forEach(l => {
+    const li = document.createElement("li");
+    const here = l.file === file;
+    const done = isDone(l.n);
+    let head;
+    if (here) {
+      head = document.createElement("span");
+      head.setAttribute("aria-current", "page");
+    } else if (l.ready) {
+      head = document.createElement("a");
+      head.href = l.file;
+    } else {
+      head = document.createElement("span");
+      head.title = "Coming soon";
+    }
+    head.className = "toc-lesson" + (here ? " here" : "") + (done ? " done" : "") + (l.ready ? "" : " soon");
+    head.innerHTML = `<span class="toc-n">${done ? "✓" : l.n}</span><span class="toc-t">${l.title}</span>`;
+    li.appendChild(head);
+    if (here) li.appendChild(list);
+    toc.appendChild(li);
+  });
 
   const items = parts.map((part, i) => {
     const li = document.createElement("li");
@@ -181,7 +207,13 @@ function buildThumbnails(parts, onPick) {
     try { localStorage.setItem(THUMBS_KEY, hidden ? "1" : ""); } catch (e) { /* ignore */ }
   }
   // A simple list of slide names (no previews), like a table of contents
-  function fit() { aside.classList.add("compact"); }
+  // Always fits without scrolling: if it's too tall, make it a bit tighter
+  function fit() {
+    aside.classList.add("compact");
+    aside.classList.remove("tight", "tighter");
+    if (aside.scrollHeight > aside.clientHeight + 1) aside.classList.add("tight");
+    if (aside.scrollHeight > aside.clientHeight + 1) aside.classList.add("tighter");
+  }
   window.addEventListener("resize", fit);
 
   let startHidden = false;

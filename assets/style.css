@@ -406,6 +406,29 @@ body.teach pre { font-size: 0.8rem; }
   /* Not enough height for previews: just the slide names */
   .thumbs.compact .thumb-frame { display: none; }
   .thumbs.compact .thumb-cap { margin-top: 0; }
+
+  /* All lessons as headings; the current lesson's slides indented below */
+  .toc { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .toc > li { min-width: 0; }
+  body.has-thumbs .thumbs { overflow: clip; }
+  .toc-lesson { display: flex; gap: 8px; align-items: baseline; padding: 3px 4px; border-radius: 4px;
+    font-family: var(--head); font-size: 1rem; line-height: 1.25; color: var(--ink); text-decoration: none; }
+  .toc-lesson .toc-t { min-width: 0; }
+  .toc-n { flex: 0 0 1.3em; text-align: right; color: var(--pencil); font-size: 0.9em; }
+  a.toc-lesson:hover { background: var(--hl-yellow); color: var(--on-hl); }
+  .toc-lesson.done .toc-n { color: var(--good); font-weight: 700; }
+  .toc-lesson.here { font-weight: 700; text-decoration: underline; text-decoration-color: var(--ul); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  .toc-lesson.here .toc-n { color: var(--ink); }
+  .toc-lesson.soon { color: color-mix(in srgb, var(--pencil) 70%, transparent); cursor: default; }
+  .toc .thumb-list { margin: 6px 0 10px 1.6em; --tgap: 6px; }
+  .toc .thumb { padding: 4px 8px; }
+  .toc .thumb-cap { font-size: 0.92rem; }
+  .thumbs.tight .toc-lesson { padding: 1px 4px; font-size: 0.95rem; }
+  .thumbs.tight .toc .thumb-list { --tgap: 3px; margin: 3px 0 6px 1.6em; }
+  .thumbs.tight .toc .thumb { padding: 2px 8px; }
+  .thumbs.tighter .toc-lesson { font-size: 0.85rem; padding: 0 4px; }
+  .thumbs.tighter .toc .thumb-cap { font-size: 0.82rem; }
+  .thumbs.tighter .toc .thumb { padding: 1px 6px; border-width: 1px; }
 }
 @media (min-width: 1000px) { body.has-thumbs .topbar .where[data-full] { font-size: 0; } body.has-thumbs .topbar .where[data-full]::after { content: attr(data-full); font-size: 1.3rem; } }
 
