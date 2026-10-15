@@ -465,12 +465,13 @@ pre .show-out { right: 74px; }
 pre.term-out { margin: 0; border-radius: 0; background: #0f111a; color: #d7f5dd; font-size: 0.85rem; }
 pre.term-out .prompt { color: #7f88a8; }
 
-/* Neo: a small doodled robot with a speech bubble */
+/* Neo: a little sticky note with a face, and a speech bubble */
 .neo { display: flex; gap: 14px; align-items: flex-start; margin: 4px 0 26px; }
 .neo-face { flex: 0 0 auto; width: 58px; height: 58px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform: rotate(-4deg); }
-.neo-face .neo-head { fill: var(--note-blue); }
+.neo-face .neo-note { fill: var(--note-yellow); }
+.neo-face .neo-fold { fill: #F2E39A; }
 .neo-face .neo-eye { fill: var(--ink); stroke: none; }
-.neo-face .neo-bulb { fill: var(--hl-yellow); }
+.neo-face .neo-line { stroke: var(--hl-blue); }
 .neo-bubble {
   position: relative; background: var(--card); border: 2px solid var(--ink);
   border-radius: 16px 18px 16px 14px; padding: 10px 16px 12px; max-width: 46ch;

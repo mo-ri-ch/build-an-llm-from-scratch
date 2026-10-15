@@ -210,19 +210,16 @@ function addReset(inside, fn) {
   box.appendChild(b);
 }
 
-// ---------- Neo: the little robot who learns to write ----------
+// ---------- Neo: a little sticky note who learns to write ----------
 // <p class="neo-say">Hello!</p>  becomes Neo with a speech bubble.
 const NEO_SVG = `
 <svg class="neo-face" viewBox="0 0 64 64" aria-hidden="true">
-  <line x1="32" y1="4" x2="32" y2="14" />
-  <circle cx="32" cy="5" r="3.5" class="neo-bulb" />
-  <rect x="10" y="14" width="44" height="36" rx="12" class="neo-head" />
-  <circle cx="24" cy="30" r="3.6" class="neo-eye" />
-  <circle cx="40" cy="30" r="3.6" class="neo-eye" />
-  <path d="M24 39 Q32 45 40 39" />
-  <rect x="5" y="26" width="5" height="10" rx="2.5" class="neo-head" />
-  <rect x="54" y="26" width="5" height="10" rx="2.5" class="neo-head" />
-  <path d="M22 50 L22 58 M42 50 L42 58" />
+  <path d="M10 10 H50 L56 16 V54 H10 Z" class="neo-note" />
+  <path d="M50 10 V16 H56" class="neo-fold" />
+  <circle cx="25" cy="30" r="2.6" class="neo-eye" />
+  <circle cx="41" cy="30" r="2.6" class="neo-eye" />
+  <path d="M25 39 Q33 45 41 39" />
+  <path d="M18 46 H30" class="neo-line" />
 </svg>`;
 
 function setupNeo() {
