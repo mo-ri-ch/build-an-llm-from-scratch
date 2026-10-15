@@ -237,6 +237,13 @@ details.unclear[open] summary { margin-bottom: 10px; }
 .open-question .big { background: var(--hl-orange); color: var(--on-hl); display: inline; padding: 0 0.2em; border-radius: 0.3em 0.15em 0.35em 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .open-question > div:first-child { color: var(--pencil); font-size: 0.95rem; margin-bottom: 4px; }
 .open-question > div:last-child { margin-top: 14px; }
+.open-question .llm-path { margin-top: 18px; padding-top: 12px; border-top: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 0.8rem; line-height: 1.6; }
+.llm-path-label { color: var(--pencil); margin-right: 4px; }
+.llm-step { white-space: nowrap; color: var(--pencil); }
+.llm-step.done { color: var(--good, #1E8F4E); font-weight: 600; }
+.llm-step.next { background: var(--hl-orange); color: var(--on-hl); font-weight: 700; padding: 0 6px; border-radius: 4px; }
+.llm-arrow { color: color-mix(in srgb, var(--pencil) 60%, transparent); }
 
 /* Tables */
 table.plain { border-collapse: collapse; width: 100%; margin: 0 0 1.2em; font-size: 0.95rem; }

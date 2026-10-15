@@ -2,37 +2,58 @@
 // the lesson list, progress, one-part-per-screen lessons, quizzes, teach mode.
 
 const LESSONS = [
-  { n: 1, title: "Tensors", file: "lesson1.html", ready: true,
+  { n: 1, step: "numbers", title: "Tensors", file: "lesson1.html", ready: true,
     summary: "A box that holds numbers and does math on all of them at once.",
-    leaves: "Computers only understand numbers. How do we turn text into numbers?" },
-  { n: 2, title: "Text into numbers", file: "lesson2.html", ready: true,
+    leaves: "An LLM reads text, but tensors hold only numbers. How do we turn text into numbers?" },
+  { n: 2, step: "text to numbers", title: "Text into numbers", file: "lesson2.html", ready: true,
     summary: "Give every character a number. Turn text into numbers and back.",
-    leaves: "Now text is numbers. How can we guess the next character?" },
-  { n: 3, title: "Counting what comes next", file: "lesson3.html", ready: true,
+    leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
+  { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true,
     summary: "Count which character follows which, then generate text.",
-    leaves: "Counting only works for tiny tables. Can a model learn by itself?" },
-  { n: 4, title: "Let the model learn", file: "lesson4.html", ready: true,
+    leaves: "Counting works for one sentence. A real LLM learns from millions of words. How can a model learn its numbers by itself?" },
+  { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
-    leaves: "How can a model look at several characters without a giant table?" },
-  { n: 5, title: "Looking further back", file: "lesson5.html", ready: false,
+    leaves: "Neo looks at only the last letter, so it repeats itself. An LLM looks at much more. How can Neo see more than one letter?" },
+  { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: false,
     summary: "Three small tables vote on the next character.",
     leaves: "Votes can't understand combinations. Can a character carry meaning?" },
-  { n: 6, title: "Embeddings", file: "lesson6.html", ready: false,
+  { n: 6, step: "meaning", title: "Embeddings", file: "lesson6.html", ready: false,
     summary: "Give each character a list of numbers that describes it.",
     leaves: "Characters still ignore each other. How can they look at each other?" },
-  { n: 7, title: "Attention", file: "lesson7.html", ready: false,
+  { n: 7, step: "attention", title: "Attention", file: "lesson7.html", ready: false,
     summary: "Each character decides which earlier characters matter.",
     leaves: "How do the pieces fit together into a real model?" },
-  { n: 8, title: "The Transformer block", file: "lesson8.html", ready: false,
+  { n: 8, step: "transformer", title: "The Transformer block", file: "lesson8.html", ready: false,
     summary: "The building block of GPT.",
     leaves: "Our model is ready, but our text is tiny. What about real text?" },
-  { n: 9, title: "Training on real text", file: "lesson9.html", ready: false,
+  { n: 9, step: "real text", title: "Training on real text", file: "lesson9.html", ready: false,
     summary: "Train on a real book and generate new text.",
     leaves: "How do size, data and training time change the model?" },
-  { n: 10, title: "Experiments and your project", file: "lesson10.html", ready: false,
+  { n: 10, step: "your LLM", title: "Experiments and your project", file: "lesson10.html", ready: false,
     summary: "Change the model, measure it, and make it your portfolio project.",
     leaves: null },
 ];
+
+// ---------- "Building the LLM" path in each lesson's closing question ----------
+// One row of steps: done ones get a ✓, the next one is highlighted.
+function setupLlmPath() {
+  const box = document.querySelector(".open-question");
+  if (!box) return;
+  const file = location.pathname.split("/").pop();
+  const lesson = LESSONS.find(l => l.file === file);
+  if (!lesson) return;
+  const row = document.createElement("div");
+  row.className = "llm-path";
+  row.setAttribute("aria-label", `Building the LLM: step ${lesson.n} of ${LESSONS.length} done`);
+  let html = '<span class="llm-path-label">Building the LLM:</span>';
+  LESSONS.forEach((l, i) => {
+    const state = l.n <= lesson.n ? "done" : l.n === lesson.n + 1 ? "next" : "later";
+    html += (i ? '<span class="llm-arrow" aria-hidden="true">→</span>' : "") +
+      `<span class="llm-step ${state}">${state === "done" ? "✓ " : ""}${l.step}</span>`;
+  });
+  row.innerHTML = html;
+  box.appendChild(row);
+}
 
 // ---------- Progress (saved in this browser only) ----------
 const PROGRESS_KEY = "tiny-llm-progress";
@@ -388,4 +409,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setupPredictions();
   setupWalkthroughs();
   setupDoneToggle();
+  setupLlmPath();
 });
