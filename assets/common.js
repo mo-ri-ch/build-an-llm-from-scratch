@@ -119,7 +119,7 @@ function setupPagedLesson() {
 }
 
 // ---------- Slide thumbnails on the right ----------
-// Small copies of every part, like the slide strip in a presentation app.
+// A list of every part by name; click one to jump to it.
 const THUMBS_KEY = "tiny-llm-thumbs-hidden";
 
 function buildThumbnails(parts, onPick) {
@@ -141,25 +141,11 @@ function buildThumbnails(parts, onPick) {
     b.className = "thumb";
     b.setAttribute("aria-label", `Slide ${i + 1}: ${part.dataset.title || ""}`);
 
-    const frame = document.createElement("div");
-    frame.className = "thumb-frame";
-    const copy = part.cloneNode(true);
-    copy.removeAttribute("hidden");
-    copy.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
-    copy.querySelectorAll("input, button, select, textarea, a, details, summary").forEach(el => {
-      el.setAttribute("tabindex", "-1"); el.setAttribute("aria-hidden", "true");
-    });
-    copy.setAttribute("aria-hidden", "true");
-    const inner = document.createElement("div");
-    inner.className = "thumb-inner";
-    inner.appendChild(copy);
-    frame.appendChild(inner);
-
     const cap = document.createElement("span");
     cap.className = "thumb-cap";
     cap.innerHTML = `<b>${i + 1}</b> ${part.dataset.title || ""}`;
 
-    b.append(frame, cap);
+    b.append(cap);
     b.addEventListener("click", () => onPick(i));
     li.appendChild(b);
     list.appendChild(li);
@@ -173,21 +159,8 @@ function buildThumbnails(parts, onPick) {
     toggle.setAttribute("aria-expanded", hidden ? "false" : "true");
     try { localStorage.setItem(THUMBS_KEY, hidden ? "1" : ""); } catch (e) { /* ignore */ }
   }
-  // Size the previews so every slide fits in the strip without scrolling
-  function fit() {
-    const n = items.length;
-    const gap = 10, cap = 26, pad = 12 + 6;     // caption height and button padding
-    const avail = aside.clientHeight - 20;
-    const per = avail / n - gap;
-    const fh = Math.floor(per - cap - pad);
-    aside.classList.toggle("compact", fh < 44);
-    const h = Math.min(116, Math.max(44, fh));
-    const w = Math.min(186, Math.round(h * 1.6));
-    aside.style.setProperty("--fh", h + "px");
-    aside.style.setProperty("--fw", w + "px");
-    aside.style.setProperty("--sc", (w / 930).toFixed(4));
-    aside.style.setProperty("--tgap", gap + "px");
-  }
+  // A simple list of slide names (no previews), like a table of contents
+  function fit() { aside.classList.add("compact"); }
   window.addEventListener("resize", fit);
 
   let startHidden = false;
