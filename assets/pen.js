@@ -1,6 +1,7 @@
-// ---------- Pen: write your own notes on the slides ----------
+// ---------- Pen: write your own notes anywhere on the screen ----------
 // Press P (or the small ✎ in the left margin) to turn the pen on or off.
-// Each slide keeps its own notes, saved in this browser only.
+// Notes belong to the slide you wrote them on: they scroll with it and come back with it.
+// Saved in this browser only.
 // This file is self-contained: it adds its own styles and doesn't change anything else on the page.
 (function () {
   const COLORS = [
@@ -12,11 +13,10 @@
   const KEY = "tiny-llm-notes:" + location.pathname.replace(/index\.html$/, "");
 
   const css = `
-  .pen-layer { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 4; }
+  .pen-layer { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9998; }
   body.pen-on .pen-layer { pointer-events: auto; touch-action: none; cursor: crosshair; }
   body.pen-on.pen-erasing .pen-layer { cursor: cell; }
-  .pen-host { position: relative; }
-  .pen-tools { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 6;
+  .pen-tools { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 9999;
     display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .pen-tools button { width: 34px; height: 34px; padding: 0; border-radius: 50%; display: grid; place-items: center;
     font-size: 1rem; line-height: 1; background: var(--card, #fff); border: 2px solid var(--ink, #1D2238); color: var(--ink, #1D2238); }
@@ -28,7 +28,7 @@
   .pen-tools .swatch span { width: 16px; height: 16px; border-radius: 50%; display: block; }
   .pen-tools .on { box-shadow: 0 0 0 3px var(--hl-yellow, #FFE45C); }
   .pen-tools .small { font-size: 0.75rem; }
-  @media print { .pen-tools { display: none; } }
+  @media print { .pen-tools, .pen-layer { display: none; } }
   `;
 
   function setup() {
@@ -36,7 +36,7 @@
     style.textContent = css;
     document.head.appendChild(style);
 
-    // One drawing surface per slide (or one for a page without slides)
+    // Notes are pinned to a slide (or to the page when it has no slides)
     let hosts = Array.from(document.querySelectorAll("main[data-paged] section.part"));
     if (!hosts.length) hosts = Array.from(document.querySelectorAll("main")).slice(0, 1);
     if (!hosts.length) return;
@@ -44,104 +44,137 @@
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* ignore */ } }
+    function strokesOf(i) { return saved[i] || (saved[i] = []); }
 
-    let tool = COLORS[0], erasing = false;
+    function currentIndex() {
+      const i = hosts.findIndex((h) => !h.hidden && h.offsetParent !== null);
+      return i < 0 ? 0 : i;
+    }
 
-    const pages = hosts.map((host, i) => {
-      host.classList.add("pen-host");
-      const canvas = document.createElement("canvas");
-      canvas.className = "pen-layer";
-      canvas.setAttribute("aria-hidden", "true");
-      host.appendChild(canvas);
-      const page = { host, canvas, id: String(i), strokes: saved[String(i)] || [], width: 1 };
+    // One see-through sheet over the whole screen
+    const canvas = document.createElement("canvas");
+    canvas.className = "pen-layer";
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+    let dpr = 1;
 
-      // Notes are stored relative to the slide's width, so they stay in place when the size changes
-      function size() {
-        canvas.style.height = "0px"; // measure the slide without the old drawing surface
-        const w = host.offsetWidth, h = host.scrollHeight;
-        if (!w || !h) return;
-        const dpr = window.devicePixelRatio || 1;
-        page.width = w;
-        canvas.style.width = w + "px"; canvas.style.height = h + "px";
-        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-        draw(page);
+    function fitCanvas() {
+      dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      redraw();
+    }
+
+    // Points are saved relative to the slide: x and y in "slide widths" from its top-left corner.
+    // So notes follow the slide when it scrolls, and grow or shrink with it. They can be outside it too.
+    function frame() {
+      const r = hosts[currentIndex()].getBoundingClientRect();
+      return { left: r.left, top: r.top, w: r.width || 1 };
+    }
+    function toScreen(f, p) { return [(f.left + p[0] * f.w) * dpr, (f.top + p[1] * f.w) * dpr]; }
+
+    function drawStroke(s, f) {
+      const pts = s.p.map((p) => toScreen(f, p));
+      const scale = (f.w * dpr) / 900; // line widths grow and shrink with the slide
+      ctx.globalAlpha = s.a;
+      ctx.strokeStyle = s.c;
+      ctx.fillStyle = s.c;
+      if (pts.length === 1) {
+        ctx.beginPath();
+        ctx.arc(pts[0][0], pts[0][1], (s.w * scale * (s.a < 1 ? 1 : 0.5 + s.p[0][2])) / 2, 0, Math.PI * 2);
+        ctx.fill();
+        return;
       }
-      page.size = size;
-      if (window.ResizeObserver) new ResizeObserver(size).observe(host);
-      size();
-
-      let current = null;
-      function point(e) {
-        const r = canvas.getBoundingClientRect();
-        const pressure = e.pointerType === "pen" && e.pressure ? e.pressure : 0.5;
-        return [(e.clientX - r.left) / page.width, (e.clientY - r.top) / page.width, +pressure.toFixed(2)];
-      }
-      canvas.addEventListener("pointerdown", (e) => {
-        if (!document.body.classList.contains("pen-on")) return;
-        e.preventDefault();
-        canvas.setPointerCapture(e.pointerId);
-        if (erasing || e.button === 5) { eraseAt(page, point(e)); current = "erase"; return; }
-        current = { c: tool.color, w: tool.width, a: tool.alpha, p: [point(e)] };
-        page.strokes.push(current);
-        draw(page);
-      });
-      canvas.addEventListener("pointermove", (e) => {
-        if (!current) return;
-        if (current === "erase") { eraseAt(page, point(e)); return; }
-        current.p.push(point(e));
-        draw(page);
-      });
-      function end() {
-        if (!current) return;
-        current = null;
-        saved[page.id] = page.strokes; save();
-      }
-      canvas.addEventListener("pointerup", end);
-      canvas.addEventListener("pointercancel", end);
-      return page;
-    });
-
-    function draw(page) {
-      const ctx = page.canvas.getContext("2d");
-      const k = page.canvas.width; // canvas pixels per one slide width
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, page.canvas.width, page.canvas.height);
-      ctx.lineCap = "round"; ctx.lineJoin = "round";
-      page.strokes.forEach((s) => {
-        ctx.globalAlpha = s.a;
-        ctx.strokeStyle = s.c;
-        const scale = page.canvas.width / 900; // line widths grow and shrink with the slide
-        if (s.a < 1) {
-          // Highlighter: one even, see-through stroke
-          ctx.lineWidth = s.w * scale;
-          ctx.beginPath();
-          s.p.forEach(([x, y], i) => i ? ctx.lineTo(x * k, y * k) : ctx.moveTo(x * k, y * k));
-          if (s.p.length === 1) ctx.lineTo(s.p[0][0] * k + 0.1, s.p[0][1] * k);
-          ctx.stroke();
-        } else {
-          // Pen: each piece a little thicker when you press harder
-          for (let i = 0; i < s.p.length; i++) {
-            const a = s.p[Math.max(0, i - 1)], b = s.p[i];
-            ctx.lineWidth = s.w * scale * (0.5 + b[2]);
-            ctx.beginPath();
-            ctx.moveTo(a[0] * k, a[1] * k);
-            ctx.lineTo(b[0] * k + (i ? 0 : 0.1), b[1] * k);
-            ctx.stroke();
-          }
+      if (s.a < 1) {
+        // Highlighter: one even, see-through stroke, smoothed with curves
+        ctx.lineWidth = s.w * scale;
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length - 1; i++) {
+          const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+          ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
         }
-      });
+        const last = pts[pts.length - 1];
+        ctx.lineTo(last[0], last[1]);
+        ctx.stroke();
+        return;
+      }
+      // Pen: smooth curves through the midpoints, a little thicker where you press harder
+      let prevMid = pts[0];
+      for (let i = 1; i < pts.length; i++) {
+        const mid = i < pts.length - 1 ? [(pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2] : pts[i];
+        ctx.lineWidth = s.w * scale * (0.5 + s.p[i][2]);
+        ctx.beginPath();
+        ctx.moveTo(prevMid[0], prevMid[1]);
+        ctx.quadraticCurveTo(pts[i][0], pts[i][1], mid[0], mid[1]);
+        ctx.stroke();
+        prevMid = mid;
+      }
+    }
+
+    function redraw() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      const f = frame();
+      strokesOf(currentIndex()).forEach((s) => drawStroke(s, f));
       ctx.globalAlpha = 1;
     }
-
-    // The eraser removes any line it touches
-    function eraseAt(page, [x, y]) {
-      const reach = 12 / page.width;
-      const before = page.strokes.length;
-      page.strokes = page.strokes.filter((s) => !s.p.some(([px, py]) => Math.abs(px - x) < reach && Math.abs(py - y) < reach));
-      if (page.strokes.length !== before) { saved[page.id] = page.strokes; save(); draw(page); }
+    // At most one redraw per screen refresh, so writing stays smooth
+    let queued = false;
+    function requestRedraw() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; redraw(); });
     }
 
-    function visiblePage() { return pages.find((p) => !p.host.hidden && p.host.offsetParent !== null) || pages[0]; }
+    let tool = COLORS[0], erasing = false, current = null;
+
+    function toSlide(e, f) {
+      const pressure = e.pointerType === "pen" && e.pressure ? e.pressure : 0.5;
+      return [+((e.clientX - f.left) / f.w).toFixed(5), +((e.clientY - f.top) / f.w).toFixed(5), +pressure.toFixed(2)];
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      if (!document.body.classList.contains("pen-on")) return;
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      const f = frame();
+      if (erasing || e.button === 5) { current = "erase"; eraseAt(toSlide(e, f), f); return; }
+      current = { c: tool.color, w: tool.width, a: tool.alpha, p: [toSlide(e, f)] };
+      strokesOf(currentIndex()).push(current);
+      requestRedraw();
+    });
+    canvas.addEventListener("pointermove", (e) => {
+      if (!current) return;
+      const f = frame();
+      // Use every point the pen reported, not only one per frame: smoother lines
+      const all = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+      const events = all.length ? all : [e];
+      if (current === "erase") { events.forEach((ev) => eraseAt(toSlide(ev, f), f)); return; }
+      events.forEach((ev) => {
+        const p = toSlide(ev, f), last = current.p[current.p.length - 1];
+        if (Math.abs(p[0] - last[0]) + Math.abs(p[1] - last[1]) > 0.5 / f.w) current.p.push(p);
+      });
+      requestRedraw();
+    });
+    function end() {
+      if (!current) return;
+      current = null;
+      save();
+    }
+    canvas.addEventListener("pointerup", end);
+    canvas.addEventListener("pointercancel", end);
+
+    // The eraser removes any line it touches
+    function eraseAt([x, y], f) {
+      const reach = 12 / f.w;
+      const i = currentIndex();
+      const list = strokesOf(i);
+      const kept = list.filter((s) => !s.p.some(([px, py]) => Math.abs(px - x) < reach && Math.abs(py - y) < reach));
+      if (kept.length !== list.length) { saved[i] = kept; save(); requestRedraw(); }
+    }
 
     // ----- The tools, in the left margin -----
     const box = document.createElement("div");
@@ -150,7 +183,7 @@
     toggle.className = "pen-toggle";
     toggle.type = "button";
     toggle.title = "Pen (P)";
-    toggle.setAttribute("aria-label", "Pen: write notes on this slide (P)");
+    toggle.setAttribute("aria-label", "Pen: write notes on the screen (P)");
     toggle.setAttribute("aria-pressed", "false");
     toggle.textContent = "✎";
     const more = document.createElement("div");
@@ -184,7 +217,7 @@
         return;
       }
       disarm();
-      const p = visiblePage(); p.strokes = []; saved[p.id] = []; save(); draw(p);
+      saved[currentIndex()] = []; save(); requestRedraw();
     };
     function disarm() { clearTimeout(clearArmed); clearArmed = null; clear.textContent = "✕"; clear.title = "Clear notes on this slide"; }
     more.append(eraser, undo, clear);
@@ -197,32 +230,43 @@
       document.body.classList.toggle("pen-erasing", erasing);
     }
     function undoLast() {
-      const p = visiblePage();
-      if (!p.strokes.length) return;
-      p.strokes.pop(); saved[p.id] = p.strokes; save(); draw(p);
+      const list = strokesOf(currentIndex());
+      if (!list.length) return;
+      list.pop(); save(); requestRedraw();
     }
     function setOn(on) {
       document.body.classList.toggle("pen-on", on);
       toggle.setAttribute("aria-pressed", on ? "true" : "false");
-      if (on) pages.forEach((p) => p.size());
+      requestRedraw();
     }
     toggle.onclick = () => setOn(!document.body.classList.contains("pen-on"));
     mark();
 
     document.addEventListener("keydown", (e) => {
       if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-      if ((e.key === "p" || e.key === "P") && !e.ctrlKey && !e.metaKey && !e.altKey) setOn(!document.body.classList.contains("pen-on"));
-      else if (e.key === "Escape" && document.body.classList.contains("pen-on")) setOn(false);
-      else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z") && document.body.classList.contains("pen-on")) { e.preventDefault(); undoLast(); }
+      const on = document.body.classList.contains("pen-on");
+      if ((e.key === "p" || e.key === "P") && !e.ctrlKey && !e.metaKey && !e.altKey) setOn(!on);
+      else if (e.key === "Escape" && on) setOn(false);
+      else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z") && on) { e.preventDefault(); undoLast(); }
     });
 
-    // When a slide appears (or the page changes size), fit its notes to it
+    // While the pen is on, the mouse wheel still scrolls the slide underneath
+    canvas.addEventListener("wheel", (e) => {
+      const area = document.querySelector("body.has-thumbs .wrap");
+      if (area && getComputedStyle(area).position === "fixed") area.scrollBy(e.deltaX, e.deltaY);
+      else window.scrollBy(e.deltaX, e.deltaY);
+    }, { passive: true });
+
+    // Redraw when the slide changes, scrolls or changes size
     if (window.MutationObserver) {
-      const mo = new MutationObserver(() => { const p = visiblePage(); if (p) p.size(); });
-      pages.forEach((p) => mo.observe(p.host, { attributes: true, attributeFilter: ["hidden"] }));
+      const mo = new MutationObserver(requestRedraw);
+      hosts.forEach((h) => mo.observe(h, { attributes: true, attributeFilter: ["hidden"] }));
     }
-    window.addEventListener("resize", () => pages.forEach((p) => p.size()));
-    window.addEventListener("load", () => pages.forEach((p) => p.size()));
+    if (window.ResizeObserver) { const ro = new ResizeObserver(requestRedraw); hosts.forEach((h) => ro.observe(h)); }
+    document.addEventListener("scroll", requestRedraw, true);
+    window.addEventListener("resize", fitCanvas);
+    window.addEventListener("load", requestRedraw);
+    fitCanvas();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup);
