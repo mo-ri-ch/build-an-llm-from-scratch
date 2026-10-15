@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151046">
+<link rel="stylesheet" href="../assets/style.css?v=202610151057">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -222,9 +222,14 @@ for step in range(300):
 # ...
 # Step 250 loss: 0.709</span>
 
+<span class="c"># What did it learn after 't'?</span>
 probabilities = F.softmax(weights, dim=1)
-print(probabilities[char_to_number['t']])
-<span class="c"># h: 0.499, ' ': 0.374, '.': 0.124  (counting gave 0.5, 0.375, 0.125)</span></code></pre>
+t_row = probabilities[char_to_number['t']]
+for char in [' ', '.', 'h']:
+    print(repr(char), round(t_row[char_to_number[char]].item(), 3))
+<span class="c"># ' ' 0.374
+# '.' 0.124
+# 'h' 0.499      (counting gave 0.375, 0.125, 0.5)</span></code></pre>
       <details class="unclear">
         <summary>What does each line do?</summary>
         <ul>
@@ -235,7 +240,11 @@ print(probabilities[char_to_number['t']])
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
         </ul>
       </details>
-      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson4.py">lesson4.py on GitHub</a></p>
+      <p class="run-links">
+        <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson4.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
+        <a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson4.py">lesson4.py</a>
+      </p>
+      <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
     </section>
 
     <!-- 8 -->
@@ -289,8 +298,8 @@ print(probabilities[char_to_number['t']])
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151046"></script>
-<script src="../assets/common.js?v=202610151046"></script>
+<script src="../assets/tinylm.js?v=202610151057"></script>
+<script src="../assets/common.js?v=202610151057"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;

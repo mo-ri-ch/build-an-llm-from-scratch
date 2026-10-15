@@ -431,3 +431,14 @@ body.teach pre { font-size: 0.8rem; }
 input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Copy button: quiet text in the code block's corner */
+pre { position: relative; }
+pre .copy {
+  position: absolute; top: 8px; right: 10px;
+  background: none; border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+  padding: 2px 10px; font-family: var(--body); font-size: 0.75rem; font-weight: 700; color: var(--code-comment);
+}
+pre .copy:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.run-links { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.muted-note { color: var(--pencil); font-size: 0.9rem; }

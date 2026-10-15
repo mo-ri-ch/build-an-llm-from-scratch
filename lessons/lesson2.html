@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151046">
+<link rel="stylesheet" href="../assets/style.css?v=202610151057">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -129,7 +129,11 @@ print(decode([3, 2, 4, 4, 5]))
 <span class="c"># The whole text as a tensor (from Lesson 1)</span>
 print(torch.tensor(encode(text)))
 <span class="c"># tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</span></code></pre>
-      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson2.py">lesson2.py on GitHub</a></p>
+      <p class="run-links">
+        <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson2.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
+        <a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson2.py">lesson2.py</a>
+      </p>
+      <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
     </section>
 
     <!-- 5 -->
@@ -174,7 +178,7 @@ print(torch.tensor(encode(text)))
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151046"></script>
+<script src="../assets/common.js?v=202610151057"></script>
 <script>
 function tile(text, idx, extra) {
   const t = document.createElement("div");

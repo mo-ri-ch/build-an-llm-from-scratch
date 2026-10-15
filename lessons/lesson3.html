@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151046">
+<link rel="stylesheet" href="../assets/style.css?v=202610151057">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -164,7 +164,11 @@ print(output)
         <p><code>dim=1</code> adds up across each row. <code>keepdim=True</code> keeps the shape, so each row divides by its own total.</p>
         <p><code>torch.multinomial(chances, num_samples=1)</code> is the weighted dice. It picks 1 position, where bigger chances are picked more often.</p>
       </details>
-      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson3.py">lesson3.py on GitHub</a></p>
+      <p class="run-links">
+        <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson3.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
+        <a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson3.py">lesson3.py</a>
+      </p>
+      <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
     </section>
 
     <!-- 6 -->
@@ -208,8 +212,8 @@ print(output)
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151046"></script>
-<script src="../assets/common.js?v=202610151046"></script>
+<script src="../assets/tinylm.js?v=202610151057"></script>
+<script src="../assets/common.js?v=202610151057"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]

@@ -35,6 +35,10 @@ e^x, log or matrices. Each one is explained when it first appears.
 
 ## Run the Python code
 
+Easiest: on each lesson's "The code" slide, press **▶ Run it in Google Colab**. It runs in your browser with PyTorch already installed.
+
+Or on your own computer:
+
 You need Python 3 and PyTorch:
 
 ```
@@ -54,7 +58,9 @@ lessons/            one page per lesson
 assets/style.css    shared look
 assets/common.js    lesson list, progress, teach mode
 assets/tinylm.js    the lesson models rewritten in JavaScript, so they run in the browser
-code/               the real Python code for each lesson
+code/               the Python code for each lesson
+notebooks/          the same code as Google Colab notebooks
+tools/              make_notebooks.py rebuilds notebooks and code from the lesson pages
 ```
 
 The JavaScript models start from the same random numbers as PyTorch (`torch.manual_seed(42)`),

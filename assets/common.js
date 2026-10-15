@@ -237,6 +237,32 @@ function addReset(inside, fn) {
   box.appendChild(b);
 }
 
+// ---------- Copy button on every code block ----------
+function setupCopy() {
+  document.querySelectorAll("main pre").forEach(pre => {
+    const b = document.createElement("button");
+    b.className = "copy";
+    b.type = "button";
+    b.textContent = "Copy";
+    b.setAttribute("aria-label", "Copy this code");
+    b.addEventListener("click", async () => {
+      const text = pre.querySelector("code") ? pre.querySelector("code").innerText : pre.innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        // Older browsers: copy through a hidden text box
+        const area = document.createElement("textarea");
+        area.value = text; document.body.appendChild(area); area.select();
+        try { document.execCommand("copy"); } catch (e2) { /* nothing more we can do */ }
+        area.remove();
+      }
+      b.textContent = "✓ Copied";
+      setTimeout(() => { b.textContent = "Copy"; }, 1500);
+    });
+    pre.appendChild(b);
+  });
+}
+
 // ---------- Clickable quizzes ----------
 // <div class="quiz"><button data-right>…</button><button>…</button><div class="feedback"></div></div>
 function setupQuizzes() {
@@ -319,6 +345,7 @@ function setupDoneToggle() {
 
 document.addEventListener("DOMContentLoaded", () => {
   setupPagedLesson();
+  setupCopy();
   setupTeachMode();
   setupKeys();
   setupQuizzes();
