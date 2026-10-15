@@ -401,3 +401,12 @@ body.teach pre { font-size: 0.8rem; }
   .thumbs.compact .thumb-cap { margin-top: 0; }
 }
 @media (min-width: 1000px) { body.has-thumbs .topbar .where[data-full] { font-size: 0; } body.has-thumbs .topbar .where[data-full]::after { content: attr(data-full); font-size: 1.3rem; } }
+
+/* Wide screens: Previous / Next stay in the bottom corners of the presenting space */
+@media (min-width: 1000px) {
+  body.has-thumbs .pagebar { position: fixed; left: 0; right: 232px; bottom: 0; margin: 0; z-index: 2; pointer-events: none; }
+  body.has-thumbs.thumbs-off .pagebar { right: 0; }
+  body.has-thumbs .pagebar .inner { padding: 0 28px 12px 76px; }
+  body.has-thumbs .pagebar button { pointer-events: auto; }
+  body.has-thumbs main[data-paged] section.part { padding-bottom: 80px; }
+}
