@@ -252,6 +252,16 @@
       swatches.forEach((b, i) => b.classList.toggle("on", !erasing && COLORS[i] === tool));
       eraser.classList.toggle("on", erasing);
       document.body.classList.toggle("pen-erasing", erasing);
+      remember();
+    }
+    // The pen setting (on/off, colour, eraser) follows you to every page
+    const SETTINGS = "tiny-llm-pen";
+    function remember() {
+      try {
+        localStorage.setItem(SETTINGS, JSON.stringify({
+          on: document.body.classList.contains("pen-on"), tool: COLORS.indexOf(tool), erasing,
+        }));
+      } catch (e) { /* ignore */ }
     }
     function undoLast() {
       const list = strokesOf(currentIndex());
@@ -262,8 +272,14 @@
       document.body.classList.toggle("pen-on", on);
       toggle.setAttribute("aria-pressed", on ? "true" : "false");
       requestRedraw();
+      remember();
     }
     toggle.onclick = () => setOn(!document.body.classList.contains("pen-on"));
+    let last = {};
+    try { last = JSON.parse(localStorage.getItem(SETTINGS) || "{}") || {}; } catch (e) { last = {}; }
+    if (COLORS[last.tool]) tool = COLORS[last.tool];
+    erasing = !!last.erasing;
+    setOn(!!last.on);
     mark();
 
     document.addEventListener("keydown", (e) => {
