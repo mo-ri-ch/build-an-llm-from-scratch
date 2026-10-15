@@ -71,14 +71,24 @@ function setupPagedLesson() {
     });
   }
 
+  const thumbs = buildThumbnails(parts, (i) => go(i));
+  const seen = new Set();
+
   let current = 0;
   function go(i) {
     current = Math.max(0, Math.min(parts.length - 1, i));
+    seen.add(current);
     parts.forEach((p, k) => { p.hidden = k !== current; });
     if (bar) Array.from(bar.children).forEach((s, k) => {
       s.classList.toggle("now", k === current);
-      s.classList.toggle("seen", k < current);
+      s.classList.toggle("seen", seen.has(k) && k !== current);
     });
+    thumbs.forEach((t, k) => {
+      t.classList.toggle("now", k === current);
+      t.classList.toggle("seen", seen.has(k) && k !== current);
+      if (k === current) t.setAttribute("aria-current", "step"); else t.removeAttribute("aria-current");
+    });
+    if (thumbs[current]) thumbs[current].scrollIntoView({ block: "nearest" });
     if (back) back.disabled = current === 0;
     if (next) {
       next.hidden = current === parts.length - 1;
@@ -100,6 +110,74 @@ function setupPagedLesson() {
     const n = parseInt(location.hash.slice(1), 10);
     if (Number.isFinite(n) && n - 1 !== current) go(n - 1);
   });
+}
+
+// ---------- Slide thumbnails on the right ----------
+// Small copies of every part, like the slide strip in a presentation app.
+const THUMBS_KEY = "tiny-llm-thumbs-hidden";
+
+function buildThumbnails(parts, onPick) {
+  const aside = document.createElement("aside");
+  aside.className = "thumbs";
+  aside.setAttribute("aria-label", "Slides in this lesson");
+
+  const toggle = document.createElement("button");
+  toggle.className = "thumbs-toggle";
+  document.body.appendChild(toggle);
+
+  const list = document.createElement("ol");
+  list.className = "thumb-list";
+  aside.appendChild(list);
+
+  const items = parts.map((part, i) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.className = "thumb";
+    b.setAttribute("aria-label", `Slide ${i + 1}: ${part.dataset.title || ""}`);
+
+    const frame = document.createElement("div");
+    frame.className = "thumb-frame";
+    const copy = part.cloneNode(true);
+    copy.removeAttribute("hidden");
+    copy.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    copy.querySelectorAll("input, button, select, textarea, a, details, summary").forEach(el => {
+      el.setAttribute("tabindex", "-1"); el.setAttribute("aria-hidden", "true");
+    });
+    copy.setAttribute("aria-hidden", "true");
+    const inner = document.createElement("div");
+    inner.className = "thumb-inner";
+    inner.appendChild(copy);
+    frame.appendChild(inner);
+
+    const cap = document.createElement("span");
+    cap.className = "thumb-cap";
+    cap.innerHTML = `<b>${i + 1}</b> ${part.dataset.title || ""}`;
+
+    b.append(frame, cap);
+    b.addEventListener("click", () => onPick(i));
+    li.appendChild(b);
+    list.appendChild(li);
+    return b;
+  });
+  document.body.appendChild(aside);
+
+  function setHidden(hidden) {
+    document.body.classList.toggle("thumbs-off", hidden);
+    toggle.textContent = hidden ? "Show slides" : "Hide slides";
+    toggle.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem(THUMBS_KEY, hidden ? "1" : ""); } catch (e) { /* ignore */ }
+  }
+  let startHidden = false;
+  try { startHidden = localStorage.getItem(THUMBS_KEY) === "1"; } catch (e) { /* ignore */ }
+  toggle.addEventListener("click", () => setHidden(!document.body.classList.contains("thumbs-off")));
+  setHidden(startHidden);
+  document.body.classList.add("has-thumbs");
+
+  // Put the lesson title next to "Lesson N of 10" (the big title is hidden on wide screens)
+  const where = document.querySelector(".topbar .where");
+  const title = document.querySelector(".paged-head h1");
+  if (where && title) where.textContent = `${where.textContent}: ${title.textContent}`;
+  return items;
 }
 
 // ---------- Teach mode: press T for big text (for a projector) ----------
