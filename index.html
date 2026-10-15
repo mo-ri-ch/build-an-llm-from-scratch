@@ -184,11 +184,11 @@
       </div>
 
       <div class="demo-side">
-        <p class="neo-say" id="neoLine">This is me after you finish the course! I read a book of fairy tales, and now I write my own.</p>
+        <p class="neo-say" id="neoLine">This is me after Lesson 5. I only read one sentence, so I repeat myself a lot.</p>
         <div class="activity demo">
           <div class="modes" role="tablist" aria-label="Which Neo">
-            <button class="mode on" data-mode="final" role="tab" aria-selected="true">Neo after the course</button>
-            <button class="mode" data-mode="today" role="tab" aria-selected="false">Neo after Lesson 5</button>
+            <button class="mode on" data-mode="today" role="tab" aria-selected="true">Neo after Lesson 5</button>
+            <button class="mode" data-mode="final" role="tab" aria-selected="false">Neo after the course</button>
           </div>
           <div class="chips" id="chips" role="group" aria-label="Pick a start"></div>
           <div class="written" id="written" aria-live="polite"></div>
@@ -291,7 +291,7 @@
   for (let i = 0; i < 300; i++) tiny.trainStep();
 
   let finalModel = null;
-  let mode = "final", text = "", startText = "", chances = null, timer = null;
+  let mode = "today", text = "", startText = "", chances = null, timer = null;
 
   function label(c) { return c === " " ? "space" : c === "\n" ? "new line" : c; }
   function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
@@ -373,7 +373,7 @@
   document.querySelectorAll(".mode").forEach(b => b.onclick = () => setMode(b.dataset.mode));
   addReset(written, () => begin(MODES[mode].starts[0]));
 
-  setMode("final");
+  setMode("today");
   FinalModel.load("assets/neo-final.json?v=2").then(m => {
     finalModel = m;
     if (mode === "final") begin(MODES.final.starts[0]);
