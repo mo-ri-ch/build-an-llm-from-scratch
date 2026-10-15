@@ -94,6 +94,12 @@ function setupPagedLesson() {
 
   const start = parseInt(location.hash.slice(1), 10);
   go(Number.isFinite(start) ? start - 1 : 0);
+
+  // Links like lesson4.html#5 jump straight to part 5
+  window.addEventListener("hashchange", () => {
+    const n = parseInt(location.hash.slice(1), 10);
+    if (Number.isFinite(n) && n - 1 !== current) go(n - 1);
+  });
 }
 
 // ---------- Teach mode: big text for a projector ----------
