@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a Tiny LLM</title>
+<meta name="description" content="Build a tiny language model from scratch, one question at a time. Interactive lessons for beginners and teachers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start; padding: 40px 0 56px; }
+  .hero .lede { font-size: 1.2rem; max-width: 34ch; color: var(--pencil); }
+  .hero .lede strong { color: var(--ink); }
+
+  .demo {
+    background: var(--card); border: 2px solid var(--ink); border-radius: var(--radius);
+    padding: 18px 18px 14px; box-shadow: 6px 6px 0 var(--ink);
+  }
+  .demo label { font-weight: 700; display: block; margin-bottom: 6px; }
+  .demo input {
+    width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px;
+    border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink);
+  }
+  .demo .status { font-size: 0.9rem; color: var(--pencil); min-height: 1.5em; margin: 8px 0 10px; }
+  .demo .status.bad { color: var(--redpen); }
+  .bars { display: grid; gap: 6px; margin-bottom: 14px; }
+  .bar { display: grid; grid-template-columns: 4.2em 1fr 3.4em; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.9rem; }
+  .bar .track { height: 20px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; overflow: hidden; }
+  .bar .fill { height: 100%; background: var(--highlight); border-right: 2px solid var(--ink); transition: width 0.25s; }
+  .bar .pct { text-align: right; color: var(--pencil); }
+  @media (prefers-reduced-motion: reduce) { .bar .fill { transition: none; } }
+  .demo .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .demo .small-print { font-size: 0.8rem; color: var(--pencil); margin: 12px 0 0; }
+
+  .pipeline { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 0 0 56px; }
+  .pipeline .stop { flex: 1 1 140px; padding: 12px 14px; border: 2px solid var(--ink); margin: -1px 0 0 -2px; background: var(--card); }
+  .pipeline .stop b { display: block; }
+  .pipeline .stop span { font-size: 0.85rem; color: var(--pencil); }
+
+  .roadmap { list-style: none; padding: 0; margin: 0 0 48px; max-width: 760px; }
+  .roadmap li.lesson-card { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0 16px; }
+  .roadmap .n {
+    width: 2.8rem; height: 2.8rem; border: 2px solid var(--ink); border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; background: var(--card);
+  }
+  .lesson-card.ready .n { background: var(--ink); color: var(--paper); }
+  .lesson-card.done .n { background: var(--good); border-color: var(--good); color: #fff; }
+  .roadmap .body { padding-bottom: 6px; }
+  .roadmap .title { font-size: 1.2rem; font-weight: 700; margin: 6px 0 2px; }
+  .roadmap .title a { color: var(--ink); }
+  .roadmap .meta { font-size: 0.85rem; color: var(--pencil); margin-bottom: 4px; }
+  .roadmap .summary { margin: 0; }
+  .roadmap li.link { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0 16px; }
+  .roadmap li.link .line { width: 2px; background: var(--ink); margin-left: calc(1.4rem - 1px); min-height: 100%; }
+  .roadmap li.link .q { font-family: var(--hand); color: var(--redpen); font-size: 1.1rem; padding: 10px 0 14px; line-height: 1.35; }
+
+  .use { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px; }
+  .use ol, .use ul { padding-left: 1.2em; margin: 0; }
+  .use li { margin-bottom: 6px; }
+
+  @media (max-width: 600px) { .demo { box-shadow: 4px 4px 0 var(--ink); margin-right: 4px; } }
+  @media (max-width: 860px) {
+    .hero, .use { grid-template-columns: 1fr; }
+    .hero { padding-top: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="./">Build a Tiny LLM</a>
+    <div class="tools">
+      <a class="btn" href="https://github.com/mo-ri-ch/build-an-llm-from-scratch">Code on GitHub</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1>Build a tiny LLM from scratch, one question at a time.</h1>
+        <p class="lede">Every chatbot does one thing over and over: <strong>guess the next piece of text</strong>. In these lessons you build that guesser yourself, starting from a list of numbers, and you can see every step it takes.</p>
+        <p><a class="btn primary" href="#roadmap" style="background:var(--ink);color:var(--paper)">See the roadmap</a></p>
+      </div>
+
+      <div class="demo" aria-live="polite">
+        <label for="prompt">Type the start of a sentence</label>
+        <input id="prompt" value="the d" autocomplete="off" spellcheck="false">
+        <div class="status" id="status">Training the model…</div>
+        <div class="bars" id="bars"></div>
+        <div class="row">
+          <button class="primary" id="write">Write 40 more characters</button>
+          <button id="clear">Start over</button>
+        </div>
+        <p class="small-print">This model has only 588 numbers and was trained a moment ago, in your browser, on one sentence: “the cat sat on the mat. the dog sat on the log.” It looks at the last 3 characters. You build it in Lesson 5.</p>
+      </div>
+    </section>
+
+    <h2>What every language model does</h2>
+    <p style="max-width:var(--measure)">Big or tiny, every LLM follows the same path. Each lesson builds one part of it.</p>
+    <div class="pipeline">
+      <div class="stop"><b>Text</b><span>“the d”</span></div>
+      <div class="stop"><b>Numbers</b><span>Lessons 1–2</span></div>
+      <div class="stop"><b>Model</b><span>Lessons 3–8</span></div>
+      <div class="stop"><b>Probabilities</b><span>Lessons 3–4</span></div>
+      <div class="stop"><b>Next character</b><span>“o”, then again and again</span></div>
+    </div>
+
+    <h2 id="roadmap">The roadmap</h2>
+    <p style="max-width:var(--measure)">Each lesson ends with a question it can't answer. The next lesson answers it. Follow the questions down the page.</p>
+    <ol class="roadmap" id="roadmap-list"></ol>
+
+    <h2>How to use these lessons</h2>
+    <div class="use">
+      <div>
+        <h3>If you're learning</h3>
+        <ol>
+          <li>Go in order. Each lesson needs the one before it.</li>
+          <li>When a box says “predict first”, really guess before you click.</li>
+          <li>Run the Python code yourself and compare with the outputs shown.</li>
+          <li>Stuck? Open the “Still unclear?” boxes. They explain the same idea a different way.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>If you're teaching</h3>
+        <ul>
+          <li>Press <b>Teach mode</b> on any lesson for big text. The ← and → keys move between parts.</li>
+          <li>Ask the “predict first” questions out loud before revealing them.</li>
+          <li>Use the interactive parts as live demos and let the class choose what to try.</li>
+          <li>The open question at the end of each lesson makes a good homework question.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site">
+    The Python code for every lesson is in the <a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch">GitHub repository</a>. Your progress is saved in this browser only.
+  </footer>
+</div>
+
+<script src="assets/tinylm.js"></script>
+<script src="assets/common.js"></script>
+<script>
+// ---------- Roadmap ----------
+(function renderRoadmap() {
+  const list = document.getElementById("roadmap-list");
+  LESSONS.forEach((lesson, i) => {
+    const done = isDone(lesson.n);
+    const card = document.createElement("li");
+    card.className = "lesson-card" + (lesson.ready ? " ready" : "") + (done ? " done" : "");
+    const title = lesson.ready
+      ? `<a href="lessons/${lesson.file}">${lesson.title}</a>`
+      : lesson.title;
+    const status = done ? "Done" : lesson.ready ? "Ready" : "Coming soon";
+    card.innerHTML = `
+      <div class="n" aria-hidden="true">${done ? "✓" : lesson.n}</div>
+      <div class="body">
+        <div class="title">Lesson ${lesson.n}: ${title}</div>
+        <div class="meta">${status}</div>
+        <p class="summary">${lesson.summary}</p>
+      </div>`;
+    list.appendChild(card);
+    if (lesson.leaves) {
+      const link = document.createElement("li");
+      link.className = "link";
+      link.innerHTML = `<div class="line" aria-hidden="true"></div><div class="q">${lesson.leaves}</div>`;
+      list.appendChild(link);
+    }
+  });
+})();
+
+// ---------- Live demo ----------
+(function demo() {
+  const model = new ThreeCharModel();
+  const input = document.getElementById("prompt");
+  const status = document.getElementById("status");
+  const bars = document.getElementById("bars");
+
+  function render() {
+    const text = input.value.toLowerCase();
+    if (text !== input.value) input.value = text;
+    const bad = Array.from(new Set(text)).filter(c => CHAR_TO_NUMBER[c] === undefined);
+    bars.innerHTML = "";
+    if (bad.length) {
+      status.className = "status bad";
+      status.textContent = `The model has never seen “${bad.join("”, “")}”. It only knows these characters: ${CHARS.filter(c => c !== " ").join(" ")}, space and the full stop.`;
+      return;
+    }
+    if (text.length < 3) {
+      status.className = "status bad";
+      status.textContent = "Type at least 3 characters. The model looks at the last 3.";
+      return;
+    }
+    const last = text.slice(-3);
+    const chances = model.predict(last);
+    status.className = "status";
+    status.textContent = `After “${last}”, the model thinks the next character is:`;
+    chances.map((p, i) => ({ p, c: CHARS[i] }))
+      .sort((a, b) => b.p - a.p).slice(0, 5)
+      .forEach(({ p, c }) => {
+        const row = document.createElement("div");
+        row.className = "bar";
+        row.innerHTML = `<span>${showChar(c)}</span><span class="track"><span class="fill" style="display:block;width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
+        bars.appendChild(row);
+      });
+  }
+
+  // Train in small chunks so the page stays responsive
+  let steps = 0;
+  function trainSome() {
+    for (let i = 0; i < 30 && steps < 300; i++, steps++) model.trainStep();
+    if (steps < 300) { status.textContent = `Training the model… step ${steps} of 300`; requestAnimationFrame(trainSome); }
+    else render();
+  }
+  trainSome();
+
+  input.addEventListener("input", () => { if (steps >= 300) render(); });
+  document.getElementById("write").addEventListener("click", () => {
+    let text = input.value.toLowerCase();
+    if (text.length < 3 || model.predict(text.slice(-3)) === null) { render(); return; }
+    for (let i = 0; i < 40; i++) text += CHARS[pickByChance(model.predict(text.slice(-3)))];
+    input.value = text;
+    render();
+  });
+  document.getElementById("clear").addEventListener("click", () => { input.value = "the d"; render(); input.focus(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let the Model Learn</title>
+<meta name="description" content="Lesson 4 of Build a Tiny LLM: start with random numbers and let the model learn, using loss, gradients and small steps.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .loop { list-style: none; padding: 0; margin: 0 0 1.4em; display: grid; gap: 8px; }
+  .loop li { display: grid; grid-template-columns: 2.2em 1fr; gap: 10px; align-items: baseline; background: var(--card); border: 1px solid var(--grid); padding: 10px 14px; border-radius: var(--radius); }
+  .loop .k { font-family: var(--mono); font-weight: 600; color: var(--pen); }
+  .loop li.again { background: none; border-style: dashed; color: var(--pencil); }
+
+  .trainer { background: var(--card); border: 2px solid var(--ink); border-radius: var(--radius); padding: 16px; box-shadow: 6px 6px 0 var(--ink); margin: 0 0 1.6em; }
+  .trainer .bar-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .trainer select { font: inherit; font-family: var(--mono); padding: 6px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+  .trainer .stats { display: flex; gap: 24px; flex-wrap: wrap; margin: 4px 0 12px; }
+  .trainer .stats div { font-size: 0.9rem; color: var(--pencil); }
+  .trainer .stats b { display: block; font-family: var(--mono); font-size: 1.3rem; color: var(--ink); }
+  .rowtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .rowtable th { text-align: left; color: var(--pencil); font-weight: 700; padding: 4px 6px; border-bottom: 2px solid var(--ink); }
+  .rowtable td { padding: 3px 6px; border-bottom: 1px solid var(--grid); font-family: var(--mono); white-space: nowrap; }
+  .rowtable td.prob { width: 40%; }
+  .rowtable .track { position: relative; height: 16px; background: var(--paper); border: 1px solid var(--grid); }
+  .rowtable .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight); border-right: 2px solid var(--ink); }
+  .rowtable .target { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--good); }
+  .rowtable tr.real td:first-child { font-weight: 700; }
+  .legend { font-size: 0.82rem; color: var(--pencil); margin: 8px 0 0; }
+  .legend .dash { display: inline-block; width: 0; height: 12px; border-left: 2px dashed var(--good); margin: 0 4px -1px; }
+  .legend .sw { display: inline-block; width: 14px; height: 10px; background: var(--highlight); border: 1px solid var(--ink); margin: 0 4px -1px; }
+  .lastmove { background: var(--paper); border-left: 4px solid var(--highlight); padding: 8px 12px; margin: 12px 0; font-size: 0.95rem; }
+  svg.chart { width: 100%; height: auto; display: block; }
+  svg.chart .axis { stroke: var(--pencil); stroke-width: 1; }
+  svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
+  svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 11px; }
+
+  .nudge { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }
+  .nudge-out { font-family: var(--mono); font-size: 0.9rem; background: var(--card); border: 1px solid var(--grid); padding: 10px 12px; border-radius: var(--radius); min-height: 3.2em; margin-bottom: 1.2em; white-space: pre-wrap; }
+
+  @media (max-width: 600px) {
+    .trainer { box-shadow: 4px 4px 0 var(--ink); padding: 12px; margin-right: 4px; }
+    .rowtable { font-size: 0.78rem; }
+    .rowtable td, .rowtable th { padding: 3px 3px; }
+    .rowtable .word { display: none; }
+  }
+  .two-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 1.2em; }
+  .two-tables > div { background: var(--card); border: 1px solid var(--grid); padding: 10px 14px; border-radius: var(--radius); }
+  .two-tables b { display: block; font-family: var(--mono); }
+  @media (max-width: 600px) { .two-tables { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 4 of 10</span>
+    <div class="tools">
+      <button data-teach-toggle aria-pressed="false">Teach mode</button>
+    </div>
+  </header>
+
+  <main class="lesson">
+    <h1 style="margin-top:24px">Let the model learn</h1>
+    <p>In Lesson 3 we <em>counted</em> which character comes after which. In this lesson the model starts knowing nothing and <mark>learns</mark> the same thing by itself, by fixing its own mistakes.</p>
+
+    <!-- ===================== 1. Problem ===================== -->
+    <section class="part" id="problem">
+      <span class="num">Part 1 of 6</span>
+      <h2>The problem</h2>
+      <p>Lesson 3 ended with this question: <b>counting only works for a tiny table. Can a model learn the probabilities by itself instead?</b></p>
+      <p>Counting worked because our model looks at just 1 previous character, so the table has one row per character. But a good model needs to look further back, and the number of rows explodes:</p>
+      <div class="tablewrap">
+        <table class="plain">
+          <tr><th>Looks back at</th><th class="num">Rows to count</th></tr>
+          <tr><td>1 character</td><td class="num">14</td></tr>
+          <tr><td>3 characters</td><td class="num">2,744</td></tr>
+          <tr><td>10 characters</td><td class="num">289,254,654,976</td></tr>
+        </table>
+      </div>
+      <p>Most of those combinations never appear in the text, so there's nothing to count. We need a different method: <b>start with random numbers and improve them</b> until the predictions are good. That method works for any model, of any size. GPT is trained this way too.</p>
+    </section>
+    <p class="note">This lesson gets the same answer as counting, on purpose. We test the new method where we already know the right answer.</p>
+
+    <!-- ===================== 2. Idea ===================== -->
+    <section class="part" id="idea">
+      <span class="num">Part 2 of 6</span>
+      <h2>The idea</h2>
+      <p>The model is a 14 × 14 table, just like Lesson 3's. One row for each current character, one column for each possible next character. But instead of counts, it holds <b>scores</b>, and they start <b>random</b>.</p>
+      <p>Then we repeat four steps:</p>
+      <ol class="loop">
+        <li><span class="k">a)</span><span><b>Predict.</b> Use the scores to guess the next character for every pair in the text.</span></li>
+        <li><span class="k">b)</span><span><b>Measure.</b> Work out one number that says how wrong the guesses are. This is the <b>loss</b>.</span></li>
+        <li><span class="k">c)</span><span><b>Find directions.</b> For every score, work out: should it go up or down to make the loss smaller? These are the <b>gradients</b>.</span></li>
+        <li><span class="k">d)</span><span><b>Move.</b> Nudge every score a little in its direction.</span></li>
+        <li class="again"><span class="k">↺</span><span>Repeat 300 times.</span></li>
+      </ol>
+    </section>
+
+    <!-- ===================== 3. Try it ===================== -->
+    <section class="part" id="try">
+      <span class="num">Part 3 of 6</span>
+      <h2>Try it</h2>
+      <p>This is the real model from the Python code, with the same random starting scores. Run one step at a time and watch the row for <code>t</code>. The dashed green line shows what counting gave in Lesson 3: where each bar should end up.</p>
+
+      <div class="trainer" id="trainer">
+        <div class="bar-top">
+          <button class="primary" id="step1">Run 1 step</button>
+          <button id="step50">Run 50 steps</button>
+          <button id="stepAll">Train to 300</button>
+          <button id="reset">Reset</button>
+          <label style="margin-left:auto;font-size:0.9rem">Watch row
+            <select id="rowpick"></select>
+          </label>
+        </div>
+        <div class="stats">
+          <div>Steps done<b id="stepcount">0</b></div>
+          <div>Loss right now<b id="lossnow">–</b></div>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 600 150" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Loss over training steps"></svg>
+        <div class="lastmove" id="lastmove">Press “Run 1 step” to see what one step changes.</div>
+        <div class="tablewrap">
+          <table class="rowtable">
+            <thead><tr><th>Next</th><th>Score</th><th>Probability</th><th>Last gradient</th></tr></thead>
+            <tbody id="rowbody"></tbody>
+          </table>
+        </div>
+        <p class="legend"><span class="sw"></span> the model's probability <span class="dash"></span> what counting gave in Lesson 3</p>
+      </div>
+    </section>
+    <p class="note">Try it in class: ask students to predict which bar grows first before pressing the button.</p>
+
+    <!-- ===================== 4. One step, slowly ===================== -->
+    <section class="part" id="slowly">
+      <span class="num">Part 4 of 6</span>
+      <h2>One step, slowly</h2>
+      <p>Here is exactly what happens in the very first step, with the real numbers. Press <b>Next</b> to go on.</p>
+
+      <div class="walk">
+        <!-- a -->
+        <div class="stage">
+          <h3>a) Predict</h3>
+<pre><code>scores = weights[current_chars]</code></pre>
+          <p><code>current_chars</code> holds the 46 characters of the text that have a character after them: <code>[13, 7, 5, 0, 3, …]</code>, which means t, h, e, space, c…</p>
+          <p>For each of those 46 numbers, PyTorch copies that <b>whole row</b> from <code>weights</code>. Row 13 is the <code>t</code> row, so the first copy is:</p>
+<pre><code>        ' '     '.'     'a'  …   'h'     'l'   …
+t row: [0.4788, 1.3537, -0.1593, … 1.0687, 1.3065, …]</code></pre>
+          <p>Result: <code>scores</code> is 46 rows × 14 scores. One row of guesses for every pair.</p>
+          <p>The correct answer after <code>t</code> here is <code>h</code> (1.0687), but <code>'.'</code> (1.3537) and <code>l</code> (1.3065) score higher. The scores are random, so the guesses are bad.</p>
+          <details class="unclear">
+            <summary>Still unclear? How can one line copy 46 rows?</summary>
+            <p>Tensors allow a list of positions inside the brackets. You get back all those rows, in that order. The same row can appear more than once.</p>
+<pre><code>table = torch.tensor([[10, 11],    <span class="c"># row 0</span>
+                      [20, 21],    <span class="c"># row 1</span>
+                      [30, 31]])   <span class="c"># row 2</span>
+
+print(table[torch.tensor([2, 0, 2])])
+<span class="c"># tensor([[30, 31],
+#         [10, 11],
+#         [30, 31]])</span></code></pre>
+            <p>A normal Python list can't do this. It's a tensor feature.</p>
+          </details>
+        </div>
+
+        <!-- b -->
+        <div class="stage">
+          <h3>b) Measure</h3>
+<pre><code>loss = F.cross_entropy(scores, next_chars)
+<span class="c"># 3.0865</span></code></pre>
+          <p><code>cross_entropy</code> does four things:</p>
+          <ol>
+            <li><b>Softmax</b> each row: turn the 14 scores into 14 probabilities that add up to 1.</li>
+            <li><b>Pick</b> the probability of the correct answer. <code>next_chars</code> says which one is correct.</li>
+            <li>Take <b>−log</b> of it. That's the loss for that one pair.</li>
+            <li><b>Average</b> all 46 losses into one number.</li>
+          </ol>
+          <div class="tablewrap">
+            <table class="plain">
+              <tr><th>Pair</th><th>Correct next</th><th class="num">Probability given</th><th class="num">−log</th></tr>
+              <tr><td>t → ?</td><td>h</td><td class="num">0.1330</td><td class="num">2.0178</td></tr>
+              <tr><td>h → ?</td><td>e</td><td class="num">0.0281</td><td class="num">3.5732</td></tr>
+              <tr><td>e → ?</td><td>space</td><td class="num">0.0240</td><td class="num">3.7277</td></tr>
+              <tr><td colspan="4" style="color:var(--pencil)">… 43 more pairs …</td></tr>
+              <tr><td colspan="3"><b>Average of all 46</b></td><td class="num"><b>3.0865</b></td></tr>
+            </table>
+          </div>
+          <p>Why −log? It turns “how much probability did the right answer get” into “how wrong”, where 0 is perfect:</p>
+          <div class="tablewrap">
+            <table class="plain">
+              <tr><th class="num">Probability of the right answer</th><th class="num">−log</th><th>Meaning</th></tr>
+              <tr><td class="num">1.0</td><td class="num">0.00</td><td>perfect</td></tr>
+              <tr><td class="num">0.5</td><td class="num">0.69</td><td>okay</td></tr>
+              <tr><td class="num">0.1</td><td class="num">2.30</td><td>bad</td></tr>
+              <tr><td class="num">0.01</td><td class="num">4.61</td><td>very bad</td></tr>
+            </table>
+          </div>
+          <details class="unclear">
+            <summary>Still unclear? What does softmax do?</summary>
+            <p>Scores can be negative or bigger than 1, so they can't be probabilities yet. Softmax fixes that in two steps:</p>
+            <ol>
+              <li>Make every number positive with e<sup>x</sup>. Bigger score, bigger result.</li>
+              <li>Divide each by the total, so they add up to 1.</li>
+            </ol>
+<pre><code>scores        = [2.0, 1.0, -1.0]
+e^score       = [7.389, 2.718, 0.368]     <span class="c"># total 10.475</span>
+probabilities = [0.705, 0.259, 0.035]     <span class="c"># each ÷ 10.475</span></code></pre>
+            <p>The highest score still gets the highest probability. It's like Lesson 3's “divide by the row total”, with e<sup>x</sup> first so negative scores work.</p>
+          </details>
+        </div>
+
+        <!-- c -->
+        <div class="stage">
+          <h3>c) Find directions</h3>
+<pre><code>weights.grad = None
+loss.backward()</code></pre>
+          <p>We have one number, the loss, and we want it smaller. The only thing we can change is the 196 scores. For each score there are only two choices: <b>up or down</b>. Which one makes the loss smaller?</p>
+          <p>Try it yourself. Change one score by a tiny amount and watch the loss:</p>
+          <div class="nudge">
+            <button class="small" data-nudge="7" data-amount="0.01">Raise the h score in the t row</button>
+            <button class="small" data-nudge="8" data-amount="0.01">Raise the l score in the t row</button>
+          </div>
+          <div class="nudge-out" id="nudgeout">Press a button.</div>
+          <p>That's what <code>loss.backward()</code> works out, for all 196 scores at once. It stores the answers in <code>weights.grad</code>, a second 14 × 14 table:</p>
+          <div class="two-tables">
+            <div><b>weights</b>the scores (the model)<br><span class="mono">t row, h: 1.0687</span></div>
+            <div><b>weights.grad</b>the directions<br><span class="mono">t row, h: −0.0638</span></div>
+          </div>
+          <p>Each gradient answers: <b>“if this score goes up, what happens to the loss?”</b></p>
+          <ul>
+            <li><b>Negative</b>: the loss goes down. Good, so we'll <span class="up">raise</span> the score.</li>
+            <li><b>Positive</b>: the loss goes up. Bad, so we'll <span class="down">lower</span> the score.</li>
+          </ul>
+          <p><code>weights.grad = None</code> clears the old directions first, because PyTorch adds new gradients on top of old ones.</p>
+          <details class="unclear">
+            <summary>Still unclear? How does backward() reach weights.grad?</summary>
+            <p>Because <code>weights</code> has <code>requires_grad=True</code>, every result made from it remembers where it came from:</p>
+<pre><code>loss  ←  cross_entropy  ←  scores  ←  pick rows  ←  weights</code></pre>
+            <p><code>loss.backward()</code> starts at <code>loss</code>, follows that chain backwards, works out the gradients along the way, and writes them into <code>weights.grad</code>. Without <code>requires_grad=True</code> there's no chain, and <code>backward()</code> gives an error.</p>
+          </details>
+          <details class="unclear">
+            <summary>Still unclear? Show me the exact math for one score.</summary>
+            <p>Take the <code>h</code> score in the <code>t</code> row. The probability of <code>h</code> after <code>t</code> is 0.1330.</p>
+            <ol>
+              <li>Only pairs that start with <code>t</code> use this row. There are 8: t→h, t→space, t→space, t→h, t→., t→h, t→space, t→h.</li>
+              <li>For each pair, one rule: if <code>h</code> is the correct answer, <b>0.1330 − 1</b>. If not, <b>0.1330</b>.</li>
+              <li>Add them: 4 × (−0.8670) + 4 × 0.1330 = <b>−2.9360</b></li>
+              <li>Divide by 46, because the loss was an average: <b>−0.0638</b></li>
+            </ol>
+            <p>Why “− 1”? A perfect probability for the right answer is 1. So <code>probability − 1</code> is how far it is from perfect. Far from perfect means a big push.</p>
+          </details>
+        </div>
+
+        <!-- d -->
+        <div class="stage">
+          <h3>d) Move</h3>
+<pre><code>weights.data = weights.data - learning_rate * weights.grad</code></pre>
+          <p>New score = old score − learning rate × gradient. Our learning rate is 10, the size of each step.</p>
+<pre><code>h:  1.0687 − 10 × (−0.0638) = 1.0687 + 0.638 = 1.7070   <span class="c"># went up</span>
+l:  1.3065 − 10 × (+0.0293) = 1.3065 − 0.293 = 1.0135   <span class="c"># went down</span></code></pre>
+          <p>The minus sign does the flipping: minus a negative gradient moves the score up, minus a positive one moves it down.</p>
+          <p><code>h</code> really comes after <code>t</code>, and its score went up. <code>l</code> never does, and its score went down. That's learning.</p>
+        </div>
+
+        <!-- repeat -->
+        <div class="stage">
+          <h3>Then repeat</h3>
+          <p>The next step starts from the new scores, so its guesses are a little better. After one step the loss went from 3.0865 to 2.5462. After 300:</p>
+<pre><code>Step 0   loss: 3.086
+Step 50  loss: 0.746
+Step 100 loss: 0.722
+Step 150 loss: 0.714
+Step 200 loss: 0.711
+Step 250 loss: 0.709</code></pre>
+          <div class="tablewrap">
+            <table class="plain">
+              <tr><th>After t</th><th class="num">Random start</th><th class="num">After 300 steps</th><th class="num">Counting (Lesson 3)</th></tr>
+              <tr><td>h</td><td class="num">0.133</td><td class="num"><b>0.499</b></td><td class="num">0.500</td></tr>
+              <tr><td>space</td><td class="num">0.074</td><td class="num"><b>0.374</b></td><td class="num">0.375</td></tr>
+              <tr><td>.</td><td class="num">0.177</td><td class="num"><b>0.124</b></td><td class="num">0.125</td></tr>
+              <tr><td>l</td><td class="num">0.169</td><td class="num"><b>0.001</b></td><td class="num">0</td></tr>
+            </table>
+          </div>
+          <p>The model started knowing nothing and learned the same answer counting gave. Now we can trust this method on problems where counting is impossible.</p>
+        </div>
+
+        <div class="controls">
+          <button class="primary" data-walk-next>Next</button>
+          <button data-walk-all>Show all</button>
+          <span class="count"></span>
+        </div>
+      </div>
+    </section>
+    <p class="note">The loss stops near 0.71, not 0. After t the answer really varies (h, space or .), so no 1-character model can always be right.</p>
+
+    <!-- ===================== 5. Code ===================== -->
+    <section class="part" id="code">
+      <span class="num">Part 5 of 6</span>
+      <h2>The code</h2>
+      <p>The complete <code>lesson4.py</code>. The outputs are shown as comments, so you can check yours match. Run it with <code>python lesson4.py</code>.</p>
+<pre><code>import torch
+import torch.nn.functional as F
+
+<span class="c"># ---------- Step 1: Our training text ----------</span>
+text = "the cat sat on the mat. the dog sat on the log."
+
+
+<span class="c"># ---------- Step 2: Give each character a number ----------</span>
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+print("Vocabulary size:", vocab_size)
+<span class="c"># Vocabulary size: 14</span>
+
+
+<span class="c"># ---------- Step 3: Make training pairs ----------</span>
+current_chars = []
+next_chars = []
+for i in range(len(text) - 1):
+    current_chars.append(char_to_number[text[i]])
+    next_chars.append(char_to_number[text[i + 1]])
+
+current_chars = torch.tensor(current_chars)
+next_chars = torch.tensor(next_chars)
+
+print("Number of training pairs:", len(current_chars))
+<span class="c"># Number of training pairs: 46</span>
+
+
+<span class="c"># ---------- Step 4: Create the model ----------</span>
+torch.manual_seed(42)
+weights = torch.randn((vocab_size, vocab_size), requires_grad=True)
+
+print("Row for 't':", weights[13])
+<span class="c"># Row for 't': tensor([ 0.4788,  1.3537, -0.1593, -0.4249,  0.9442, -0.1849,  0.1852,
+#                       1.0687,  1.3065,  0.4598,  0.2618, -0.7599, -2.0461, -1.5295])</span>
+
+
+<span class="c"># ---------- Step 5: Train the model ----------</span>
+learning_rate = 10
+number_of_steps = 300
+
+for step in range(number_of_steps):
+
+    <span class="c"># a) Predict</span>
+    scores = weights[current_chars]
+
+    <span class="c"># b) Measure how wrong</span>
+    loss = F.cross_entropy(scores, next_chars)
+
+    <span class="c"># c) Find directions</span>
+    weights.grad = None
+    loss.backward()
+
+    <span class="c"># d) Move</span>
+    weights.data = weights.data - learning_rate * weights.grad
+
+    if step % 50 == 0:
+        print("Step", step, "loss:", round(loss.item(), 3))
+
+<span class="c"># Step 0 loss: 3.086
+# Step 50 loss: 0.746
+# Step 100 loss: 0.722
+# Step 150 loss: 0.714
+# Step 200 loss: 0.711
+# Step 250 loss: 0.709</span>
+
+
+<span class="c"># ---------- Step 6: See what the model learned ----------</span>
+probabilities = F.softmax(weights, dim=1)
+
+t_number = char_to_number['t']
+t_row = probabilities[t_number]
+
+print("After 't':")
+for number in range(vocab_size):
+    probability = t_row[number].item()
+    if probability > 0.01:
+        print("  ", repr(number_to_char[number]), round(probability, 3))
+
+<span class="c"># After 't':
+#    ' ' 0.374
+#    '.' 0.124
+#    'h' 0.499</span></code></pre>
+      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson4.py">Get lesson4.py on GitHub</a></p>
+    </section>
+
+    <!-- ===================== 6. Check yourself ===================== -->
+    <section class="part" id="check">
+      <span class="num">Part 6 of 6</span>
+      <h2>Check yourself</h2>
+      <p>Guess first, then reveal the answer.</p>
+
+      <div class="predict">
+        <div class="q">A score's gradient is +0.0090. Will step d) move that score up or down?</div>
+        <button class="small" data-reveal>Show answer</button>
+        <div class="answer"><b>Down.</b> Positive means “raising this score makes the loss bigger”, so we lower it. In the formula: score − 10 × 0.0090 = score − 0.09.</div>
+      </div>
+
+      <div class="predict">
+        <div class="q">What happens if we remove <code>requires_grad=True</code>?</div>
+        <button class="small" data-reveal>Show answer</button>
+        <div class="answer"><code>loss.backward()</code> gives an error. PyTorch didn't record how the loss was made from the weights, so it can't work out any gradients, and the model can't learn.</div>
+      </div>
+
+      <div class="predict">
+        <div class="q">What goes wrong if we delete the line <code>weights.grad = None</code>?</div>
+        <button class="small" data-reveal>Show answer</button>
+        <div class="answer">PyTorch <b>adds</b> new gradients on top of old ones. Without clearing, every step would use the sum of all past gradients, and the moves would get bigger and wronger.</div>
+      </div>
+
+      <div class="predict">
+        <div class="q">After training, the model gives h 0.499 after t. Counting gave 0.500. So why learn at all, if counting gives the same answer?</div>
+        <button class="small" data-reveal>Show answer</button>
+        <div class="answer">Counting only works while the table is small. Learning works for any model of any size, as long as it produces a loss. We tested it here, where we know the right answer, so we can trust it later where counting is impossible.</div>
+      </div>
+    </section>
+
+    <div class="open-question">
+      <div>The question this lesson leaves open</div>
+      <div class="big">Our model still looks at only 1 previous character. How can it look at several, without a giant table for every combination?</div>
+      <div>Lesson 5 answers it. (Coming soon.)</div>
+    </div>
+
+    <nav class="pager" aria-label="Lesson navigation">
+      <span class="btn" aria-disabled="true" style="opacity:.45">← Lesson 3 (coming soon)</span>
+      <button class="done-toggle" data-done="4">Mark lesson as done</button>
+      <span class="btn" aria-disabled="true" style="opacity:.45">Lesson 5 (coming soon)</span>
+    </nav>
+  </main>
+</div>
+
+<script src="../assets/tinylm.js"></script>
+<script src="../assets/common.js"></script>
+<script>
+(function trainer() {
+  const model = new OneCharModel();
+  let lastGrad = null;
+  let lastBefore = null;
+
+  const pick = document.getElementById("rowpick");
+  CHARS.forEach((c, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = showChar(c);
+    if (c === "t") o.selected = true;
+    pick.appendChild(o);
+  });
+
+  function fmt(x) { return (x >= 0 ? " " : "−") + Math.abs(x).toFixed(4); }
+
+  function drawChart() {
+    const svg = document.getElementById("chart");
+    const h = model.lossHistory.slice();
+    if (model.step > 0) h.push(model.loss());
+    const W = 600, H = 150, pad = 28, maxY = 3.2;
+    let out = `<line class="axis" x1="${pad}" y1="${H - 18}" x2="${W}" y2="${H - 18}"/>
+               <line class="axis" x1="${pad}" y1="6" x2="${pad}" y2="${H - 18}"/>
+               <text x="2" y="14">3.0</text><text x="2" y="${H - 20}">0</text>
+               <text x="${W - 70}" y="${H - 4}">steps →</text>`;
+    if (h.length > 1) {
+      const pts = h.map((v, i) => {
+        const x = pad + (i / Math.max(300, h.length - 1)) * (W - pad - 4);
+        const y = (H - 18) - (v / maxY) * (H - 30);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      out += `<polyline class="line" points="${pts}"/>`;
+    }
+    svg.innerHTML = out;
+  }
+
+  function render() {
+    const row = Number(pick.value);
+    const probs = model.probabilities(row);
+    const deserved = model.timesCorrect[row].map(c => model.timesUsed[row] ? c / model.timesUsed[row] : 0);
+    const body = document.getElementById("rowbody");
+    body.innerHTML = "";
+    CHARS.forEach((c, i) => {
+      const g = lastGrad ? lastGrad[row][i] : null;
+      const dir = g === null ? "" : g < 0 ? '<span class="up">↑<span class="word"> up</span></span>' : '<span class="down">↓<span class="word"> down</span></span>';
+      const tr = document.createElement("tr");
+      if (deserved[i] > 0) tr.className = "real";
+      tr.innerHTML = `<td>${showChar(c)}</td>
+        <td>${fmt(model.weights[row][i])}</td>
+        <td class="prob"><div class="track"><div class="fill" style="width:${(probs[i] * 100).toFixed(1)}%"></div>
+          ${deserved[i] > 0 ? `<div class="target" style="left:${(deserved[i] * 100).toFixed(1)}%"></div>` : ""}</div>
+          <span style="font-size:.78rem;color:var(--pencil)">${probs[i].toFixed(3)}</span></td>
+        <td>${g === null ? "–" : fmt(g) + " " + dir}</td>`;
+      body.appendChild(tr);
+    });
+    document.getElementById("stepcount").textContent = model.step;
+    document.getElementById("lossnow").textContent = model.loss().toFixed(4);
+
+    const move = document.getElementById("lastmove");
+    if (lastGrad && lastBefore) {
+      let best = 0;
+      for (let i = 1; i < VOCAB; i++) if (Math.abs(lastGrad[row][i]) > Math.abs(lastGrad[row][best])) best = i;
+      const c = showChar(CHARS[best]);
+      const g = lastGrad[row][best];
+      move.innerHTML = `Biggest change in the <b>${showChar(CHARS[row])}</b> row in the last step: the <b>${c}</b> score went
+        ${lastBefore[row][best].toFixed(4)} → ${model.weights[row][best].toFixed(4)},
+        because its gradient was ${fmt(g).trim()} (${g < 0 ? "negative, so up" : "positive, so down"}).`;
+    } else {
+      move.textContent = "Press “Run 1 step” to see what one step changes.";
+    }
+    drawChart();
+  }
+
+  function run(n) {
+    for (let i = 0; i < n && model.step < 300; i++) {
+      const r = model.trainStep();
+      lastGrad = r.grad.map(x => x.slice());
+      lastBefore = r.before;
+    }
+    render();
+  }
+
+  document.getElementById("step1").onclick = () => run(1);
+  document.getElementById("step50").onclick = () => run(50);
+  document.getElementById("stepAll").onclick = () => run(300);
+  document.getElementById("reset").onclick = () => { model.reset(); lastGrad = null; lastBefore = null; render(); };
+  pick.onchange = render;
+  render();
+})();
+
+(function nudgeExperiment() {
+  const fresh = new OneCharModel();
+  const base = fresh.loss();
+  const out = document.getElementById("nudgeout");
+  document.querySelectorAll("[data-nudge]").forEach(b => {
+    b.onclick = () => {
+      const col = Number(b.dataset.nudge);
+      const amount = Number(b.dataset.amount);
+      const w = fresh.weights.map(r => r.slice());
+      const old = w[13][col];
+      w[13][col] = old + amount;
+      const after = fresh.loss(w);
+      const change = after - base;
+      const c = CHARS[col];
+      out.textContent =
+        `${c} score in the t row: ${old.toFixed(4)} → ${(old + amount).toFixed(4)}\n` +
+        `loss: ${base.toFixed(6)} → ${after.toFixed(6)}   (${change < 0 ? "went DOWN" : "went UP"} by ${Math.abs(change).toFixed(6)})\n` +
+        `change ÷ 0.01 = ${(change / amount).toFixed(4)}   ← this is the gradient\n` +
+        (change < 0 ? `Raising ${c} helps, so ${c} should go up.` : `Raising ${c} hurts, so ${c} should go down.`);
+    };
+  });
+})();
+</script>
+</body>
+</html>

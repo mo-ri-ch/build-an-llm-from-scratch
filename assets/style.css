@@ -1,0 +1,230 @@
+/* Build a Tiny LLM — shared look
+   Idea: a math notebook worked by hand. Graph paper, ink, a highlighter
+   for "look here", and handwritten margin notes from the teacher. */
+
+:root {
+  --paper: #F7F9FC;
+  --grid: #E3E9F2;
+  --ink: #1A2440;
+  --pencil: #5B657A;
+  --pen: #2952CC;
+  --highlight: #FFE066;
+  --good: #1E8556;
+  --redpen: #C62F3B;
+  --card: #FFFFFF;
+  --code-bg: #1F2740;
+  --code-ink: #E6EAF5;
+  --code-comment: #9FB0D6;
+
+  --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --hand: "Kalam", "Comic Sans MS", cursive;
+
+  --measure: 68ch;
+  --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #161D2E;
+    --grid: #212B42;
+    --ink: #E8ECF6;
+    --pencil: #A3ADC4;
+    --pen: #8FA9FF;
+    --highlight: #E9C53A;
+    --good: #4CC08A;
+    --redpen: #FF7A84;
+    --card: #1D2539;
+    --code-bg: #0F1524;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #161D2E; --grid: #212B42; --ink: #E8ECF6; --pencil: #A3ADC4;
+  --pen: #8FA9FF; --highlight: #E9C53A; --good: #4CC08A; --redpen: #FF7A84;
+  --card: #1D2539; --code-bg: #0F1524;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: var(--body);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+a { color: var(--pen); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; border-radius: 3px; }
+
+h1, h2, h3 { line-height: 1.2; font-weight: 700; margin: 0 0 0.5em; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.2rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; margin-top: 0; }
+h3 { font-size: 1.2rem; }
+p { margin: 0 0 1em; }
+
+/* The highlighter: used only for "this is the thing to look at" */
+mark, .hl {
+  background: linear-gradient(transparent 12%, var(--highlight) 12%, var(--highlight) 88%, transparent 88%);
+  color: inherit;
+  padding: 0 0.15em;
+}
+:root[data-theme="dark"] mark, :root[data-theme="dark"] .hl { color: #161D2E; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) mark { color: #161D2E; } }
+
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code {
+  background: var(--card);
+  border: 1px solid var(--grid);
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+}
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0 0 1.2em;
+}
+pre code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+pre .c { color: var(--code-comment); }
+
+/* ---------- Layout ---------- */
+
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 16px; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0; flex-wrap: wrap;
+}
+.topbar .home { font-weight: 700; color: var(--ink); text-decoration: none; }
+.topbar .where { color: var(--pencil); font-size: 0.95rem; }
+.topbar .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Lesson pages: a reading column with a margin for teacher's notes */
+.lesson { display: grid; grid-template-columns: minmax(0, var(--measure)) 1fr; column-gap: 40px; }
+.lesson > * { grid-column: 1; }
+.lesson .note { grid-column: 2; }
+
+section.part {
+  padding: 28px 0 12px;
+  border-top: 2px solid var(--ink);
+  margin-top: 28px;
+  scroll-margin-top: 16px;
+}
+section.part > .num {
+  font-family: var(--mono); color: var(--pencil); font-size: 0.85rem; display: block; margin-bottom: 6px;
+}
+
+/* Handwritten margin note from the teacher */
+.note {
+  font-family: var(--hand);
+  color: var(--redpen);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  transform: rotate(-1.5deg);
+  align-self: start;
+  max-width: 26ch;
+  margin: 6px 0 16px;
+}
+.note::before { content: "✎ "; }
+
+@media (max-width: 900px) {
+  .lesson { display: block; }
+  .note { max-width: none; transform: none; border-left: 3px solid var(--redpen); padding-left: 10px; }
+}
+
+/* ---------- Buttons ---------- */
+
+button, .btn {
+  font: inherit; font-size: 0.95rem; font-weight: 700;
+  border: 2px solid var(--ink);
+  background: var(--card); color: var(--ink);
+  padding: 8px 14px; border-radius: var(--radius);
+  cursor: pointer; text-decoration: none; display: inline-block;
+}
+button:hover, .btn:hover { background: var(--highlight); color: #1A2440; }
+button.primary { background: var(--ink); color: var(--paper); }
+button.primary:hover { background: var(--pen); border-color: var(--pen); color: #fff; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.small { padding: 4px 10px; font-size: 0.85rem; }
+
+/* ---------- Teaching blocks ---------- */
+
+/* Predict-first question */
+.predict {
+  background: var(--card);
+  border: 2px dashed var(--pen);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 0 0 1.4em;
+}
+.predict .q { font-weight: 700; margin-bottom: 10px; }
+.predict .answer { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--grid); }
+.predict.open .answer { display: block; }
+
+/* "Still unclear?" — a second explanation */
+details.unclear {
+  background: var(--card);
+  border-left: 4px solid var(--pen);
+  padding: 10px 16px;
+  margin: 0 0 1.4em;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+details.unclear summary { cursor: pointer; font-weight: 700; color: var(--pen); }
+details.unclear[open] summary { margin-bottom: 10px; }
+
+/* Walkthrough revealed one step at a time */
+.walk .stage { display: none; }
+.walk .stage.shown { display: block; }
+.walk .controls { display: flex; gap: 10px; align-items: center; margin: 8px 0 24px; }
+.walk .controls .count { color: var(--pencil); font-size: 0.9rem; }
+
+/* The open question at the end of every lesson */
+.open-question {
+  background: var(--ink); color: var(--paper);
+  padding: 22px 24px; border-radius: var(--radius);
+  margin: 12px 0 24px;
+}
+.open-question .big { font-size: 1.35rem; font-weight: 700; line-height: 1.35; margin: 6px 0 10px; }
+.open-question a { color: var(--highlight); }
+
+/* Simple tables */
+table.plain { border-collapse: collapse; width: 100%; margin: 0 0 1.2em; font-size: 0.95rem; }
+table.plain th, table.plain td { border-bottom: 1px solid var(--grid); padding: 6px 8px; text-align: left; }
+table.plain th { color: var(--pencil); font-weight: 700; }
+table.plain td.num, table.plain th.num { text-align: right; font-family: var(--mono); font-size: 0.85rem; }
+.tablewrap { overflow-x: auto; }
+
+.up { color: var(--good); font-weight: 700; }
+.down { color: var(--redpen); font-weight: 700; }
+
+/* Lesson nav at the bottom */
+.pager { display: flex; justify-content: space-between; gap: 12px; padding: 24px 0 48px; flex-wrap: wrap; }
+.done-toggle[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: #fff; }
+
+footer.site { color: var(--pencil); font-size: 0.9rem; padding: 32px 0 48px; border-top: 1px solid var(--grid); margin-top: 32px; }
+
+/* ---------- Teach mode: big text for a projector ---------- */
+body.teach { font-size: 23px; }
+body.teach .note { font-size: 1.2rem; }
+body.teach pre { font-size: 0.8rem; }
+.teach-hint { display: none; }
+body.teach .teach-hint {
+  display: block; position: fixed; bottom: 12px; right: 12px; z-index: 5;
+  background: var(--ink); color: var(--paper); font-size: 0.75rem; padding: 6px 10px; border-radius: var(--radius);
+}
