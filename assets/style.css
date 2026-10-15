@@ -74,6 +74,10 @@
 }
 
 * { box-sizing: border-box; }
+
+/* Bigger text, easy to read on a shared screen. Phones keep the normal size. */
+html { font-size: 19px; }
+@media (max-width: 600px) { html { font-size: 16px; } }
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
@@ -86,7 +90,7 @@ body {
   background-image: linear-gradient(transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px));
   background-size: 100% var(--line);
   font-family: var(--body);
-  font-size: 18px;
+  font-size: 1.15rem;
   line-height: 1.6;
 }
 /* the red margin line, on wider screens */
@@ -327,6 +331,6 @@ button.tile:hover { background: var(--hl-yellow); color: var(--on-hl); }
 @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
 
 /* ---------- Teach mode (press T): big text for a projector ---------- */
-body.teach { font-size: 23px; }
+body.teach { font-size: 1.4rem; }
 body.teach .say { font-size: 1.45rem; }
 body.teach pre { font-size: 0.8rem; }
