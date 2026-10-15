@@ -58,11 +58,14 @@ lessons/            one page per lesson
 assets/style.css    shared look
 assets/common.js    lesson list, progress, teach mode
 assets/tinylm.js    the lesson models rewritten in JavaScript, so they run in the browser
+assets/codewalk.js  "Step through" the code line by line, and tap-to-explain Python words
+assets/traces/      the recorded step-by-step runs used by Step through
 assets/finalmodel.js + neo-final.json   the course's final model (a small transformer
                     trained on Grimm's Fairy Tales), run in the browser on the home page
 code/               the Python code for each lesson
 notebooks/          the same code as Google Colab notebooks
 tools/              make_notebooks.py rebuilds notebooks and code from the lesson pages;
+                    make_traces.py records each lesson's code line by line (explanations in explanations.py);
                     train_final.py / export_final.py train and export the final model
 ```
 

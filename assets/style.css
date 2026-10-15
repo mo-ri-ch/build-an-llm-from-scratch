@@ -520,3 +520,74 @@ pre.term-out .prompt { color: #7f88a8; }
   border: 1px dashed var(--pencil); border-radius: 6px; font-family: var(--mono); font-size: 0.85rem;
 }
 .activity > .neo { margin-top: 18px; }
+
+/* ================= Reading the code: Python words and Step through ================= */
+pre .pyword {
+  display: inline; padding: 0; margin: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+  font: inherit; font-weight: inherit; color: inherit; cursor: help;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 60%, transparent); text-underline-offset: 4px; text-decoration-thickness: 1.5px;
+}
+pre .pyword:hover, pre .pyword:focus-visible { background: rgba(255, 228, 92, 0.18); color: inherit; }
+.pyword-card {
+  position: fixed; z-index: 10001; padding: 14px 16px 12px; background: var(--card); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 10px; box-shadow: 4px 4px 0 var(--ink); font-size: 0.95rem;
+}
+.pyword-card[hidden] { display: none; }
+.pyword-card p { margin: 6px 0 10px; line-height: 1.45; }
+.pyword-card pre { margin: 0 0 8px; padding: 8px 10px; font-size: 0.8rem; }
+.pyword-card .pyword-out { background: #0f111a; color: #d7f5dd; }
+.pyword-title code { font-size: 1.05rem; font-weight: 700; background: var(--hl-yellow); color: var(--on-hl); padding: 1px 6px; border-radius: 4px; }
+.pyword-label { font-size: 0.75rem; color: var(--pencil); margin-bottom: 3px; }
+.pyword-x { position: absolute; top: 6px; right: 6px; border: 0; background: none; padding: 2px 6px; font-size: 0.9rem; box-shadow: none; }
+
+.step-start {
+  background: none; border: 0; padding: 4px 0; margin-left: 22px; box-shadow: none;
+  font-family: var(--head); font-weight: 400; font-size: 1.3rem; color: var(--pen);
+}
+.step-start:hover { background: none; color: var(--ink); }
+body.walking-code main[data-paged] { max-width: min(1180px, 100%); }
+.walk-wrap.walking { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; margin-bottom: 1.4em; }
+.walk-wrap.walking > pre { margin: 0; }
+pre .ln.now { background: rgba(255, 228, 92, 0.22); box-shadow: -1.2rem 0 0 rgba(255, 228, 92, 0.22), 1.2rem 0 0 rgba(255, 228, 92, 0.22); border-left: 0; }
+pre .ln { display: inline-block; min-width: 100%; }
+.walk-panel {
+  position: sticky; top: 12px; max-height: calc(100vh - 90px); overflow-y: auto;
+  background: var(--card); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 4px 4px 0 var(--ink);
+  padding: 12px 14px 14px; font-size: 0.92rem;
+}
+.walk-panel[hidden] { display: none; }
+.walk-top { display: flex; justify-content: space-between; align-items: center; color: var(--pencil); font-size: 0.85rem; }
+.walk-close { border: 0; background: none; box-shadow: none; padding: 2px 6px; }
+.walk-controls { display: flex; gap: 6px; margin: 8px 0 10px; }
+.walk-controls button { padding: 6px 10px; font-size: 0.85rem; }
+.walk-controls .walk-next { flex: 1; }
+.walk-say { margin: 0 0 12px; padding: 8px 10px; background: var(--note-yellow, #FFF6C7); border-left: 4px solid var(--hl-yellow); border-radius: 4px; line-height: 1.45; font-size: 0.95rem; max-width: none; }
+.walk-vars-title { font-size: 0.75rem; color: var(--pencil); margin: 8px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.walk-vars table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
+.walk-vars th { text-align: left; font-weight: 600; padding: 3px 8px 3px 0; vertical-align: top; white-space: nowrap; width: 1%; }
+.walk-vars td { padding: 3px 4px; word-break: break-word; }
+.walk-vars tr { border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent); }
+.walk-vars tr.hot { background: var(--hl-yellow); color: var(--on-hl); }
+.walk-empty { color: var(--pencil); margin: 6px 0; font-size: 0.85rem; }
+.walk-out-label { font-size: 0.75rem; color: var(--pencil); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.walk-out { margin: 0; min-height: 2.4em; max-height: 9em; overflow-y: auto; background: #0f111a; color: #d7f5dd; font-size: 0.78rem; padding: 8px 10px; }
+.walk-out .fresh { background: rgba(255, 228, 92, 0.25); }
+@media (max-width: 900px) {
+  .walk-wrap.walking { grid-template-columns: 1fr; }
+  .walk-panel { position: sticky; top: auto; bottom: 8px; max-height: 50vh; }
+}
+.pyword-card pre, .walk-out { white-space: pre-wrap; word-break: break-word; }
+pre .ln.now { background: rgba(255, 228, 92, 0.3); box-shadow: -1.2rem 0 0 rgba(255, 228, 92, 0.3), 1.2rem 0 0 rgba(255, 228, 92, 0.3); }
+.walk-ret { margin: 4px 0 8px; padding: 6px 8px; background: var(--hl-green); color: var(--on-hl); border-radius: 4px; font-size: 0.85rem; }
+.walk-ret code { font-family: var(--mono); font-size: 0.8rem; background: none; }
+.walk-vars td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+.walk-vars tr { cursor: pointer; }
+.walk-vars tr.hot td, .walk-vars tr.full td { white-space: normal; max-width: none; }
+/* Controls and explanation stay put; only the variables scroll */
+.walk-panel { display: flex; flex-direction: column; overflow: hidden; }
+.walk-panel[hidden] { display: none; }
+.walk-vars { flex: 1 1 auto; min-height: 90px; overflow-y: auto; }
+/* While stepping, the code and the panel share one screen; the code scrolls inside its box */
+.walk-wrap.walking > pre { max-height: calc(100vh - 120px); overflow: auto; }
+.walk-panel { max-height: calc(100vh - 120px); }
+@media (max-width: 900px) { .walk-wrap.walking > pre { max-height: 50vh; } .walk-panel { max-height: 45vh; } }
