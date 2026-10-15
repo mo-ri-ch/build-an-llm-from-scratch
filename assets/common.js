@@ -245,8 +245,29 @@ function setupCopy() {
     b.type = "button";
     b.textContent = "Copy";
     b.setAttribute("aria-label", "Copy this code");
+    // Code with hidden answers gets a "Show output" toggle
+    if (pre.classList.contains("has-answers")) {
+      const t = document.createElement("button");
+      t.className = "copy show-out";
+      t.type = "button";
+      t.textContent = "Show output";
+      t.setAttribute("aria-pressed", "false");
+      t.addEventListener("click", () => {
+        const on = pre.classList.toggle("answers-on");
+        t.textContent = on ? "Hide output" : "Show output";
+        t.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      pre.appendChild(t);
+    }
     b.addEventListener("click", async () => {
-      const text = pre.querySelector("code") ? pre.querySelector("code").innerText : pre.innerText;
+      // Copy just the code, without the answers
+      const code = (pre.querySelector("code") || pre).cloneNode(true);
+      code.querySelectorAll(".ans").forEach(a => {
+        const nl = a.nextSibling;
+        if (nl && nl.nodeType === 3 && nl.textContent.startsWith("\n")) nl.textContent = nl.textContent.slice(1);
+        a.remove();
+      });
+      const text = code.textContent;
       try {
         await navigator.clipboard.writeText(text);
       } catch (e) {

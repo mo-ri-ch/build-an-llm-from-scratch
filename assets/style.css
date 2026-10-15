@@ -442,3 +442,9 @@ pre .copy {
 pre .copy:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .run-links { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 .muted-note { color: var(--pencil); font-size: 0.9rem; }
+
+/* Hidden answers: "# ?" until Show output is pressed */
+pre .ans .show { display: none; }
+pre.answers-on .ans .hide { display: none; }
+pre.answers-on .ans .show { display: inline; color: #FFE45C; }
+pre .show-out { right: 74px; }

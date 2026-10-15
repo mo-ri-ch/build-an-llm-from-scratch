@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151057">
+<link rel="stylesheet" href="../assets/style.css?v=202610151104">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -88,16 +88,15 @@
     <!-- 4 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
-      <p class="say">Now run it yourself.</p>
-      <p>Save as <code>lesson2.py</code>, run <code>python lesson2.py</code>, and compare with the comments.</p>
-<pre><code>import torch
+      <p class="say">Guess what each <code>print</code> shows. Then run it and check.</p>
+<pre class="has-answers"><code>import torch
 
 text = "hello world"
 
 <span class="c"># Find every different character, sorted</span>
 unique_chars = sorted(set(text))
 print(unique_chars)
-<span class="c"># [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']</span>
+<span class="ans"><span class="c hide"># ?</span><span class="c show"># [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']</span></span>
 
 <span class="c"># Give each one a number, and the reverse</span>
 char_to_number = {}
@@ -106,14 +105,14 @@ for number, char in enumerate(unique_chars):
     char_to_number[char] = number
     number_to_char[number] = char
 
-<span class="c"># Text -> numbers</span>
+<span class="c"># Text -&gt; numbers</span>
 def encode(some_text):
     numbers = []
     for char in some_text:
         numbers.append(char_to_number[char])
     return numbers
 
-<span class="c"># Numbers -> text</span>
+<span class="c"># Numbers -&gt; text</span>
 def decode(numbers):
     result = ""
     for number in numbers:
@@ -121,14 +120,14 @@ def decode(numbers):
     return result
 
 print(encode("hello"))
-<span class="c"># [3, 2, 4, 4, 5]</span>
+<span class="ans"><span class="c hide"># ?</span><span class="c show"># [3, 2, 4, 4, 5]</span></span>
 
 print(decode([3, 2, 4, 4, 5]))
-<span class="c"># hello</span>
+<span class="ans"><span class="c hide"># ?</span><span class="c show"># hello</span></span>
 
 <span class="c"># The whole text as a tensor (from Lesson 1)</span>
 print(torch.tensor(encode(text)))
-<span class="c"># tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</span></code></pre>
+<span class="ans"><span class="c hide"># ?</span><span class="c show"># tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</span></span></code></pre>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson2.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
@@ -177,7 +176,7 @@ print(torch.tensor(encode(text)))
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151057"></script>
+<script src="../assets/common.js?v=202610151104"></script>
 <script>
 function tile(text, idx, extra) {
   const t = document.createElement("div");

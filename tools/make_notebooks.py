@@ -8,6 +8,10 @@ import glob
 import html
 import json
 import re
+import sys
+
+sys.path.insert(0, "tools")
+from outputs import mark_outputs
 
 for path in sorted(glob.glob("lessons/lesson*.html")):
     n = int(re.search(r"lesson(\d+)", path).group(1))
@@ -16,19 +20,26 @@ for path in sorted(glob.glob("lessons/lesson*.html")):
         continue
     title = re.search(r"<h1>(.*?)</h1>", page).group(1)
     start = page.index('data-title="The code"')
-    block = re.search(r"<pre><code>(.*?)</code></pre>", page[start:], re.S).group(1)
+    block = re.search(r"<pre[^>]*><code>(.*?)</code></pre>", page[start:], re.S).group(1)
+    block = re.sub(r'<span class="c hide">.*?</span>', "", block)   # drop the "# ?" placeholders
     code = html.unescape(re.sub(r"<[^>]+>", "", block)).strip("\n")
 
     cells = [{
         "cell_type": "markdown", "metadata": {},
         "source": [
             f"# Lesson {n}: {title}\n", "\n",
-            "Press ▶ on each cell, top to bottom. The comments show what you should see.\n", "\n",
+            "For each cell: **guess what it will print first**, then press ▶ and check.\n", "\n",
             f"From [Build a Tiny LLM](https://mo-ri-ch.github.io/build-an-llm-from-scratch/lessons/lesson{n}.html).",
         ],
     }]
     for part in re.split(r"\n\n(?=#)", code):
         lines = part.strip("\n").split("\n")
+        marks = mark_outputs(lines)
+        lines = [line for line, is_answer in zip(lines, marks) if not is_answer]   # no answers in Colab
+        while lines and not lines[-1].strip():
+            lines.pop()
+        if any("print(" in line for line in lines):
+            cells.append({"cell_type": "markdown", "metadata": {}, "source": ["🤔 *Guess what this prints, then press ▶.*"]})
         cells.append({
             "cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [],
             "source": [line + "\n" for line in lines[:-1]] + [lines[-1]],
