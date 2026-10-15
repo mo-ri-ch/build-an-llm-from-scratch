@@ -43,7 +43,7 @@ print(numbers + 5)</code></pre>
     <section class="part" data-title="Meet the tensor">
       <h2>Meet the tensor</h2>
       <div class="activity">
-        <div class="do">Change the numbers. Then press a button.</div>
+        <div class="do">Type a number and press Enter. Then press a button.</div>
         <div class="tiles" id="inTiles"></div>
         <div class="row">
           <button data-op="add">+ 5</button>
@@ -53,7 +53,7 @@ print(numbers + 5)</code></pre>
           <button class="small" id="addTile">Add a number</button>
         </div>
         <div class="tiles" id="outTiles" aria-live="polite"></div>
-        <div class="out" id="opOut"><span class="c"># press a button</span></div>
+        <div class="out" id="opOut"></div>
       </div>
       <p class="say">This box is a <mark>tensor</mark>.</p>
       <p class="say">One line does math on every number inside it.</p>
@@ -202,9 +202,17 @@ addReset("runList", () => {
     inBox.innerHTML = "";
     values.forEach((v, i) => {
       const input = document.createElement("input");
-      input.className = "tile"; input.type = "number"; input.value = v;
-      input.setAttribute("aria-label", `Number at position ${i}`);
-      input.oninput = () => { values[i] = Math.round(Number(input.value) || 0); compute(false); };
+      input.className = "tile"; input.type = "text"; input.inputMode = "numeric"; input.value = v;
+      input.setAttribute("aria-label", `Number at position ${i}. Type a number and press Enter.`);
+      // Type a number, then press Enter (or click away) to use it
+      const commit = () => {
+        const n = parseInt(input.value, 10);
+        if (Number.isFinite(n)) values[i] = n;
+        input.value = values[i];
+        compute(false);
+      };
+      input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); commit(); input.select(); } });
+      input.addEventListener("change", commit);
       inBox.appendChild(input);
     });
   }
@@ -215,7 +223,12 @@ addReset("runList", () => {
     sq:  { code: "numbers * numbers", f: v => v * v },
   };
   function compute(highlight) {
-    if (!lastOp) return;
+    if (!lastOp) {
+      // No button pressed yet: just show the tensor itself
+      outBox.innerHTML = "";
+      out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(numbers)\n<span class="c"># ${tensorText(values)}</span>`;
+      return;
+    }
     const op = ops[lastOp];
     const result = values.map(op.f);
     outBox.innerHTML = "";
@@ -234,8 +247,7 @@ addReset("runList", () => {
     values = [10, 20, 30];
     lastOp = null;
     drawInputs();
-    outBox.innerHTML = "";
-    out.innerHTML = '<span class="c"># press a button</span>';
+    compute(false);
   });
   document.getElementById("addTile").onclick = () => {
     if (values.length >= 6) return;
@@ -244,6 +256,7 @@ addReset("runList", () => {
     compute(true);
   };
   drawInputs();
+  compute(false);
 })();
 
 // ---------- Part 3: pick one number ----------
