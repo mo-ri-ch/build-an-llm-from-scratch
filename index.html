@@ -48,6 +48,8 @@
   .need .small { font-size: 0.85rem; color: var(--pencil); margin: 12px 0 0; }
   .need .close { position: absolute; top: 6px; right: 8px; border: 0; background: none; font-size: 1.4rem; padding: 0 6px; }
   .need .close:hover { background: none; color: var(--redpen); }
+  .need.blue { background: var(--note-blue); transform: rotate(0.6deg); }
+  .need .yes { display: inline-block; min-width: 1.4em; }
   @media (max-width: 520px) { .need .cols { grid-template-columns: 1fr; } }
 
   .path-intro { max-width: 40ch; color: var(--pencil); font-size: 1.15rem; margin-bottom: 32px; }
@@ -104,7 +106,6 @@
   <header class="topbar">
     <a class="home" href="./">Build a Tiny LLM</a>
     <div class="tools">
-      <a class="btn" href="start.html">Start here</a>
       <a class="btn" href="https://github.com/mo-ri-ch/build-an-llm-from-scratch">Code</a>
     </div>
   </header>
@@ -116,11 +117,12 @@
         <p class="say">Every chatbot does one thing: <b>guess the next piece of text.</b> You'll build that guesser yourself, one question at a time.</p>
         <div class="actions">
           <a class="btn primary" href="lessons/lesson1.html">Start Lesson 1</a>
-          <button id="needBtn" aria-expanded="false" aria-controls="needNote">What you need</button>
+          <button data-note="needNote" aria-expanded="false" aria-controls="needNote">What you need</button>
+          <button data-note="howNote" aria-expanded="false" aria-controls="howNote">How to use</button>
         </div>
 
         <div class="need" id="needNote" hidden>
-          <button class="close" id="needClose" aria-label="Close">×</button>
+          <button class="close" aria-label="Close">×</button>
           <div class="cols">
             <div>
               <h3>You need</h3>
@@ -140,6 +142,28 @@
             </div>
           </div>
           <p class="small">Rusty on Python? Try the <a href="https://docs.python.org/3/tutorial/">Python tutorial</a>.</p>
+        </div>
+        <div class="need blue" id="howNote" hidden>
+          <button class="close" aria-label="Close">×</button>
+          <div class="cols">
+            <div>
+              <h3>Learning</h3>
+              <ul>
+                <li><span class="yes">1</span> Go in order.</li>
+                <li><span class="yes">2</span> Do each activity before reading on.</li>
+                <li><span class="yes">3</span> Guess before you click.</li>
+                <li><span class="yes">4</span> Run the Python code yourself.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Teaching</h3>
+              <ul>
+                <li><span class="yes">T</span> Big text for a projector</li>
+                <li><span class="yes">← →</span> Move between parts</li>
+                <li><span class="yes">?</span> Ask quizzes out loud first</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -204,14 +228,22 @@
   });
 })();
 
-// ---------------- "What you need" note ----------------
-(function needNote() {
-  const btn = document.getElementById("needBtn");
-  const note = document.getElementById("needNote");
-  function set(open) { note.hidden = !open; btn.setAttribute("aria-expanded", open); if (open) note.querySelector(".close").focus(); }
-  btn.onclick = () => set(note.hidden);
-  document.getElementById("needClose").onclick = () => { set(false); btn.focus(); };
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !note.hidden) { set(false); btn.focus(); } });
+// ---------------- Small notes: "What you need" and "How to use" ----------------
+(function notes() {
+  const buttons = document.querySelectorAll("[data-note]");
+  function open(id) {
+    buttons.forEach(b => {
+      const on = b.dataset.note === id;
+      document.getElementById(b.dataset.note).hidden = !on;
+      b.setAttribute("aria-expanded", on);
+    });
+  }
+  buttons.forEach(b => b.onclick = () => {
+    const note = document.getElementById(b.dataset.note);
+    open(note.hidden ? b.dataset.note : null);
+  });
+  document.querySelectorAll(".need .close").forEach(c => c.onclick = () => open(null));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") open(null); });
 })();
 
 // ---------------- Live demo ----------------
