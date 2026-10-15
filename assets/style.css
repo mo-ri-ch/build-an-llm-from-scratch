@@ -448,3 +448,19 @@ pre .ans .show { display: none; }
 pre.answers-on .ans .hide { display: none; }
 pre.answers-on .ans .show { display: inline; color: #FFE45C; }
 pre .show-out { right: 74px; }
+
+/* ▶ Run and the terminal that shows the output */
+.run-area { margin: -0.6em 0 1.4em; }
+.run-code {
+  background: none; border: 0; padding: 4px 0; box-shadow: none;
+  font-family: var(--head); font-weight: 400; font-size: 1.3rem; color: var(--pen);
+}
+.run-code:hover { background: none; color: var(--ink); }
+.terminal { margin-top: 8px; border-radius: var(--radius); overflow: hidden; border: 1px solid #0d0f17; }
+.term-bar {
+  background: #2d3146; color: #a9b0c8; font-family: var(--mono); font-size: 0.75rem;
+  padding: 5px 12px; letter-spacing: 0.02em;
+}
+.term-bar::before { content: "● ● ●  "; color: #5b6180; }
+pre.term-out { margin: 0; border-radius: 0; background: #0f111a; color: #d7f5dd; font-size: 0.85rem; }
+pre.term-out .prompt { color: #7f88a8; }

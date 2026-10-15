@@ -25,9 +25,6 @@ t_row = probabilities[char_to_number['t']]
 for number in range(vocab_size):
     if t_row[number] > 0:
         print(repr(number_to_char[number]), round(t_row[number].item(), 3))
-# ' ' 0.375
-# '.' 0.125
-# 'h' 0.5
 
 # Write new text: roll the weighted dice 40 times
 torch.manual_seed(42)
@@ -38,4 +35,3 @@ for step in range(40):
     current = picked.item()
     output = output + number_to_char[current]
 print(output)
-# t on dog mat mat. sathe log the mat cat t

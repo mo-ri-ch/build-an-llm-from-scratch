@@ -239,7 +239,7 @@ function addReset(inside, fn) {
 
 // ---------- Copy button on every code block ----------
 function setupCopy() {
-  document.querySelectorAll("main pre").forEach(pre => {
+  document.querySelectorAll("main pre:not(.term-out)").forEach(pre => {
     const b = document.createElement("button");
     b.className = "copy";
     b.type = "button";
@@ -281,6 +281,21 @@ function setupCopy() {
       setTimeout(() => { b.textContent = "Copy"; }, 1500);
     });
     pre.appendChild(b);
+  });
+}
+
+// ---------- ▶ Run: show the code's real output in a small terminal ----------
+function setupRun() {
+  document.querySelectorAll(".run-area").forEach(area => {
+    const button = area.querySelector(".run-code");
+    const term = area.querySelector(".terminal");
+    button.addEventListener("click", () => {
+      const open = term.hidden;
+      term.hidden = !open;
+      button.textContent = open ? "Hide output" : "▶ Run";
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) term.scrollIntoView({ block: "nearest" });
+    });
   });
 }
 
@@ -367,6 +382,7 @@ function setupDoneToggle() {
 document.addEventListener("DOMContentLoaded", () => {
   setupPagedLesson();
   setupCopy();
+  setupRun();
   setupTeachMode();
   setupKeys();
   setupQuizzes();

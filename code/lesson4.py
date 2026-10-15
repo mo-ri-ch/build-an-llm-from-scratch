@@ -32,16 +32,9 @@ for step in range(300):
     weights.data = weights.data - learning_rate * weights.grad   # d) move
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
-# Step 0 loss: 3.086
-# Step 50 loss: 0.746
-# ...
-# Step 250 loss: 0.709
 
 # What did it learn after 't'?
 probabilities = F.softmax(weights, dim=1)
 t_row = probabilities[char_to_number['t']]
 for char in [' ', '.', 'h']:
     print(repr(char), round(t_row[char_to_number[char]].item(), 3))
-# ' ' 0.374
-# '.' 0.124
-# 'h' 0.499      (counting gave 0.375, 0.125, 0.5)

@@ -5,7 +5,6 @@ text = "hello world"
 # Find every different character, sorted
 unique_chars = sorted(set(text))
 print(unique_chars)
-# [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']
 
 # Give each one a number, and the reverse
 char_to_number = {}
@@ -29,11 +28,8 @@ def decode(numbers):
     return result
 
 print(encode("hello"))
-# [3, 2, 4, 4, 5]
 
 print(decode([3, 2, 4, 4, 5]))
-# hello
 
 # The whole text as a tensor (from Lesson 1)
 print(torch.tensor(encode(text)))
-# tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])
