@@ -22,7 +22,7 @@ e^x, log or matrices. Each one is explained when it first appears.
 
 | # | Lesson | Page | Code |
 |---|---|---|---|
-| 1 | Tensors | coming soon | [lesson1.py](code/lesson1.py) |
+| 1 | Tensors | [lesson1.html](lessons/lesson1.html) | [lesson1.py](code/lesson1.py) |
 | 2 | Text into numbers | coming soon | [lesson2.py](code/lesson2.py) |
 | 3 | Counting what comes next | coming soon | [lesson3.py](code/lesson3.py) |
 | 4 | Let the model learn | [lesson4.html](lessons/lesson4.html) | [lesson4.py](code/lesson4.py) |

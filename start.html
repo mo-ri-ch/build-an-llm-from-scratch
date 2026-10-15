@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start Here</title>
+<meta name="description" content="What you need before starting Build a Tiny LLM, and how to use the lessons.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
+  .two ul { padding-left: 1.2em; margin: 0; }
+  .two li { margin-bottom: 8px; }
+  .check { list-style: none; padding: 0 !important; }
+  .check li::before { content: "✓ "; color: var(--good); font-weight: 700; }
+  .cross { list-style: none; padding: 0 !important; }
+  .cross li::before { content: "✗ "; color: var(--redpen); font-weight: 700; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="./">← Build a Tiny LLM</a>
+  </header>
+
+  <main style="max-width:860px">
+    <h1 style="margin-top:20px">Start here</h1>
+    <p class="say">This course is for beginners. Here's all you need.</p>
+
+    <section class="part">
+      <h2>What you need</h2>
+      <div class="two">
+        <div>
+          <h3>You need</h3>
+          <ul class="check">
+            <li><b>Basic Python.</b> Lists, dictionaries, <code>for</code> loops, <code>if</code>, functions. Rusty? Try the <a href="https://docs.python.org/3/tutorial/">Python tutorial</a>.</li>
+            <li><b>Python and PyTorch</b> installed: <code>pip install torch</code></li>
+            <li><b>School math.</b> Add, multiply, fractions, “a 50% chance”.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>You don't need</h3>
+          <ul class="cross">
+            <li>Calculus</li>
+            <li>Any AI experience</li>
+            <li>A GPU. Any laptop works.</li>
+            <li>To know log, e<sup>x</sup> or matrices. We explain them when they appear.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="quiz" data-right="You're ready. Head to Lesson 1.">
+        <div class="q">Quick check: what does this print?</div>
+<pre><code>for i in range(3):
+    print(i)</code></pre>
+        <div class="options">
+          <button data-right>0 1 2</button>
+          <button data-why="Close! range(3) starts at 0, not 1.">1 2 3</button>
+          <button data-why="range(3) gives 3 numbers, starting at 0.">0 1 2 3</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+    </section>
+
+    <section class="part">
+      <h2>How to use the lessons</h2>
+      <div class="two">
+        <div>
+          <h3>Learning?</h3>
+          <ul>
+            <li>Go in order.</li>
+            <li>Do each activity before reading on.</li>
+            <li>Guess before you click.</li>
+            <li>Run the Python code yourself.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Teaching?</h3>
+          <ul>
+            <li><b>Teach mode</b> makes text big for a projector.</li>
+            <li><b>← →</b> keys move between parts.</li>
+            <li>Ask the quiz questions out loud first.</li>
+            <li>Let the class choose what to try in the activities.</li>
+          </ul>
+        </div>
+      </div>
+      <p><a class="btn" style="background:var(--ink);color:var(--paper)" href="lessons/lesson1.html">Start Lesson 1</a></p>
+    </section>
+  </main>
+</div>
+<script src="assets/common.js"></script>
+</body>
+</html>

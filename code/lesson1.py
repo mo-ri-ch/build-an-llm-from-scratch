@@ -1,22 +1,27 @@
 import torch
 
-# ---------- Step 1: Create a tensor ----------
+# Make a tensor
 numbers = torch.tensor([10, 20, 30])
-print("Our tensor:", numbers)
-# Our tensor: tensor([10, 20, 30])
+print(numbers)
+# tensor([10, 20, 30])
 
+# Take one number out
+print(numbers[0])
+# tensor(10)
 
-# ---------- Step 2: Get one item ----------
-first_number = numbers[0]
-print("First number:", first_number)
-# First number: tensor(10)
+# Math on every number at once
+print(numbers + 5)
+# tensor([15, 25, 35])
 
+print(numbers * 2)
+# tensor([20, 40, 60])
 
-# ---------- Step 3: Math on every item at once ----------
-numbers_plus_5 = numbers + 5
-print("Add 5:", numbers_plus_5)
-# Add 5: tensor([15, 25, 35])
+# A table
+table = torch.tensor([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])
+print(table[1])
+# tensor([4, 5, 6])
 
-numbers_times_2 = numbers * 2
-print("Multiply by 2:", numbers_times_2)
-# Multiply by 2: tensor([20, 40, 60])
+print(table[1, 2])
+# tensor(6)

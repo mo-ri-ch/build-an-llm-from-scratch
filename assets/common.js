@@ -1,46 +1,36 @@
 // common.js — shared parts of every page:
-// the lesson list, progress tracking, teach mode, and reveal buttons.
+// the lesson list, progress, one-part-per-screen lessons, quizzes, teach mode.
 
 const LESSONS = [
-  { n: 1, title: "Tensors", file: "lesson1.html", ready: false,
-    summary: "PyTorch's container for numbers, and doing math on many numbers at once.",
-    answers: "How does a computer hold and work with lots of numbers?",
-    leaves: "A computer only understands numbers. How do we turn text into numbers?" },
+  { n: 1, title: "Tensors", file: "lesson1.html", ready: true,
+    summary: "A box that holds numbers and does math on all of them at once.",
+    leaves: "Computers only understand numbers. How do we turn text into numbers?" },
   { n: 2, title: "Text into numbers", file: "lesson2.html", ready: false,
-    summary: "Give every character a number, then encode text and decode it back.",
-    answers: "How do we turn text into numbers?",
-    leaves: "Now the text is numbers. How can we guess which character comes next?" },
+    summary: "Give every character a number. Turn text into numbers and back.",
+    leaves: "Now text is numbers. How can we guess the next character?" },
   { n: 3, title: "Counting what comes next", file: "lesson3.html", ready: false,
-    summary: "Tally which character follows which, turn the counts into probabilities, and generate text.",
-    answers: "How can we guess which character comes next?",
-    leaves: "Counting only works for a tiny table. Can a model learn the probabilities by itself instead?" },
+    summary: "Count which character follows which, then generate text.",
+    leaves: "Counting only works for tiny tables. Can a model learn by itself?" },
   { n: 4, title: "Let the model learn", file: "lesson4.html", ready: true,
-    summary: "Start with random numbers and improve them: predict, measure the loss, find directions, move.",
-    answers: "Can a model learn the probabilities by itself?",
-    leaves: "How can a model look at several previous characters without a giant table?" },
-  { n: 5, title: "Looking at more than one character", file: "lesson5.html", ready: false,
-    summary: "Three small tables vote on the next character, so the model sees 3 characters back.",
-    answers: "How can a model look at several previous characters?",
-    leaves: "Adding votes can't understand combinations of characters. Can a character carry meaning?" },
+    summary: "Start random. Predict, measure, find directions, move. Repeat.",
+    leaves: "How can a model look at several characters without a giant table?" },
+  { n: 5, title: "Looking further back", file: "lesson5.html", ready: false,
+    summary: "Three small tables vote on the next character.",
+    leaves: "Votes can't understand combinations. Can a character carry meaning?" },
   { n: 6, title: "Embeddings", file: "lesson6.html", ready: false,
-    summary: "Give each character a list of numbers that describes it, and let the model learn them.",
-    answers: "Can a character carry meaning the model learns?",
-    leaves: "Each character still ignores the others. How can characters look at each other?" },
+    summary: "Give each character a list of numbers that describes it.",
+    leaves: "Characters still ignore each other. How can they look at each other?" },
   { n: 7, title: "Attention", file: "lesson7.html", ready: false,
-    summary: "Let every character decide which earlier characters matter to it.",
-    answers: "How can characters look at each other?",
-    leaves: "Attention is one piece. How do the pieces fit together into a real model?" },
+    summary: "Each character decides which earlier characters matter.",
+    leaves: "How do the pieces fit together into a real model?" },
   { n: 8, title: "The Transformer block", file: "lesson8.html", ready: false,
-    summary: "Stack attention and small networks into the building block of GPT.",
-    answers: "How do the pieces fit together?",
-    leaves: "Our model is ready, but our text is tiny. What happens with real text?" },
+    summary: "The building block of GPT.",
+    leaves: "Our model is ready, but our text is tiny. What about real text?" },
   { n: 9, title: "Training on real text", file: "lesson9.html", ready: false,
-    summary: "Train our mini-GPT on a real book and generate new text from it.",
-    answers: "What happens with real text?",
-    leaves: "How do size, data and training time change what the model can do?" },
+    summary: "Train on a real book and generate new text.",
+    leaves: "How do size, data and training time change the model?" },
   { n: 10, title: "Experiments and your project", file: "lesson10.html", ready: false,
-    summary: "Change the model, measure the results, and turn it into a portfolio project.",
-    answers: "How do size, data and training time change the model?",
+    summary: "Change the model, measure it, and make it your portfolio project.",
     leaves: null },
 ];
 
@@ -52,43 +42,106 @@ function loadProgress() {
   catch (e) { return {}; }
 }
 function saveProgress(p) {
-  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) { /* storage blocked: ignore */ }
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) { /* storage blocked */ }
 }
 function isDone(n) { return !!loadProgress()[n]; }
 function setDone(n, value) { const p = loadProgress(); p[n] = value; saveProgress(p); }
 
-// ---------- Teach mode: big text, arrow keys move between parts ----------
+// ---------- One part per screen ----------
+// A lesson page with <main data-paged> shows one <section class="part"> at a time.
+let pagedGo = null;
+
+function setupPagedLesson() {
+  const main = document.querySelector("main[data-paged]");
+  if (!main) return;
+  const parts = Array.from(main.querySelectorAll("section.part"));
+  const bar = document.querySelector(".progress");
+  const back = document.querySelector("[data-page-back]");
+  const next = document.querySelector("[data-page-next]");
+  const label = document.querySelector("[data-page-label]");
+
+  // Progress bar: one segment per part, each one clickable
+  if (bar) {
+    parts.forEach((p, i) => {
+      const seg = document.createElement("button");
+      seg.className = "seg";
+      seg.setAttribute("aria-label", `Go to part ${i + 1}: ${p.dataset.title || ""}`);
+      seg.addEventListener("click", () => go(i));
+      bar.appendChild(seg);
+    });
+  }
+
+  let current = 0;
+  function go(i) {
+    current = Math.max(0, Math.min(parts.length - 1, i));
+    parts.forEach((p, k) => { p.hidden = k !== current; });
+    if (bar) Array.from(bar.children).forEach((s, k) => {
+      s.classList.toggle("now", k === current);
+      s.classList.toggle("seen", k < current);
+    });
+    if (back) back.disabled = current === 0;
+    if (next) {
+      next.hidden = current === parts.length - 1;
+    }
+    if (label) label.textContent = `${current + 1} / ${parts.length}  ${parts[current].dataset.title || ""}`;
+    try { history.replaceState(null, "", `#${current + 1}`); } catch (e) { /* file:// */ }
+    window.scrollTo(0, 0);
+  }
+  pagedGo = (delta) => go(current + delta);
+
+  if (back) back.addEventListener("click", () => go(current - 1));
+  if (next) next.addEventListener("click", () => go(current + 1));
+
+  const start = parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? start - 1 : 0);
+}
+
+// ---------- Teach mode: big text for a projector ----------
 function setupTeachMode() {
   const button = document.querySelector("[data-teach-toggle]");
   if (!button) return;
-  const hint = document.createElement("div");
-  hint.className = "teach-hint";
-  hint.textContent = "Teach mode: ← and → move between parts. Press T to exit.";
-  document.body.appendChild(hint);
-
   function toggle() {
     const on = document.body.classList.toggle("teach");
     button.setAttribute("aria-pressed", on ? "true" : "false");
     button.textContent = on ? "Exit teach mode" : "Teach mode";
   }
   button.addEventListener("click", toggle);
-
   document.addEventListener("keydown", (e) => {
-    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if (typing) return;
+    if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
     if (e.key === "t" || e.key === "T") toggle();
-    if (!document.body.classList.contains("teach")) return;
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    const parts = Array.from(document.querySelectorAll("section.part"));
-    const y = window.scrollY + 40;
-    let index = parts.findIndex(p => p.offsetTop > y);
-    if (index === -1) index = parts.length;
-    const target = e.key === "ArrowRight" ? parts[index] : parts[Math.max(0, index - 2)];
-    if (target) { e.preventDefault(); target.scrollIntoView(); }
   });
 }
 
-// ---------- Predict-first questions: click to reveal the answer ----------
+// ---------- Arrow keys move between parts ----------
+function setupKeys() {
+  document.addEventListener("keydown", (e) => {
+    if (!pagedGo) return;
+    if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    if (e.key === "ArrowRight") pagedGo(1);
+    if (e.key === "ArrowLeft") pagedGo(-1);
+  });
+}
+
+// ---------- Clickable quizzes ----------
+// <div class="quiz"><button data-right>…</button><button>…</button><div class="feedback"></div></div>
+function setupQuizzes() {
+  document.querySelectorAll(".quiz").forEach(quiz => {
+    const feedback = quiz.querySelector(".feedback");
+    quiz.querySelectorAll(".options button").forEach(b => {
+      b.addEventListener("click", () => {
+        quiz.querySelectorAll(".options button").forEach(x => x.classList.remove("right", "wrong"));
+        const right = b.hasAttribute("data-right");
+        b.classList.add(right ? "right" : "wrong");
+        if (feedback) {
+          feedback.innerHTML = right ? (quiz.dataset.right || "Right!") : (b.dataset.why || "Not quite. Try another.");
+          feedback.className = "feedback " + (right ? "good" : "bad");
+        }
+      });
+    });
+  });
+}
+
+// ---------- Predict-first boxes (click to reveal) ----------
 function setupPredictions() {
   document.querySelectorAll(".predict").forEach(box => {
     const button = box.querySelector("[data-reveal]");
@@ -123,7 +176,7 @@ function setupWalkthroughs() {
   });
 }
 
-// ---------- "Mark as done" button on lesson pages ----------
+// ---------- "Mark as done" button ----------
 function setupDoneToggle() {
   const button = document.querySelector("[data-done]");
   if (!button) return;
@@ -138,7 +191,10 @@ function setupDoneToggle() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupPagedLesson();
   setupTeachMode();
+  setupKeys();
+  setupQuizzes();
   setupPredictions();
   setupWalkthroughs();
   setupDoneToggle();

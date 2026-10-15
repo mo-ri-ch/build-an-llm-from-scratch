@@ -45,6 +45,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -228,3 +229,80 @@ body.teach .teach-hint {
   display: block; position: fixed; bottom: 12px; right: 12px; z-index: 5;
   background: var(--ink); color: var(--paper); font-size: 0.75rem; padding: 6px 10px; border-radius: var(--radius);
 }
+
+/* ================= One part per screen ================= */
+
+.paged-head { padding: 8px 0 4px; }
+.paged-head h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 8px 0 12px; }
+.progress { display: flex; gap: 4px; margin: 0 0 6px; }
+.progress .seg {
+  flex: 1; height: 8px; padding: 0; border: 0; border-radius: 4px;
+  background: var(--grid); cursor: pointer;
+}
+.progress .seg.seen { background: var(--pencil); }
+.progress .seg.now { background: var(--ink); }
+.progress .seg:hover { background: var(--highlight); }
+
+main[data-paged] { max-width: var(--measure); padding-bottom: 110px; }
+main[data-paged] section.part { border-top: 0; margin-top: 0; padding-top: 20px; }
+main[data-paged] section.part > h2 { font-size: 1.7rem; }
+main[data-paged] .note { transform: none; max-width: none; border-left: 3px solid var(--redpen); padding-left: 10px; }
+
+.pagebar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 4;
+  background: var(--paper); border-top: 2px solid var(--ink);
+}
+.pagebar .inner {
+  max-width: var(--measure); margin: 0 auto; padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.pagebar [data-page-label] { color: var(--pencil); font-size: 0.85rem; text-align: center; flex: 1; }
+.pagebar button { min-width: 6.5em; }
+
+/* Big, short sentences */
+.say { font-size: 1.25rem; line-height: 1.45; max-width: 36ch; }
+body.teach .say { font-size: 1.45rem; }
+
+/* An activity: the thing to do */
+.activity {
+  background: var(--card); border: 2px solid var(--ink); border-radius: var(--radius);
+  box-shadow: 5px 5px 0 var(--ink); padding: 16px; margin: 0 6px 1.4em 0;
+}
+.activity .do { font-weight: 700; margin-bottom: 10px; }
+.activity .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* Number tiles (items in a tensor) */
+.tiles { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.tile {
+  min-width: 3.4em; padding: 10px 8px; text-align: center;
+  font-family: var(--mono); font-size: 1.15rem; font-weight: 600;
+  background: var(--paper); border: 2px solid var(--ink); border-radius: var(--radius);
+}
+.tile .idx { display: block; font-size: 0.7rem; color: var(--pencil); font-weight: 400; }
+.tile.flash { background: var(--highlight); color: #1A2440; }
+input.tile { width: 4.2em; color: var(--ink); }
+button.tile { cursor: pointer; }
+button.tile:hover { background: var(--highlight); }
+
+.out {
+  font-family: var(--mono); font-size: 0.95rem; background: var(--code-bg); color: var(--code-ink);
+  padding: 10px 12px; border-radius: var(--radius); min-height: 2.6em; white-space: pre-wrap; margin-top: 10px;
+}
+.out .c { color: var(--code-comment); }
+.out .err { color: #FF9AA2; }
+
+/* Clickable quiz */
+.quiz { background: var(--card); border: 2px dashed var(--pen); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 1.2em; }
+.quiz .q { font-weight: 700; margin-bottom: 10px; }
+.quiz .options { display: flex; flex-wrap: wrap; gap: 8px; }
+.quiz .options button { font-family: var(--mono); font-weight: 600; }
+.quiz .options button.right { background: var(--good); border-color: var(--good); color: #fff; }
+.quiz .options button.wrong { background: var(--redpen); border-color: var(--redpen); color: #fff; }
+.quiz .feedback { margin-top: 10px; min-height: 1.4em; }
+.quiz .feedback.good { color: var(--good); }
+.quiz .feedback.bad { color: var(--redpen); }
+
+/* Grid of numbers (a 2D tensor) */
+.grid2d { display: inline-grid; gap: 6px; margin: 10px 0; }
+.grid2d .lab { font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); display: grid; place-items: center; }
+.grid2d button.lab { border: 0; background: none; padding: 0; text-decoration: underline; color: var(--pen); cursor: pointer; font-weight: 400; }

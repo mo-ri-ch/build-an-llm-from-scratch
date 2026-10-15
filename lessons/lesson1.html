@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tensors</title>
+<meta name="description" content="Lesson 1 of Build a Tiny LLM: tensors, a box that holds numbers and does math on all of them at once.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 1 of 10</span>
+    <div class="tools"><button data-teach-toggle aria-pressed="false">Teach mode</button></div>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Tensors</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="say">A model is just numbers. Millions of them.</p>
+      <p class="say">We need to do math on all of them at once.</p>
+
+      <div class="activity">
+        <div class="do">Try it: add 5 to every number in a normal Python list.</div>
+<pre><code>numbers = [10, 20, 30]
+print(numbers + 5)</code></pre>
+        <button id="runList">Run it</button>
+        <div class="out" id="listOut"><span class="c"># press Run</span></div>
+      </div>
+      <p class="say" id="listAfter" hidden>A normal list can't do that. We need a better box.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="Meet the tensor">
+      <h2>Meet the tensor</h2>
+      <div class="activity">
+        <div class="do">Change the numbers. Then press a button.</div>
+        <div class="tiles" id="inTiles"></div>
+        <div class="row">
+          <button data-op="add">+ 5</button>
+          <button data-op="mul">× 2</button>
+          <button data-op="sub">− 1</button>
+          <button data-op="sq">squared</button>
+          <button class="small" id="addTile">Add a number</button>
+        </div>
+        <div class="tiles" id="outTiles" aria-live="polite"></div>
+        <div class="out" id="opOut"><span class="c"># press a button</span></div>
+      </div>
+      <p class="say">This box is a <mark>tensor</mark>.</p>
+      <p class="say">One line does math on every number inside it.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Pick one number">
+      <h2>Pick one number</h2>
+      <div class="activity">
+        <div class="do">Click a number to take it out.</div>
+        <div class="tiles" id="pickTiles"></div>
+        <div class="out" id="pickOut"><span class="c"># click a number</span></div>
+      </div>
+      <p class="say">The small number above each item is its <b>position</b>. Counting starts at <b>0</b>.</p>
+
+      <div class="quiz" data-right="Right. Position 0 is the first item.">
+        <div class="q"><code>numbers = torch.tensor([10, 20, 30])</code><br>What is <code>numbers[0]</code>?</div>
+        <div class="options">
+          <button data-right>10</button>
+          <button data-why="That's numbers[1]. Counting starts at 0.">20</button>
+          <button data-why="No error. Position 0 exists: it's the first item.">Error</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="Tables of numbers">
+      <h2>Tables of numbers</h2>
+      <p class="say">A tensor can also be a table. Rows and columns.</p>
+      <div class="activity">
+        <div class="do">Click a number, or click a row name.</div>
+        <div class="grid2d" id="grid" style="grid-template-columns: 4.5em repeat(3, 3.4em)"></div>
+        <div class="out" id="gridOut"><span class="c"># click something</span></div>
+      </div>
+      <p class="note">Remember this. In Lesson 4, the whole model is a 14 × 14 table like this one.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="The code">
+      <h2>The code</h2>
+      <p class="say">Now run it yourself.</p>
+      <p>Save this as <code>lesson1.py</code>, then run <code>python lesson1.py</code>. Your output should match the comments.</p>
+<pre><code>import torch
+
+<span class="c"># Make a tensor</span>
+numbers = torch.tensor([10, 20, 30])
+print(numbers)
+<span class="c"># tensor([10, 20, 30])</span>
+
+<span class="c"># Take one number out</span>
+print(numbers[0])
+<span class="c"># tensor(10)</span>
+
+<span class="c"># Math on every number at once</span>
+print(numbers + 5)
+<span class="c"># tensor([15, 25, 35])</span>
+
+print(numbers * 2)
+<span class="c"># tensor([20, 40, 60])</span>
+
+<span class="c"># A table</span>
+table = torch.tensor([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])
+print(table[1])
+<span class="c"># tensor([4, 5, 6])</span>
+
+print(table[1, 2])
+<span class="c"># tensor(6)</span></code></pre>
+      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson1.py">lesson1.py on GitHub</a></p>
+    </section>
+
+    <!-- 6 -->
+    <section class="part" data-title="Check yourself">
+      <h2>Check yourself</h2>
+
+      <div class="quiz" data-right="Yes. First × 3 gives [6, 12, 18]. Then + 1 gives [7, 13, 19].">
+        <div class="q"><code>x = torch.tensor([2, 4, 6])</code><br>What does <code>print(x * 3 + 1)</code> show?</div>
+        <div class="options">
+          <button data-why="That's only × 3. Don't forget the + 1.">tensor([ 6, 12, 18])</button>
+          <button data-right>tensor([ 7, 13, 19])</button>
+          <button data-why="That's + 1 only. The × 3 happens too.">tensor([3, 5, 7])</button>
+          <button data-why="Tensors can do this. Lists can't.">Error</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="quiz" data-right="Yes. One position inside the brackets gives you a whole row.">
+        <div class="q"><code>table = torch.tensor([[1, 2], [3, 4]])</code><br>What is <code>table[1]</code>?</div>
+        <div class="options">
+          <button data-why="That's table[0]. Counting starts at 0.">tensor([1, 2])</button>
+          <button data-right>tensor([3, 4])</button>
+          <button data-why="One position gives a whole row, not a single number.">tensor(2)</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="open-question">
+        <div>This leaves a question</div>
+        <div class="big">Computers only understand numbers. How do we turn text into numbers?</div>
+        <div>Lesson 2 answers it. (Coming soon.)</div>
+      </div>
+      <p><button class="done-toggle" data-done="1">Mark lesson as done</button></p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>Back</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next</button>
+  </div>
+</nav>
+
+<script src="../assets/common.js"></script>
+<script>
+// Format a list of numbers the way PyTorch prints a tensor
+function tensorText(values) {
+  const width = Math.max(...values.map(v => String(v).length));
+  return "tensor([" + values.map(v => String(v).padStart(width)).join(", ") + "])";
+}
+function flash(el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+
+// ---------- Part 1: a list can't do it ----------
+document.getElementById("runList").onclick = () => {
+  document.getElementById("listOut").innerHTML =
+    '<span class="err">TypeError: can only concatenate list (not "int") to list</span>';
+  document.getElementById("listAfter").hidden = false;
+};
+
+// ---------- Part 2: math on a tensor ----------
+(function tensorMath() {
+  const inBox = document.getElementById("inTiles");
+  const outBox = document.getElementById("outTiles");
+  const out = document.getElementById("opOut");
+  let values = [10, 20, 30];
+
+  function drawInputs() {
+    inBox.innerHTML = "";
+    values.forEach((v, i) => {
+      const input = document.createElement("input");
+      input.className = "tile"; input.type = "number"; input.value = v;
+      input.setAttribute("aria-label", `Number at position ${i}`);
+      input.oninput = () => { values[i] = Math.round(Number(input.value) || 0); };
+      inBox.appendChild(input);
+    });
+  }
+  const ops = {
+    add: { code: "numbers + 5", f: v => v + 5 },
+    mul: { code: "numbers * 2", f: v => v * 2 },
+    sub: { code: "numbers - 1", f: v => v - 1 },
+    sq:  { code: "numbers * numbers", f: v => v * v },
+  };
+  document.querySelectorAll("[data-op]").forEach(b => {
+    b.onclick = () => {
+      const op = ops[b.dataset.op];
+      const result = values.map(op.f);
+      outBox.innerHTML = "";
+      result.forEach(v => {
+        const t = document.createElement("div");
+        t.className = "tile"; t.textContent = v;
+        outBox.appendChild(t); flash(t);
+      });
+      out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(${op.code})\n<span class="c"># ${tensorText(result)}</span>`;
+    };
+  });
+  document.getElementById("addTile").onclick = () => {
+    if (values.length >= 6) return;
+    values.push((values.length + 1) * 10);
+    drawInputs();
+  };
+  drawInputs();
+})();
+
+// ---------- Part 3: pick one number ----------
+(function pick() {
+  const box = document.getElementById("pickTiles");
+  const out = document.getElementById("pickOut");
+  const values = [10, 20, 30, 40];
+  values.forEach((v, i) => {
+    const b = document.createElement("button");
+    b.className = "tile";
+    b.innerHTML = `<span class="idx">${i}</span>${v}`;
+    b.onclick = () => {
+      out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(numbers[${i}])\n<span class="c"># tensor(${v})</span>`;
+      flash(b);
+    };
+    box.appendChild(b);
+  });
+})();
+
+// ---------- Part 4: a table ----------
+(function grid() {
+  const g = document.getElementById("grid");
+  const out = document.getElementById("gridOut");
+  const table = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  const header = '<div></div>' + [0, 1, 2].map(c => `<div class="lab">col ${c}</div>`).join("");
+  g.innerHTML = header;
+  const code = "table = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\n";
+  table.forEach((row, r) => {
+    const lab = document.createElement("button");
+    lab.className = "lab"; lab.textContent = `row ${r}`;
+    lab.onclick = () => {
+      out.innerHTML = `${code}print(table[${r}])\n<span class="c"># ${tensorText(row)}</span>`;
+      g.querySelectorAll(`[data-row="${r}"]`).forEach(flash);
+    };
+    g.appendChild(lab);
+    row.forEach((v, c) => {
+      const b = document.createElement("button");
+      b.className = "tile"; b.textContent = v; b.dataset.row = r;
+      b.onclick = () => {
+        out.innerHTML = `${code}print(table[${r}, ${c}])\n<span class="c"># tensor(${v})</span>`;
+        flash(b);
+      };
+      g.appendChild(b);
+    });
+  });
+})();
+</script>
+</body>
+</html>
