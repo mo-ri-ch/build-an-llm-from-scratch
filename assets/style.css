@@ -27,7 +27,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #161D2E;
-    --grid: #212B42;
+    --grid: #1C2537;
     --ink: #E8ECF6;
     --pencil: #A3ADC4;
     --pen: #8FA9FF;
@@ -39,7 +39,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --paper: #161D2E; --grid: #212B42; --ink: #E8ECF6; --pencil: #A3ADC4;
+  --paper: #161D2E; --grid: #1C2537; --ink: #E8ECF6; --pencil: #A3ADC4;
   --pen: #8FA9FF; --highlight: #E9C53A; --good: #4CC08A; --redpen: #FF7A84;
   --card: #1D2539; --code-bg: #0F1524;
 }
@@ -306,3 +306,16 @@ button.tile:hover { background: var(--highlight); }
 .grid2d { display: inline-grid; gap: 6px; margin: 10px 0; }
 .grid2d .lab { font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); display: grid; place-items: center; }
 .grid2d button.lab { border: 0; background: none; padding: 0; text-decoration: underline; color: var(--pen); cursor: pointer; font-weight: 400; }
+
+/* Soft cards for lists of points */
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 32px; }
+.card { background: var(--card); border: 1px solid var(--grid); border-radius: 10px; padding: 20px 22px; }
+.card h3 { margin-bottom: 14px; }
+.items { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.items li { display: grid; grid-template-columns: 1.6em 1fr; align-items: start; }
+.items .ico { font-weight: 700; }
+.items .ico.yes { color: var(--good); }
+.items .ico.no { color: var(--redpen); }
+.items b { display: block; }
+.items small { color: var(--pencil); font-size: 0.9rem; line-height: 1.45; display: block; margin-top: 2px; }
+@media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }

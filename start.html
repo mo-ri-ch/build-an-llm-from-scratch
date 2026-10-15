@@ -10,14 +10,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; }
-  .two ul { padding-left: 1.2em; margin: 0; }
-  .two li { margin-bottom: 8px; }
-  .check { list-style: none; padding: 0 !important; }
-  .check li::before { content: "✓ "; color: var(--good); font-weight: 700; }
-  .cross { list-style: none; padding: 0 !important; }
-  .cross li::before { content: "✗ "; color: var(--redpen); font-weight: 700; }
-  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  main.start { max-width: 820px; padding: 24px 0 64px; }
+  main.start h2 { margin: 48px 0 16px; }
+  .quiz pre { margin: 6px 0 14px; }
+  .go { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -26,69 +22,64 @@
     <a class="home" href="./">← Build a Tiny LLM</a>
   </header>
 
-  <main style="max-width:860px">
-    <h1 style="margin-top:20px">Start here</h1>
-    <p class="say">This course is for beginners. Here's all you need.</p>
+  <main class="start">
+    <h1>Start here</h1>
+    <p class="say" style="color:var(--pencil)">This course is for beginners. Here's all you need.</p>
 
-    <section class="part">
-      <h2>What you need</h2>
-      <div class="two">
-        <div>
-          <h3>You need</h3>
-          <ul class="check">
-            <li><b>Basic Python.</b> Lists, dictionaries, <code>for</code> loops, <code>if</code>, functions. Rusty? Try the <a href="https://docs.python.org/3/tutorial/">Python tutorial</a>.</li>
-            <li><b>Python and PyTorch</b> installed: <code>pip install torch</code></li>
-            <li><b>School math.</b> Add, multiply, fractions, “a 50% chance”.</li>
-          </ul>
-        </div>
-        <div>
-          <h3>You don't need</h3>
-          <ul class="cross">
-            <li>Calculus</li>
-            <li>Any AI experience</li>
-            <li>A GPU. Any laptop works.</li>
-            <li>To know log, e<sup>x</sup> or matrices. We explain them when they appear.</li>
-          </ul>
-        </div>
+    <div class="cards">
+      <div class="card">
+        <h3>You need</h3>
+        <ul class="items">
+          <li><span class="ico yes">✓</span><span><b>Basic Python</b><small>Lists, loops, <code>if</code>, functions. Rusty? Try the <a href="https://docs.python.org/3/tutorial/">Python tutorial</a>.</small></span></li>
+          <li><span class="ico yes">✓</span><span><b>Python and PyTorch</b><small>Install with <code>pip install torch</code></small></span></li>
+          <li><span class="ico yes">✓</span><span><b>School math</b><small>Add, multiply, fractions, “a 50% chance”.</small></span></li>
+        </ul>
       </div>
+      <div class="card">
+        <h3>You don't need</h3>
+        <ul class="items">
+          <li><span class="ico no">✗</span><span><b>Calculus</b></span></li>
+          <li><span class="ico no">✗</span><span><b>AI experience</b></span></li>
+          <li><span class="ico no">✗</span><span><b>A GPU</b><small>Any laptop works.</small></span></li>
+          <li><span class="ico no">✗</span><span><b>Log, e<sup>x</sup> or matrices</b><small>We explain them when they appear.</small></span></li>
+        </ul>
+      </div>
+    </div>
 
-      <div class="quiz" data-right="You're ready. Head to Lesson 1.">
-        <div class="q">Quick check: what does this print?</div>
+    <div class="quiz" data-right="You're ready for Lesson 1.">
+      <div class="q">Quick check: what does this print?</div>
 <pre><code>for i in range(3):
     print(i)</code></pre>
-        <div class="options">
-          <button data-right>0 1 2</button>
-          <button data-why="Close! range(3) starts at 0, not 1.">1 2 3</button>
-          <button data-why="range(3) gives 3 numbers, starting at 0.">0 1 2 3</button>
-        </div>
-        <div class="feedback"></div>
+      <div class="options">
+        <button data-right>0, 1, 2</button>
+        <button data-why="Close. range(3) starts at 0, not 1.">1, 2, 3</button>
+        <button data-why="range(3) gives 3 numbers, starting at 0.">0, 1, 2, 3</button>
       </div>
-    </section>
+      <div class="feedback"></div>
+    </div>
 
-    <section class="part">
-      <h2>How to use the lessons</h2>
-      <div class="two">
-        <div>
-          <h3>Learning?</h3>
-          <ul>
-            <li>Go in order.</li>
-            <li>Do each activity before reading on.</li>
-            <li>Guess before you click.</li>
-            <li>Run the Python code yourself.</li>
-          </ul>
-        </div>
-        <div>
-          <h3>Teaching?</h3>
-          <ul>
-            <li><b>Teach mode</b> makes text big for a projector.</li>
-            <li><b>← →</b> keys move between parts.</li>
-            <li>Ask the quiz questions out loud first.</li>
-            <li>Let the class choose what to try in the activities.</li>
-          </ul>
-        </div>
+    <h2>How to use the lessons</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Learning</h3>
+        <ul class="items">
+          <li><span class="ico yes">1</span><span>Go in order.</span></li>
+          <li><span class="ico yes">2</span><span>Do each activity before reading on.</span></li>
+          <li><span class="ico yes">3</span><span>Guess before you click.</span></li>
+          <li><span class="ico yes">4</span><span>Run the Python code yourself.</span></li>
+        </ul>
       </div>
-      <p><a class="btn" style="background:var(--ink);color:var(--paper)" href="lessons/lesson1.html">Start Lesson 1</a></p>
-    </section>
+      <div class="card">
+        <h3>Teaching</h3>
+        <ul class="items">
+          <li><span class="ico">⛶</span><span><b>Teach mode</b><small>Big text for a projector.</small></span></li>
+          <li><span class="ico">⇆</span><span><b>Arrow keys</b><small>Move between parts.</small></span></li>
+          <li><span class="ico">?</span><span><b>Quizzes</b><small>Ask them out loud first.</small></span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="go"><a class="btn" style="background:var(--ink);color:var(--paper)" href="lessons/lesson1.html">Start Lesson 1</a></p>
   </main>
 </div>
 <script src="assets/common.js"></script>
