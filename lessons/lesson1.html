@@ -196,6 +196,7 @@ addReset("runList", () => {
   const outBox = document.getElementById("outTiles");
   const out = document.getElementById("opOut");
   let values = [10, 20, 30];
+  let lastOp = null;   // the last button pressed, so the result can update when the numbers change
 
   function drawInputs() {
     inBox.innerHTML = "";
@@ -203,7 +204,7 @@ addReset("runList", () => {
       const input = document.createElement("input");
       input.className = "tile"; input.type = "number"; input.value = v;
       input.setAttribute("aria-label", `Number at position ${i}`);
-      input.oninput = () => { values[i] = Math.round(Number(input.value) || 0); };
+      input.oninput = () => { values[i] = Math.round(Number(input.value) || 0); compute(false); };
       inBox.appendChild(input);
     });
   }
@@ -213,21 +214,25 @@ addReset("runList", () => {
     sub: { code: "numbers - 1", f: v => v - 1 },
     sq:  { code: "numbers * numbers", f: v => v * v },
   };
+  function compute(highlight) {
+    if (!lastOp) return;
+    const op = ops[lastOp];
+    const result = values.map(op.f);
+    outBox.innerHTML = "";
+    result.forEach(v => {
+      const t = document.createElement("div");
+      t.className = "tile"; t.textContent = v;
+      outBox.appendChild(t);
+      if (highlight) flash(t); else t.classList.add("flash");
+    });
+    out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(${op.code})\n<span class="c"># ${tensorText(result)}</span>`;
+  }
   document.querySelectorAll("[data-op]").forEach(b => {
-    b.onclick = () => {
-      const op = ops[b.dataset.op];
-      const result = values.map(op.f);
-      outBox.innerHTML = "";
-      result.forEach(v => {
-        const t = document.createElement("div");
-        t.className = "tile"; t.textContent = v;
-        outBox.appendChild(t); flash(t);
-      });
-      out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(${op.code})\n<span class="c"># ${tensorText(result)}</span>`;
-    };
+    b.onclick = () => { lastOp = b.dataset.op; compute(true); };
   });
   addReset("opOut", () => {
     values = [10, 20, 30];
+    lastOp = null;
     drawInputs();
     outBox.innerHTML = "";
     out.innerHTML = '<span class="c"># press a button</span>';
@@ -236,6 +241,7 @@ addReset("runList", () => {
     if (values.length >= 6) return;
     values.push((values.length + 1) * 10);
     drawInputs();
+    compute(true);
   };
   drawInputs();
 })();
