@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counting What Comes Next</title>
+<meta name="description" content="Lesson 3 of Build a Tiny LLM: count which character follows which, turn counts into chances, and generate text.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
+  .ch {
+    width: 1.7em; height: 2em; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 0.95rem; background: var(--paper);
+    border: 1px solid var(--grid); border-radius: 4px;
+  }
+  .ch.now { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ch.next { background: var(--highlight); color: #1A2440; border-color: var(--ink); }
+  .ch.done { color: var(--pencil); }
+  .pairline { font-family: var(--mono); margin: 4px 0 10px; min-height: 1.5em; }
+  select.pick { font: inherit; font-family: var(--mono); padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+  .tally { display: grid; grid-template-columns: 4.2em 1fr 2.4em; gap: 4px 10px; align-items: center; font-family: var(--mono); margin-top: 10px; }
+  .tally .marks { color: var(--ink); letter-spacing: 1px; font-weight: 600; }
+  .tally .n { text-align: right; color: var(--pencil); }
+  .probs { display: grid; grid-template-columns: 4.2em 1fr 7.5em; gap: 6px 10px; align-items: center; font-family: var(--mono); font-size: 0.92rem; margin-top: 10px; }
+  .probs .track { height: 20px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; overflow: hidden; }
+  .probs .fill { height: 100%; background: var(--highlight); border-right: 2px solid var(--ink); }
+  .probs .math { color: var(--pencil); text-align: right; }
+  .dice { display: flex; height: 38px; border: 2px solid var(--ink); border-radius: var(--radius); overflow: hidden; margin: 8px 0; }
+  .dice div { display: grid; place-items: center; font-family: var(--mono); font-size: 0.85rem; border-right: 1px solid var(--ink); background: var(--paper); overflow: hidden; }
+  .dice div:last-child { border-right: 0; }
+  .dice div.picked { background: var(--highlight); color: #1A2440; font-weight: 700; }
+  .written { font-family: var(--mono); font-size: 1.1rem; background: var(--paper); border: 1px solid var(--grid); border-radius: var(--radius); padding: 10px 12px; min-height: 2.6em; word-break: break-all; }
+  .written .last { background: var(--highlight); color: #1A2440; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 3 of 10</span>
+    <div class="tools"><button data-teach-toggle aria-pressed="false">Teach mode</button></div>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Counting what comes next</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="say">Lesson 2 ended with: now text is numbers. How can we guess the next character?</p>
+      <p class="say">Every LLM does just this. Look at the text so far. Guess what comes next.</p>
+      <div class="quiz" data-right="Yes. You counted in your head. Now let's teach the computer to count.">
+        <div class="q">Read this text:<br><code>the cat sat on the mat. the dog sat on the log.</code><br>Which character comes after <code>t</code> most often?</div>
+        <div class="options">
+          <button data-right>h</button>
+          <button data-why="Space comes after t 3 times. Something else comes 4 times.">space</button>
+          <button data-why="“a” never comes after t here. Look at “the”.">a</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="Count the pairs">
+      <h2>Count the pairs</h2>
+      <p class="say">Move along the text, two characters at a time. Keep a tally.</p>
+      <div class="activity">
+        <div class="do">Press “Next pair”. Watch the tally for the row you pick.</div>
+        <div class="strip" id="strip"></div>
+        <div class="pairline" id="pairline">pair –</div>
+        <div class="row">
+          <button class="primary" id="nextPair">Next pair</button>
+          <button id="allPairs">Count all</button>
+          <button id="resetPairs">Reset</button>
+          <label style="margin-left:auto">Watch row <select class="pick" id="tallyRow"></select></label>
+        </div>
+        <div class="tally" id="tally"></div>
+      </div>
+      <p class="say">Row = this character. Column = the next one. That's the whole table.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Counts into chances">
+      <h2>Counts into chances</h2>
+      <p class="say">Divide each count by the row's total. Now each row adds up to 1.</p>
+      <div class="activity">
+        <div class="do">Pick a row. See its chances.</div>
+        <label>Row <select class="pick" id="probRow"></select></label>
+        <div class="probs" id="probs"></div>
+      </div>
+      <p class="say">These are <mark>probabilities</mark>: how likely each next character is.</p>
+      <p class="note">Try the row for “h”. Only one character ever follows it.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="Write new text">
+      <h2>Write new text</h2>
+      <p class="say">Roll a weighted dice. Likely characters get bigger slices.</p>
+      <div class="activity">
+        <div class="do">Press “Roll”. The next character comes from the slice it lands on.</div>
+        <div class="dice" id="dice" aria-hidden="true"></div>
+        <div class="written" id="written" aria-live="polite"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="roll1">Roll</button>
+          <button id="roll40">Roll 40 times</button>
+          <button id="rollReset">Start over</button>
+        </div>
+      </div>
+      <p class="say">Real LLMs write exactly like this: one piece at a time.</p>
+      <p class="note">See words like “sathe”? The model only looks at 1 character, so it can't tell it already finished “sat”.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="The code">
+      <h2>The code</h2>
+      <p class="say">Now run it yourself.</p>
+      <p>Save as <code>lesson3.py</code>, run <code>python lesson3.py</code>, and compare with the comments.</p>
+<pre><code>import torch
+
+text = "the cat sat on the mat. the dog sat on the log."
+
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+<span class="c"># Count pairs. Row = this character, column = next one.</span>
+counts = torch.zeros((vocab_size, vocab_size))
+for i in range(len(text) - 1):
+    row = char_to_number[text[i]]
+    column = char_to_number[text[i + 1]]
+    counts[row, column] = counts[row, column] + 1
+
+<span class="c"># Counts into chances: divide by each row's total</span>
+row_totals = counts.sum(dim=1, keepdim=True)
+probabilities = counts / row_totals
+
+t_row = probabilities[char_to_number['t']]
+for number in range(vocab_size):
+    if t_row[number] > 0:
+        print(repr(number_to_char[number]), round(t_row[number].item(), 3))
+<span class="c"># ' ' 0.375
+# '.' 0.125
+# 'h' 0.5</span>
+
+<span class="c"># Write new text: roll the weighted dice 40 times</span>
+torch.manual_seed(42)
+current = char_to_number['t']
+output = 't'
+for step in range(40):
+    picked = torch.multinomial(probabilities[current], num_samples=1)
+    current = picked.item()
+    output = output + number_to_char[current]
+print(output)
+<span class="c"># t on dog mat mat. sathe log the mat cat t</span></code></pre>
+      <details class="unclear">
+        <summary>What do <code>sum(dim=1, keepdim=True)</code> and <code>multinomial</code> mean?</summary>
+        <p><code>dim=1</code> adds up across each row. <code>keepdim=True</code> keeps the shape, so each row divides by its own total.</p>
+        <p><code>torch.multinomial(chances, num_samples=1)</code> is the weighted dice. It picks 1 position, where bigger chances are picked more often.</p>
+      </details>
+      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson3.py">lesson3.py on GitHub</a></p>
+    </section>
+
+    <!-- 6 -->
+    <section class="part" data-title="Check yourself">
+      <h2>Check yourself</h2>
+
+      <div class="quiz" data-right="Yes. In this text, h is always followed by e.">
+        <div class="q">What is the chance of <code>e</code> after <code>h</code>?</div>
+        <div class="options">
+          <button data-why="Look at part 3: pick the h row.">0.5</button>
+          <button data-right>1.0</button>
+          <button data-why="h appears 4 times, always in “the”.">0.25</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="quiz" data-right="Right. It's random, but likely characters win more often. Always picking the top one would repeat “the the the”.">
+        <div class="q">After <code>t</code>, does the dice always pick <code>h</code>?</div>
+        <div class="options">
+          <button data-why="h has a 50% chance, not 100%. Space and “.” still win sometimes.">Yes, h is the most likely</button>
+          <button data-right>No, only about half the time</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="open-question">
+        <div>This leaves a question</div>
+        <div class="big">Counting only works for tiny tables. Can a model learn the chances by itself?</div>
+        <div><a href="lesson4.html">Lesson 4 answers it.</a></div>
+      </div>
+      <p><button class="done-toggle" data-done="3">Mark lesson as done</button></p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>Back</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next</button>
+  </div>
+</nav>
+
+<script src="../assets/tinylm.js"></script>
+<script src="../assets/common.js"></script>
+<script>
+const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
+const COUNTS = model.timesCorrect;          // COUNTS[row][col]
+const TOTALS = model.timesUsed;             // TOTALS[row]
+const N = CHAR_TO_NUMBER;
+
+function fillRowSelect(sel, chosen) {
+  CHARS.forEach((c, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = showChar(c);
+    if (c === chosen) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+// ---------- Part 2: finger along the text ----------
+(function pairs() {
+  const strip = document.getElementById("strip");
+  const line = document.getElementById("pairline");
+  const tally = document.getElementById("tally");
+  const sel = document.getElementById("tallyRow");
+  fillRowSelect(sel, "t");
+  Array.from(TEXT).forEach(c => {
+    const d = document.createElement("div");
+    d.className = "ch"; d.textContent = c === " " ? "␣" : c;
+    strip.appendChild(d);
+  });
+  const cells = Array.from(strip.children);
+  let counts, pos;
+
+  function reset() {
+    counts = Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0));
+    pos = 0;
+    render(-1);
+  }
+  function render(i) {
+    cells.forEach((c, k) => {
+      c.className = "ch" + (k === i ? " now" : k === i + 1 ? " next" : k < i ? " done" : "");
+    });
+    line.textContent = i < 0 ? "pair –" :
+      `pair ${i + 1} of ${TEXT.length - 1}:  ${showChar(TEXT[i])} → ${showChar(TEXT[i + 1])}   (row ${showChar(TEXT[i])}, column ${showChar(TEXT[i + 1])}, +1)`;
+    const row = Number(sel.value);
+    tally.innerHTML = "";
+    CHARS.forEach((c, k) => {
+      const n = counts[row][k];
+      if (n === 0 && COUNTS[row][k] === 0) return;
+      tally.innerHTML += `<span>${showChar(c)}</span><span class="marks">${"|".repeat(n) || "&nbsp;"}</span><span class="n">${n}</span>`;
+    });
+    if (!tally.innerHTML) tally.innerHTML = `<span></span><span style="color:var(--pencil)">Nothing comes after this character.</span><span></span>`;
+  }
+  function step() {
+    if (pos >= TEXT.length - 1) return;
+    counts[N[TEXT[pos]]][N[TEXT[pos + 1]]] += 1;
+    render(pos);
+    pos += 1;
+  }
+  document.getElementById("nextPair").onclick = step;
+  document.getElementById("allPairs").onclick = () => { while (pos < TEXT.length - 1) step(); };
+  document.getElementById("resetPairs").onclick = reset;
+  sel.onchange = () => render(pos - 1);
+  reset();
+})();
+
+// ---------- Part 3: counts into chances ----------
+(function chances() {
+  const sel = document.getElementById("probRow");
+  const box = document.getElementById("probs");
+  fillRowSelect(sel, "t");
+  function render() {
+    const row = Number(sel.value);
+    const total = TOTALS[row];
+    box.innerHTML = "";
+    if (!total) { box.innerHTML = '<span></span><span style="color:var(--pencil)">Nothing comes after this character.</span><span></span>'; return; }
+    CHARS.forEach((c, k) => {
+      const n = COUNTS[row][k];
+      if (!n) return;
+      const p = n / total;
+      box.innerHTML += `<span>${showChar(c)}</span><span class="track"><div class="fill" style="width:${(p * 100).toFixed(1)}%"></div></span><span class="math">${n} ÷ ${total} = ${p.toFixed(3)}</span>`;
+    });
+  }
+  sel.onchange = render;
+  render();
+})();
+
+// ---------- Part 4: weighted dice ----------
+(function generate() {
+  const dice = document.getElementById("dice");
+  const written = document.getElementById("written");
+  let text = "t";
+  function chancesFor(c) {
+    const row = N[c];
+    return COUNTS[row].map(n => TOTALS[row] ? n / TOTALS[row] : 0);
+  }
+  function drawDice(picked) {
+    const last = text[text.length - 1];
+    const ch = chancesFor(last);
+    dice.innerHTML = "";
+    ch.forEach((p, k) => {
+      if (!p) return;
+      const d = document.createElement("div");
+      d.style.width = (p * 100) + "%";
+      d.textContent = showChar(CHARS[k]);
+      if (k === picked) d.className = "picked";
+      dice.appendChild(d);
+    });
+  }
+  function show() {
+    written.innerHTML = text.slice(0, -1).replace(/&/g, "&amp;").replace(/</g, "&lt;") + `<span class="last">${text.slice(-1) === " " ? "&nbsp;" : text.slice(-1)}</span>`;
+  }
+  function roll() {
+    const ch = chancesFor(text[text.length - 1]);
+    if (!ch.some(p => p > 0)) return false;
+    const before = text;
+    const k = pickByChance(ch);
+    text += CHARS[k];
+    // show the dice for the character we rolled from
+    const keep = text; text = before; drawDice(k); text = keep;
+    show();
+    return true;
+  }
+  document.getElementById("roll1").onclick = roll;
+  document.getElementById("roll40").onclick = () => { for (let i = 0; i < 40; i++) if (!roll()) break; };
+  document.getElementById("rollReset").onclick = () => { text = "t"; drawDice(-1); show(); };
+  drawDice(-1); show();
+})();
+</script>
+</body>
+</html>

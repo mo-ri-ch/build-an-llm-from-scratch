@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text into Numbers</title>
+<meta name="description" content="Lesson 2 of Build a Tiny LLM: give every character a number, then turn text into numbers and back.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .textin {
+    width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
+    border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink);
+  }
+  .tile.bad { background: var(--redpen); border-color: var(--redpen); color: #fff; }
+  .arrow { color: var(--pencil); font-size: 0.9rem; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 2 of 10</span>
+    <div class="tools"><button data-teach-toggle aria-pressed="false">Teach mode</button></div>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Text into numbers</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="say">Lesson 1 ended with a question: computers only understand numbers. How do we turn text into numbers?</p>
+      <div class="activity">
+        <div class="do">Try it: do math on a letter.</div>
+<pre><code>print("h" + 5)</code></pre>
+        <button id="runStr">Run it</button>
+        <div class="out" id="strOut"><span class="c"># press Run</span></div>
+      </div>
+      <p class="say" id="strAfter" hidden>Letters can't do math. So we'll give each letter a number.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="Find the letters">
+      <h2>Find the letters</h2>
+      <div class="activity">
+        <div class="do">Type any text. Watch it find every different character.</div>
+        <input class="textin" id="vocabText" value="hello world" spellcheck="false" autocomplete="off" aria-label="Your text">
+        <div class="arrow">Each different character, sorted, with its number:</div>
+        <div class="tiles" id="vocabTiles"></div>
+        <div class="out" id="vocabOut"></div>
+      </div>
+      <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows.</p>
+      <p class="note">The blank tile is the space. It's a character too.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Encode and decode">
+      <h2>Encode and decode</h2>
+      <p class="say">Vocabulary: the letters of <b>“hello world”</b>.</p>
+      <div class="activity">
+        <div class="do">Type a word. See it as numbers.</div>
+        <input class="textin" id="encText" value="hello" spellcheck="false" autocomplete="off" aria-label="Word to encode">
+        <div class="arrow">encode ↓</div>
+        <div class="tiles" id="encTiles"></div>
+        <div class="arrow">decode ↓</div>
+        <div class="tiles" id="decTiles"></div>
+        <div class="out" id="encOut"></div>
+      </div>
+      <p class="say"><b>Encode:</b> text → numbers. <b>Decode:</b> numbers → text.</p>
+
+      <div class="quiz" data-right="Right. There's no “p” in “hello world”, so “help” can't be encoded.">
+        <div class="q">Guess first, then try both in the box above. Which one crashes?</div>
+        <div class="options">
+          <button data-why="All of h, o, l, d are in “hello world”. Try typing it.">hold</button>
+          <button data-right>help</button>
+          <button data-why="One of them does crash. Try typing both.">Neither</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+      <p class="note">A model can only use characters in its vocabulary. That's why we train it on text that has every character we need.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="The code">
+      <h2>The code</h2>
+      <p class="say">Now run it yourself.</p>
+      <p>Save as <code>lesson2.py</code>, run <code>python lesson2.py</code>, and compare with the comments.</p>
+<pre><code>import torch
+
+text = "hello world"
+
+<span class="c"># Find every different character, sorted</span>
+unique_chars = sorted(set(text))
+print(unique_chars)
+<span class="c"># [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']</span>
+
+<span class="c"># Give each one a number, and the reverse</span>
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+<span class="c"># Text -> numbers</span>
+def encode(some_text):
+    numbers = []
+    for char in some_text:
+        numbers.append(char_to_number[char])
+    return numbers
+
+<span class="c"># Numbers -> text</span>
+def decode(numbers):
+    result = ""
+    for number in numbers:
+        result = result + number_to_char[number]
+    return result
+
+print(encode("hello"))
+<span class="c"># [3, 2, 4, 4, 5]</span>
+
+print(decode([3, 2, 4, 4, 5]))
+<span class="c"># hello</span>
+
+<span class="c"># The whole text as a tensor (from Lesson 1)</span>
+print(torch.tensor(encode(text)))
+<span class="c"># tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</span></code></pre>
+      <p><a href="https://github.com/mo-ri-ch/build-an-llm-from-scratch/blob/main/code/lesson2.py">lesson2.py on GitHub</a></p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="Check yourself">
+      <h2>Check yourself</h2>
+
+      <div class="quiz" data-right="Yes. b, a, n are the only different characters.">
+        <div class="q">How big is the vocabulary of <code>"banana"</code>?</div>
+        <div class="options">
+          <button data-why="That counts every letter. We only count different ones.">6</button>
+          <button data-right>3</button>
+          <button data-why="Count the different letters: b, a, n.">2</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="quiz" data-right="Yes. With the “hello world” vocabulary, l is 4 and o is 5.">
+        <div class="q">With the “hello world” vocabulary, what is <code>encode("lol")</code>?</div>
+        <div class="options">
+          <button data-right>[4, 5, 4]</button>
+          <button data-why="Check the numbers in part 3: l is 4, o is 5.">[5, 4, 5]</button>
+          <button data-why="“l” and “o” are both in “hello world”.">Error</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="open-question">
+        <div>This leaves a question</div>
+        <div class="big">Now text is numbers. How can we guess the next character?</div>
+        <div><a href="lesson3.html">Lesson 3 answers it.</a></div>
+      </div>
+      <p><button class="done-toggle" data-done="2">Mark lesson as done</button></p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>Back</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next</button>
+  </div>
+</nav>
+
+<script src="../assets/common.js"></script>
+<script>
+function tile(text, idx, extra) {
+  const t = document.createElement("div");
+  t.className = "tile" + (extra ? " " + extra : "");
+  t.innerHTML = (idx !== undefined ? `<span class="idx">${esc(String(idx))}</span>` : "") + (text === " " ? "&nbsp;" : esc(text));
+  return t;
+}
+function esc(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function pyList(chars) { return "[" + chars.map(c => `'${c}'`).join(", ") + "]"; }
+
+// ---------- Part 1 ----------
+document.getElementById("runStr").onclick = () => {
+  document.getElementById("strOut").innerHTML = '<span class="err">TypeError: can only concatenate str (not "int") to str</span>';
+  document.getElementById("strAfter").hidden = false;
+};
+
+// ---------- Part 2: vocabulary ----------
+(function vocab() {
+  const input = document.getElementById("vocabText");
+  const box = document.getElementById("vocabTiles");
+  const out = document.getElementById("vocabOut");
+  function render() {
+    const text = input.value.slice(0, 60);
+    const chars = Array.from(new Set(text)).sort();
+    box.innerHTML = "";
+    chars.forEach((c, i) => box.appendChild(tile(c, i)));
+    out.innerHTML = `unique_chars = sorted(set("${esc(text)}"))\n<span class="c"># ${esc(pyList(chars))}</span>\n<span class="c"># vocabulary size: ${chars.length}</span>`;
+  }
+  input.oninput = render;
+  render();
+})();
+
+// ---------- Part 3: encode and decode ----------
+(function encdec() {
+  const vocab = Array.from(new Set("hello world")).sort();
+  const toNum = {}; vocab.forEach((c, i) => toNum[c] = i);
+  const input = document.getElementById("encText");
+  const encBox = document.getElementById("encTiles");
+  const decBox = document.getElementById("decTiles");
+  const out = document.getElementById("encOut");
+  function render() {
+    const word = input.value.slice(0, 20);
+    const w = esc(word);
+    encBox.innerHTML = ""; decBox.innerHTML = "";
+    const bad = Array.from(word).find(c => toNum[c] === undefined);
+    Array.from(word).forEach(c => {
+      encBox.appendChild(toNum[c] === undefined ? tile("?", c, "bad") : tile(String(toNum[c]), c === " " ? "space" : c));
+    });
+    if (bad !== undefined) {
+      out.innerHTML = `encode("${w}")\n<span class="err">KeyError: '${esc(bad)}'</span>\n<span class="c"># “${esc(bad)}” is not in the vocabulary</span>`;
+      return;
+    }
+    const nums = Array.from(word).map(c => toNum[c]);
+    nums.forEach(n => decBox.appendChild(tile(vocab[n], n)));
+    out.innerHTML = `encode("${w}")\n<span class="c"># [${nums.join(", ")}]</span>\ndecode([${nums.join(", ")}])\n<span class="c"># ${w}</span>`;
+  }
+  input.oninput = render;
+  render();
+})();
+</script>
+</body>
+</html>

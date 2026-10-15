@@ -319,3 +319,12 @@ button.tile:hover { background: var(--highlight); }
 .items b { display: block; }
 .items small { color: var(--pencil); font-size: 0.9rem; line-height: 1.45; display: block; margin-top: 2px; }
 @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } }
+
+/* More breathing room: one thing at a time, lots of space around it */
+main[data-paged] section.part { padding-top: 32px; }
+main[data-paged] section.part > h2 { margin-bottom: 20px; }
+.say { margin-bottom: 1.1em; }
+.activity { padding: 22px; margin: 28px 6px 32px 0; }
+.activity .do { margin-bottom: 16px; }
+.quiz { padding: 20px 22px; margin: 28px 0; }
+.note { margin-top: 20px; }

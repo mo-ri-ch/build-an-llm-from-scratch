@@ -23,8 +23,8 @@ e^x, log or matrices. Each one is explained when it first appears.
 | # | Lesson | Page | Code |
 |---|---|---|---|
 | 1 | Tensors | [lesson1.html](lessons/lesson1.html) | [lesson1.py](code/lesson1.py) |
-| 2 | Text into numbers | coming soon | [lesson2.py](code/lesson2.py) |
-| 3 | Counting what comes next | coming soon | [lesson3.py](code/lesson3.py) |
+| 2 | Text into numbers | [lesson2.html](lessons/lesson2.html) | [lesson2.py](code/lesson2.py) |
+| 3 | Counting what comes next | [lesson3.html](lessons/lesson3.html) | [lesson3.py](code/lesson3.py) |
 | 4 | Let the model learn | [lesson4.html](lessons/lesson4.html) | [lesson4.py](code/lesson4.py) |
 | 5 | Looking at more than one character | coming soon | [lesson5.py](code/lesson5.py) |
 | 6 | Embeddings | coming soon | |
