@@ -28,6 +28,15 @@
   .pen-tools .swatch span { width: 16px; height: 16px; border-radius: 50%; display: block; }
   .pen-tools .on { box-shadow: 0 0 0 3px var(--hl-yellow, #FFE45C); }
   .pen-tools .small { font-size: 0.75rem; }
+  .pen-tools .pen-ask { position: absolute; left: 46px; bottom: 0; width: 230px; padding: 14px 16px; text-align: left;
+    background: var(--card, #fff); border: 2px solid var(--ink, #1D2238); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink, #1D2238);
+    font-size: 0.95rem; color: var(--ink, #1D2238); }
+  .pen-tools .pen-ask[hidden] { display: none; }
+  .pen-tools .pen-ask p { margin: 0 0 4px; }
+  .pen-tools .pen-ask .pen-ask-small { color: var(--pencil, #626A7E); font-size: 0.8rem; margin-bottom: 12px; }
+  .pen-tools .pen-ask-row { display: flex; gap: 8px; }
+  .pen-tools .pen-ask-row button { width: auto; height: auto; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; display: inline-block; }
+  .pen-tools .pen-ask .pen-yes { background: var(--redpen, #D2283A); border-color: var(--redpen, #D2283A); color: #fff; }
   .pen-tools .all { font-size: 0.62rem; font-weight: 700; color: var(--redpen, #D2283A); border-color: var(--redpen, #D2283A); }
   @media print { .pen-tools, .pen-layer { display: none; } }
   `;
@@ -254,25 +263,29 @@
       saved[currentIndex()] = []; save(); requestRedraw();
     };
     function disarm() { clearTimeout(clearArmed); clearArmed = null; clear.textContent = "✕"; clear.title = "Clear notes on this slide"; }
-    // Clear every note on every page (press twice)
+    // Clear every note on every page, after a confirmation message
     const clearAll = document.createElement("button");
     clearAll.type = "button"; clearAll.className = "small all";
     clearAll.title = "Clear all notes on every page"; clearAll.setAttribute("aria-label", "Clear all notes on every page");
     clearAll.textContent = "All";
-    let allArmed = null;
-    function disarmAll() { clearTimeout(allArmed); allArmed = null; clearAll.textContent = "All"; clearAll.title = "Clear all notes on every page"; }
-    clearAll.onclick = () => {
-      if (!allArmed) {
-        clearAll.textContent = "?"; clearAll.title = "Press again to clear every page";
-        allArmed = setTimeout(disarmAll, 2500);
-        return;
-      }
-      disarmAll();
+    const ask = document.createElement("div");
+    ask.className = "pen-ask"; ask.hidden = true;
+    ask.setAttribute("role", "alertdialog"); ask.setAttribute("aria-label", "Clear all notes?");
+    ask.innerHTML = '<p>Clear all your notes on every page?</p><p class="pen-ask-small">This can\'t be undone.</p>' +
+      '<div class="pen-ask-row"><button type="button" class="pen-yes">Clear all</button><button type="button" class="pen-no">Cancel</button></div>';
+    const yes = ask.querySelector(".pen-yes"), no = ask.querySelector(".pen-no");
+    function closeAsk() { ask.hidden = true; }
+    clearAll.onclick = () => { ask.hidden = !ask.hidden; if (!ask.hidden) no.focus(); };
+    no.onclick = closeAsk;
+    yes.onclick = () => {
+      closeAsk();
       try {
         Object.keys(localStorage).filter((k) => k.indexOf("tiny-llm-notes:") === 0).forEach((k) => localStorage.removeItem(k));
       } catch (e) { /* ignore */ }
       saved = {}; requestRedraw();
     };
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ask.hidden) { e.stopImmediatePropagation(); closeAsk(); } }, true);
+    box.appendChild(ask);
     more.append(eraser, undo, clear, clearAll);
     box.append(toggle, more);
     document.body.appendChild(box);
