@@ -38,6 +38,31 @@
   .pen-tools .pen-ask-row button { width: auto; height: auto; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; display: inline-block; }
   .pen-tools .pen-ask .pen-yes { background: var(--redpen, #D2283A); border-color: var(--redpen, #D2283A); color: #fff; }
   .pen-tools .all { font-size: 0.62rem; font-weight: 700; color: var(--redpen, #D2283A); border-color: var(--redpen, #D2283A); }
+  .sticky-layer { position: fixed; left: 0; top: 0; width: 0; height: 0; z-index: 9999; }
+  .sticky { position: absolute; left: 0; top: 0; font-family: var(--hand, "Kalam", cursive); color: #1D2238; }
+  .sticky .sticky-bar, .sticky textarea, .sticky .sticky-confirm { display: none; }
+  .sticky.open { width: 220px; background: #FFF3A6; border-radius: 2px 2px 14px 2px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.06), 3px 6px 14px rgba(29,34,56,0.18); }
+  .sticky.open .sticky-bar { display: flex; align-items: center; gap: 2px; height: 26px; padding: 0 4px 0 8px;
+    background: #FFE45C; cursor: grab; touch-action: none; border-radius: 2px 2px 0 0; }
+  .sticky.open .sticky-bar:active { cursor: grabbing; }
+  .sticky-pin { width: 10px; height: 10px; border-radius: 50%; background: #D2283A; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.25); margin-right: auto; }
+  .sticky .sticky-bar button { width: 22px; height: 22px; padding: 0; border: 0; background: transparent; font-size: 0.85rem; line-height: 1; color: #1D2238; border-radius: 4px; }
+  .sticky .sticky-bar button:hover { background: rgba(29,34,56,0.12); }
+  .sticky.open textarea { display: block; width: 100%; min-height: 120px; resize: vertical; border: 0; outline: none; background: transparent;
+    padding: 8px 12px 12px; font: inherit; font-size: 1rem; line-height: 1.4; color: inherit; box-sizing: border-box; }
+  .sticky.open .sticky-confirm:not([hidden]) { display: block; padding: 0 12px 12px; font-family: var(--body, sans-serif); font-size: 0.85rem; }
+  .sticky .sticky-confirm p { margin: 0 0 8px; }
+  .sticky .sticky-confirm .row { display: flex; gap: 6px; }
+  .sticky .sticky-confirm button { padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; }
+  .sticky .sticky-confirm .sticky-yes { background: #D2283A; border-color: #D2283A; color: #fff; }
+  .sticky-tab { display: block; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 4px 10px; border: 0; border-radius: 2px 2px 10px 2px; background: #FFF3A6; color: #1D2238;
+    font-family: var(--hand, "Kalam", cursive); font-size: 0.9rem; cursor: grab; touch-action: none;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06), 2px 4px 10px rgba(29,34,56,0.16); }
+  .sticky-tab:hover { background: #FFE45C; color: #1D2238; }
+  .sticky.open .sticky-tab { display: none; }
+  .pen-tools { z-index: 10000; }
   @media print { .pen-tools, .pen-layer { display: none; } }
   `;
 
@@ -56,11 +81,12 @@
     // Always pick up the latest notes when you come back to a page (Back button, another tab, "All" cleared)
     function reload() {
       try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
+      if (typeof loadStickies === "function" && !(document.activeElement && document.activeElement.closest && document.activeElement.closest(".sticky"))) loadStickies();
       requestRedraw();
     }
     window.addEventListener("pageshow", reload);
     window.addEventListener("focus", reload);
-    window.addEventListener("storage", (e) => { if (e.key === null || e.key === KEY) reload(); });
+    window.addEventListener("storage", (e) => { if (e.key === null || e.key === KEY || e.key === STICKY_KEY) reload(); });
     document.addEventListener("visibilitychange", () => { if (!document.hidden) reload(); });
     function save() { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* ignore */ } }
     function strokesOf(i) { return saved[i] || (saved[i] = []); }
@@ -139,6 +165,7 @@
       const f = frame();
       strokesOf(currentIndex()).forEach((s) => drawStroke(s, f));
       ctx.globalAlpha = 1;
+      placeStickies(f);
     }
     // At most one redraw per screen refresh, so writing stays smooth
     let queued = false;
@@ -280,13 +307,18 @@
     yes.onclick = () => {
       closeAsk();
       try {
-        Object.keys(localStorage).filter((k) => k.indexOf("tiny-llm-notes:") === 0).forEach((k) => localStorage.removeItem(k));
+        Object.keys(localStorage).filter((k) => k.indexOf("tiny-llm-notes:") === 0 || k.indexOf("tiny-llm-stickies:") === 0)
+          .forEach((k) => localStorage.removeItem(k));
       } catch (e) { /* ignore */ }
-      saved = {}; requestRedraw();
+      saved = {}; stickies = {}; buildStickies(); requestRedraw();
     };
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !ask.hidden) { e.stopImmediatePropagation(); closeAsk(); } }, true);
     box.appendChild(ask);
-    more.append(eraser, undo, clear, clearAll);
+    const addNote = document.createElement("button");
+    addNote.type = "button"; addNote.title = "Add a sticky note"; addNote.setAttribute("aria-label", "Add a sticky note");
+    addNote.textContent = "📝";
+    addNote.onclick = () => newSticky();
+    more.append(addNote, eraser, undo, clear, clearAll);
     box.append(toggle, more);
     document.body.appendChild(box);
 
@@ -349,6 +381,138 @@
       else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z") && on) { e.preventDefault(); undoLast(); }
     });
 
+    // ----- Sticky notes: typed notes you can pin anywhere, open and shrink -----
+    // Saved per slide, relative to the slide (like the handwriting), so they scroll with it.
+    const STICKY_KEY = "tiny-llm-stickies:" + location.pathname.replace(/index\.html$/, "");
+    let stickies = {};
+    const openNow = new Set(); // which notes are open right now (they start shrunk on every visit)
+    function loadStickies() {
+      try { stickies = JSON.parse(localStorage.getItem(STICKY_KEY) || "{}") || {}; } catch (e) { stickies = {}; }
+      buildStickies();
+    }
+    function saveStickies() { try { localStorage.setItem(STICKY_KEY, JSON.stringify(stickies)); } catch (e) { /* ignore */ } }
+    function stickiesOf(i) { return stickies[i] || (stickies[i] = []); }
+
+    const stickyLayer = document.createElement("div");
+    stickyLayer.className = "sticky-layer";
+    document.body.appendChild(stickyLayer);
+    let shownFor = -1;
+
+    function shortText(t) {
+      const words = (t || "").trim().split(/\s+/).filter(Boolean).slice(0, 3).join(" ");
+      return words ? (words.length > 18 ? words.slice(0, 17) + "…" : words) : "Note";
+    }
+
+    function buildStickies() {
+      stickyLayer.innerHTML = "";
+      shownFor = currentIndex();
+      stickiesOf(shownFor).forEach((n) => stickyLayer.appendChild(makeSticky(n)));
+      requestRedraw();
+    }
+
+    function makeSticky(n) {
+      const el = document.createElement("div");
+      el.className = "sticky";
+      el.dataset.id = n.id;
+      el.innerHTML =
+        '<div class="sticky-bar"><span class="sticky-pin" aria-hidden="true"></span>' +
+        '<button type="button" class="sticky-min" title="Shrink" aria-label="Shrink note">–</button>' +
+        '<button type="button" class="sticky-del" title="Delete note" aria-label="Delete note">✕</button></div>' +
+        '<textarea aria-label="Your note" placeholder="Type your note…"></textarea>' +
+        '<div class="sticky-confirm" hidden><p>Delete this note?</p>' +
+        '<div class="row"><button type="button" class="sticky-yes">Delete</button><button type="button" class="sticky-no">Cancel</button></div></div>' +
+        '<button type="button" class="sticky-tab"></button>';
+      const area = el.querySelector("textarea"), tab = el.querySelector(".sticky-tab");
+      const confirmBox = el.querySelector(".sticky-confirm");
+      area.value = n.text || "";
+
+      function show() {
+        const open = openNow.has(n.id);
+        el.classList.toggle("open", open);
+        tab.textContent = "📌 " + shortText(n.text);
+        tab.title = (n.text || "").trim() || "Empty note";
+        tab.setAttribute("aria-label", "Open note: " + shortText(n.text));
+        confirmBox.hidden = true;
+      }
+      el._show = show;
+      show();
+
+      area.addEventListener("input", () => { n.text = area.value; saveStickies(); });
+      el.querySelector(".sticky-min").onclick = () => { openNow.delete(n.id); show(); };
+      el.querySelector(".sticky-del").onclick = () => {
+        if (!(n.text || "").trim()) { removeSticky(n); return; }
+        confirmBox.hidden = false; el.querySelector(".sticky-no").focus();
+      };
+      el.querySelector(".sticky-no").onclick = () => { confirmBox.hidden = true; area.focus(); };
+      el.querySelector(".sticky-yes").onclick = () => removeSticky(n);
+
+      // Drag by the top strip (open) or the pin (shrunk); a click on the pin opens it
+      function dragFrom(handle, onClick) {
+        handle.addEventListener("pointerdown", (e) => {
+          if (e.target.closest("button") && e.target !== handle) return;
+          e.preventDefault();
+          const f = frame(), sx = e.clientX, sy = e.clientY, ox = n.x, oy = n.y;
+          let moved = false;
+          handle.setPointerCapture(e.pointerId);
+          function move(ev) {
+            if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+            if (!moved) return;
+            n.x = ox + (ev.clientX - sx) / f.w; n.y = oy + (ev.clientY - sy) / f.w;
+            requestRedraw();
+          }
+          function up() {
+            handle.removeEventListener("pointermove", move);
+            handle.removeEventListener("pointerup", up);
+            handle.removeEventListener("pointercancel", up);
+            if (moved) saveStickies(); else if (onClick) onClick();
+          }
+          handle.addEventListener("pointermove", move);
+          handle.addEventListener("pointerup", up);
+          handle.addEventListener("pointercancel", up);
+        });
+      }
+      dragFrom(el.querySelector(".sticky-bar"));
+      dragFrom(tab, () => { openNow.add(n.id); show(); area.focus(); });
+      tab.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openNow.add(n.id); show(); area.focus(); } });
+      return el;
+    }
+
+    function removeSticky(n) {
+      const list = stickiesOf(currentIndex());
+      const k = list.findIndex((m) => m.id === n.id);
+      if (k >= 0) list.splice(k, 1);
+      openNow.delete(n.id);
+      saveStickies(); buildStickies();
+    }
+
+    function newSticky() {
+      const f = frame();
+      const list = stickiesOf(currentIndex());
+      const shift = (list.length % 5) * 24; // new notes don't land exactly on top of each other
+      const n = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        x: (window.innerWidth / 2 - 110 + shift - f.left) / f.w,
+        y: (window.innerHeight / 2 - 90 + shift - f.top) / f.w,
+        text: "",
+      };
+      list.push(n);
+      openNow.add(n.id);
+      saveStickies(); buildStickies();
+      const el = stickyLayer.querySelector(`[data-id="${n.id}"] textarea`);
+      if (el) el.focus();
+    }
+
+    function placeStickies(f) {
+      if (currentIndex() !== shownFor) { buildStickies(); return; }
+      const list = stickiesOf(shownFor);
+      Array.from(stickyLayer.children).forEach((el) => {
+        const n = list.find((m) => m.id === el.dataset.id);
+        if (!n) return;
+        el.style.transform = `translate(${Math.round(f.left + n.x * f.w)}px, ${Math.round(f.top + n.y * f.w)}px)`;
+      });
+    }
+    loadStickies();
+
     // While the pen is on, the mouse wheel still scrolls the slide underneath.
     // We move the page and redraw the notes in the same frame, with a gentle glide, so both move together smoothly.
     let pendingX = 0, pendingY = 0, gliding = false;
@@ -368,12 +532,15 @@
       if (Math.abs(pendingX) >= 0.5 || Math.abs(pendingY) >= 0.5) requestAnimationFrame(glide);
       else { pendingX = pendingY = 0; gliding = false; }
     }
-    canvas.addEventListener("wheel", (e) => {
+    function onWheel(e) {
+      if (e.target.closest && e.target.closest(".sticky textarea") && e.target.scrollHeight > e.target.clientHeight) return; // scroll inside a long note
       e.preventDefault();
       const unit = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1;
       pendingX += e.deltaX * unit; pendingY += e.deltaY * unit;
       if (!gliding) { gliding = true; requestAnimationFrame(glide); }
-    }, { passive: false });
+    }
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    stickyLayer.addEventListener("wheel", onWheel, { passive: false });
 
     // Redraw when the slide changes, scrolls or changes size
     if (window.MutationObserver) {
