@@ -7,112 +7,367 @@
 <meta name="description" content="Build a tiny language model from scratch, one question at a time. Interactive lessons for beginners and teachers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; padding: 32px 0 48px; }
-  .hero .say { color: var(--pencil); }
-  .hero .say b { color: var(--ink); }
-  .hero .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  body.home-page { overflow: hidden; }
+  body.home-page::before { display: none; }
+  body.home-page.list-mode { overflow: auto; }
 
-  .demo label { font-weight: 700; display: block; margin-bottom: 6px; }
+  /* ---------- Header and controls float over the board ---------- */
+  .float-top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 12px 16px; pointer-events: none;
+  }
+  .float-top > * { pointer-events: auto; }
+  .float-top .home { font-family: var(--head); font-size: 1.4rem; color: var(--ink); text-decoration: none; background: var(--paper); padding: 2px 10px; border-radius: 6px; }
+  .float-top .tools { display: flex; gap: 8px; }
+  .controls {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10;
+    display: flex; gap: 6px; align-items: center;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 10px; padding: 6px;
+    box-shadow: 0 10px 24px -14px rgba(20,24,50,.4);
+  }
+  .controls button { padding: 4px 12px; border-width: 1px; }
+  .hint {
+    position: fixed; left: 16px; bottom: 16px; z-index: 10;
+    font-family: var(--hand); color: var(--redpen); font-size: 1.05rem;
+    background: var(--paper); padding: 4px 10px; border-radius: 6px;
+  }
+
+  /* ---------- The board ---------- */
+  #board {
+    position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab;
+    background-color: var(--paper);
+    background-image: linear-gradient(transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px));
+  }
+  #board.dragging { cursor: grabbing; }
+  #world { position: absolute; left: 0; top: 0; width: 2300px; height: 1360px; transform-origin: 0 0; }
+  #world > .item { position: absolute; }
+  #arrows { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+  #arrows path { fill: none; stroke: var(--pencil); stroke-width: 2.2; stroke-linecap: round; }
+  #arrows .head { fill: var(--pencil); stroke: none; }
+
+  .intro { width: 580px; }
+  .intro h1 { font-size: 4rem; margin-bottom: 18px; }
+  .intro .say { color: var(--pencil); font-size: 1.35rem; }
+  .intro .say b { color: var(--ink); }
+  .intro .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+  .demo { width: 470px; margin: 0; cursor: auto; }
   .demo input {
     width: 100%; font-family: var(--mono); font-size: 1.15rem; padding: 10px 12px;
-    border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); color: var(--ink);
   }
   .demo .status { font-size: 0.9rem; color: var(--pencil); min-height: 1.5em; margin: 8px 0 10px; }
   .demo .status.bad { color: var(--redpen); }
   .bars { display: grid; gap: 6px; margin-bottom: 14px; }
   .bar { display: grid; grid-template-columns: 4.2em 1fr 3em; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.9rem; }
-  .bar .track { height: 20px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; overflow: hidden; }
-  .bar .fill { display: block; height: 100%; background: var(--highlight); border-right: 2px solid var(--ink); }
+  .bar .track { height: 20px; background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+  .bar .fill { display: block; height: 100%; background: var(--hl-yellow); border-right: 2px solid var(--ink); }
   .bar .pct { text-align: right; color: var(--pencil); }
-  .demo .small-print { font-size: 0.8rem; color: var(--pencil); margin: 12px 0 0; }
+  .demo .small { font-size: 0.82rem; color: var(--pencil); margin: 12px 0 0; }
 
-  .path { list-style: none; padding: 0; margin: 0 0 48px; max-width: 620px; border-left: 2px solid var(--ink); }
-  .path li { position: relative; padding: 0 0 4px 28px; }
-  .path li::before {
-    content: ""; position: absolute; left: -9px; top: 14px; width: 16px; height: 16px; border-radius: 50%;
-    background: var(--paper); border: 2px solid var(--ink);
+  /* Lesson sticky notes */
+  .lnote {
+    width: 280px; min-height: 200px; padding: 18px 18px 16px; display: block;
+    color: var(--on-hl); text-decoration: none;
+    box-shadow: 0 14px 22px -14px rgba(20,24,50,.45), 0 1px 0 rgba(0,0,0,.05);
+    border-radius: 2px 2px 6px 2px;
   }
-  .path li.ready::before { background: var(--ink); }
-  .path li.done::before { background: var(--good); border-color: var(--good); }
-  .path details { padding: 8px 0; }
-  .path summary { cursor: pointer; display: flex; gap: 10px; align-items: baseline; list-style: none; }
-  .path summary::-webkit-details-marker { display: none; }
-  .path .t { font-weight: 700; font-size: 1.1rem; }
-  .path .s { font-size: 0.85rem; color: var(--pencil); margin-left: auto; white-space: nowrap; }
-  .path .more { padding: 8px 0 4px; }
-  .path .q { font-family: var(--hand); color: var(--redpen); font-size: 1.05rem; margin: 6px 0 0; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lnote { color: var(--ink); } }
+  .lnote .num { font-family: var(--head); font-size: 1.1rem; color: var(--pencil); }
+  .lnote .title { font-family: var(--head); font-size: 1.9rem; line-height: 1.1; margin: 4px 0 10px; }
+  .lnote .sum { font-size: 0.95rem; line-height: 1.45; }
+  .lnote .stamp {
+    display: inline-block; margin-top: 12px; font-family: var(--head); font-size: 1.05rem;
+    padding: 0 10px; border: 2px solid currentColor; border-radius: 6px; transform: rotate(-3deg);
+  }
+  .lnote .stamp.open { color: var(--pen); }
+  .lnote .stamp.done { color: var(--good); }
+  .lnote .stamp.soon { color: var(--pencil); }
+  a.lnote:hover { outline: 3px solid var(--hl-yellow); }
+  .lnote.y { background: var(--note-yellow); } .lnote.p { background: var(--note-pink); }
+  .lnote.b { background: var(--note-blue); } .lnote.g { background: var(--note-green); } .lnote.o { background: var(--note-orange); }
+  .lnote.soon-note { opacity: 0.8; }
 
-  @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding-top: 12px; } }
+  .qlabel {
+    width: 180px; font-family: var(--hand); color: var(--redpen); font-size: 1rem; line-height: 1.3; text-align: center;
+  }
+
+  /* ---------- List view (phones, keyboard users, or by choice) ---------- */
+  body.list-mode .float-top { position: static; background: var(--paper); }
+  @media (max-width: 640px) { .float-top .btn { padding: 4px 10px; font-size: 0.85rem; } .float-top .home { font-size: 1.2rem; padding: 0; } }
+  .hint { transition: opacity .4s; }
+  .hint.gone { opacity: 0; pointer-events: none; }
+  #listView { display: none; padding: 8px 16px 120px; max-width: 760px; margin: 0 auto; }
+  body.list-mode #listView { display: block; }
+  body.list-mode #board, body.list-mode .hint { display: none; }
+  body.list-mode .controls [data-zoom] { display: none; }
+  .lv-intro h1 { font-size: 2.8rem; }
+  .lv-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 16px; }
+  .lv-list .lnote { width: auto; min-height: 0; }
+  .lv-list .q { font-family: var(--hand); color: var(--redpen); text-align: center; margin: 4px 0 0; }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <header class="topbar">
-    <a class="home" href="./">Build a Tiny LLM</a>
-    <div class="tools">
-      <a class="btn" href="start.html">Start here</a>
-      <a class="btn" href="https://github.com/mo-ri-ch/build-an-llm-from-scratch">Code</a>
-    </div>
-  </header>
+<body class="home-page">
 
-  <main>
-    <section class="hero">
-      <div>
-        <h1>Build a tiny LLM from scratch.</h1>
-        <p class="say">Every chatbot does one thing: <b>guess the next piece of text.</b> You'll build that guesser yourself, one question at a time.</p>
-        <div class="actions">
-          <a class="btn" style="background:var(--ink);color:var(--paper)" href="lessons/lesson1.html">Start Lesson 1</a>
-          <a class="btn" href="start.html">What you need</a>
-        </div>
-      </div>
-
-      <div class="activity demo" aria-live="polite">
-        <label for="prompt">Type something. The model guesses what's next.</label>
-        <input id="prompt" value="the d" autocomplete="off" spellcheck="false">
-        <div class="status" id="status">Training…</div>
-        <div class="bars" id="bars"></div>
-        <div class="row">
-          <button id="write">Keep writing</button>
-          <button id="clear">Start over</button>
-        </div>
-        <p class="small-print">588 numbers, trained just now in your browser on one sentence: “the cat sat on the mat. the dog sat on the log.” You'll build it in Lesson 5.</p>
-      </div>
-    </section>
-
-    <h2 id="roadmap">The path</h2>
-    <p class="say" style="color:var(--pencil);font-size:1.05rem">Each lesson ends with a question. The next lesson answers it. Tap a lesson to see its question.</p>
-    <ol class="path" id="path"></ol>
-  </main>
-
-  <footer class="site">Your progress is saved in this browser only.</footer>
+<div class="float-top">
+  <a class="home" href="./">Build a Tiny LLM</a>
+  <div class="tools">
+    <a class="btn" href="start.html">Start here</a>
+    <a class="btn" href="https://github.com/mo-ri-ch/build-an-llm-from-scratch">Code</a>
+  </div>
 </div>
+
+<!-- ================= The board ================= -->
+<div id="board" aria-label="Course board. Drag to move, scroll or pinch to zoom.">
+  <div id="world">
+    <svg id="arrows" width="2300" height="1360" aria-hidden="true"></svg>
+
+    <div class="item intro" style="left:60px; top:70px">
+      <h1>Build a tiny LLM <span class="swash">from scratch</span>.</h1>
+      <p class="say">Every chatbot does one thing: <b>guess the next piece of text.</b> You'll build that guesser yourself, one question at a time.</p>
+      <div class="row">
+        <a class="btn primary" href="lessons/lesson1.html">Start Lesson 1</a>
+        <a class="btn" href="start.html">What you need</a>
+      </div>
+    </div>
+
+    <div class="item activity demo" style="left:740px; top:60px" aria-live="polite">
+      <div class="do">Type something. It guesses what's next.</div>
+      <input id="prompt" value="the d" autocomplete="off" spellcheck="false" aria-label="Text for the model">
+      <div class="status" id="status">Training…</div>
+      <div class="bars" id="bars"></div>
+      <div class="row">
+        <button id="write">Keep writing</button>
+        <button id="clear">Start over</button>
+      </div>
+      <p class="small">588 numbers, trained just now in your browser on one sentence: “the cat sat on the mat. the dog sat on the log.” You'll build it in Lesson 5.</p>
+    </div>
+  </div>
+</div>
+
+<div class="hint" id="hint">Drag to move. Scroll or pinch to zoom. Click a note to open it.</div>
+
+<div class="controls" role="toolbar" aria-label="Board controls">
+  <button data-zoom="out" aria-label="Zoom out">−</button>
+  <button data-zoom="in" aria-label="Zoom in">+</button>
+  <button data-zoom="fit">See all</button>
+  <button id="viewToggle">List</button>
+</div>
+
+<!-- ================= List view ================= -->
+<main id="listView">
+  <div class="lv-intro">
+    <h1>Build a tiny LLM <span class="swash">from scratch</span>.</h1>
+    <p class="say" style="color:var(--pencil)">Each lesson ends with a question. The next lesson answers it.</p>
+    <p><a class="btn primary" href="lessons/lesson1.html">Start Lesson 1</a> <a class="btn" href="start.html">What you need</a></p>
+  </div>
+  <ol class="lv-list" id="lvList"></ol>
+</main>
 
 <script src="assets/tinylm.js"></script>
 <script src="assets/common.js"></script>
 <script>
-// ---------- The path ----------
-(function renderPath() {
-  const list = document.getElementById("path");
-  LESSONS.forEach(lesson => {
-    const done = isDone(lesson.n);
+// ---------------- Lesson notes and arrows ----------------
+const NOTE_W = 280, NOTE_H = 210, STEP = 470, ROW1 = 560, ROW2 = 1060, LEFT = 60;
+const COLORS = ["y", "p", "b", "g", "o"];
+const TILT = [-1.5, 1, -0.6, 1.4, -1.1];
+
+function notePos(i) {            // i = 0..9, snake layout
+  if (i < 5) return { x: LEFT + i * STEP, y: ROW1 };
+  return { x: LEFT + (9 - i) * STEP, y: ROW2 };
+}
+
+function noteHTML(lesson) {
+  const done = isDone(lesson.n);
+  const stamp = done ? '<span class="stamp done">✓ Done</span>'
+    : lesson.ready ? '<span class="stamp open">Open</span>' : '<span class="stamp soon">Soon</span>';
+  return `<div class="num">Lesson ${lesson.n}</div><div class="title">${lesson.title}</div><div class="sum">${lesson.summary}</div>${stamp}`;
+}
+
+function makeNote(lesson, i) {
+  const el = document.createElement(lesson.ready ? "a" : "div");
+  el.className = `lnote ${COLORS[i % 5]}` + (lesson.ready ? "" : " soon-note");
+  if (lesson.ready) el.href = `lessons/${lesson.file}`;
+  el.innerHTML = noteHTML(lesson);
+  return el;
+}
+
+(function buildBoard() {
+  const world = document.getElementById("world");
+  const svg = document.getElementById("arrows");
+  let paths = "";
+
+  LESSONS.forEach((lesson, i) => {
+    const { x, y } = notePos(i);
+    const el = makeNote(lesson, i);
+    el.classList.add("item");
+    el.style.left = x + "px"; el.style.top = y + "px";
+    el.style.transform = `rotate(${TILT[i % 5]}deg)`;
+    world.appendChild(el);
+
+    if (!lesson.leaves) return;
+    const a = notePos(i), b = notePos(i + 1);
+    const label = document.createElement("div");
+    label.className = "item qlabel";
+    label.textContent = lesson.leaves;
+    let x1, y1, x2, y2;
+    if (a.y === b.y) {
+      const goingRight = b.x > a.x;
+      y1 = y2 = a.y + NOTE_H / 2 + 20;
+      x1 = goingRight ? a.x + NOTE_W + 14 : a.x - 14;
+      x2 = goingRight ? b.x - 14 : b.x + NOTE_W + 14;
+      const mid = (x1 + x2) / 2;
+      label.style.left = (mid - 90) + "px";
+      label.style.top = (a.y - 10) + "px";
+      paths += `<path d="M${x1},${y1} Q${mid},${y1 + 26} ${x2},${y2}"/>`;
+      const dir = goingRight ? 1 : -1;
+      paths += `<path class="head" d="M${x2},${y2} l${-12 * dir},-7 l0,14 z"/>`;
+    } else {
+      x1 = x2 = a.x + NOTE_W / 2;
+      y1 = a.y + NOTE_H + 18; y2 = b.y - 16;
+      paths += `<path d="M${x1},${y1} Q${x1 - 30},${(y1 + y2) / 2} ${x2},${y2}"/>`;
+      paths += `<path class="head" d="M${x2},${y2} l-7,-12 l14,0 z"/>`;
+      label.style.left = (x1 + 30) + "px";
+      label.style.top = ((y1 + y2) / 2 - 30) + "px";
+      label.style.textAlign = "left";
+    }
+    world.appendChild(label);
+  });
+  svg.innerHTML = paths;
+
+  // List view
+  const list = document.getElementById("lvList");
+  LESSONS.forEach((lesson, i) => {
     const li = document.createElement("li");
-    li.className = (lesson.ready ? "ready" : "") + (done ? " done" : "");
-    const status = done ? "✓ Done" : lesson.ready ? "Open" : "Soon";
-    const go = lesson.ready ? `<p><a class="btn small" href="lessons/${lesson.file}">Open Lesson ${lesson.n}</a></p>` : "";
-    const q = lesson.leaves ? `<p class="q">Leaves you wondering: ${lesson.leaves}</p>` : "";
-    li.innerHTML = `
-      <details>
-        <summary><span class="t">${lesson.n}. ${lesson.title}</span><span class="s">${status}</span></summary>
-        <div class="more"><div>${lesson.summary}</div>${q}${go}</div>
-      </details>`;
+    li.appendChild(makeNote(lesson, i));
+    if (lesson.leaves) li.insertAdjacentHTML("beforeend", `<p class="q">↓ ${lesson.leaves}</p>`);
     list.appendChild(li);
   });
 })();
 
-// ---------- Live demo ----------
+// ---------------- Pan and zoom ----------------
+(function panZoom() {
+  const board = document.getElementById("board");
+  const world = document.getElementById("world");
+  const WORLD_W = 2300, WORLD_H = 1360;
+  let x = 0, y = 0, s = 1;
+
+  function apply() {
+    world.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+    board.style.backgroundSize = `100% ${32 * s}px`;
+    board.style.backgroundPosition = `0 ${y}px`;
+  }
+  function zoomAt(factor, cx, cy) {
+    const ns = Math.min(2, Math.max(0.2, s * factor));
+    x = cx - (cx - x) * (ns / s);
+    y = cy - (cy - y) * (ns / s);
+    s = ns; apply();
+  }
+  function fit() {
+    const w = board.clientWidth, h = board.clientHeight;
+    s = Math.min((w - 40) / WORLD_W, (h - 120) / WORLD_H);
+    x = (w - WORLD_W * s) / 2; y = 70; apply();
+  }
+  function start() {
+    // Begin on the title and the demo, as big as fits
+    // Show the title, the demo and the first row of lessons
+    const w = board.clientWidth, h = board.clientHeight;
+    s = Math.min(1, (w - 40) / 1260, (h - 120) / 800);
+    x = (w - 1260 * s) / 2; y = 56; apply();
+  }
+
+  // Dragging (one finger or mouse) and pinching (two fingers)
+  const pointers = new Map();
+  let moved = 0, pinchDist = 0;
+  const interactive = "input, button, select, textarea, label, .demo";
+
+  const hint = document.getElementById("hint");
+  const hideHint = () => hint.classList.add("gone");
+  board.addEventListener("wheel", hideHint, { once: true });
+  board.addEventListener("pointerdown", e => {
+    if (e.target.closest(interactive)) return;
+    hideHint();
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    board.setPointerCapture(e.pointerId);
+    moved = 0;
+    if (pointers.size === 2) {
+      const [p, q] = [...pointers.values()];
+      pinchDist = Math.hypot(p.x - q.x, p.y - q.y);
+    }
+    board.classList.add("dragging");
+  });
+  board.addEventListener("pointermove", e => {
+    if (!pointers.has(e.pointerId)) return;
+    const prev = pointers.get(e.pointerId);
+    const now = { x: e.clientX, y: e.clientY };
+    pointers.set(e.pointerId, now);
+    if (pointers.size === 1) {
+      x += now.x - prev.x; y += now.y - prev.y;
+      moved += Math.abs(now.x - prev.x) + Math.abs(now.y - prev.y);
+      apply();
+    } else if (pointers.size === 2) {
+      const [p, q] = [...pointers.values()];
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (pinchDist) zoomAt(d / pinchDist, (p.x + q.x) / 2, (p.y + q.y) / 2);
+      pinchDist = d; moved += 10;
+    }
+  });
+  function end(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist = 0;
+    if (!pointers.size) board.classList.remove("dragging");
+  }
+  board.addEventListener("pointerup", end);
+  board.addEventListener("pointercancel", end);
+  // A drag that starts on a note shouldn't open it
+  board.addEventListener("click", e => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+  board.addEventListener("wheel", e => {
+    e.preventDefault();
+    const trackpadPan = !e.ctrlKey && e.deltaMode === 0 && Math.abs(e.deltaX) > 0;
+    if (trackpadPan) { x -= e.deltaX; y -= e.deltaY; apply(); return; }
+    zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX, e.clientY);
+  }, { passive: false });
+
+  document.querySelectorAll("[data-zoom]").forEach(b => b.onclick = () => {
+    const cx = board.clientWidth / 2, cy = board.clientHeight / 2;
+    if (b.dataset.zoom === "in") zoomAt(1.25, cx, cy);
+    if (b.dataset.zoom === "out") zoomAt(0.8, cx, cy);
+    if (b.dataset.zoom === "fit") fit();
+  });
+
+  // Keyboard: Tab to a note and the board brings it into view
+  world.addEventListener("focusin", e => {
+    const el = e.target.closest(".item");
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.left < 0 || r.right > board.clientWidth || r.top < 60 || r.bottom > board.clientHeight - 70) {
+      x += board.clientWidth / 2 - (r.left + r.width / 2);
+      y += board.clientHeight / 2 - (r.top + r.height / 2);
+      apply();
+    }
+  });
+  board.addEventListener("scroll", () => { board.scrollTop = 0; board.scrollLeft = 0; });
+
+  // Board or list
+  const toggle = document.getElementById("viewToggle");
+  function setList(on) {
+    document.body.classList.toggle("list-mode", on);
+    toggle.textContent = on ? "Board" : "List";
+    if (!on) start();
+  }
+  toggle.onclick = () => setList(!document.body.classList.contains("list-mode"));
+  // Phones start with the list, where text is readable without zooming
+  setList(window.innerWidth < 640);
+  window.addEventListener("resize", () => { if (!document.body.classList.contains("list-mode")) start(); });
+  start();
+})();
+
+// ---------------- Live demo ----------------
 (function demo() {
   const model = new ThreeCharModel();
   const input = document.getElementById("prompt");
@@ -129,41 +384,31 @@
       status.textContent = `It has never seen “${bad.join("”, “")}”. It only knows: ${CHARS.filter(c => c !== " ").join(" ")} and space.`;
       return;
     }
-    if (text.length < 3) {
-      status.className = "status bad";
-      status.textContent = "Type at least 3 characters.";
-      return;
-    }
+    if (text.length < 3) { status.className = "status bad"; status.textContent = "Type at least 3 characters."; return; }
     const last = text.slice(-3);
     const chances = model.predict(last);
     status.className = "status";
     status.textContent = `After “${last}”, it guesses:`;
-    chances.map((p, i) => ({ p, c: CHARS[i] }))
-      .sort((a, b) => b.p - a.p).slice(0, 4)
-      .forEach(({ p, c }) => {
-        const row = document.createElement("div");
-        row.className = "bar";
-        row.innerHTML = `<span>${showChar(c)}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
-        bars.appendChild(row);
-      });
+    chances.map((p, i) => ({ p, c: CHARS[i] })).sort((a, b) => b.p - a.p).slice(0, 4).forEach(({ p, c }) => {
+      const row = document.createElement("div");
+      row.className = "bar";
+      row.innerHTML = `<span>${showChar(c)}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
+      bars.appendChild(row);
+    });
   }
-
   let steps = 0;
-  function trainSome() {
+  (function trainSome() {
     for (let i = 0; i < 30 && steps < 300; i++, steps++) model.trainStep();
     if (steps < 300) requestAnimationFrame(trainSome); else render();
-  }
-  trainSome();
-
+  })();
   input.addEventListener("input", () => { if (steps >= 300) render(); });
-  document.getElementById("write").addEventListener("click", () => {
+  document.getElementById("write").onclick = () => {
     let text = input.value.toLowerCase();
     if (text.length < 3 || model.predict(text.slice(-3)) === null) { render(); return; }
     for (let i = 0; i < 30; i++) text += CHARS[pickByChance(model.predict(text.slice(-3)))];
-    input.value = text;
-    render();
-  });
-  document.getElementById("clear").addEventListener("click", () => { input.value = "the d"; render(); input.focus(); });
+    input.value = text; render();
+  };
+  document.getElementById("clear").onclick = () => { input.value = "the d"; render(); input.focus(); };
 })();
 </script>
 </body>
