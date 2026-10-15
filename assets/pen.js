@@ -281,7 +281,24 @@
       swatches.forEach((b, i) => b.classList.toggle("on", !erasing && COLORS[i] === tool));
       eraser.classList.toggle("on", erasing);
       document.body.classList.toggle("pen-erasing", erasing);
+      setCursor();
       remember();
+    }
+    // The pointer is a dot: the same size and colour as the line it will draw
+    function setCursor() {
+      const f = frame();
+      let svg, r;
+      if (erasing) {
+        r = 12; // the eraser's reach
+        svg = `<circle cx="${r + 1}" cy="${r + 1}" r="${r}" fill="rgba(255,255,255,0.5)" stroke="#1D2238" stroke-width="1.5"/>`;
+      } else {
+        const d = Math.max(4, tool.width * (f.w / 900)); // same width as a mouse line
+        r = d / 2;
+        svg = `<circle cx="${r + 1}" cy="${r + 1}" r="${r}" fill="${tool.color}" fill-opacity="${tool.alpha < 1 ? 0.6 : 1}"/>`;
+      }
+      const size = Math.ceil(r * 2 + 2), c = Math.round(r + 1);
+      const url = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">${svg}</svg>`);
+      canvas.style.cursor = `url("${url}") ${c} ${c}, crosshair`;
     }
     // The pen setting (on/off, colour, eraser) follows you to every page
     const SETTINGS = "tiny-llm-pen";
@@ -352,7 +369,7 @@
     }
     if (window.ResizeObserver) { const ro = new ResizeObserver(requestRedraw); hosts.forEach((h) => ro.observe(h)); }
     document.addEventListener("scroll", requestRedraw, true);
-    window.addEventListener("resize", fitCanvas);
+    window.addEventListener("resize", () => { fitCanvas(); setCursor(); });
     window.addEventListener("load", requestRedraw);
     fitCanvas();
   }
