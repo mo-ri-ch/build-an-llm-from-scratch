@@ -52,7 +52,7 @@
 }
 
 /* Dark: a notebook under a desk lamp */
-@media (prefers-color-scheme: dark) {
+@media not all {
   :root:not([data-theme="light"]) {
     --paper: #1A1C25; --rule: #252A38; --margin: #5A2F3A;
     --ink: #EEEBE2; --pencil: #A7ABBA; --pen: #8EA6FF; --redpen: #FF8A96; --good: #5FD68F;
@@ -103,7 +103,7 @@ body[data-pen="green"]  { --ul: #1E8F4E; }
 body[data-pen="purple"] { --ul: #7A3FD1; }
 body[data-pen="orange"] { --ul: #E0701B; }
 body[data-pen="pink"]   { --ul: #D2287A; }
-@media (prefers-color-scheme: dark) {
+@media not all {
   :root:not([data-theme="light"]) body[data-pen="blue"]   { --ul: #8EA6FF; }
   :root:not([data-theme="light"]) body[data-pen="green"]  { --ul: #5FD68F; }
   :root:not([data-theme="light"]) body[data-pen="purple"] { --ul: #B794FF; }
