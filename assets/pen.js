@@ -44,6 +44,15 @@
 
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
+    // Always pick up the latest notes when you come back to a page (Back button, another tab, "All" cleared)
+    function reload() {
+      try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { saved = {}; }
+      requestRedraw();
+    }
+    window.addEventListener("pageshow", reload);
+    window.addEventListener("focus", reload);
+    window.addEventListener("storage", (e) => { if (e.key === null || e.key === KEY) reload(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) reload(); });
     function save() { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* ignore */ } }
     function strokesOf(i) { return saved[i] || (saved[i] = []); }
 
