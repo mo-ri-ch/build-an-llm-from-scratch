@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151032">
+<link rel="stylesheet" href="../assets/style.css?v=202610151036">
 </head>
 <body data-pen="blue">
 <div class="wrap">
@@ -170,7 +170,7 @@ print(table[1, 2])
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151032"></script>
+<script src="../assets/common.js?v=202610151036"></script>
 <script>
 // Format a list of numbers the way PyTorch prints a tensor
 function tensorText(values) {
@@ -185,6 +185,10 @@ document.getElementById("runList").onclick = () => {
     '<span class="err">TypeError: can only concatenate list (not "int") to list</span>';
   document.getElementById("listAfter").hidden = false;
 };
+addReset("runList", () => {
+  document.getElementById("listOut").innerHTML = '<span class="c"># press Run</span>';
+  document.getElementById("listAfter").hidden = true;
+});
 
 // ---------- Part 2: math on a tensor ----------
 (function tensorMath() {
@@ -222,6 +226,12 @@ document.getElementById("runList").onclick = () => {
       out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(${op.code})\n<span class="c"># ${tensorText(result)}</span>`;
     };
   });
+  addReset("opOut", () => {
+    values = [10, 20, 30];
+    drawInputs();
+    outBox.innerHTML = "";
+    out.innerHTML = '<span class="c"># press a button</span>';
+  });
   document.getElementById("addTile").onclick = () => {
     if (values.length >= 6) return;
     values.push((values.length + 1) * 10);
@@ -244,6 +254,10 @@ document.getElementById("runList").onclick = () => {
       flash(b);
     };
     box.appendChild(b);
+  });
+  addReset(out, () => {
+    out.innerHTML = '<span class="c"># click a number</span>';
+    box.querySelectorAll(".flash").forEach(t => t.classList.remove("flash"));
   });
 })();
 
@@ -272,6 +286,10 @@ document.getElementById("runList").onclick = () => {
       };
       g.appendChild(b);
     });
+  });
+  addReset(out, () => {
+    out.innerHTML = '<span class="c"># click something</span>';
+    g.querySelectorAll(".flash").forEach(t => t.classList.remove("flash"));
   });
 })();
 </script>

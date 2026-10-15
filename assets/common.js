@@ -222,11 +222,37 @@ function setupKeys() {
   });
 }
 
+// ---------- Reset: every activity can go back to how it started ----------
+// addReset(anyElementInsideTheActivity, functionThatResetsIt)
+function addReset(inside, fn) {
+  const el = typeof inside === "string" ? document.getElementById(inside) : inside;
+  const box = el && el.closest(".activity");
+  if (!box) return;
+  const b = document.createElement("button");
+  b.className = "reset";
+  b.type = "button";
+  b.textContent = "↺ Reset";
+  b.setAttribute("aria-label", "Reset this activity");
+  b.addEventListener("click", () => { fn(); b.blur(); });
+  box.appendChild(b);
+}
+
 // ---------- Clickable quizzes ----------
 // <div class="quiz"><button data-right>…</button><button>…</button><div class="feedback"></div></div>
 function setupQuizzes() {
   document.querySelectorAll(".quiz").forEach(quiz => {
     const feedback = quiz.querySelector(".feedback");
+    const again = document.createElement("button");
+    again.className = "reset quiz-reset";
+    again.type = "button";
+    again.textContent = "↺ Try again";
+    again.hidden = true;
+    again.addEventListener("click", () => {
+      quiz.querySelectorAll(".options button").forEach(x => x.classList.remove("right", "wrong"));
+      if (feedback) { feedback.textContent = ""; feedback.className = "feedback"; }
+      again.hidden = true;
+    });
+    quiz.appendChild(again);
     quiz.querySelectorAll(".options button").forEach(b => {
       b.addEventListener("click", () => {
         quiz.querySelectorAll(".options button").forEach(x => x.classList.remove("right", "wrong"));
@@ -236,6 +262,7 @@ function setupQuizzes() {
           feedback.innerHTML = right ? (quiz.dataset.right || "Right!") : (b.dataset.why || "Not quite. Try another.");
           feedback.className = "feedback " + (right ? "good" : "bad");
         }
+        again.hidden = false;
       });
     });
   });

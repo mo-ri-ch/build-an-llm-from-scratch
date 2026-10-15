@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151032">
+<link rel="stylesheet" href="../assets/style.css?v=202610151036">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -174,7 +174,7 @@ print(torch.tensor(encode(text)))
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151032"></script>
+<script src="../assets/common.js?v=202610151036"></script>
 <script>
 function tile(text, idx, extra) {
   const t = document.createElement("div");
@@ -190,6 +190,10 @@ document.getElementById("runStr").onclick = () => {
   document.getElementById("strOut").innerHTML = '<span class="err">TypeError: can only concatenate str (not "int") to str</span>';
   document.getElementById("strAfter").hidden = false;
 };
+addReset("runStr", () => {
+  document.getElementById("strOut").innerHTML = '<span class="c"># press Run</span>';
+  document.getElementById("strAfter").hidden = true;
+});
 
 // ---------- Part 2: vocabulary ----------
 (function vocab() {
@@ -203,6 +207,7 @@ document.getElementById("runStr").onclick = () => {
     chars.forEach((c, i) => box.appendChild(tile(c, i)));
     out.innerHTML = `unique_chars = sorted(set("${esc(text)}"))\n<span class="c"># ${esc(pyList(chars))}</span>\n<span class="c"># vocabulary size: ${chars.length}</span>`;
   }
+  addReset(input, () => { input.value = "hello world"; render(); });
   input.oninput = render;
   render();
 })();
@@ -231,6 +236,7 @@ document.getElementById("runStr").onclick = () => {
     nums.forEach(n => decBox.appendChild(tile(vocab[n], n)));
     out.innerHTML = `encode("${w}")\n<span class="c"># [${nums.join(", ")}]</span>\ndecode([${nums.join(", ")}])\n<span class="c"># ${w}</span>`;
   }
+  addReset(input, () => { input.value = "hello"; render(); });
   input.oninput = render;
   render();
 })();

@@ -410,3 +410,20 @@ body.teach pre { font-size: 0.8rem; }
   body.has-thumbs .pagebar button { pointer-events: auto; }
   body.has-thumbs main[data-paged] section.part { padding-bottom: 80px; }
 }
+
+/* ↺ Reset: quiet text in the top-right corner of every activity */
+.reset {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: 0; padding: 2px 4px; box-shadow: none;
+  font-family: var(--head); font-weight: 400; font-size: 1.05rem; color: var(--pencil);
+}
+.reset:hover { background: none; color: var(--pen); }
+.quiz { position: relative; }
+.quiz-reset { position: static; margin-top: 4px; }
+.activity .do { padding-right: 84px; }
+/* Keep a strip at the bottom for Previous / Next, so content never slides under them */
+@media (min-width: 1000px) {
+  body.has-thumbs .wrap, body.has-thumbs.thumbs-off .wrap { bottom: 50px; }
+  body.has-thumbs main[data-paged] section.part { padding-bottom: 24px; }
+  body.has-thumbs .pagebar .inner { padding-bottom: 8px; }
+}

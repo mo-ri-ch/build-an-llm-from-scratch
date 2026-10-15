@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151032">
+<link rel="stylesheet" href="../assets/style.css?v=202610151036">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -76,7 +76,6 @@
         <div class="row">
           <button class="primary" id="nextPair">Next pair</button>
           <button id="allPairs">Count all</button>
-          <button id="resetPairs">Reset</button>
           <label style="margin-left:auto">Watch row <select class="pick" id="tallyRow"></select></label>
         </div>
         <div class="tally" id="tally"></div>
@@ -108,7 +107,6 @@
         <div class="row" style="margin-top:10px">
           <button class="primary" id="roll1">Roll</button>
           <button id="roll40">Roll 40 times</button>
-          <button id="rollReset">Start over</button>
         </div>
       </div>
       <p class="say">Real LLMs write exactly like this: one piece at a time.</p>
@@ -210,8 +208,8 @@ print(output)
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151032"></script>
-<script src="../assets/common.js?v=202610151032"></script>
+<script src="../assets/tinylm.js?v=202610151036"></script>
+<script src="../assets/common.js?v=202610151036"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]
@@ -270,7 +268,7 @@ function fillRowSelect(sel, chosen) {
   }
   document.getElementById("nextPair").onclick = step;
   document.getElementById("allPairs").onclick = () => { while (pos < TEXT.length - 1) step(); };
-  document.getElementById("resetPairs").onclick = reset;
+  addReset(strip, () => { sel.value = CHAR_TO_NUMBER["t"]; reset(); });
   sel.onchange = () => render(pos - 1);
   reset();
 })();
@@ -293,6 +291,7 @@ function fillRowSelect(sel, chosen) {
     });
   }
   sel.onchange = render;
+  addReset(box, () => { sel.value = CHAR_TO_NUMBER["t"]; render(); });
   render();
 })();
 
@@ -334,7 +333,7 @@ function fillRowSelect(sel, chosen) {
   }
   document.getElementById("roll1").onclick = roll;
   document.getElementById("roll40").onclick = () => { for (let i = 0; i < 40; i++) if (!roll()) break; };
-  document.getElementById("rollReset").onclick = () => { text = "t"; drawDice(-1); show(); };
+  addReset(dice, () => { text = "t"; drawDice(-1); show(); });
   drawDice(-1); show();
 })();
 </script>

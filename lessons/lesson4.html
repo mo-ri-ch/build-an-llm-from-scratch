@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151032">
+<link rel="stylesheet" href="../assets/style.css?v=202610151036">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -141,7 +141,6 @@ chance = [0.705, 0.259, 0.035]</code></pre>
         <div class="win" id="gameWin"></div>
         <div class="row">
           <button id="askBackward">Ask PyTorch which way</button>
-          <button id="gameReset">Reset</button>
         </div>
       </div>
       <p class="say">The arrows PyTorch shows are <mark>gradients</mark>.</p>
@@ -290,8 +289,8 @@ print(probabilities[char_to_number['t']])
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151032"></script>
-<script src="../assets/common.js?v=202610151032"></script>
+<script src="../assets/tinylm.js?v=202610151036"></script>
+<script src="../assets/common.js?v=202610151036"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
@@ -303,6 +302,7 @@ function bar(label, p, target) {
   const o = document.getElementById("lookBackOut");
   const r = document.getElementById("rows");
   s.oninput = () => { o.textContent = s.value; r.textContent = (BigInt(14) ** BigInt(s.value)).toLocaleString("en-US"); };
+  addReset(s, () => { s.value = 1; s.oninput(); });
 })();
 
 // ---------- 3: softmax sliders ----------
@@ -316,6 +316,8 @@ function bar(label, p, target) {
     box.innerHTML = p.map((x, i) => bar(names[i], x)).join("");
   }
   sliders.forEach(s => s.oninput = render);
+  const start = sliders.map(s => s.value);
+  addReset(box, () => { sliders.forEach((s, i) => s.value = start[i]); render(); });
   render();
 })();
 
@@ -330,6 +332,7 @@ function bar(label, p, target) {
     document.getElementById("lossFill").style.width = Math.min(100, L / 4.61 * 100) + "%";
   }
   s.oninput = render;
+  addReset(s, () => { s.value = 0.13; render(); });
   render();
 })();
 
@@ -371,7 +374,7 @@ function bar(label, p, target) {
   }
   function reset() { row = INIT_LESSON4[T].slice(); moves = 0; showGrad = false; render(); }
   document.getElementById("askBackward").onclick = () => { showGrad = true; render(); };
-  document.getElementById("gameReset").onclick = reset;
+  addReset(game, reset);
   reset();
 })();
 
@@ -408,6 +411,7 @@ function bar(label, p, target) {
   document.getElementById("train").onclick = () => { model.reset(); run(300); };
   document.getElementById("step1").onclick = () => run(1);
   lrSel.onchange = () => { model.reset(); render(); };
+  addReset(lrSel, () => { lrSel.value = "10"; model.reset(); render(); });
   render();
 })();
 </script>
