@@ -319,12 +319,31 @@
       else if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z") && on) { e.preventDefault(); undoLast(); }
     });
 
-    // While the pen is on, the mouse wheel still scrolls the slide underneath
-    canvas.addEventListener("wheel", (e) => {
+    // While the pen is on, the mouse wheel still scrolls the slide underneath.
+    // We move the page and redraw the notes in the same frame, with a gentle glide, so both move together smoothly.
+    let pendingX = 0, pendingY = 0, gliding = false;
+    function scroller() {
       const area = document.querySelector("body.has-thumbs .wrap");
-      if (area && getComputedStyle(area).position === "fixed") area.scrollBy(e.deltaX, e.deltaY);
-      else window.scrollBy(e.deltaX, e.deltaY);
-    }, { passive: true });
+      return area && getComputedStyle(area).position === "fixed" ? area : document.scrollingElement || document.documentElement;
+    }
+    function glide() {
+      const el = scroller();
+      const stepX = Math.abs(pendingX) < 1 ? pendingX : pendingX * 0.3;
+      const stepY = Math.abs(pendingY) < 1 ? pendingY : pendingY * 0.3;
+      el.scrollTo({ left: el.scrollLeft + stepX, top: el.scrollTop + stepY, behavior: "instant" }); // the page's own smooth scrolling would fight our glide
+      pendingX -= stepX; pendingY -= stepY;
+      // Stop if we reached the top or bottom
+      if (Math.abs(pendingY) >= 0.5 && ((pendingY < 0 && el.scrollTop <= 0) || (pendingY > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1))) pendingY = 0;
+      redraw();
+      if (Math.abs(pendingX) >= 0.5 || Math.abs(pendingY) >= 0.5) requestAnimationFrame(glide);
+      else { pendingX = pendingY = 0; gliding = false; }
+    }
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const unit = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1;
+      pendingX += e.deltaX * unit; pendingY += e.deltaY * unit;
+      if (!gliding) { gliding = true; requestAnimationFrame(glide); }
+    }, { passive: false });
 
     // Redraw when the slide changes, scrolls or changes size
     if (window.MutationObserver) {
