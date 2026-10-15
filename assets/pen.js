@@ -129,7 +129,7 @@
       requestAnimationFrame(() => { queued = false; redraw(); });
     }
 
-    let tool = COLORS[0], erasing = false, current = null;
+    let tool = COLORS[0], erasing = false, current = null, tap = null;
 
     function toSlide(e, f) {
       const pressure = e.pointerType === "pen" && e.pressure ? e.pressure : 0.5;
@@ -144,6 +144,7 @@
       if (erasing || e.button === 5) { current = "erase"; eraseAt(toSlide(e, f), f); return; }
       current = { c: tool.color, w: tool.width, a: tool.alpha, p: [toSlide(e, f)] };
       strokesOf(currentIndex()).push(current);
+      tap = { x: e.clientX, y: e.clientY, t: Date.now(), moved: false };
       requestRedraw();
     });
     canvas.addEventListener("pointermove", (e) => {
@@ -153,16 +154,39 @@
       const all = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
       const events = all.length ? all : [e];
       if (current === "erase") { events.forEach((ev) => eraseAt(toSlide(ev, f), f)); return; }
+      if (tap && Math.abs(e.clientX - tap.x) + Math.abs(e.clientY - tap.y) > 6) tap.moved = true;
       events.forEach((ev) => {
         const p = toSlide(ev, f), last = current.p[current.p.length - 1];
         if (Math.abs(p[0] - last[0]) + Math.abs(p[1] - last[1]) > 0.5 / f.w) current.p.push(p);
       });
       requestRedraw();
     });
-    function end() {
+    function end(e) {
       if (!current) return;
+      const stroke = current;
       current = null;
+      // A quick tap (no drawing) clicks whatever is under the pen, so you can use the slide without turning the pen off
+      if (stroke !== "erase" && tap && !tap.moved && Date.now() - tap.t < 300 && e.type === "pointerup") {
+        const list = strokesOf(currentIndex());
+        list.splice(list.indexOf(stroke), 1);
+        requestRedraw();
+        clickUnder(e.clientX, e.clientY);
+      }
+      tap = null;
       save();
+    }
+    function clickUnder(x, y) {
+      canvas.style.pointerEvents = "none";
+      const el = document.elementFromPoint(x, y);
+      canvas.style.pointerEvents = "";
+      if (!el) return;
+      const field = el.closest("input, select, textarea");
+      if (field && !/checkbox|radio|button|submit|reset/.test(field.type)) {
+        field.focus();
+        if (field.tagName === "SELECT" && field.showPicker) { try { field.showPicker(); } catch (err) { /* ignore */ } }
+        return;
+      }
+      el.click();
     }
     canvas.addEventListener("pointerup", end);
     canvas.addEventListener("pointercancel", end);
