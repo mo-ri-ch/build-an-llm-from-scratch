@@ -35,7 +35,7 @@ e^x, log or matrices. Each one is explained when it first appears.
 
 ## Run the Python code
 
-Easiest: on each lesson's "The code" slide, press **▶ Run it in Google Colab**. It runs in your browser with PyTorch already installed.
+Easiest: on each lesson's "The code" page, press **▶ Run it in Google Colab**. It runs in your browser with PyTorch already installed.
 
 Or on your own computer:
 

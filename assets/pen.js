@@ -283,20 +283,20 @@
     undo.textContent = "↶";
     undo.onclick = undoLast;
     const clear = document.createElement("button");
-    clear.type = "button"; clear.className = "small"; clear.title = "Clear notes on this slide"; clear.setAttribute("aria-label", "Clear notes on this slide");
+    clear.type = "button"; clear.className = "small"; clear.title = "Clear notes on this page"; clear.setAttribute("aria-label", "Clear notes on this page");
     clear.textContent = "✕";
     let clearArmed = null;
     clear.onclick = () => {
       // Press twice to clear, so it can't happen by accident
       if (!clearArmed) {
-        clear.textContent = "?"; clear.title = "Press again to clear this slide";
+        clear.textContent = "?"; clear.title = "Press again to clear this page";
         clearArmed = setTimeout(disarm, 2500);
         return;
       }
       disarm();
       saved[currentIndex()] = []; save(); requestRedraw();
     };
-    function disarm() { clearTimeout(clearArmed); clearArmed = null; clear.textContent = "✕"; clear.title = "Clear notes on this slide"; }
+    function disarm() { clearTimeout(clearArmed); clearArmed = null; clear.textContent = "✕"; clear.title = "Clear notes on this page"; }
     // Clear every note on every page, after a confirmation message
     const clearAll = document.createElement("button");
     clearAll.type = "button"; clearAll.className = "small all";

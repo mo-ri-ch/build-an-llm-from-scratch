@@ -146,7 +146,7 @@ const THUMBS_KEY = "tiny-llm-thumbs-hidden";
 function buildThumbnails(parts, onPick) {
   const aside = document.createElement("aside");
   aside.className = "thumbs";
-  aside.setAttribute("aria-label", "Slides in this lesson");
+  aside.setAttribute("aria-label", "Pages in this lesson");
 
   const toggle = document.createElement("button");
   toggle.className = "thumbs-toggle";
@@ -186,7 +186,7 @@ function buildThumbnails(parts, onPick) {
     const li = document.createElement("li");
     const b = document.createElement("button");
     b.className = "thumb";
-    b.setAttribute("aria-label", `Slide ${i + 1}: ${part.dataset.title || ""}`);
+    b.setAttribute("aria-label", `Page ${i + 1}: ${part.dataset.title || ""}`);
 
     const cap = document.createElement("span");
     cap.className = "thumb-cap";
@@ -202,7 +202,7 @@ function buildThumbnails(parts, onPick) {
 
   function setHidden(hidden) {
     document.body.classList.toggle("thumbs-off", hidden);
-    toggle.textContent = hidden ? "Show slides" : "Hide slides";
+    toggle.textContent = hidden ? "Show pages" : "Hide pages";
     toggle.setAttribute("aria-expanded", hidden ? "false" : "true");
     try { localStorage.setItem(THUMBS_KEY, hidden ? "1" : ""); } catch (e) { /* ignore */ }
   }
