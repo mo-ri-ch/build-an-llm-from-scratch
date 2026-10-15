@@ -340,8 +340,8 @@ body.teach pre { font-size: 0.8rem; }
 
 @media (min-width: 1000px) {
   body.has-thumbs .thumbs {
-    display: block; position: fixed; top: 54px; right: 0; bottom: 0; width: 230px; z-index: 3;
-    overflow-y: auto; padding: 8px 14px 16px; background: var(--paper);
+    display: block; position: fixed; top: 54px; right: 0; bottom: 0; width: 232px; z-index: 3;
+    overflow: hidden; padding: 8px 14px 12px; background: var(--paper);
     border-left: 2px solid var(--ink);
   }
   body.has-thumbs .thumbs-toggle {
@@ -350,10 +350,14 @@ body.teach pre { font-size: 0.8rem; }
   }
   body.has-thumbs.thumbs-off .thumbs { display: none; }
 
-  body.has-thumbs:not(.thumbs-off) .wrap { margin-right: 240px; margin-left: auto; }
-  body.has-thumbs:not(.thumbs-off) .pagebar { right: 232px; }
-  body.has-thumbs:not(.thumbs-off) .topbar { padding-right: 120px; }
-  body.has-thumbs.thumbs-off .topbar { padding-right: 130px; }
+  /* Presenting space: everything left of the strip. Content sits in its centre. */
+  body.has-thumbs .wrap { max-width: none; margin: 0; padding: 0 40px 0 88px; }
+  body.has-thumbs:not(.thumbs-off) .wrap { margin-right: 232px; }
+  body.has-thumbs main[data-paged] { margin: 0 auto; }
+  body.has-thumbs .topbar { padding-right: 130px; }
+
+  /* No bottom bar on wide screens: use the thumbnails or the ← → keys */
+  body.has-thumbs:not(.thumbs-off) .pagebar { display: none; }
 
   /* The strip replaces the tick boxes */
   body.has-thumbs .progress { display: none; }
@@ -361,7 +365,7 @@ body.teach pre { font-size: 0.8rem; }
   /* Each part is a slide that fits the screen; long ones scroll inside */
   body.has-thumbs main[data-paged] { padding-bottom: 0; }
   body.has-thumbs main[data-paged] section.part {
-    max-height: calc(100vh - 66px - 76px); overflow-y: auto; padding-right: 8px; padding-bottom: 24px;
+    max-height: calc(100vh - 80px); overflow-y: auto; padding-right: 8px; padding-bottom: 24px;
   }
   /* The lesson title moves into the top bar, so each slide gets the full height */
   body.has-thumbs .paged-head { display: none; }
@@ -369,20 +373,24 @@ body.teach pre { font-size: 0.8rem; }
   body.has-thumbs:not(.thumbs-off) .thumbs-toggle { right: 14px; }
   body.has-thumbs .thumbs-toggle { background: var(--paper); }
 
-  .thumb-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .thumb-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--tgap, 10px); }
   .thumb {
     display: block; width: 100%; padding: 6px; text-align: left; font-weight: 400;
     background: var(--card); border: 2px solid color-mix(in srgb, var(--ink) 20%, transparent); border-radius: 6px;
   }
   .thumb:hover { background: var(--card); border-color: var(--pen); }
-  .thumb.now { border-color: var(--ink); background: var(--hl-yellow); }
+  .thumb.now { border: 3px solid var(--ink); background: var(--hl-yellow); box-shadow: 4px 4px 0 var(--ink); }
   .thumb-frame {
-    position: relative; width: 186px; height: 116px; overflow: hidden;
+    position: relative; width: var(--fw, 186px); height: var(--fh, 116px); overflow: hidden;
     background: var(--paper); border-radius: 3px; pointer-events: none;
   }
-  .thumb-inner { width: 930px; transform: scale(0.2); transform-origin: 0 0; padding: 10px 24px; }
+  .thumb-inner { width: 930px; transform: scale(var(--sc, 0.2)); transform-origin: 0 0; padding: 10px 24px; }
   .thumb-inner section.part { max-height: none !important; overflow: visible !important; padding-top: 0 !important; }
   .thumb-cap { display: block; margin-top: 6px; font-family: var(--head); font-size: 0.95rem; line-height: 1.2; color: var(--ink); }
   .thumb.now .thumb-cap { color: var(--on-hl); }
   .thumb.seen .thumb-cap b::after { content: " ✓"; color: var(--good); }
+  .thumb-cap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Not enough height for previews: just the slide names */
+  .thumbs.compact .thumb-frame { display: none; }
+  .thumbs.compact .thumb-cap { margin-top: 0; }
 }

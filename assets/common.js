@@ -167,11 +167,29 @@ function buildThumbnails(parts, onPick) {
     toggle.setAttribute("aria-expanded", hidden ? "false" : "true");
     try { localStorage.setItem(THUMBS_KEY, hidden ? "1" : ""); } catch (e) { /* ignore */ }
   }
+  // Size the previews so every slide fits in the strip without scrolling
+  function fit() {
+    const n = items.length;
+    const gap = 10, cap = 26, pad = 12 + 6;     // caption height and button padding
+    const avail = aside.clientHeight - 20;
+    const per = avail / n - gap;
+    const fh = Math.floor(per - cap - pad);
+    aside.classList.toggle("compact", fh < 44);
+    const h = Math.min(116, Math.max(44, fh));
+    const w = Math.min(186, Math.round(h * 1.6));
+    aside.style.setProperty("--fh", h + "px");
+    aside.style.setProperty("--fw", w + "px");
+    aside.style.setProperty("--sc", (w / 930).toFixed(4));
+    aside.style.setProperty("--tgap", gap + "px");
+  }
+  window.addEventListener("resize", fit);
+
   let startHidden = false;
   try { startHidden = localStorage.getItem(THUMBS_KEY) === "1"; } catch (e) { /* ignore */ }
-  toggle.addEventListener("click", () => setHidden(!document.body.classList.contains("thumbs-off")));
+  toggle.addEventListener("click", () => { setHidden(!document.body.classList.contains("thumbs-off")); fit(); });
   setHidden(startHidden);
   document.body.classList.add("has-thumbs");
+  fit();
 
   // Put the lesson title next to "Lesson N of 10" (the big title is hidden on wide screens)
   const where = document.querySelector(".topbar .where");
