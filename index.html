@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=202610151139">
+<link rel="stylesheet" href="assets/style.css?v=202610151144">
 <style>
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; padding: 40px 0 72px; }
   .hero h1 { font-size: clamp(2.8rem, 6vw, 4.2rem); margin-bottom: 20px; }
@@ -28,10 +28,11 @@
   .written .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--ink); vertical-align: -0.15em; margin-left: 1px; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .written .caret { animation: none; } }
-  .choosing { font-size: 0.9rem; color: var(--pencil); margin: 12px 0 8px; }
   .bar.picked .fill { background: var(--hl-green); }
   .bar.picked span:first-child { font-weight: 700; }
-  .takeaway { margin: 14px 0 0; font-size: 1rem; }
+  .demo-side .neo { margin-bottom: 4px; }
+  .demo { padding: 26px 24px 24px; margin-top: 18px; }
+  .demo .bars { margin: 16px 0 18px; }
   .bars { display: grid; gap: 6px; margin-bottom: 14px; }
   .bar { display: grid; grid-template-columns: 4.2em 1fr 3em; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.9rem; }
   .bar .track { height: 20px; background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
@@ -176,23 +177,19 @@
         </div>
       </div>
 
-      <div class="activity demo">
-        <p class="neo-say">Hi, I'm Neo! Pick a start, then watch me write, one letter at a time.</p>
-        <div class="chips" role="group" aria-label="Pick a start">
-          <button class="chip" data-start="the c">the c</button>
-          <button class="chip" data-start="the d">the d</button>
-          <button class="chip" data-start="on the">on the</button>
-          <button class="chip" data-start="sat">sat</button>
-        </div>
-        <div class="written" id="written" aria-live="polite"></div>
-        <div class="choosing" id="choosingLabel">Choosing the next letter:</div>
-        <div class="bars" id="bars"></div>
-        <div class="row">
+      <div class="demo-side">
+        <p class="neo-say">Hi, I'm Neo! Pick a start and watch me write.</p>
+        <div class="activity demo">
+          <div class="chips" role="group" aria-label="Pick a start">
+            <button class="chip" data-start="the c">the c</button>
+            <button class="chip" data-start="the d">the d</button>
+            <button class="chip" data-start="on the">on the</button>
+            <button class="chip" data-start="sat">sat</button>
+          </div>
+          <div class="written" id="written" aria-live="polite"></div>
+          <div class="bars" id="bars"></div>
           <button class="primary" id="watch">▶ Watch Neo write</button>
-          <button id="one">One letter</button>
         </div>
-        <p class="takeaway">That's all a chatbot does: <b>guess the next letter, again and again.</b></p>
-        <p class="small">Neo has 588 numbers, trained just now in your browser on one sentence: “the cat sat on the mat. the dog sat on the log.” You'll build Neo in Lesson 5.</p>
       </div>
     </section>
 
@@ -204,8 +201,8 @@
   <footer class="site">Your progress is saved in this browser only.</footer>
 </div>
 
-<script src="assets/tinylm.js?v=202610151139"></script>
-<script src="assets/common.js?v=202610151139"></script>
+<script src="assets/tinylm.js?v=202610151144"></script>
+<script src="assets/common.js?v=202610151144"></script>
 <script>
 // ---------------- The path: sticky notes joined by questions ----------------
 (function buildPath() {
@@ -268,7 +265,6 @@
   const written = document.getElementById("written");
   const bars = document.getElementById("bars");
   const watch = document.getElementById("watch");
-  const one = document.getElementById("one");
   const chips = document.querySelectorAll(".chip");
   const quick = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let text = "the c", timer = null, trained = false;
@@ -280,7 +276,7 @@
   }
   function showBars(chances, picked) {
     bars.innerHTML = "";
-    chances.map((p, i) => ({ p, i })).sort((a, b) => b.p - a.p).slice(0, 4).forEach(({ p, i }) => {
+    chances.map((p, i) => ({ p, i })).sort((a, b) => b.p - a.p).slice(0, 3).forEach(({ p, i }) => {
       const row = document.createElement("div");
       row.className = "bar" + (i === picked ? " picked" : "");
       row.innerHTML = `<span>${showChar(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
@@ -308,9 +304,7 @@
     watch.textContent = "❚❚ Pause";
     timer = setInterval(() => { if (!writeOne()) stop(); }, quick ? 60 : 380);
   };
-  one.onclick = () => { if (trained) { stop(); writeOne(); } };
   chips.forEach(c => c.onclick = () => { if (trained) start(c.dataset.start); });
-  addReset(written, () => start("the c"));
 
   // Train in small chunks so the page stays smooth, then get ready
   let steps = 0;
