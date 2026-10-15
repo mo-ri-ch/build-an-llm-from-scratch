@@ -275,6 +275,7 @@ addReset("runList", () => {
     b.innerHTML = `<span class="idx">${i}</span>${v}`;
     b.onclick = () => {
       out.innerHTML = `numbers = torch.tensor([${values.join(", ")}])\nprint(numbers[${i}])\n<span class="c"># tensor(${v})</span>`;
+      box.querySelectorAll(".flash").forEach(t => t.classList.remove("flash"));  // only the picked one stays coloured
       flash(b);
     };
     box.appendChild(b);
@@ -298,6 +299,7 @@ addReset("runList", () => {
     lab.className = "lab"; lab.textContent = `row ${r}`;
     lab.onclick = () => {
       out.innerHTML = `${code}print(table[${r}])\n<span class="c"># ${tensorText(row)}</span>`;
+      g.querySelectorAll(".flash").forEach(t => t.classList.remove("flash"));
       g.querySelectorAll(`[data-row="${r}"]`).forEach(flash);
     };
     g.appendChild(lab);
@@ -306,6 +308,7 @@ addReset("runList", () => {
       b.className = "tile"; b.textContent = v; b.dataset.row = r;
       b.onclick = () => {
         out.innerHTML = `${code}print(table[${r}, ${c}])\n<span class="c"># tensor(${v})</span>`;
+        g.querySelectorAll(".flash").forEach(t => t.classList.remove("flash"));
         flash(b);
       };
       g.appendChild(b);
