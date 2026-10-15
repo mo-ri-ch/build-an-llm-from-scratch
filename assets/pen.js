@@ -185,6 +185,9 @@
     canvas.addEventListener("pointerdown", (e) => {
       if (!document.body.classList.contains("pen-on")) return;
       e.preventDefault();
+      // Writing on the page takes the typing cursor out of any note or text box
+      const active = document.activeElement;
+      if (active && active !== document.body && active.blur) active.blur();
       canvas.setPointerCapture(e.pointerId);
       const f = frame();
       if (erasing || e.button === 5) { current = "erase"; eraseAt(toSlide(e, f), f); return; }
