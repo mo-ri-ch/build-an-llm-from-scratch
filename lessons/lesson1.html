@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  .tensor-box { position: relative; display: inline-block; border: 2px dashed var(--hl-yellow); border-radius: 10px; padding: 14px 10px 4px; margin: 6px 0 4px; }
+  .tensor-box .tiles { margin: 0; }
+  .tensor-label { position: absolute; top: -12px; left: 12px; background: var(--card); padding: 0 6px; font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); }
+</style>
 <link rel="stylesheet" href="../assets/style.css?v=202610151046">
 </head>
 <body data-pen="blue">
@@ -44,7 +49,7 @@ print(numbers + 5)</code></pre>
       <h2>Meet the tensor</h2>
       <div class="activity">
         <div class="do">Type a number and press Enter. Then press a button.</div>
-        <div class="tiles" id="inTiles"></div>
+        <div class="tensor-box"><span class="tensor-label">numbers</span><div class="tiles" id="inTiles"></div></div>
         <div class="row">
           <button data-op="add">+ 5</button>
           <button data-op="mul">× 2</button>
@@ -55,8 +60,8 @@ print(numbers + 5)</code></pre>
         <div class="tiles" id="outTiles" aria-live="polite"></div>
         <div class="out" id="opOut"></div>
       </div>
-      <p class="say">This box is a <mark>tensor</mark>.</p>
-      <p class="say">One line does math on every number inside it.</p>
+      <p class="say">The row of numbers you typed, kept together as one thing, is a <mark>tensor</mark>.</p>
+      <p class="say">One line of math changes every number inside it.</p>
     </section>
 
     <!-- 3 -->
