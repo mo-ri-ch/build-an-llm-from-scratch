@@ -1,5 +1,6 @@
-# Usage: put tinyshakespeare input.txt next to this file, then: python train_final.py 128 4 6000
-# (embedding size, layers, steps). Trained on 2 CPU cores in about 10 minutes.
+# Usage: put a plain-text book as input.txt next to this file, then:
+#   python train_final.py 128 4 5000 128   (embedding size, layers, steps, context length)
+# The home-page Neo was trained on Grimm's Fairy Tales (Project Gutenberg) in about 22 minutes on 2 CPU cores.
 # The final Build a Tiny LLM model: a small character-level transformer (Lessons 6-9).
 import math, time, json, sys, torch, torch.nn as nn, torch.nn.functional as F
 torch.manual_seed(1337)
@@ -10,7 +11,9 @@ stoi = {c: i for i, c in enumerate(chars)}
 data = torch.tensor([stoi[c] for c in text])
 n = int(0.9 * len(data)); train, val = data[:n], data[n:]
 
-B, T, C, H, L = 32, 64, int(sys.argv[1]), 4, int(sys.argv[2])
+B, C, H, L = 32, int(sys.argv[1]), 4, int(sys.argv[2])
+T = int(sys.argv[4]) if len(sys.argv) > 4 else 64
+DROP = 0.1
 STEPS = int(sys.argv[3])
 
 def batch(split):
@@ -32,8 +35,8 @@ class Block(nn.Module):
         att = (q @ k.transpose(-2, -1)) / math.sqrt(c // H)
         att = att.masked_fill(s.mask[:, :, :t, :t] == 0, float('-inf')).softmax(-1)
         y = (att @ v).transpose(1, 2).reshape(b, t, c)
-        x = x + s.proj(y)
-        return x + s.fc2(F.gelu(s.fc1(s.ln2(x))))
+        x = x + F.dropout(s.proj(y), DROP, s.training)
+        return x + F.dropout(s.fc2(F.gelu(s.fc1(s.ln2(x)))), DROP, s.training)
 
 class GPT(nn.Module):
     def __init__(s):
@@ -62,9 +65,9 @@ for step in range(STEPS):
         print(f'step {step} train {loss.item():.3f} val {vl:.3f}  {time.time()-t0:.0f}s', flush=True)
 torch.save({'state': m.state_dict(), 'chars': chars, 'cfg': dict(C=C, H=H, L=L, T=T, V=V)}, 'model.pt')
 m.eval()
-idx = torch.tensor([[stoi[c] for c in 'ROMEO:\n']])
+idx = torch.tensor([[stoi[c] for c in 'Once upon a time']])
 with torch.no_grad():
     for _ in range(300):
-        p = m(idx[:, -T:])[:, -1].softmax(-1)
+        p = (m(idx[:, -T:])[:, -1] / 0.8).softmax(-1)
         idx = torch.cat([idx, torch.multinomial(p, 1)], 1)
 print(''.join(chars[i] for i in idx[0].tolist()))

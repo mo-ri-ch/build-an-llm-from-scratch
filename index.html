@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=202610151200">
+<link rel="stylesheet" href="assets/style.css?v=202610151417">
 <style>
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; padding: 40px 0 72px; }
   .hero h1 { font-size: clamp(2.8rem, 6vw, 4.2rem); margin-bottom: 20px; }
@@ -184,7 +184,7 @@
       </div>
 
       <div class="demo-side">
-        <p class="neo-say" id="neoLine">This is me after you finish the course! I read Shakespeare, and now I write like this.</p>
+        <p class="neo-say" id="neoLine">This is me after you finish the course! I read a book of fairy tales, and now I write my own.</p>
         <div class="activity demo">
           <div class="modes" role="tablist" aria-label="Which Neo">
             <button class="mode on" data-mode="final" role="tab" aria-selected="true">Neo after the course</button>
@@ -206,9 +206,9 @@
   <footer class="site">Your progress is saved in this browser only.</footer>
 </div>
 
-<script src="assets/tinylm.js?v=202610151200"></script>
-<script src="assets/finalmodel.js?v=202610151200"></script>
-<script src="assets/common.js?v=202610151200"></script>
+<script src="assets/tinylm.js?v=202610151417"></script>
+<script src="assets/finalmodel.js?v=202610151417"></script>
+<script src="assets/common.js?v=202610151417"></script>
 <script>
 // ---------------- The path: sticky notes joined by questions ----------------
 (function buildPath() {
@@ -271,12 +271,13 @@
 (function demo() {
   const MODES = {
     final: {
-      say: "This is me after you finish the course! I read Shakespeare, and now I write like this.",
-      starts: ["ROMEO:\n", "KING:\n", "To be", "My love"], max: 420, speed: 45,
+      say: "This is me after you finish the course! I read a book of fairy tales, and now I write my own.",
+      starts: ["Once upon a time", "The king said", "The little bird", "There was a"], max: 420, speed: 45,
+      temperature: 0.6,
     },
     today: {
       say: "This is me after Lesson 5. I only read one sentence, so I repeat myself a lot.",
-      starts: ["the c", "the d", "on the", "sat"], max: 70, speed: 300,
+      starts: ["the c", "the d", "on the", "sat"], max: 70, speed: 300, temperature: 1,
     },
   };
   const written = document.getElementById("written");
@@ -311,12 +312,20 @@
   }
   function chars() { return mode === "final" ? finalModel.chars : CHARS; }
 
+  // Temperature below 1 makes Neo favour its likelier letters (fewer made-up words)
+  function temper(ch) {
+    const t = MODES[mode].temperature;
+    if (!ch || t === 1) return ch;
+    const w = ch.map(p => Math.pow(p, 1 / t)), total = w.reduce((a, b) => a + b, 0);
+    return w.map(x => x / total);
+  }
+
   function begin(t) {
     stop();
     text = startText = t;
     if (mode === "final") {
       if (!finalModel) { written.textContent = "Neo is waking up…"; bars.innerHTML = ""; return; }
-      chances = finalModel.read(text);
+      chances = temper(finalModel.read(text));
     } else {
       chances = tiny.predict(text.slice(-3));
     }
@@ -331,7 +340,7 @@
     const c = chars()[k];
     showBars(chances, chars(), k);
     text += c;
-    chances = mode === "final" ? finalModel.next(text) : tiny.predict(text.slice(-3));
+    chances = mode === "final" ? temper(finalModel.next(text)) : tiny.predict(text.slice(-3));
     showText(1);
     return text.length - startText.length < MODES[mode].max;
   }
@@ -365,7 +374,7 @@
   addReset(written, () => begin(MODES[mode].starts[0]));
 
   setMode("final");
-  FinalModel.load("assets/neo-final.json?v=1").then(m => {
+  FinalModel.load("assets/neo-final.json?v=2").then(m => {
     finalModel = m;
     if (mode === "final") begin(MODES.final.starts[0]);
   }).catch(() => { written.textContent = "Couldn't load Neo. Please refresh the page."; });
