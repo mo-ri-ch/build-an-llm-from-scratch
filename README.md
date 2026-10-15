@@ -58,9 +58,12 @@ lessons/            one page per lesson
 assets/style.css    shared look
 assets/common.js    lesson list, progress, teach mode
 assets/tinylm.js    the lesson models rewritten in JavaScript, so they run in the browser
+assets/finalmodel.js + neo-final.json   the course's final model (a small transformer
+                    trained on Shakespeare), run in the browser on the home page
 code/               the Python code for each lesson
 notebooks/          the same code as Google Colab notebooks
-tools/              make_notebooks.py rebuilds notebooks and code from the lesson pages
+tools/              make_notebooks.py rebuilds notebooks and code from the lesson pages;
+                    train_final.py / export_final.py train and export the final model
 ```
 
 The JavaScript models start from the same random numbers as PyTorch (`torch.manual_seed(42)`),

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=202610151144">
+<link rel="stylesheet" href="assets/style.css?v=202610151200">
 <style>
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; padding: 40px 0 72px; }
   .hero h1 { font-size: clamp(2.8rem, 6vw, 4.2rem); margin-bottom: 20px; }
@@ -21,7 +21,8 @@
   .chip { font-family: var(--mono); font-weight: 600; padding: 4px 12px; border-radius: 20px; border-width: 1.5px; }
   .chip.on { background: var(--hl-yellow); color: var(--on-hl); }
   .written {
-    font-family: var(--mono); font-size: 1.35rem; min-height: 2.2em; line-height: 1.5; word-break: break-all;
+    font-family: var(--mono); font-size: 1.05rem; height: 9.5em; overflow-y: auto; line-height: 1.5;
+    white-space: pre-wrap; word-break: break-word;
     padding: 8px 12px; background: var(--paper); border: 2px solid var(--ink); border-radius: 8px;
   }
   .written .new { background: var(--hl-yellow); color: var(--on-hl); border-radius: 3px; }
@@ -31,7 +32,12 @@
   .bar.picked .fill { background: var(--hl-green); }
   .bar.picked span:first-child { font-weight: 700; }
   .demo-side .neo { margin-bottom: 4px; }
-  .demo { padding: 26px 24px 24px; margin-top: 18px; }
+  .modes { display: flex; gap: 0; margin: 0 0 16px; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; width: fit-content; max-width: 100%; }
+  .mode { border: 0; border-radius: 0; padding: 6px 14px; font-size: 0.85rem; background: var(--card); }
+  .mode + .mode { border-left: 2px solid var(--ink); }
+  .mode.on { background: var(--ink); color: var(--paper); }
+  .mode:hover:not(.on) { background: var(--hl-yellow); }
+  .demo { padding: 46px 24px 24px; margin-top: 18px; }
   .demo .bars { margin: 16px 0 18px; }
   .bars { display: grid; gap: 6px; margin-bottom: 14px; }
   .bar { display: grid; grid-template-columns: 4.2em 1fr 3em; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.9rem; }
@@ -178,14 +184,13 @@
       </div>
 
       <div class="demo-side">
-        <p class="neo-say">Hi, I'm Neo! Pick a start and watch me write.</p>
+        <p class="neo-say" id="neoLine">This is me after you finish the course! I read Shakespeare, and now I write like this.</p>
         <div class="activity demo">
-          <div class="chips" role="group" aria-label="Pick a start">
-            <button class="chip" data-start="the c">the c</button>
-            <button class="chip" data-start="the d">the d</button>
-            <button class="chip" data-start="on the">on the</button>
-            <button class="chip" data-start="sat">sat</button>
+          <div class="modes" role="tablist" aria-label="Which Neo">
+            <button class="mode on" data-mode="final" role="tab" aria-selected="true">Neo after the course</button>
+            <button class="mode" data-mode="today" role="tab" aria-selected="false">Neo after Lesson 5</button>
           </div>
+          <div class="chips" id="chips" role="group" aria-label="Pick a start"></div>
           <div class="written" id="written" aria-live="polite"></div>
           <div class="bars" id="bars"></div>
           <button class="primary" id="watch">▶ Watch Neo write</button>
@@ -201,8 +206,9 @@
   <footer class="site">Your progress is saved in this browser only.</footer>
 </div>
 
-<script src="assets/tinylm.js?v=202610151144"></script>
-<script src="assets/common.js?v=202610151144"></script>
+<script src="assets/tinylm.js?v=202610151200"></script>
+<script src="assets/finalmodel.js?v=202610151200"></script>
+<script src="assets/common.js?v=202610151200"></script>
 <script>
 // ---------------- The path: sticky notes joined by questions ----------------
 (function buildPath() {
@@ -260,60 +266,109 @@
 })();
 
 // ---------------- Watch Neo write ----------------
+// Two Neos: the tiny Lesson 5 model (trained here, in the browser) and the final
+// course model (a small transformer trained on Shakespeare, weights loaded from a file).
 (function demo() {
-  const model = new ThreeCharModel();
+  const MODES = {
+    final: {
+      say: "This is me after you finish the course! I read Shakespeare, and now I write like this.",
+      starts: ["ROMEO:\n", "KING:\n", "To be", "My love"], max: 420, speed: 45,
+    },
+    today: {
+      say: "This is me after Lesson 5. I only read one sentence, so I repeat myself a lot.",
+      starts: ["the c", "the d", "on the", "sat"], max: 70, speed: 300,
+    },
+  };
   const written = document.getElementById("written");
   const bars = document.getElementById("bars");
   const watch = document.getElementById("watch");
-  const chips = document.querySelectorAll(".chip");
+  const chipBox = document.getElementById("chips");
   const quick = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let text = "the c", timer = null, trained = false;
 
+  // Lesson 5 Neo: 3 small tables, trained right here
+  const tiny = new ThreeCharModel();
+  for (let i = 0; i < 300; i++) tiny.trainStep();
+
+  let finalModel = null;
+  let mode = "final", text = "", startText = "", chances = null, timer = null;
+
+  function label(c) { return c === " " ? "space" : c === "\n" ? "new line" : c; }
   function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
-  function showText(newCount) {
-    const old = text.slice(0, text.length - newCount), fresh = text.slice(text.length - newCount);
-    written.innerHTML = esc(old) + (fresh ? `<span class="new">${esc(fresh).replace(/ /g, "&nbsp;")}</span>` : "") + '<span class="caret"></span>';
+  function showText(fresh) {
+    const old = text.slice(0, text.length - fresh), last = text.slice(text.length - fresh);
+    written.innerHTML = esc(old) + (last ? `<span class="new">${esc(last)}</span>` : "") + '<span class="caret"></span>';
+    written.scrollTop = written.scrollHeight;
   }
-  function showBars(chances, picked) {
+  function showBars(ch, chars, picked) {
     bars.innerHTML = "";
-    chances.map((p, i) => ({ p, i })).sort((a, b) => b.p - a.p).slice(0, 3).forEach(({ p, i }) => {
+    if (!ch) return;
+    ch.map((p, i) => ({ p, i })).sort((a, b) => b.p - a.p).slice(0, 3).forEach(({ p, i }) => {
       const row = document.createElement("div");
       row.className = "bar" + (i === picked ? " picked" : "");
-      row.innerHTML = `<span>${showChar(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
+      row.innerHTML = `<span>${esc(label(chars[i]))}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
       bars.appendChild(row);
     });
   }
-  function preview() { showBars(model.predict(text.slice(-3)), -1); }
+  function chars() { return mode === "final" ? finalModel.chars : CHARS; }
 
-  // Write one letter: look at the last 3, get chances, pick one, add it
+  function begin(t) {
+    stop();
+    text = startText = t;
+    if (mode === "final") {
+      if (!finalModel) { written.textContent = "Neo is waking up…"; bars.innerHTML = ""; return; }
+      chances = finalModel.read(text);
+    } else {
+      chances = tiny.predict(text.slice(-3));
+    }
+    showText(0);
+    showBars(chances, chars(), -1);
+    chipBox.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.start === t));
+  }
+
   function writeOne() {
-    const chances = model.predict(text.slice(-3));
+    if (!chances) return false;
     const k = pickByChance(chances);
-    text += CHARS[k];
-    showBars(chances, k);
+    const c = chars()[k];
+    showBars(chances, chars(), k);
+    text += c;
+    chances = mode === "final" ? finalModel.next(text) : tiny.predict(text.slice(-3));
     showText(1);
-    return text.length < 70;
+    return text.length - startText.length < MODES[mode].max;
   }
   function stop() { clearInterval(timer); timer = null; watch.textContent = "▶ Watch Neo write"; }
-  function start(t) { stop(); text = t; showText(0); preview(); chips.forEach(c => c.classList.toggle("on", c.dataset.start === t)); }
 
   watch.onclick = () => {
-    if (!trained) return;
     if (timer) { stop(); return; }
-    if (text.length >= 70) start(document.querySelector(".chip.on")?.dataset.start || "the c");
+    if (mode === "final" && !finalModel) return;
+    if (text.length - startText.length >= MODES[mode].max) begin(startText);
     watch.textContent = "❚❚ Pause";
-    timer = setInterval(() => { if (!writeOne()) stop(); }, quick ? 60 : 380);
+    timer = setInterval(() => { if (!writeOne()) stop(); }, quick ? 20 : MODES[mode].speed);
   };
-  chips.forEach(c => c.onclick = () => { if (trained) start(c.dataset.start); });
 
-  // Train in small chunks so the page stays smooth, then get ready
-  let steps = 0;
-  written.textContent = "Neo is learning…";
-  (function trainSome() {
-    for (let i = 0; i < 30 && steps < 300; i++, steps++) model.trainStep();
-    if (steps < 300) requestAnimationFrame(trainSome);
-    else { trained = true; start("the c"); }
-  })();
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll(".mode").forEach(b => {
+      const on = b.dataset.mode === m;
+      b.classList.toggle("on", on); b.setAttribute("aria-selected", on);
+    });
+    document.querySelector("#neoLine, .demo-side .neo-bubble").lastChild.textContent = MODES[m].say;
+    chipBox.innerHTML = "";
+    MODES[m].starts.forEach(t => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.dataset.start = t; b.textContent = t.replace("\n", " ↵");
+      b.onclick = () => begin(t);
+      chipBox.appendChild(b);
+    });
+    begin(MODES[m].starts[0]);
+  }
+  document.querySelectorAll(".mode").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  addReset(written, () => begin(MODES[mode].starts[0]));
+
+  setMode("final");
+  FinalModel.load("assets/neo-final.json?v=1").then(m => {
+    finalModel = m;
+    if (mode === "final") begin(MODES.final.starts[0]);
+  }).catch(() => { written.textContent = "Couldn't load Neo. Please refresh the page."; });
 })();
 </script>
 </body>
