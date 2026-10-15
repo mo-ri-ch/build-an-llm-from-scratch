@@ -13,7 +13,7 @@
   .tensor-box .tiles { margin: 0; }
   .tensor-label { position: absolute; top: -12px; left: 12px; background: var(--card); padding: 0 6px; font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); }
 </style>
-<link rel="stylesheet" href="../assets/style.css?v=202610151115">
+<link rel="stylesheet" href="../assets/style.css?v=202610151117">
 </head>
 <body data-pen="blue">
 <div class="wrap">
@@ -100,30 +100,38 @@ print(numbers + 5)</code></pre>
     <!-- 5 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
-      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b> to see the output under each line.</p>
-<pre class="runnable"><code>import torch
+      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
+<pre><code>import torch
 
 <span class="c"># Make a tensor</span>
 numbers = torch.tensor([10, 20, 30])
 print(numbers)
-<span class="pout">tensor([10, 20, 30])</span>
+
 <span class="c"># Take one number out</span>
 print(numbers[0])
-<span class="pout">tensor(10)</span>
+
 <span class="c"># Math on every number at once</span>
 print(numbers + 5)
-<span class="pout">tensor([15, 25, 35])</span>
+
 print(numbers * 2)
-<span class="pout">tensor([20, 40, 60])</span>
+
 <span class="c"># A table</span>
 table = torch.tensor([[1, 2, 3],
                       [4, 5, 6],
                       [7, 8, 9]])
 print(table[1])
-<span class="pout">tensor([4, 5, 6])</span>
-print(table[1, 2])
-<span class="pout">tensor(6)</span></code></pre>
-      <div class="run-area"><button class="run-code" type="button" aria-pressed="false">▶ Run</button></div>
+
+print(table[1, 2])</code></pre>
+      <div class="run-area">
+        <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
+        <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson1.py</span>
+tensor([10, 20, 30])
+tensor(10)
+tensor([15, 25, 35])
+tensor([20, 40, 60])
+tensor([4, 5, 6])
+tensor(6)</pre></div>
+      </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson1.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
@@ -168,11 +176,12 @@ print(table[1, 2])
 <nav class="pagebar" aria-label="Move between parts">
   <div class="inner">
     <button data-page-back>← Previous</button>
-    <span data-page-label></span>    <button class="primary" data-page-next>Next →</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next →</button>
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151115"></script>
+<script src="../assets/common.js?v=202610151117"></script>
 <script>
 // Format a list of numbers the way PyTorch prints a tensor
 function tensorText(values) {

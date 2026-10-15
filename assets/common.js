@@ -262,8 +262,11 @@ function setupCopy() {
     b.addEventListener("click", async () => {
       // Copy just the code, without the answers
       const code = (pre.querySelector("code") || pre).cloneNode(true);
-      // Leave out the outputs
-      code.querySelectorAll(".pout").forEach(o => o.remove());
+      code.querySelectorAll(".ans").forEach(a => {
+        const nl = a.nextSibling;
+        if (nl && nl.nodeType === 3 && nl.textContent.startsWith("\n")) nl.textContent = nl.textContent.slice(1);
+        a.remove();
+      });
       const text = code.textContent;
       try {
         await navigator.clipboard.writeText(text);
@@ -281,16 +284,17 @@ function setupCopy() {
   });
 }
 
-// ---------- ▶ Run: show each output right under the line that printed it ----------
+// ---------- ▶ Run: show the code's real output in a small terminal ----------
 function setupRun() {
   document.querySelectorAll(".run-area").forEach(area => {
     const button = area.querySelector(".run-code");
-    const pre = area.previousElementSibling;
-    if (!pre || !pre.classList.contains("runnable")) return;
+    const term = area.querySelector(".terminal");
     button.addEventListener("click", () => {
-      const on = pre.classList.toggle("ran");
-      button.textContent = on ? "Hide output" : "▶ Run";
-      button.setAttribute("aria-pressed", on ? "true" : "false");
+      const open = term.hidden;
+      term.hidden = !open;
+      button.textContent = open ? "Hide output" : "▶ Run";
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) term.scrollIntoView({ block: "nearest" });
     });
   });
 }

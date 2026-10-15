@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151115">
+<link rel="stylesheet" href="../assets/style.css?v=202610151117">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -182,8 +182,8 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <!-- 7 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
-      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b> to see the output under each line.</p>
-<pre class="runnable"><code>import torch
+      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
+<pre><code>import torch
 import torch.nn.functional as F
 
 text = "the cat sat on the mat. the dog sat on the log."
@@ -217,21 +217,25 @@ for step in range(300):
     weights.data = weights.data - learning_rate * weights.grad<span class="c">   # d) move</span>
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
-<span class="pout">Step 0 loss: 3.086
-Step 50 loss: 0.746
-Step 100 loss: 0.722
-Step 150 loss: 0.714
-Step 200 loss: 0.711
-Step 250 loss: 0.709</span>
+
 <span class="c"># What did it learn after 't'?</span>
 probabilities = F.softmax(weights, dim=1)
 t_row = probabilities[char_to_number['t']]
 for char in [' ', '.', 'h']:
-    print(repr(char), round(t_row[char_to_number[char]].item(), 3))
-<span class="pout">' ' 0.374
+    print(repr(char), round(t_row[char_to_number[char]].item(), 3))</code></pre>
+      <div class="run-area">
+        <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
+        <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson4.py</span>
+Step 0 loss: 3.086
+Step 50 loss: 0.746
+Step 100 loss: 0.722
+Step 150 loss: 0.714
+Step 200 loss: 0.711
+Step 250 loss: 0.709
+' ' 0.374
 '.' 0.124
-'h' 0.499</span></code></pre>
-      <div class="run-area"><button class="run-code" type="button" aria-pressed="false">▶ Run</button></div>
+'h' 0.499</pre></div>
+      </div>
       <details class="unclear">
         <summary>What does each line do?</summary>
         <ul>
@@ -294,12 +298,13 @@ for char in [' ', '.', 'h']:
 <nav class="pagebar" aria-label="Move between parts">
   <div class="inner">
     <button data-page-back>← Previous</button>
-    <span data-page-label></span>    <button class="primary" data-page-next>Next →</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next →</button>
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151115"></script>
-<script src="../assets/common.js?v=202610151115"></script>
+<script src="../assets/tinylm.js?v=202610151117"></script>
+<script src="../assets/common.js?v=202610151117"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
