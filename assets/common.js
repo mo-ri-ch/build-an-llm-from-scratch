@@ -200,7 +200,7 @@ function buildThumbnails(parts, onPick) {
   // Put the lesson title next to "Lesson N of 10" (the big title is hidden on wide screens)
   const where = document.querySelector(".topbar .where");
   const title = document.querySelector(".paged-head h1");
-  if (where && title) where.textContent = `${where.textContent}: ${title.textContent}`;
+  if (where && title) where.dataset.full = `${where.textContent}: ${title.textContent}`;
   return items;
 }
 
