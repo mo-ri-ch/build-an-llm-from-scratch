@@ -30,6 +30,26 @@
   .bar .pct { text-align: right; color: var(--pencil); }
   .demo .small { font-size: 0.82rem; color: var(--pencil); margin: 12px 0 0; }
 
+  /* "What you need": a small sticky note that opens in place */
+  .need {
+    position: relative; margin-top: 22px; padding: 22px 22px 14px;
+    background: var(--note-yellow); border-radius: 2px 2px 6px 2px; transform: rotate(-0.6deg);
+    box-shadow: 0 14px 22px -14px rgba(20,24,50,.45);
+  }
+  .need::before {
+    content: ""; position: absolute; top: -12px; left: 40px; width: 90px; height: 24px;
+    background: var(--tape); transform: rotate(-3deg);
+  }
+  .need .cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+  .need h3 { font-size: 1.35rem; margin-bottom: 8px; }
+  .need ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 0.95rem; }
+  .need .yes { color: var(--good); font-weight: 700; }
+  .need .no { color: var(--redpen); font-weight: 700; }
+  .need .small { font-size: 0.85rem; color: var(--pencil); margin: 12px 0 0; }
+  .need .close { position: absolute; top: 6px; right: 8px; border: 0; background: none; font-size: 1.4rem; padding: 0 6px; }
+  .need .close:hover { background: none; color: var(--redpen); }
+  @media (max-width: 520px) { .need .cols { grid-template-columns: 1fr; } }
+
   .path-intro { max-width: 40ch; color: var(--pencil); font-size: 1.15rem; margin-bottom: 32px; }
 
   /* Lessons as sticky notes, zigzagging down the page */
@@ -96,7 +116,30 @@
         <p class="say">Every chatbot does one thing: <b>guess the next piece of text.</b> You'll build that guesser yourself, one question at a time.</p>
         <div class="actions">
           <a class="btn primary" href="lessons/lesson1.html">Start Lesson 1</a>
-          <a class="btn" href="start.html">What you need</a>
+          <button id="needBtn" aria-expanded="false" aria-controls="needNote">What you need</button>
+        </div>
+
+        <div class="need" id="needNote" hidden>
+          <button class="close" id="needClose" aria-label="Close">×</button>
+          <div class="cols">
+            <div>
+              <h3>You need</h3>
+              <ul>
+                <li><span class="yes">✓</span> Basic Python: lists, loops, <code>if</code>, functions</li>
+                <li><span class="yes">✓</span> Python and PyTorch: <code>pip install torch</code></li>
+                <li><span class="yes">✓</span> School math: fractions, “a 50% chance”</li>
+              </ul>
+            </div>
+            <div>
+              <h3>You don't need</h3>
+              <ul>
+                <li><span class="no">✗</span> Calculus</li>
+                <li><span class="no">✗</span> AI experience</li>
+                <li><span class="no">✗</span> A GPU</li>
+              </ul>
+            </div>
+          </div>
+          <p class="small">Rusty on Python? Try the <a href="https://docs.python.org/3/tutorial/">Python tutorial</a>.</p>
         </div>
       </div>
 
@@ -159,6 +202,16 @@
       <p class="q">${lesson.leaves}</p>`;
     list.appendChild(link);
   });
+})();
+
+// ---------------- "What you need" note ----------------
+(function needNote() {
+  const btn = document.getElementById("needBtn");
+  const note = document.getElementById("needNote");
+  function set(open) { note.hidden = !open; btn.setAttribute("aria-expanded", open); if (open) note.querySelector(".close").focus(); }
+  btn.onclick = () => set(note.hidden);
+  document.getElementById("needClose").onclick = () => { set(false); btn.focus(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !note.hidden) { set(false); btn.focus(); } });
 })();
 
 // ---------------- Live demo ----------------
