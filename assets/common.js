@@ -96,6 +96,8 @@ function setupPagedLesson() {
     if (label) label.textContent = `${current + 1} / ${parts.length}  ${parts[current].dataset.title || ""}`;
     try { history.replaceState(null, "", `#${current + 1}`); } catch (e) { /* file:// */ }
     window.scrollTo(0, 0);
+    const area = document.querySelector(".wrap");
+    if (area) area.scrollTop = 0;
   }
   pagedGo = (delta) => go(current + delta);
 

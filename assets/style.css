@@ -350,11 +350,22 @@ body.teach pre { font-size: 0.8rem; }
   }
   body.has-thumbs.thumbs-off .thumbs { display: none; }
 
-  /* Presenting space: everything left of the strip. Content sits in its centre. */
-  body.has-thumbs .wrap { max-width: none; margin: 0; padding: 0 40px 0 88px; }
-  body.has-thumbs:not(.thumbs-off) .wrap { margin-right: 232px; }
+  /* Presenting space: everything left of the strip. It scrolls as one piece,
+     so the scrollbar sits quietly against the strip. Content is centred in it. */
+  body.has-thumbs { overflow: hidden; }
+  body.has-thumbs .wrap {
+    position: fixed; top: 0; bottom: 0; left: 0; right: 232px;
+    max-width: none; margin: 0; padding: 0 40px 0 88px;
+    overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 18%, transparent) transparent;
+  }
+  body.has-thumbs .wrap::-webkit-scrollbar { width: 6px; }
+  body.has-thumbs .wrap::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 18%, transparent); border-radius: 3px; }
+  body.has-thumbs .wrap::-webkit-scrollbar-track { background: transparent; }
+  body.has-thumbs.thumbs-off .wrap { right: 0; bottom: 66px; }
   body.has-thumbs main[data-paged] { margin: 0 auto; }
-  body.has-thumbs .topbar { padding-right: 130px; }
+  body.has-thumbs .topbar { padding-right: 0; }
+  body.has-thumbs.thumbs-off .topbar { padding-right: 130px; }
 
   /* No bottom bar on wide screens: use the thumbnails or the ← → keys */
   body.has-thumbs:not(.thumbs-off) .pagebar { display: none; }
@@ -364,9 +375,7 @@ body.teach pre { font-size: 0.8rem; }
 
   /* Each part is a slide that fits the screen; long ones scroll inside */
   body.has-thumbs main[data-paged] { padding-bottom: 0; }
-  body.has-thumbs main[data-paged] section.part {
-    max-height: calc(100vh - 80px); overflow-y: auto; padding-right: 8px; padding-bottom: 24px;
-  }
+  body.has-thumbs main[data-paged] section.part { padding-bottom: 40px; }
   /* The lesson title moves into the top bar, so each slide gets the full height */
   body.has-thumbs .paged-head { display: none; }
   body.has-thumbs .topbar .where { font-family: var(--head); font-size: 1.3rem; color: var(--ink); }
