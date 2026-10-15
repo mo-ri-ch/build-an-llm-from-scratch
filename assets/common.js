@@ -102,19 +102,11 @@ function setupPagedLesson() {
   });
 }
 
-// ---------- Teach mode: big text for a projector ----------
+// ---------- Teach mode: press T for big text (for a projector) ----------
 function setupTeachMode() {
-  const button = document.querySelector("[data-teach-toggle]");
-  if (!button) return;
-  function toggle() {
-    const on = document.body.classList.toggle("teach");
-    button.setAttribute("aria-pressed", on ? "true" : "false");
-    button.textContent = on ? "Exit teach mode" : "Teach mode";
-  }
-  button.addEventListener("click", toggle);
   document.addEventListener("keydown", (e) => {
     if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-    if (e.key === "t" || e.key === "T") toggle();
+    if (e.key === "t" || e.key === "T") document.body.classList.toggle("teach");
   });
 }
 
