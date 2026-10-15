@@ -5,6 +5,19 @@ Every lesson ends with a question it can't answer, and the next lesson answers i
 
 **Website:** https://mo-ri-ch.github.io/build-an-llm-from-scratch/
 
+## Before you start
+
+This course is for beginners.
+
+**You need:**
+- Basic Python: variables, lists, dictionaries, `for` loops, `if`, functions and `print`
+  ([official Python tutorial](https://docs.python.org/3/tutorial/) if you need a refresher)
+- Python and PyTorch installed, and a way to run a file (terminal or VS Code)
+- School math: adding, multiplying, fractions, and what "a 50% chance" means
+
+**You don't need:** calculus, any AI or machine learning experience, a GPU, or to know
+e^x, log or matrices. Each one is explained when it first appears.
+
 ## Lessons
 
 | # | Lesson | Page | Code |
