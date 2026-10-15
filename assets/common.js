@@ -60,6 +60,10 @@ function setupPagedLesson() {
   const next = document.querySelector("[data-page-next]");
   const label = document.querySelector("[data-page-label]");
 
+  // Previous / Next sit right below the slide, as quiet text
+  const pagebar = document.querySelector(".pagebar");
+  if (pagebar) main.appendChild(pagebar);
+
   // Progress bar: one segment per part, each one clickable
   if (bar) {
     parts.forEach((p, i) => {
