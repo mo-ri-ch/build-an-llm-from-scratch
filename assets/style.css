@@ -367,15 +367,21 @@ body.teach pre { font-size: 0.8rem; }
   body.has-thumbs .topbar { padding-right: 0; }
   body.has-thumbs.thumbs-off .topbar { padding-right: 130px; }
 
-  /* No bottom bar on wide screens: use the thumbnails or the ← → keys */
-  body.has-thumbs:not(.thumbs-off) .pagebar { display: none; }
+  /* No bottom bar on wide screens: just small Previous / Next buttons in the corners */
+  body.has-thumbs .pagebar { right: 232px; background: none; border: 0; pointer-events: none; }
+  body.has-thumbs.thumbs-off .pagebar { right: 0; }
+  body.has-thumbs .pagebar .inner { max-width: none; margin: 0; padding: 0 20px 16px 76px; }
+  body.has-thumbs .pagebar [data-page-label] { visibility: hidden; }
+  body.has-thumbs .pagebar button { pointer-events: auto; min-width: 0; padding: 5px 12px; font-size: 0.85rem; }
+  body.has-thumbs .pagebar [data-page-back]:disabled { visibility: hidden; }
+  body.has-thumbs.thumbs-off .wrap { bottom: 0; }
+  body.has-thumbs main[data-paged] section.part { padding-bottom: 72px; }
 
   /* The strip replaces the tick boxes */
   body.has-thumbs .progress { display: none; }
 
   /* Each part is a slide that fits the screen; long ones scroll inside */
   body.has-thumbs main[data-paged] { padding-bottom: 0; }
-  body.has-thumbs main[data-paged] section.part { padding-bottom: 40px; }
   /* The lesson title moves into the top bar, so each slide gets the full height */
   body.has-thumbs .paged-head { display: none; }
   body.has-thumbs .topbar .where { font-family: var(--head); font-size: 1.3rem; color: var(--ink); }
