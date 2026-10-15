@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151123">
+<link rel="stylesheet" href="../assets/style.css?v=202610151129">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -52,6 +52,7 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
+      <p class="neo-say">Time to write my first words! Let's count which letter usually comes next.</p>
       <p class="say">Lesson 2 ended with: now text is numbers. How can we guess the next character?</p>
       <p class="say">Every LLM does just this. Look at the text so far. Guess what comes next.</p>
       <div class="quiz" data-right="Yes. You counted in your head. Now let's teach the computer to count.">
@@ -196,6 +197,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="feedback"></div>
       </div>
 
+      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? And counting only works for tiny tables. Can I learn by myself instead?</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Counting only works for tiny tables. Can a model learn the chances by itself?</div>
@@ -214,8 +216,8 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151123"></script>
-<script src="../assets/common.js?v=202610151123"></script>
+<script src="../assets/tinylm.js?v=202610151129"></script>
+<script src="../assets/common.js?v=202610151129"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]

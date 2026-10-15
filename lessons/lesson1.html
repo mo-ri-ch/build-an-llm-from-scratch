@@ -13,7 +13,7 @@
   .tensor-box .tiles { margin: 0; }
   .tensor-label { position: absolute; top: -12px; left: 12px; background: var(--card); padding: 0 6px; font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); }
 </style>
-<link rel="stylesheet" href="../assets/style.css?v=202610151123">
+<link rel="stylesheet" href="../assets/style.css?v=202610151129">
 </head>
 <body data-pen="blue">
 <div class="wrap">
@@ -31,6 +31,7 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
+      <p class="neo-say">Hi, I'm Neo! I want to write stories. But I only understand numbers. Lots and lots of them.</p>
       <p class="say">A model is just numbers. Millions of them.</p>
       <p class="say">We need to do math on all of them at once.</p>
 
@@ -163,6 +164,7 @@ tensor(6)</pre></div>
         <div class="feedback"></div>
       </div>
 
+      <p class="neo-say">Now I can hold lots of numbers at once! But… how do I read a word like “cat”?</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Computers only understand numbers. How do we turn text into numbers?</div>
@@ -181,7 +183,7 @@ tensor(6)</pre></div>
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151123"></script>
+<script src="../assets/common.js?v=202610151129"></script>
 <script>
 // Format a list of numbers the way PyTorch prints a tensor
 function tensorText(values) {

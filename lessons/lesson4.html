@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151123">
+<link rel="stylesheet" href="../assets/style.css?v=202610151129">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -62,6 +62,7 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
+      <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
       <p class="say">Lesson 3 counted. But counting only works for tiny tables.</p>
       <div class="activity">
         <div class="do">Slide: how many characters should the model look back?</div>
@@ -285,6 +286,7 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
+      <p class="neo-say">I learned the same chances as counting, all by myself! But I still only see one letter at a time. How can I see more?</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Our model still sees only 1 character. How can it see several, without a giant table?</div>
@@ -303,8 +305,8 @@ Step 250 loss: 0.709
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151123"></script>
-<script src="../assets/common.js?v=202610151123"></script>
+<script src="../assets/tinylm.js?v=202610151129"></script>
+<script src="../assets/common.js?v=202610151129"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;

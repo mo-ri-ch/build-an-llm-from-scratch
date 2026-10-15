@@ -464,3 +464,28 @@ pre .show-out { right: 74px; }
 .term-bar::before { content: "● ● ●  "; color: #5b6180; }
 pre.term-out { margin: 0; border-radius: 0; background: #0f111a; color: #d7f5dd; font-size: 0.85rem; }
 pre.term-out .prompt { color: #7f88a8; }
+
+/* Neo: a small doodled robot with a speech bubble */
+.neo { display: flex; gap: 14px; align-items: flex-start; margin: 4px 0 26px; }
+.neo-face { flex: 0 0 auto; width: 58px; height: 58px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transform: rotate(-4deg); }
+.neo-face .neo-head { fill: var(--note-blue); }
+.neo-face .neo-eye { fill: var(--ink); stroke: none; }
+.neo-face .neo-bulb { fill: var(--hl-yellow); }
+.neo-bubble {
+  position: relative; background: var(--card); border: 2px solid var(--ink);
+  border-radius: 16px 18px 16px 14px; padding: 10px 16px 12px; max-width: 46ch;
+  font-family: var(--hand); font-size: 1.15rem; line-height: 1.4; color: var(--ink);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 15%, transparent);
+}
+.neo-bubble::before {
+  content: ""; position: absolute; left: -11px; top: 18px; width: 18px; height: 18px;
+  background: var(--card); border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  transform: rotate(45deg);
+}
+.neo-name { display: block; font-family: var(--head); font-size: 0.95rem; color: var(--pen); margin-bottom: 2px; }
+.neo-bubble code { font-size: 0.8em; }
+.neo-writing {
+  display: block; margin-top: 8px; padding: 6px 10px; background: var(--paper);
+  border: 1px dashed var(--pencil); border-radius: 6px; font-family: var(--mono); font-size: 0.85rem;
+}
+.activity > .neo { margin-top: 18px; }
