@@ -464,3 +464,8 @@ pre .show-out { right: 74px; }
 .term-bar::before { content: "● ● ●  "; color: #5b6180; }
 pre.term-out { margin: 0; border-radius: 0; background: #0f111a; color: #d7f5dd; font-size: 0.85rem; }
 pre.term-out .prompt { color: #7f88a8; }
+
+/* Outputs under each print: hidden until ▶ Run */
+pre.runnable .pout { display: none; color: #A8F0BE; }
+pre.runnable.ran .pout { display: inline; }
+pre.runnable .arrow { color: #FFE45C; }

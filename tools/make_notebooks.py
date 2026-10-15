@@ -23,6 +23,7 @@ for path in sorted(glob.glob("lessons/lesson*.html")):
     block = re.search(r"<pre[^>]*><code>(.*?)</code></pre>", page[start:], re.S).group(1)
     block = re.sub(r'<span class="c hide">.*?</span>', "", block)   # drop the "# ?" placeholders
     code = html.unescape(re.sub(r"<[^>]+>", "", block)).strip("\n")
+    code = "\n".join(line for line in code.split("\n") if not line.strip().startswith("→"))   # outputs shown on the page
 
     cells = [{
         "cell_type": "markdown", "metadata": {},

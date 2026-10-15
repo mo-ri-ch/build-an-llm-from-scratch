@@ -262,10 +262,11 @@ function setupCopy() {
     b.addEventListener("click", async () => {
       // Copy just the code, without the answers
       const code = (pre.querySelector("code") || pre).cloneNode(true);
-      code.querySelectorAll(".ans").forEach(a => {
-        const nl = a.nextSibling;
-        if (nl && nl.nodeType === 3 && nl.textContent.startsWith("\n")) nl.textContent = nl.textContent.slice(1);
-        a.remove();
+      // Leave out the outputs (and the line break before each one)
+      code.querySelectorAll(".pout").forEach(o => {
+        const before = o.previousSibling;
+        if (before && before.nodeType === 3 && before.textContent.endsWith("\n")) before.textContent = before.textContent.slice(0, -1);
+        o.remove();
       });
       const text = code.textContent;
       try {
@@ -284,17 +285,16 @@ function setupCopy() {
   });
 }
 
-// ---------- ▶ Run: show the code's real output in a small terminal ----------
+// ---------- ▶ Run: show each output right under the line that printed it ----------
 function setupRun() {
   document.querySelectorAll(".run-area").forEach(area => {
     const button = area.querySelector(".run-code");
-    const term = area.querySelector(".terminal");
+    const pre = area.previousElementSibling;
+    if (!pre || !pre.classList.contains("runnable")) return;
     button.addEventListener("click", () => {
-      const open = term.hidden;
-      term.hidden = !open;
-      button.textContent = open ? "Hide output" : "▶ Run";
-      button.setAttribute("aria-expanded", open ? "true" : "false");
-      if (open) term.scrollIntoView({ block: "nearest" });
+      const on = pre.classList.toggle("ran");
+      button.textContent = on ? "Hide output" : "▶ Run";
+      button.setAttribute("aria-pressed", on ? "true" : "false");
     });
   });
 }

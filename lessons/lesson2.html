@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610151108">
+<link rel="stylesheet" href="../assets/style.css?v=202610151111">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -88,14 +88,15 @@
     <!-- 4 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
-      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
-<pre><code>import torch
+      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b> to see the output under each line.</p>
+<pre class="runnable"><code>import torch
 
 text = "hello world"
 
 <span class="c"># Find every different character, sorted</span>
 unique_chars = sorted(set(text))
 print(unique_chars)
+<span class="pout"><span class="arrow">→</span> [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']</span>
 
 <span class="c"># Give each one a number, and the reverse</span>
 char_to_number = {}
@@ -119,19 +120,15 @@ def decode(numbers):
     return result
 
 print(encode("hello"))
+<span class="pout"><span class="arrow">→</span> [3, 2, 4, 4, 5]</span>
 
 print(decode([3, 2, 4, 4, 5]))
+<span class="pout"><span class="arrow">→</span> hello</span>
 
 <span class="c"># The whole text as a tensor (from Lesson 1)</span>
-print(torch.tensor(encode(text)))</code></pre>
-      <div class="run-area">
-        <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
-        <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson2.py</span>
-[' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']
-[3, 2, 4, 4, 5]
-hello
-tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
-      </div>
+print(torch.tensor(encode(text)))
+<span class="pout"><span class="arrow">→</span> tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</span></code></pre>
+      <div class="run-area"><button class="run-code" type="button" aria-pressed="false">▶ Run</button></div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson2.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
@@ -180,7 +177,7 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610151108"></script>
+<script src="../assets/common.js?v=202610151111"></script>
 <script>
 function tile(text, idx, extra) {
   const t = document.createElement("div");
