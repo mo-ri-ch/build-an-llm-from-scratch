@@ -25,10 +25,6 @@
   .probs .track { height: 20px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; overflow: hidden; }
   .probs .fill { height: 100%; background: var(--highlight); border-right: 2px solid var(--ink); }
   .probs .math { color: var(--pencil); text-align: right; }
-  .dice { display: flex; height: 38px; border: 2px solid var(--ink); border-radius: var(--radius); overflow: hidden; margin: 8px 0; }
-  .dice div { display: grid; place-items: center; font-family: var(--mono); font-size: 0.85rem; border-right: 1px solid var(--ink); background: var(--paper); overflow: hidden; }
-  .dice div:last-child { border-right: 0; }
-  .dice div.picked { background: var(--highlight); color: #1A2440; font-weight: 700; }
   .written { font-family: var(--mono); font-size: 1.1rem; background: var(--paper); border: 1px solid var(--grid); border-radius: var(--radius); padding: 10px 12px; min-height: 2.6em; word-break: break-all; }
   .codeline { font-size: 0.85rem; margin: -4px 0 10px; min-height: 1.6em; }
   .codeline code { padding: 2px 6px; }
@@ -51,6 +47,25 @@
   table.counts tbody th { cursor: pointer; }
   @keyframes bump { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
   @media (prefers-reduced-motion: reduce) { table.counts td.now { animation: none; } }
+  .spin-area { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; margin: 6px 0 12px; }
+  .wheel-box { position: relative; width: 230px; height: 230px; flex: 0 0 auto; }
+  .wheel { width: 100%; height: 100%; transform-origin: 50% 50%; }
+  .wheel.spinning { transition: transform var(--spin, 2.4s) cubic-bezier(0.15, 0.7, 0.2, 1); }
+  .wheel path, .wheel circle.slice { stroke: var(--ink); stroke-width: 1.5; }
+  .wheel text { font-family: var(--mono); font-size: 15px; font-weight: 700; fill: #1A2440; text-anchor: middle; dominant-baseline: central; }
+  .wheel .win { stroke-width: 4; }
+  .pointer { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; z-index: 2;
+    border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 24px solid var(--ink); }
+  .spin-info { flex: 1; min-width: 220px; }
+  .spin-title { font-family: var(--head); font-size: 1.2rem; margin-bottom: 8px; }
+  .legend { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; font-family: var(--mono); font-size: 0.9rem; }
+  .legend .sw { width: 14px; height: 14px; border: 1.5px solid var(--ink); border-radius: 3px; }
+  .legend .pct { color: var(--pencil); text-align: right; }
+  .legend span { justify-self: start; }
+  .legend .pct { justify-self: end; }
+  .legend .won { font-weight: 700; background: var(--hl-yellow); color: #1A2440; padding: 0 4px; border-radius: 3px; }
+  .spin-code { font-family: var(--mono); font-size: 0.8rem; margin-top: 12px; color: var(--pencil); min-height: 2.6em; }
+  .spin-code b { color: var(--ink); }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -118,10 +133,20 @@
     <!-- 4 -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
-      <p class="say">Roll a weighted dice. Likely characters get bigger slices.</p>
+      <p class="say">Roll a weighted dice: a bigger slice means a bigger chance.</p>
       <div class="activity">
-        <div class="do">Press “Roll”. The next character comes from the slice it lands on.</div>
-        <div class="dice" id="dice" aria-hidden="true"></div>
+        <div class="do">Press “Roll”. The wheel spins, and the slice under the arrow is the next character.</div>
+        <div class="spin-area">
+          <div class="wheel-box">
+            <div class="pointer" aria-hidden="true"></div>
+            <svg class="wheel" id="wheel" viewBox="-110 -110 220 220" aria-hidden="true"></svg>
+          </div>
+          <div class="spin-info">
+            <div class="spin-title" id="spinTitle"></div>
+            <div class="legend" id="legend"></div>
+            <div class="spin-code" id="spinCode"></div>
+          </div>
+        </div>
         <div class="written" id="written" aria-live="polite"></div>
         <div class="row" style="margin-top:10px">
           <button class="primary" id="roll1">Roll</button>
@@ -348,44 +373,108 @@ function fillRowSelect(sel, chosen) {
 
 // ---------- Part 4: weighted dice ----------
 (function generate() {
-  const dice = document.getElementById("dice");
+  const wheel = document.getElementById("wheel");
   const written = document.getElementById("written");
-  let text = "t";
+  const legend = document.getElementById("legend");
+  const title = document.getElementById("spinTitle");
+  const code = document.getElementById("spinCode");
+  const roll1 = document.getElementById("roll1"), roll40 = document.getElementById("roll40");
+  const quick = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const COLORS = ["#FFE45C", "#9EF0B4", "#FFB1C8", "#B7D7FF", "#FFC380", "#D9C2FF", "#C7F0F0", "#F5D0A9"];
+  let text = "t", rotation = 0, busy = false, stopAll = false, slices = [], gen = 0;
+
   function chancesFor(c) {
     const row = N[c];
     return COUNTS[row].map(n => TOTALS[row] ? n / TOTALS[row] : 0);
   }
-  function drawDice(picked) {
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const label = c => c === " " ? "␣" : c;
+
+  // Draw the wheel for the last character: one slice per possible next character
+  function drawWheel() {
     const last = text[text.length - 1];
     const ch = chancesFor(last);
-    dice.innerHTML = "";
-    ch.forEach((p, k) => {
-      if (!p) return;
-      const d = document.createElement("div");
-      d.style.width = (p * 100) + "%";
-      d.textContent = showChar(CHARS[k]);
-      if (k === picked) d.className = "picked";
-      dice.appendChild(d);
+    slices = [];
+    let start = 0, color = 0;
+    ch.forEach((p, k) => { if (p > 0) { slices.push({ k, p, a0: start, a1: start + p * 360, color: COLORS[color++ % COLORS.length] }); start += p * 360; } });
+    let svg = "";
+    slices.forEach(sl => {
+      if (sl.p >= 0.9999) {
+        svg += `<circle class="slice" data-k="${sl.k}" r="100" fill="${sl.color}"></circle>`;
+      } else {
+        const r = 100, rad = d => (d - 90) * Math.PI / 180;
+        const x0 = r * Math.cos(rad(sl.a0)), y0 = r * Math.sin(rad(sl.a0));
+        const x1 = r * Math.cos(rad(sl.a1)), y1 = r * Math.sin(rad(sl.a1));
+        const big = sl.a1 - sl.a0 > 180 ? 1 : 0;
+        svg += `<path data-k="${sl.k}" d="M0 0 L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${big} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${sl.color}"></path>`;
+      }
+      if (sl.p >= 0.06) {
+        const mid = ((sl.a0 + sl.a1) / 2 - 90) * Math.PI / 180, rr = sl.p >= 0.9999 ? 0 : 64;
+        svg += `<text x="${(rr * Math.cos(mid)).toFixed(1)}" y="${(rr * Math.sin(mid)).toFixed(1)}">${esc(label(CHARS[sl.k]))}</text>`;
+      }
+    });
+    wheel.innerHTML = svg;
+    wheel.classList.remove("spinning");
+    rotation = 0;
+    wheel.style.transform = "rotate(0deg)";
+    title.innerHTML = `After <b>${esc(showChar(last))}</b>, the chances are:`;
+    legend.innerHTML = slices.map(sl =>
+      `<span class="sw" style="background:${sl.color}"></span><span data-k="${sl.k}">${esc(showChar(CHARS[sl.k]))}</span><span class="pct">${Math.round(sl.p * 1000) / 10}%</span>`
+    ).join("") || '<span></span><span>Nothing ever comes after this character.</span><span></span>';
+    code.innerHTML = `picked = torch.multinomial(probabilities[<b>${N[last]}</b>], num_samples=1)`;
+  }
+
+  function show() {
+    written.innerHTML = esc(text.slice(0, -1)) + `<span class="last">${text.slice(-1) === " " ? "&nbsp;" : esc(text.slice(-1))}</span>`;
+  }
+
+  // Spin: pick the character first (like torch.multinomial), then turn the wheel so the arrow lands on its slice
+  function spin(fast) {
+    return new Promise(resolve => {
+      if (!slices.length) { resolve(false); return; }
+      const k = pickByChance(chancesFor(text[text.length - 1]));
+      const sl = slices.find(x => x.k === k);
+      const margin = Math.min(6, (sl.a1 - sl.a0) / 4);
+      const spot = sl.a0 + margin + Math.random() * (sl.a1 - sl.a0 - 2 * margin);
+      const turns = fast ? 1 : 4, g = gen;
+      const target = rotation + turns * 360 + (((360 - spot) - rotation % 360) + 720) % 360;
+      const finish = () => {
+        if (g !== gen) { resolve(false); return; }   // Reset was pressed while spinning
+        wheel.querySelectorAll(`[data-k="${k}"]`).forEach(el => el.classList.add("win"));
+        legend.querySelectorAll(`[data-k="${k}"]`).forEach(el => el.classList.add("won"));
+        code.innerHTML += `<br>picked = <b>${k}</b>  →  '${esc(CHARS[k])}'`;
+        setTimeout(() => {
+          if (g !== gen) { resolve(false); return; }
+          text += CHARS[k];
+          show();
+          setTimeout(() => { drawWheel(); resolve(true); }, fast ? 120 : 650);
+        }, fast ? 60 : 250);
+      };
+      if (quick) { rotation = target; wheel.style.transform = `rotate(${target}deg)`; finish(); return; }
+      wheel.style.setProperty("--spin", fast ? "0.45s" : "2.4s");
+      wheel.getBoundingClientRect();           // start from the current angle
+      wheel.classList.add("spinning");
+      rotation = target;
+      wheel.style.transform = `rotate(${target}deg)`;
+      wheel.addEventListener("transitionend", finish, { once: true });
     });
   }
-  function show() {
-    written.innerHTML = text.slice(0, -1).replace(/&/g, "&amp;").replace(/</g, "&lt;") + `<span class="last">${text.slice(-1) === " " ? "&nbsp;" : text.slice(-1)}</span>`;
+
+  function setBusy(on, many) {
+    busy = on;
+    roll1.disabled = on;
+    roll40.disabled = on && !many;
+    roll40.textContent = on && many ? "Stop" : "Roll 40 times";
   }
-  function roll() {
-    const ch = chancesFor(text[text.length - 1]);
-    if (!ch.some(p => p > 0)) return false;
-    const before = text;
-    const k = pickByChance(ch);
-    text += CHARS[k];
-    // show the dice for the character we rolled from
-    const keep = text; text = before; drawDice(k); text = keep;
-    show();
-    return true;
-  }
-  document.getElementById("roll1").onclick = roll;
-  document.getElementById("roll40").onclick = () => { for (let i = 0; i < 40; i++) if (!roll()) break; };
-  addReset(dice, () => { text = "t"; drawDice(-1); show(); });
-  drawDice(-1); show();
+  roll1.onclick = async () => { if (busy) return; setBusy(true); await spin(false); setBusy(false); };
+  roll40.onclick = async () => {
+    if (busy) { stopAll = true; return; }
+    setBusy(true, true); stopAll = false;
+    for (let i = 0; i < 40 && !stopAll; i++) if (!(await spin(true))) break;
+    setBusy(false);
+  };
+  addReset(wheel, () => { stopAll = true; gen++; setBusy(false); text = "t"; drawWheel(); show(); });
+  drawWheel(); show();
 })();
 </script>
 </body>
