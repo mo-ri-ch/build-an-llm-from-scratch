@@ -58,6 +58,28 @@
   .grad-loss { font-family: var(--mono); margin-left: 8px; }
   .stuck { margin: 4px 0 16px; padding-left: 1.2em; font-size: 1.1rem; }
   .stuck li { margin: 6px 0; }
+  .sm { display: grid; grid-template-columns: 4.2em minmax(90px, 170px) 3.2em 1.4em 1fr 3.4em; gap: 8px 10px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin: 6px 0 4px; }
+  .sm.math { grid-template-columns: 4.2em minmax(90px, 170px) 3.2em 4.6em 1.4em 1fr 3.4em; }
+  .sm .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); }
+  .sm .num { text-align: right; }
+  .sm .arrow { color: var(--pencil); text-align: center; }
+  .sm .ex { color: var(--pencil); text-align: right; font-size: 0.85rem; }
+  .sm .track { height: 18px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; position: relative; }
+  .sm .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight); border-right: 2px solid var(--ink); transition: width 0.15s; }
+  .sm .pct { text-align: right; }
+  .sm .others { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; }
+  .sm .total { border-top: 2px solid var(--ink); padding-top: 6px; font-weight: 700; }
+  .sm input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; background: var(--ink); border-radius: 2px; accent-color: var(--ink); }
+  .sm input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
+  .sm input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
+  .math-toggle { margin-top: 10px; background: none; border: 0; padding: 0; box-shadow: none; font-family: var(--head); font-size: 1.05rem; color: var(--pen); }
+  .math-toggle:hover { background: none; color: var(--ink); }
+  .sm-math-note { font-size: 0.9rem; color: var(--pencil); margin: 6px 0 0; max-width: none; }
+  @media (max-width: 640px) {
+    .sm, .sm.math { grid-template-columns: 3.4em 1fr 2.8em 2.8em; }
+    .sm .arrow, .sm .track, .sm .hd.h-bar, .sm .hd.h-arrow, .sm .gap { display: none; }
+    .sm.math .ex, .sm.math .hd.h-ex { display: none; }
+  }
   .loop { list-style: none; padding: 0; margin: 0 0 1.2em; display: grid; gap: 10px; }
   .loop li { display: grid; grid-template-columns: 2em 1fr; gap: 8px; font-size: 1.1rem; }
   .loop .k { font-family: var(--mono); color: var(--pen); font-weight: 600; }
@@ -133,21 +155,13 @@
       <p class="step-label">Step a) Predict</p>
       <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <div class="activity">
-        <div class="do">Drag the scores. Watch the chances.</div>
-        <div class="slider-row"><span>h</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="1.1" aria-label="Score for h"><output>1.1</output></div>
-        <div class="slider-row"><span>space</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="0.5" aria-label="Score for space"><output>0.5</output></div>
-        <div class="slider-row"><span>l</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="1.3" aria-label="Score for l"><output>1.3</output></div>
-        <div class="bars" id="smBars"></div>
+        <div class="do">These are Neo's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
+        <div class="sm" id="smTable"></div>
+        <button type="button" class="math-toggle" id="smMath" aria-expanded="false">Show the math</button>
+        <p class="sm-math-note" id="smMathNote" hidden><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
       </div>
-      <p class="say">Any scores in, chances out. They always add up to 1.</p>
+      <p class="say">Any scores in, chances out. They always add up to 1, and raising one score takes chance away from the others.</p>
       <p class="say">This is <mark>softmax</mark>.</p>
-      <details class="unclear">
-        <summary>How does softmax work?</summary>
-        <p><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then divide each by the total, so they add up to 1.</p>
-<pre><code>scores = [2.0, 1.0, -1.0]
-e^     = [7.389, 2.718, 0.368]    <span class="c"># total 10.475</span>
-chance = [0.705, 0.259, 0.035]</code></pre>
-      </details>
       <p class="hook">Now Neo can guess. But its scores are random, so its guesses are bad. How bad?</p>
     </section>
 
@@ -406,19 +420,60 @@ function bar(label, p, target) {
 }
 
 // ---------- 3: softmax sliders ----------
-(function softmaxSliders() {
-  const sliders = Array.from(document.querySelectorAll(".sc"));
-  const names = ["h", "space", "l"];
-  const box = document.getElementById("smBars");
-  function render() {
-    sliders.forEach(s => { s.nextElementSibling.textContent = Number(s.value).toFixed(1); });
-    const p = softmax(sliders.map(s => Number(s.value)));
-    box.innerHTML = p.map((x, i) => bar(names[i], x)).join("");
+(function softmaxRow() {
+  // Neo's real random scores for row t; five of them can be dragged, the other 9 letters stay as they are
+  const T = CHAR_TO_NUMBER["t"];
+  const start = INIT_LESSON4[T].slice();
+  const shown = [" ", ".", "h", "l", "d"].map(c => CHAR_TO_NUMBER[c]);
+  const box = document.getElementById("smTable"), mathBtn = document.getElementById("smMath"), note = document.getElementById("smMathNote");
+  let row = start.slice(), math = false;
+
+  function build() {
+    box.classList.toggle("math", math);
+    let html = `<span class="hd"></span><span class="hd">score</span><span class="hd"></span>` +
+      (math ? `<span class="hd h-ex">e<sup>score</sup></span>` : "") +
+      `<span class="hd h-arrow"></span><span class="hd h-bar">chance</span><span class="hd"></span>`;
+    shown.forEach(k => {
+      html += `<span>${showChar(CHARS[k])}</span>` +
+        `<input type="range" min="-3" max="4" step="0.05" value="${row[k]}" data-k="${k}" aria-label="Score for ${showChar(CHARS[k])}">` +
+        `<span class="num" data-score="${k}"></span>` +
+        (math ? `<span class="ex" data-ex="${k}"></span>` : "") +
+        `<span class="arrow">→</span><span class="track"><span class="fill" data-fill="${k}"></span></span><span class="pct" data-pct="${k}"></span>`;
+    });
+    html += `<span class="others" style="grid-column: 1 / 4">the other 9 letters</span>` +
+      (math ? `<span class="ex" data-ex="rest"></span>` : "") +
+      `<span class="arrow">→</span><span class="track"><span class="fill" data-fill="rest"></span></span><span class="pct" data-pct="rest"></span>`;
+    html += `<span class="total" style="grid-column: 1 / ${math ? 5 : 4}">${math ? "total" : ""}</span>` +
+      (math ? "" : "") + `<span class="total gap" style="grid-column: span 2">${math ? `<span data-ex="total"></span>` : "all 14 letters"}</span><span class="total pct" data-pct="total"></span>`;
+    box.innerHTML = html;
+    box.querySelectorAll("input").forEach(inp => inp.oninput = () => { row[Number(inp.dataset.k)] = Number(inp.value); update(); });
+    update();
   }
-  sliders.forEach(s => s.oninput = render);
-  const start = sliders.map(s => s.value);
-  addReset(box, () => { sliders.forEach((s, i) => s.value = start[i]); render(); });
-  render();
+  function update() {
+    const e = row.map(Math.exp), total = e.reduce((a, b) => a + b, 0);
+    const restE = e.reduce((a, v, k) => shown.includes(k) ? a : a + v, 0);
+    const set = (sel, text) => { const el = box.querySelector(sel); if (el) el.textContent = text; };
+    shown.forEach(k => {
+      const p = e[k] / total;
+      set(`[data-score="${k}"]`, row[k].toFixed(2));
+      set(`[data-ex="${k}"]`, e[k].toFixed(2));
+      set(`[data-pct="${k}"]`, Math.round(p * 100) + "%");
+      box.querySelector(`[data-fill="${k}"]`).style.width = (p * 100).toFixed(1) + "%";
+    });
+    set(`[data-ex="rest"]`, restE.toFixed(2));
+    set(`[data-pct="rest"]`, Math.round(restE / total * 100) + "%");
+    box.querySelector(`[data-fill="rest"]`).style.width = (restE / total * 100).toFixed(1) + "%";
+    set(`[data-ex="total"]`, total.toFixed(2) + "  → each ÷ " + total.toFixed(2));
+    set(`[data-pct="total"]`, "100%");
+  }
+  mathBtn.onclick = () => {
+    math = !math; note.hidden = !math;
+    mathBtn.textContent = math ? "Hide the math" : "Show the math";
+    mathBtn.setAttribute("aria-expanded", math);
+    build();
+  };
+  addReset(box, () => { row = start.slice(); build(); });
+  build();
 })();
 
 // ---------- 4: loss = -log(p) ----------
