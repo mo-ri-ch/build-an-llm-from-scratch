@@ -89,7 +89,7 @@
       <ul class="stuck">
         <li>It sees only the <b>last letter</b>, so it writes words like “sathe”.</li>
         <li>Looking further back makes the counting table <b>explode</b>.</li>
-        <li>A <b>shared number</b> (one number used by many words, like “at, then a space” for “cat” and “sat”) would help. But shared numbers <b>can't be counted</b>.</li>
+        <li>A smarter model (Lesson 5) would need far fewer boxes, but its numbers <b>can't be counted</b>.</li>
       </ul>
       <p class="say">So the question is: <b>can Neo find good numbers without counting?</b></p>
       <p class="hook">Yes. It starts with random numbers and fixes them.</p>
@@ -114,7 +114,7 @@
         <div class="vs-card learn">
           <div class="vs-title">Learning <small>(this lesson)</small></div>
           <p>Start with random numbers. Guess, see how wrong, fix them a little. Repeat thousands of times.</p>
-          <p class="vs-good">Works for any numbers, even shared ones.</p>
+          <p class="vs-good">Works for any numbers, even ones that can't be counted.</p>
         </div>
       </div>
       <p class="say">Learning repeats 4 steps:</p>
@@ -350,11 +350,11 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
-      <div class="quiz" data-right="Yes. Shared numbers can't be counted, but they can be learned. Here we proved learning finds the right answer.">
+      <div class="quiz" data-right="Yes. Lesson 5's smarter model has numbers that can't be counted, but they can be learned. Here we proved learning finds the right answer.">
         <div class="q">Learning gave the same answer as counting. So why learn?</div>
         <div class="options">
           <button data-why="It's actually slower here. The reason is size.">It's faster</button>
-          <button data-right>It can find shared numbers, which can't be counted</button>
+          <button data-right>It can find numbers that can't be counted</button>
           <button data-why="Both gave the same answer here.">It's more accurate</button>
         </div>
         <div class="feedback"></div>
@@ -368,7 +368,7 @@ Step 250 loss: 0.709
       <h2>Still one letter</h2>
       <p class="say">Neo learned its numbers by itself. But it still looks at only the <b>last letter</b>.</p>
       <p class="say">So it still writes words like “sathe”. To fix that, it must look further back, without the table exploding.</p>
-      <p class="neo-say">I learned the same chances as counting, all by myself! Now I can learn any numbers, even shared ones. Can I finally look further back?</p>
+      <p class="neo-say">I learned the same chances as counting, all by myself! Now I can find numbers without counting. Can I finally look further back?</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?</div>
@@ -388,7 +388,7 @@ Step 250 loss: 0.709
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161310"></script>
+<script src="../assets/common.js?v=202610161430"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
 <script src="../assets/codewalk.js?v=202610161015"></script>
 <script>
