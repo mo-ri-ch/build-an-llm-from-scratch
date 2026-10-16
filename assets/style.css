@@ -623,3 +623,7 @@ main[data-paged] .hook { display: none; }
 /* Links to another lesson's page */
 a.xref { color: inherit; text-decoration: underline; text-decoration-color: var(--pen); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 a.xref:hover { color: var(--pen); }
+footer.site .made { display: block; margin-top: 6px; }
+footer.site .made a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+footer.site .made a:hover { color: var(--pen); }
+footer.site .heart { color: var(--redpen); }
