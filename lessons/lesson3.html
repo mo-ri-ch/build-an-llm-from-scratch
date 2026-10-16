@@ -133,9 +133,9 @@
     <!-- 4 -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
-      <p class="say">Roll a weighted dice: a bigger slice means a bigger chance.</p>
+      <p class="say">Spin a weighted wheel. It's like a dice where likely characters get bigger faces: a bigger slice means a bigger chance.</p>
       <div class="activity">
-        <div class="do">Press “Roll”. The wheel spins, and the slice under the arrow is the next character.</div>
+        <div class="do">Press “Spin”. The slice that stops under the arrow is the next character.</div>
         <div class="spin-area">
           <div class="wheel-box">
             <div class="pointer" aria-hidden="true"></div>
@@ -149,8 +149,8 @@
         </div>
         <div class="written" id="written" aria-live="polite"></div>
         <div class="row" style="margin-top:10px">
-          <button class="primary" id="roll1">Roll</button>
-          <button id="roll40">Roll 40 times</button>
+          <button class="primary" id="roll1">Spin</button>
+          <button id="roll40">Spin 40 times</button>
         </div>
       </div>
       <p class="say">Real LLMs write exactly like this: one piece at a time.</p>
@@ -189,7 +189,7 @@ for number in range(vocab_size):
     if t_row[number] &gt; 0:
         print(repr(number_to_char[number]), round(t_row[number].item(), 3))
 
-<span class="c"># Write new text: roll the weighted dice 40 times</span>
+<span class="c"># Write new text: spin the weighted wheel 40 times</span>
 torch.manual_seed(42)
 current = char_to_number['t']
 output = 't'
@@ -209,7 +209,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
       <details class="unclear">
         <summary>What do <code>sum(dim=1, keepdim=True)</code> and <code>multinomial</code> mean?</summary>
         <p><code>dim=1</code> adds up across each row. <code>keepdim=True</code> keeps the shape, so each row divides by its own total.</p>
-        <p><code>torch.multinomial(chances, num_samples=1)</code> is the weighted dice. It picks 1 position, where bigger chances are picked more often.</p>
+        <p><code>torch.multinomial(chances, num_samples=1)</code> is the weighted wheel. It picks 1 position, where bigger chances are picked more often.</p>
       </details>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson3.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
@@ -232,7 +232,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
       </div>
 
       <div class="quiz" data-right="Right. It's random, but likely characters win more often. Always picking the top one would repeat “the the the”.">
-        <div class="q">After <code>t</code>, does the dice always pick <code>h</code>?</div>
+        <div class="q">After <code>t</code>, does the wheel always pick <code>h</code>?</div>
         <div class="options">
           <button data-why="h has a 50% chance, not 100%. Space and “.” still win sometimes.">Yes, h is the most likely</button>
           <button data-right>No, only about half the time</button>
@@ -262,7 +262,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 <script src="../assets/tinylm.js?v=202610151417"></script>
 <script src="../assets/common.js?v=202610152205"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610161010"></script>
+<script src="../assets/codewalk.js?v=202610161015"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]
@@ -371,7 +371,7 @@ function fillRowSelect(sel, chosen) {
   render();
 })();
 
-// ---------- Part 4: weighted dice ----------
+// ---------- Part 4: the weighted wheel ----------
 (function generate() {
   const wheel = document.getElementById("wheel");
   const written = document.getElementById("written");
@@ -464,7 +464,7 @@ function fillRowSelect(sel, chosen) {
     busy = on;
     roll1.disabled = on;
     roll40.disabled = on && !many;
-    roll40.textContent = on && many ? "Stop" : "Roll 40 times";
+    roll40.textContent = on && many ? "Stop" : "Spin 40 times";
   }
   roll1.onclick = async () => { if (busy) return; setBusy(true); await spin(false); setBusy(false); };
   roll40.onclick = async () => {

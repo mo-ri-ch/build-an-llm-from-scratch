@@ -26,7 +26,7 @@ for number in range(vocab_size):
     if t_row[number] > 0:
         print(repr(number_to_char[number]), round(t_row[number].item(), 3))
 
-# Write new text: roll the weighted dice 40 times
+# Write new text: spin the weighted wheel 40 times
 torch.manual_seed(42)
 current = char_to_number['t']
 output = 't'

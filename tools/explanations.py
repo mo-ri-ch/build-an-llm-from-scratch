@@ -55,7 +55,7 @@ EXPLAIN = {
     "current = char_to_number['t']": "Start writing from 't'.",
     "output = 't'": "The text written so far.",
     "for step in range(40):": "Write 40 more characters, one per round.",
-    "picked = torch.multinomial(probabilities[current], num_samples=1)": "Roll the weighted dice using the current character's row of chances.",
+    "picked = torch.multinomial(probabilities[current], num_samples=1)": "Spin the weighted wheel, using the current character's row of chances.",
     "current = picked.item()": "Take the number out of the tensor. This is the new current character.",
     "output = output + number_to_char[current]": "Turn the number into a character and add it to the text.",
     "print(output)": "Show what Neo wrote.",

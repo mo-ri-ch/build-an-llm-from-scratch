@@ -27,7 +27,7 @@
     "randn": { what: "Makes a tensor of random numbers (mostly between -2 and 2).", ex: "torch.manual_seed(42)\nprint(torch.randn(3))", out: "tensor([0.3367, 0.1288, 0.2345])" },
     "sum": { what: "Adds numbers up. dim=1 adds along each row.", ex: "t = torch.tensor([[1, 2], [3, 4]])\nprint(t.sum(dim=1))", out: "tensor([3, 7])" },
     "manual_seed": { what: "Fixes the random numbers, so every run gives the same result.", ex: "torch.manual_seed(42)", out: "" },
-    "multinomial": { what: "Rolls a weighted dice: picks a position, using the chances you give.", ex: "chances = torch.tensor([0.1, 0.9])\nprint(torch.multinomial(chances, num_samples=1))", out: "tensor([1])   (most of the time)" },
+    "multinomial": { what: "Spins a weighted wheel: picks a position, where bigger chances win more often.", ex: "chances = torch.tensor([0.1, 0.9])\nprint(torch.multinomial(chances, num_samples=1))", out: "tensor([1])   (most of the time)" },
     "item": { what: "Takes the single number out of a tensor, as a normal Python number.", ex: "t = torch.tensor([5])\nprint(t.item())", out: "5" },
     "softmax": { what: "Turns scores into chances that add up to 1. Bigger score, bigger chance.", ex: "print(F.softmax(torch.tensor([1.0, 2.0]), dim=0))", out: "tensor([0.2689, 0.7311])" },
     "cross_entropy": { what: "The loss: how wrong the scores were about the right answers. Smaller is better.", ex: "scores = torch.tensor([[2.0, 0.0]])\nprint(F.cross_entropy(scores, torch.tensor([0])))", out: "tensor(0.1269)" },
@@ -274,7 +274,7 @@
       if (!data) {
         startBtn.disabled = true;
         try {
-          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610160940`);
+          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610161015`);
           data = await res.json();
         } catch (e) {
           startBtn.disabled = false;
