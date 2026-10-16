@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161610">
+<link rel="stylesheet" href="../assets/style.css?v=202610161620">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -122,7 +122,6 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
-      <p class="our-text"></p>
       <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
       <p class="say"><a class="xref" href="lesson3.html#7">Lesson 3</a> left Neo stuck:</p>
       <ul class="stuck">
@@ -137,8 +136,8 @@
     <!-- 2 -->
     <section class="part" data-title="Start random">
       <h2>Start random</h2>
-      <p class="our-text" data-after="t"></p>
       <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
+      <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
         <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
@@ -170,9 +169,9 @@
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
-      <p class="our-text" data-after="t"></p>
       <p class="step-label">Step a) Predict</p>
       <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
+      <p class="our-text" data-after="t"></p>
       <div class="activity">
         <div class="do">These are Neo's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
         <p class="sm-math-note" id="smMathNote" hidden><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
@@ -188,10 +187,11 @@
     <!-- 4 -->
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
-      <p class="our-text" data-pair="0"></p>
       <p class="step-label">Step b) Measure</p>
       <p class="say">Neo's guesses are bad. To get better, it needs one number that says how bad.</p>
-      <p class="say">Take the first pair in the text, <code>t → h</code>. Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, Neo gave <code>h</code> only 13.3%. How wrong is that?</p>
+      <p class="say">Take the first pair in the text, <code>t → h</code>.</p>
+      <p class="our-text" data-pair="0"></p>
+      <p class="say">Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, Neo gave <code>h</code> only 13.3%. How wrong is that?</p>
       <div class="activity">
         <div class="do">Drag the chance for h. Try 90%, 50% and 1%.</div>
         <div class="loss-row"><span>chance for h</span><input type="range" class="ink" id="pRight" min="1" max="100" step="0.1" value="13.3" aria-label="Chance given to h"><output id="pRightOut">13.3%</output></div>
@@ -216,10 +216,11 @@
     <!-- 5 -->
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
-      <p class="our-text" data-pair="0"></p>
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
-      <p class="say">That direction is called the <mark>gradient</mark>. For one pair, <code>t → h</code>, it's simple:</p>
+      <p class="say">That direction is called the <mark>gradient</mark>. Take one pair, <code>t → h</code>.</p>
+      <p class="our-text" data-pair="0"></p>
+      <p class="say">For one pair, the gradients are simple:</p>
       <ul class="rules">
         <li>The right answer (<code>h</code>): gradient = chance − 1. Always <b>negative</b>, so push it <b>up</b>.</li>
         <li>Every wrong one: gradient = its chance. Always <b>positive</b>, so push it <b>down</b>.</li>
@@ -239,9 +240,9 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
-      <p class="our-text" data-after="t"></p>
       <p class="say">Now you be the model. These are Neo's real random scores for row <code>t</code>.</p>
       <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, “.” 1 out of 8.</p>
+      <p class="our-text" data-after="t"></p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
         <div class="muted" style="margin-bottom:10px">After t, the text really has: h 4 times, space 3 times, “.” once. The green dashed line is each one's goal.</div>
@@ -269,7 +270,6 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="our-text" data-after="t"></p>
       <p class="say">Now the model does your job, 300 times.</p>
       <div class="activity">
         <div class="do">Pick a step size. Press Train.</div>
@@ -292,6 +292,7 @@
       </div>
       <p class="say">Too small: slow. Too big: it jumps around.</p>
       <p class="say">This step size is the <mark>learning rate</mark>.</p>
+      <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
         <tr><td>Counting (<a class="xref" href="lesson3.html#3">Lesson 3</a>)</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
@@ -436,7 +437,7 @@ Step 250 loss: 0.709
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161610"></script>
+<script src="../assets/common.js?v=202610161620"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
 <script src="../assets/codewalk.js?v=202610161610"></script>
 <script>

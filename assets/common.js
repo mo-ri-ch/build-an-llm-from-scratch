@@ -475,11 +475,8 @@ function markOurText(el, opts) {
     if (starts.includes(i)) { html += `<mark class="pair">${esc(text[i])}${esc(text[i + 1])}</mark>`; i += 2; }
     else { html += esc(text[i]) === "&nbsp;" ? " " : text[i]; i += 1; }
   }
-  const shown = opts.after === " " ? "space" : opts.after;
-  const note = opts.pair != null ? `Highlighted: the pair ${text[opts.pair]} → ${text[Number(opts.pair) + 1]}.`
-    : opts.after ? `Highlighted: every ${shown} and the character after it (${starts.length} pair${starts.length === 1 ? "" : "s"}).` : "";
-  el.innerHTML = `<span class="our-label">Our text</span><span class="our-line">${html}</span>` +
-    (note ? `<span class="our-note">${note}</span>` : "");
+  const count = opts.after ? ` <span class="our-note">(${starts.length} pair${starts.length === 1 ? "" : "s"})</span>` : "";
+  el.innerHTML = `<span class="our-label">from our text:</span> <span class="our-line">${html}</span>${count}`;
 }
 function setupOurText() {
   document.querySelectorAll(".our-text:not([data-live])").forEach(el => markOurText(el, { pair: el.dataset.pair, after: el.dataset.after }));

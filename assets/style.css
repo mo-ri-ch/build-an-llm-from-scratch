@@ -630,9 +630,9 @@ footer.site .heart { color: var(--redpen); }
 /* "Step a) Predict": a small label on its own line above the explanation */
 .step-label { font-family: var(--head); font-size: 1.05rem; color: var(--ul); letter-spacing: 0.02em; margin: 0 0 4px; }
 
-/* "Our text": the training text, kept in view */
-.our-text { margin: 4px 0 22px; padding: 10px 14px; border-left: 3px solid var(--pencil); background: var(--paper); max-width: none; }
-.our-text .our-label { display: block; font-family: var(--head); font-size: 0.95rem; color: var(--pencil); margin-bottom: 4px; }
-.our-text .our-line { font-family: var(--mono); font-size: 1rem; line-height: 1.9; word-break: break-word; }
-.our-text mark.pair { background: var(--hl-yellow); color: var(--ink); padding: 1px 1px; border-radius: 2px; margin: 0 1px; }
-.our-text .our-note { display: block; color: var(--pencil); font-size: 0.85rem; margin-top: 4px; }
+/* "Our text": the training text, shown right where a page talks about it */
+.our-text { margin: 6px 0 18px; max-width: none; line-height: 1.9; }
+.our-text .our-label { color: var(--pencil); font-size: 0.9rem; margin-right: 4px; }
+.our-text .our-line { font-family: var(--mono); font-size: 0.95rem; }
+.our-text mark.pair { background: var(--hl-yellow); color: var(--ink); padding: 1px 0; border-radius: 2px; }
+.our-text .our-note { color: var(--pencil); font-size: 0.85rem; white-space: nowrap; }
