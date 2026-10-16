@@ -613,4 +613,4 @@ table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; fo
 .say code { white-space: nowrap; }
 /* "Next:" line at the end of a page, so every page leads into the next */
 .hook { font-family: var(--hand); color: var(--pencil); font-size: 1.05rem; margin: 26px 0 0; }
-.hook::before { content: "Next → "; color: var(--ul); }
+/* No "Next" label here: the one Next link is in the corner */
