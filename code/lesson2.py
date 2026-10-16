@@ -1,6 +1,6 @@
 import torch
 
-text = "hello world"
+text = "the cat sat on the mat. the dog sat on the log."
 
 # Find every different character, sorted
 unique_chars = sorted(set(text))
@@ -27,9 +27,9 @@ def decode(numbers):
         result = result + number_to_char[number]
     return result
 
-print(encode("hello"))
+print(encode("cat"))
 
-print(decode([3, 2, 4, 4, 5]))
+print(decode([4, 11, 6]))
 
 # The whole text as a tensor (from Lesson 1)
 print(torch.tensor(encode(text)))

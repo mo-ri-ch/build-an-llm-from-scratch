@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161510">
+<link rel="stylesheet" href="../assets/style.css?v=202610161610">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -50,24 +50,26 @@
     <section class="part" data-title="Find the letters">
       <h2>Find the letters</h2>
       <div class="activity">
-        <div class="do">Type any text. Watch it find every different character.</div>
-        <input class="textin" id="vocabText" value="hello world" spellcheck="false" autocomplete="off" aria-label="Your text">
+        <div class="do">This is our text. Watch it find every different character. You can type your own too.</div>
+        <input class="textin" id="vocabText" value="the cat sat on the mat. the dog sat on the log." spellcheck="false" autocomplete="off" aria-label="Your text">
         <div class="arrow">Each different character, sorted, with its number:</div>
         <div class="tiles" id="vocabTiles"></div>
         <div class="out" id="vocabOut"></div>
       </div>
       <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows.</p>
       <p class="note">The blank tile is the space. It's a character too.</p>
+      <p class="say">Neo learns from this same sentence in <a class="xref" href="lesson3.html#1">Lesson 3</a> and <a class="xref" href="lesson4.html#1">Lesson 4</a>, so these 14 characters will come back.</p>
       <p class="hook">Each character has a number now. Let's turn whole words into numbers.</p>
     </section>
 
     <!-- 3 -->
     <section class="part" data-title="Encode and decode">
       <h2>Encode and decode</h2>
-      <p class="say">Vocabulary: the letters of <b>“hello world”</b>.</p>
+      <p class="our-text"></p>
+      <p class="say">Vocabulary: the 14 different characters of our text.</p>
       <div class="activity">
         <div class="do">Type a word. See it as numbers.</div>
-        <input class="textin" id="encText" value="hello" spellcheck="false" autocomplete="off" aria-label="Word to encode">
+        <input class="textin" id="encText" value="cat" spellcheck="false" autocomplete="off" aria-label="Word to encode">
         <div class="arrow">encode ↓</div>
         <div class="tiles" id="encTiles"></div>
         <div class="arrow">decode ↓</div>
@@ -76,10 +78,10 @@
       </div>
       <p class="say"><b>Encode:</b> text → numbers. <b>Decode:</b> numbers → text.</p>
 
-      <div class="quiz" data-right="Right. There's no “p” in “hello world”, so “help” can't be encoded.">
+      <div class="quiz" data-right="Right. There's no “p” in our text, so “help” can't be encoded.">
         <div class="q">Guess first, then try both in the box above. Which one crashes?</div>
         <div class="options">
-          <button data-why="All of h, o, l, d are in “hello world”. Try typing it.">hold</button>
+          <button data-why="All of h, o, l, d are in our text. Try typing it.">hold</button>
           <button data-right>help</button>
           <button data-why="One of them does crash. Try typing both.">Neither</button>
         </div>
@@ -95,7 +97,7 @@
       <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
 <pre><code>import torch
 
-text = "hello world"
+text = "the cat sat on the mat. the dog sat on the log."
 
 <span class="c"># Find every different character, sorted</span>
 unique_chars = sorted(set(text))
@@ -122,19 +124,21 @@ def decode(numbers):
         result = result + number_to_char[number]
     return result
 
-print(encode("hello"))
+print(encode("cat"))
 
-print(decode([3, 2, 4, 4, 5]))
+print(decode([4, 11, 6]))
 
 <span class="c"># The whole text as a tensor (from Lesson 1)</span>
 print(torch.tensor(encode(text)))</code></pre>
       <div class="run-area">
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
         <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson2.py</span>
-[' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']
-[3, 2, 4, 4, 5]
-hello
-tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
+[' ', '.', 'a', 'c', 'd', 'e', 'g', 'h', 'l', 'm', 'n', 'o', 's', 't']
+[3, 2, 13]
+dog
+tensor([13,  7,  5,  0,  3,  2, 13,  0, 12,  2, 13,  0, 11, 10,  0, 13,  7,  5,
+         0,  9,  2, 13,  1,  0, 13,  7,  5,  0,  4, 11,  6,  0, 12,  2, 13,  0,
+        11, 10,  0, 13,  7,  5,  0,  8, 11,  6,  1])</pre></div>
       </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson2.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
@@ -157,12 +161,12 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
         <div class="feedback"></div>
       </div>
 
-      <div class="quiz" data-right="Yes. With the “hello world” vocabulary, l is 4 and o is 5.">
-        <div class="q">With the “hello world” vocabulary, what is <code>encode("lol")</code>?</div>
+      <div class="quiz" data-right="Yes. In our vocabulary, l is 8 and o is 11.">
+        <div class="q">With our text's vocabulary, what is <code>encode("lol")</code>?</div>
         <div class="options">
-          <button data-right>[4, 5, 4]</button>
-          <button data-why="Check the numbers in part 3: l is 4, o is 5.">[5, 4, 5]</button>
-          <button data-why="“l” and “o” are both in “hello world”.">Error</button>
+          <button data-right>[8, 11, 8]</button>
+          <button data-why="Check the numbers on page 3: l is 8, o is 11.">[11, 8, 11]</button>
+          <button data-why="“l” and “o” are both in our text (“log”).">Error</button>
         </div>
         <div class="feedback"></div>
       </div>
@@ -173,9 +177,9 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
     <!-- 6 -->
     <section class="part" data-title="Guess the next letter">
       <h2>Guess the next letter</h2>
-      <p class="say">Now text is numbers: <code>"hello"</code> → <code>[3, 2, 4, 4, 5]</code>.</p>
+      <p class="say">Now text is numbers: <code>"cat"</code> → <code>[3, 2, 13]</code>.</p>
       <p class="say">An LLM's whole job is to guess what comes next:</p>
-      <div class="next-demo"><code>h e l l</code> <span class="next-box-sm">?</span></div>
+      <div class="next-demo"><code>t h e &nbsp;c a</code> <span class="next-box-sm">?</span></div>
       <p class="neo-say">I can read text as numbers now! But how do I guess which letter comes next?</p>
       <div class="open-question">
         <div>This leaves a question</div>
@@ -195,9 +199,9 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
   </div>
 </nav>
 
-<script src="../assets/common.js?v=202610161430"></script>
+<script src="../assets/common.js?v=202610161610"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610161015"></script>
+<script src="../assets/codewalk.js?v=202610161610"></script>
 <script>
 function tile(text, idx, extra) {
   const t = document.createElement("div");
@@ -230,14 +234,14 @@ addReset("runStr", () => {
     chars.forEach((c, i) => box.appendChild(tile(c, i)));
     out.innerHTML = `unique_chars = sorted(set("${esc(text)}"))\n<span class="c"># ${esc(pyList(chars))}</span>\n<span class="c"># vocabulary size: ${chars.length}</span>`;
   }
-  addReset(input, () => { input.value = "hello world"; render(); });
+  addReset(input, () => { input.value = "the cat sat on the mat. the dog sat on the log."; render(); });
   input.oninput = render;
   render();
 })();
 
 // ---------- Part 3: encode and decode ----------
 (function encdec() {
-  const vocab = Array.from(new Set("hello world")).sort();
+  const vocab = Array.from(new Set("the cat sat on the mat. the dog sat on the log.")).sort();
   const toNum = {}; vocab.forEach((c, i) => toNum[c] = i);
   const input = document.getElementById("encText");
   const encBox = document.getElementById("encTiles");
@@ -259,7 +263,7 @@ addReset("runStr", () => {
     nums.forEach(n => decBox.appendChild(tile(vocab[n], n)));
     out.innerHTML = `encode("${w}")\n<span class="c"># [${nums.join(", ")}]</span>\ndecode([${nums.join(", ")}])\n<span class="c"># ${w}</span>`;
   }
-  addReset(input, () => { input.value = "hello"; render(); });
+  addReset(input, () => { input.value = "cat"; render(); });
   input.oninput = render;
   render();
 })();

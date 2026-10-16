@@ -15,7 +15,6 @@ EXPLAIN = {
     "print(table[1, 2])": "Row 1, column 2: one single number.",
 
     # ---------- Lesson 2 ----------
-    'text = "hello world"': "Our text. The computer can't do math on letters yet.",
     "unique_chars = sorted(set(text))": "set() keeps each character once. sorted() puts them in order. This is the vocabulary.",
     "print(unique_chars)": "Show the vocabulary.",
     "char_to_number = {}": "An empty dictionary. It will hold pairs like 'h' → 3.",
@@ -33,8 +32,8 @@ EXPLAIN = {
     "for number in numbers:": "Go through the numbers one at a time.",
     "result = result + number_to_char[number]": "Look up the character for this number and stick it on the end.",
     "return result": "Give the finished text back to whoever called decode.",
-    'print(encode("hello"))': "Call encode on \"hello\" and show the numbers it gives back.",
-    "print(decode([3, 2, 4, 4, 5]))": "Call decode on these numbers and show the text it gives back.",
+    'print(encode("cat"))': "Call encode on \"cat\" and show the numbers it gives back.",
+    "print(decode([4, 11, 6]))": "Call decode on these numbers and show the text it gives back.",
     "print(torch.tensor(encode(text)))": "Encode the whole text and put the numbers in a tensor.",
 
     # ---------- Lesson 3 ----------

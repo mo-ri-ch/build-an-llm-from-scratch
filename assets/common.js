@@ -460,8 +460,34 @@ function setupDoneToggle() {
   render();
 }
 
+
+// ---------- "Our text": the training text, always in view on pages that use it ----------
+// <p class="our-text" data-after="t"></p>  highlights every t and the character after it
+// <p class="our-text" data-pair="0"></p>   highlights one pair (here the first: t → h)
+const OUR_TEXT = "the cat sat on the mat. the dog sat on the log.";
+function markOurText(el, opts) {
+  const text = OUR_TEXT, starts = [];
+  if (opts.pair != null) starts.push(Number(opts.pair));
+  if (opts.after) for (let i = 0; i < text.length - 1; i++) if (text[i] === opts.after) starts.push(i);
+  let html = "", i = 0;
+  const esc = c => c === " " ? "&nbsp;" : c;
+  while (i < text.length) {
+    if (starts.includes(i)) { html += `<mark class="pair">${esc(text[i])}${esc(text[i + 1])}</mark>`; i += 2; }
+    else { html += esc(text[i]) === "&nbsp;" ? " " : text[i]; i += 1; }
+  }
+  const shown = opts.after === " " ? "space" : opts.after;
+  const note = opts.pair != null ? `Highlighted: the pair ${text[opts.pair]} → ${text[Number(opts.pair) + 1]}.`
+    : opts.after ? `Highlighted: every ${shown} and the character after it (${starts.length} pair${starts.length === 1 ? "" : "s"}).` : "";
+  el.innerHTML = `<span class="our-label">Our text</span><span class="our-line">${html}</span>` +
+    (note ? `<span class="our-note">${note}</span>` : "");
+}
+function setupOurText() {
+  document.querySelectorAll(".our-text:not([data-live])").forEach(el => markOurText(el, { pair: el.dataset.pair, after: el.dataset.after }));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupNeo();
+  setupOurText();
   setupPagedLesson();
   setupCopy();
   setupRun();

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161510">
+<link rel="stylesheet" href="../assets/style.css?v=202610161610">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -122,6 +122,7 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
+      <p class="our-text"></p>
       <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
       <p class="say"><a class="xref" href="lesson3.html#7">Lesson 3</a> left Neo stuck:</p>
       <ul class="stuck">
@@ -136,6 +137,7 @@
     <!-- 2 -->
     <section class="part" data-title="Start random">
       <h2>Start random</h2>
+      <p class="our-text" data-after="t"></p>
       <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
@@ -168,6 +170,7 @@
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
+      <p class="our-text" data-after="t"></p>
       <p class="step-label">Step a) Predict</p>
       <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <div class="activity">
@@ -185,6 +188,7 @@
     <!-- 4 -->
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
+      <p class="our-text" data-pair="0"></p>
       <p class="step-label">Step b) Measure</p>
       <p class="say">Neo's guesses are bad. To get better, it needs one number that says how bad.</p>
       <p class="say">Take the first pair in the text, <code>t → h</code>. Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, Neo gave <code>h</code> only 13.3%. How wrong is that?</p>
@@ -212,6 +216,7 @@
     <!-- 5 -->
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
+      <p class="our-text" data-pair="0"></p>
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
       <p class="say">That direction is called the <mark>gradient</mark>. For one pair, <code>t → h</code>, it's simple:</p>
@@ -234,6 +239,7 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
+      <p class="our-text" data-after="t"></p>
       <p class="say">Now you be the model. These are Neo's real random scores for row <code>t</code>.</p>
       <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, “.” 1 out of 8.</p>
       <div class="activity">
@@ -263,6 +269,7 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
+      <p class="our-text" data-after="t"></p>
       <p class="say">Now the model does your job, 300 times.</p>
       <div class="activity">
         <div class="do">Pick a step size. Press Train.</div>
@@ -429,9 +436,9 @@ Step 250 loss: 0.709
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161430"></script>
+<script src="../assets/common.js?v=202610161610"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610161015"></script>
+<script src="../assets/codewalk.js?v=202610161610"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
