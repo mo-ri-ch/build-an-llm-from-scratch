@@ -611,3 +611,6 @@ table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; fo
 .next-demo code { font-size: inherit; background: none; padding: 0; }
 .next-box-sm { display: inline-grid; place-items: center; width: 1.3em; height: 1.5em; border: 2px dashed var(--ink); border-radius: 4px; font-family: var(--head); font-size: 1.1rem; color: var(--pencil); }
 .say code { white-space: nowrap; }
+/* "Next:" line at the end of a page, so every page leads into the next */
+.hook { font-family: var(--hand); color: var(--pencil); font-size: 1.05rem; margin: 26px 0 0; }
+.hook::before { content: "Next → "; color: var(--ul); }

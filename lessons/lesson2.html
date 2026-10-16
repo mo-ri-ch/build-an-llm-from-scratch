@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161125">
+<link rel="stylesheet" href="../assets/style.css?v=202610161300">
 <style>
   .textin {
     width: 100%; font-family: var(--mono); font-size: 1.1rem; padding: 10px 12px; margin-bottom: 10px;
@@ -35,7 +35,7 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">I see letters everywhere, but they mean nothing to me. Can you turn them into numbers?</p>
-      <p class="say">Lesson 1 ended with a question: computers only understand numbers. How do we turn text into numbers?</p>
+      <p class="say">Lesson 1 ended with a question: an LLM reads text, but tensors hold only numbers. How do we turn text into numbers?</p>
       <div class="activity">
         <div class="do">Try it: do math on a letter.</div>
 <pre><code>print("h" + 5)</code></pre>
@@ -43,6 +43,7 @@
         <div class="out" id="strOut"><span class="c"># press Run</span></div>
       </div>
       <p class="say" id="strAfter" hidden>Letters can't do math. So we'll give each letter a number.</p>
+      <p class="hook">First, find every different character in the text.</p>
     </section>
 
     <!-- 2 -->
@@ -57,6 +58,7 @@
       </div>
       <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows.</p>
       <p class="note">The blank tile is the space. It's a character too.</p>
+      <p class="hook">Each character has a number now. Let's turn whole words into numbers.</p>
     </section>
 
     <!-- 3 -->
@@ -84,6 +86,7 @@
         <div class="feedback"></div>
       </div>
       <p class="note">A model can only use characters in its vocabulary. That's why we train it on text that has every character we need.</p>
+      <p class="hook">Here's all of it in Python.</p>
     </section>
 
     <!-- 4 -->
@@ -137,6 +140,7 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson2.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
       <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
+      <p class="hook">Quick check: did it all make sense?</p>
     </section>
 
     <!-- 5 -->
@@ -163,6 +167,7 @@ tensor([3, 2, 4, 4, 5, 0, 7, 5, 6, 4, 1])</pre></div>
         <div class="feedback"></div>
       </div>
 
+      <p class="hook">What Neo still can't do.</p>
     </section>
 
     <!-- 6 -->

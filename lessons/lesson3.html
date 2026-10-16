@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161125">
+<link rel="stylesheet" href="../assets/style.css?v=202610161300">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -106,7 +106,7 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">Time to write my first words! Let's count which letter usually comes next.</p>
-      <p class="say">Lesson 2 ended with: now text is numbers. How can we guess the next character?</p>
+      <p class="say">Lesson 2 ended with a question: now that text is numbers, how do we make our first guess at the next character?</p>
       <p class="say">Every LLM does just this. Look at the text so far. Guess what comes next.</p>
       <div class="quiz" data-right="Yes. You counted in your head. Now let's teach the computer to count.">
         <div class="q">Read this text:<br><code>the cat sat on the mat. the dog sat on the log.</code><br>Which character comes after <code>t</code> most often?</div>
@@ -117,6 +117,7 @@
         </div>
         <div class="feedback"></div>
       </div>
+      <p class="hook">Let's count which letter follows which.</p>
     </section>
 
     <!-- 2 -->
@@ -135,6 +136,7 @@
         <div class="table-scroll"><table class="counts" id="countsTable" aria-label="The counts table"></table></div>
       </div>
       <p class="say">Row = this character. Column = the next one. This table is <code>counts</code> in the code.</p>
+      <p class="hook">Counts aren't chances yet. Let's turn each row into chances.</p>
     </section>
 
     <!-- 3 -->
@@ -148,6 +150,7 @@
       </div>
       <p class="say">These are <mark>probabilities</mark>: how likely each next character is.</p>
       <p class="note">Try the row for “h”. Only one character ever follows it.</p>
+      <p class="hook">Neo has chances now. Let's use them to write.</p>
     </section>
 
     <!-- 4 -->
@@ -175,6 +178,7 @@
       </div>
       <p class="say">Real LLMs write exactly like this: one piece at a time.</p>
       <p class="note">See words like “sathe”? The model only looks at 1 character, so it can't tell it already finished “sat”.</p>
+      <p class="hook">Here's all of it in Python.</p>
     </section>
 
     <!-- 5 -->
@@ -235,6 +239,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson3.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
       <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
+      <p class="hook">Quick check: did it all make sense?</p>
     </section>
 
     <!-- 6 -->
@@ -260,6 +265,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="feedback"></div>
       </div>
 
+      <p class="hook">What Neo still can't do.</p>
     </section>
 
     <!-- 7 -->
