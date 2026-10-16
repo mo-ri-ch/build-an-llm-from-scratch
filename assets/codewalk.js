@@ -187,7 +187,7 @@
       if (before && before.pairs) before.pairs.forEach(([k, v]) => { old[k] = v; });
       const parts = value.pairs.map(([k, v]) => {
         const text = esc(`${k}: ${typeof v === "object" ? v.text : v}`);
-        const fresh = before !== undefined && old[k] !== v;
+        const fresh = before != null && old[k] !== v;
         return `<span class="kv${fresh ? " now" : ""}">${text}</span>`;   // a pair never splits across lines
       });
       return "{" + parts.join(", ") + "}";
@@ -246,7 +246,8 @@
       }
       let html = "";
       if (s.ret) html += `<div class="walk-ret">↩ <b>${esc(s.ret[0])}()</b> gives back <code>${esc(s.ret[1])}</code></div>`;
-      const prev = at > 1 ? data.steps[at - 2] : null;
+      // After a skipped loop, many values changed at once, so don't mark each one
+      const prev = at > 1 && s.skip === undefined ? data.steps[at - 2] : null;
       if (s.scope) html += table(`Inside ${esc(s.scope)}()`, s.locals || {}, s.changed || [], "@", prev && prev.locals);
       html += table(s.scope ? "Outside" : "Variables", s.vars, s.changed || [], "", prev && prev.vars);
       varsBox.innerHTML = html || '<p class="walk-empty">No variables yet.</p>';
