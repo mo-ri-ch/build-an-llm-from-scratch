@@ -21,6 +21,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 ## Look and feel
 - Notebook style, light background, lots of empty space, few words, no clutter.
 - Sentences use the full content width: don't break a short sentence across lines (no narrow text columns).
+- Give content room. Labels or titles (like "Step a) Predict") go on their own line, with the sentence below. Don't squeeze several things into one line; relaxed reading matters more than saving space.
 - Activities everywhere, each with ↺ Reset. Show the real thing (the whole table, the spinning wheel) rather than describing it.
 - "Pages", not "slides". Page list on the right: all lessons, current lesson's pages indented, no scrolling.
 - Previous / Next as plain text in the bottom corners, at the end of the page (not fixed to the screen); arrows cross into the next/previous lesson.

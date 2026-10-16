@@ -627,3 +627,5 @@ footer.site .made { display: block; margin-top: 6px; }
 footer.site .made a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 footer.site .made a:hover { color: var(--pen); }
 footer.site .heart { color: var(--redpen); }
+/* "Step a) Predict": a small label on its own line above the explanation */
+.step-label { font-family: var(--head); font-size: 1.05rem; color: var(--ul); letter-spacing: 0.02em; margin: 0 0 4px; }

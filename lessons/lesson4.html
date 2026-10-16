@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161505">
+<link rel="stylesheet" href="../assets/style.css?v=202610161510">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -130,7 +130,8 @@
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
-      <p class="say">a) <b>Predict.</b> To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
+      <p class="step-label">Step a) Predict</p>
+      <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <div class="activity">
         <div class="do">Drag the scores. Watch the chances.</div>
         <div class="slider-row"><span>h</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="1.1" aria-label="Score for h"><output>1.1</output></div>
@@ -153,7 +154,8 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <!-- 4 -->
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
-      <p class="say">b) <b>Measure.</b> To get better, Neo needs one number that says how bad a guess was.</p>
+      <p class="step-label">Step b) Measure</p>
+      <p class="say">To get better, Neo needs one number that says how bad a guess was.</p>
       <p class="say">The right answer after <code>t</code> is <code>h</code>.</p>
       <div class="activity">
         <div class="do">Drag: how much chance did the model give h?</div>
@@ -178,14 +180,15 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <!-- 5 -->
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
-      <p class="say">c) <b>Find directions.</b> For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
+      <p class="step-label">Steps c) Find directions and d) Move</p>
+      <p class="say">For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
       <p class="say">That direction is called the <mark>gradient</mark>. For one pair, <code>t → h</code>, it's simple:</p>
       <ul class="rules">
         <li>The right answer (<code>h</code>): gradient = chance − 1. Always <b>negative</b>, so push it <b>up</b>.</li>
         <li>Every wrong one: gradient = its chance. Always <b>positive</b>, so push it <b>down</b>.</li>
       </ul>
       <div class="activity">
-        <div class="do">Look at the gradients. Then press “Move a little”. d) <b>Move.</b></div>
+        <div class="do">Look at the gradients. Then press “Move a little”.</div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
           <button class="primary" id="gradStep">Move a little</button>
