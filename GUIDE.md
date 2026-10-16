@@ -7,6 +7,8 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - **Never use a term before it's taught.** If a later idea must be mentioned, say it's coming ("you'll build it in Lesson 5") and teach it properly there. No half-explanations.
 - **Plain, short words.** Hand examples with real numbers first, then code. Explain any maths symbol (e, log, …) the first time it appears.
 - **Nobody should ever think "why am I learning this?"** Each page opens with why Neo needs it, and ends with a closing line (`<p class="hook">`) that leads to the next page. The closing line is shown just above the Next link.
+- **Same real numbers everywhere.** A number shown on one page (e.g. Neo gives h 13.3%, loss 2.02) must match every other page that uses it. Say where it came from ("on the last page…"), and state facts exactly ("the first pair, t → h", not "after t comes h").
+- Don't show the same thing twice (e.g. a slider and a table of the same values). Make averages and totals visible (show a few real items, then the result).
 - Simple code style: `char_to_number`, plain loops, no `zip`, outputs as comments.
 
 ## Lesson structure (same in every lesson)
@@ -22,6 +24,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Notebook style, light background, lots of empty space, few words, no clutter.
 - Sentences use the full content width: don't break a short sentence across lines (no narrow text columns).
 - Give content room. Labels or titles (like "Step a) Predict") go on their own line, with the sentence below. Don't squeeze several things into one line; relaxed reading matters more than saving space.
+- Sliders use the notebook style (ink line, yellow dot: class `ink`), never the default browser slider. Label bars and scales ("0 = perfect … very wrong").
 - Activities everywhere, each with ↺ Reset. Show the real thing (the whole table, the spinning wheel) rather than describing it.
 - "Pages", not "slides". Page list on the right: all lessons, current lesson's pages indented, no scrolling.
 - Previous / Next as plain text in the bottom corners, at the end of the page (not fixed to the screen); arrows cross into the next/previous lesson.

@@ -70,13 +70,26 @@
   .sm .others { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; }
   .sm .rule { grid-column: 1 / -1; border-top: 2px solid var(--ink); height: 0; margin: 2px 0 -2px; }
   .sm .total { font-weight: 700; }
-  .sm input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; background: var(--ink); border-radius: 2px; accent-color: var(--ink); }
-  .sm input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
-  .sm input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
+  .sm input[type=range], input.ink { -webkit-appearance: none; appearance: none; height: 4px; background: var(--ink); border-radius: 2px; accent-color: var(--ink); }
+  .sm input[type=range]::-webkit-slider-thumb, input.ink::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
+  .sm input[type=range]::-moz-range-thumb, input.ink::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
   .math-toggle { margin-top: 12px; background: none; border: 0; padding: 0; box-shadow: none; font-family: var(--head); font-weight: 400; font-size: 1.05rem; color: var(--pen); text-decoration: underline; text-underline-offset: 3px; }
   .sm-worked { font-family: var(--mono); font-size: 0.95rem; margin: 10px 0 0; max-width: none; }
   .sm .others-label { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; font-weight: 400; }
   .math-toggle:hover { background: none; color: var(--ink); }
+  .loss-row { display: grid; grid-template-columns: auto 1fr 4em; gap: 14px; align-items: center; margin: 14px 0 6px; font-family: var(--mono); }
+  .loss-row output { text-align: right; font-weight: 600; }
+  .loss-label { margin-top: 22px; font-family: var(--head); font-size: 1.05rem; }
+  .loss-ends { display: flex; justify-content: space-between; color: var(--pencil); font-size: 0.85rem; margin-top: 4px; }
+  .loss-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; font-family: var(--mono); font-size: 0.9rem; }
+  .loss-strip span { border: 1px solid var(--grid); border-radius: 4px; padding: 4px 8px; background: var(--paper); white-space: nowrap; }
+  .loss-strip b { color: var(--redpen); font-weight: 600; margin-left: 6px; }
+  .loss-strip .more { border: 0; background: none; color: var(--pencil); }
+  .loss-avg { font-family: var(--mono); margin: 12px 0 18px; }
+  @media (max-width: 560px) {
+    .loss-row { grid-template-columns: 1fr 4em; }
+    .loss-row > span { grid-column: 1 / -1; margin-bottom: -6px; }
+  }
   .sm-math-note { font-size: 0.9rem; color: var(--pencil); margin: 0 0 12px; max-width: none; }
   @media (max-width: 640px) {
     .sm, .sm.math { grid-template-columns: 3.4em 1fr 2.8em 2.8em; }
@@ -173,25 +186,26 @@
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
       <p class="step-label">Step b) Measure</p>
-      <p class="say">To get better, Neo needs one number that says how bad a guess was.</p>
-      <p class="say">The right answer after <code>t</code> is <code>h</code>.</p>
+      <p class="say">Neo's guesses are bad. To get better, it needs one number that says how bad.</p>
+      <p class="say">Take the first pair in the text, <code>t → h</code>. Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, Neo gave <code>h</code> only 13.3%. How wrong is that?</p>
       <div class="activity">
-        <div class="do">Drag: how much chance did the model give h?</div>
-        <div class="slider-row"><span>chance</span><input type="range" id="pRight" min="0.01" max="1" step="0.01" value="0.13" aria-label="Chance given to the right answer"><output id="pRightOut">0.13</output></div>
-        <div class="muted">Loss = −log(chance):</div>
-        <div class="big-number" id="lossBig">2.04</div>
+        <div class="do">Drag the chance for h. Try 90%, 50% and 1%.</div>
+        <div class="loss-row"><span>chance for h</span><input type="range" class="ink" id="pRight" min="1" max="100" step="0.1" value="13.3" aria-label="Chance given to h"><output id="pRightOut">13.3%</output></div>
+        <div class="loss-label">How wrong (the loss)</div>
+        <div class="big-number" id="lossBig">2.02</div>
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
+        <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
-      <p class="say">Low chance for the right answer → big <mark>loss</mark>. Perfect → 0.</p>
+      <p class="say">The less chance Neo gives the right answer, the bigger the <mark>loss</mark>. Give it 100% and the loss is 0.</p>
+      <p class="say">The rule Neo uses: <code style="white-space:nowrap">loss = −log(chance)</code></p>
       <details class="unclear">
         <summary>What is log?</summary>
-        <p>You don't need the math. Just remember: −log turns a chance into a “how wrong” number. Chance 1 → 0 (perfect). The smaller the chance, the bigger the number.</p>
+        <p>You don't need the math. Just remember: −log turns a chance into a “how wrong” number. Chance 100% → 0 (perfect). The smaller the chance, the bigger the number.</p>
       </details>
-      <table class="plain cmp">
-        <tr><th>chance given to the right answer</th><td>0.9</td><td>0.5</td><td>0.13</td><td>0.01</td></tr>
-        <tr><th>loss</th><td>0.11</td><td>0.69</td><td>2.04</td><td>4.61</td></tr>
-      </table>
-      <p class="say">Neo does this for all 46 pairs in the text and takes the average: <b>3.09</b> at the start. One number for how bad all its guesses are.</p>
+      <p class="say">Neo does this for every pair in the text, all 46 of them. These are the first few, with Neo's real random scores:</p>
+      <div class="loss-strip" id="lossStrip"></div>
+      <p class="loss-avg" id="lossAvg"></p>
+      <p class="say">One number for how bad all of Neo's guesses are.</p>
       <p class="hook">The goal is to make the loss small. But which of the 196 scores should change, and which way?</p>
     </section>
 
@@ -498,14 +512,25 @@ function bar(label, p, target) {
   const s = document.getElementById("pRight");
   function render() {
     const p = Number(s.value);
-    const L = -Math.log(p);
-    document.getElementById("pRightOut").textContent = p.toFixed(2);
+    const L = -Math.log(p / 100);
+    document.getElementById("pRightOut").textContent = p.toFixed(1) + "%";
     document.getElementById("lossBig").textContent = L.toFixed(2);
     document.getElementById("lossFill").style.width = Math.min(100, L / 4.61 * 100) + "%";
   }
   s.oninput = render;
-  addReset(s, () => { s.value = 0.13; render(); });
+  addReset(s, () => { s.value = 13.3; render(); });
   render();
+  // The real loss of each pair in the text, with Neo's random starting scores
+  const losses = [];
+  for (let i = 0; i < TEXT.length - 1; i++) {
+    const row = INIT_LESSON4[CHAR_TO_NUMBER[TEXT[i]]], e = row.map(Math.exp);
+    const p = e[CHAR_TO_NUMBER[TEXT[i + 1]]] / e.reduce((x, y) => x + y, 0);
+    losses.push([TEXT[i], TEXT[i + 1], -Math.log(p)]);
+  }
+  document.getElementById("lossStrip").innerHTML = losses.slice(0, 6)
+    .map(([a, b, L]) => `<span>${showChar(a)} → ${showChar(b)}<b>${L.toFixed(2)}</b></span>`).join("") + `<span class="more">… 40 more</span>`;
+  const avg = losses.reduce((x, l) => x + l[2], 0) / losses.length;
+  document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length}: <b>${avg.toFixed(2)}</b>`;
 })();
 
 // ---------- 5: you be the model ----------
