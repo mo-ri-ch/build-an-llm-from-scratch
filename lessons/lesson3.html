@@ -70,6 +70,7 @@
   .look-row input { flex: 1; min-width: 160px; }
   .look-row b { font-family: var(--head); font-size: 1.2rem; min-width: 5.5em; }
   .sees { font-family: var(--mono); font-size: 1.4rem; margin: 4px 0 4px; color: var(--pencil); }
+  .sees #seesBefore { white-space: pre; }
   .sees #seesText { background: var(--hl-yellow); color: #1A2440; padding: 0 4px; border-radius: 4px; white-space: pre; }
   .sees .q-next { color: var(--ink); margin-left: 4px; }
   .sees-note { font-size: 0.95rem; min-height: 1.5em; margin-bottom: 14px; }
@@ -244,7 +245,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
           <input type="range" id="lookBack" min="1" max="6" value="1">
           <b id="lookN">1 letter</b>
         </div>
-        <div class="sees">…the cat <span id="seesText"></span><span class="q-next">?</span></div>
+        <div class="sees">…<span id="seesBefore"></span><span id="seesText"></span><span class="q-next">?</span></div>
         <div class="sees-note" id="seesNote"></div>
         <div class="boxes">
           <div class="box-card">
@@ -542,6 +543,8 @@ function fillRowSelect(sel, chosen) {
   function render() {
     const n = Number(slider.value);
     document.getElementById("lookN").textContent = n === 1 ? "1 letter" : `${n} letters`;
+    // The whole text stays; only the last n letters (what Neo sees) are highlighted
+    document.getElementById("seesBefore").textContent = ending.slice(0, -n);
     document.getElementById("seesText").textContent = ending.slice(-n);
     document.getElementById("seesNote").innerHTML = n === 1
       ? "Neo sees only <b>t</b>. It doesn't know “sat” is finished, so it may add “he”."
