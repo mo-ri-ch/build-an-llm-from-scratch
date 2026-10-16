@@ -43,6 +43,6 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 ## Progress (keep this up to date)
 - Lessons 1–4: built and reviewed as a student (Oct 16). Lesson 4 reworked into one connected story.
 - Home page: Neo demo (after Lesson 5 / after the course), note on why Neo is tiny, lesson path.
-- Site tools: pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
+- Site tools: Guide me (assets/guide.js: one glow at a time, → / ←, Shift+→ next page, activities wait for the student; steps come from each page's elements, so keep pages as a clean list of paragraphs and boxes), pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
 - **Next:** the user finishes going through Lesson 4 as a student → then learn Lesson 5 together → build its pages (plan in drafts/lesson5-plan.md).
 - Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).
