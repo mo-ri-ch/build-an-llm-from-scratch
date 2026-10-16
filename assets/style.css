@@ -432,13 +432,10 @@ body.teach pre { font-size: 0.8rem; }
 }
 @media (min-width: 1000px) { body.has-thumbs .topbar .where[data-full] { font-size: 0; } body.has-thumbs .topbar .where[data-full]::after { content: attr(data-full); font-size: 1.3rem; } }
 
-/* Wide screens: Previous / Next stay in the bottom corners of the presenting space */
+/* Previous / Next sit at the end of each page, below the content (not fixed to the screen) */
 @media (min-width: 1000px) {
-  body.has-thumbs .pagebar { position: fixed; left: 0; right: 232px; bottom: 0; margin: 0; z-index: 2; pointer-events: none; }
-  body.has-thumbs.thumbs-off .pagebar { right: 0; }
-  body.has-thumbs .pagebar .inner { padding: 0 28px 12px 76px; }
-  body.has-thumbs .pagebar button { pointer-events: auto; }
-  body.has-thumbs main[data-paged] section.part { padding-bottom: 80px; }
+  body.has-thumbs .pagebar { position: static; margin: 12px 0 48px; }
+  body.has-thumbs main[data-paged] section.part { padding-bottom: 12px; }
 }
 
 /* ↺ Reset: quiet text in the top-right corner of every activity */
@@ -451,12 +448,7 @@ body.teach pre { font-size: 0.8rem; }
 .quiz { position: relative; }
 .quiz-reset { position: static; margin-top: 4px; }
 .activity .do { padding-right: 84px; }
-/* Keep a strip at the bottom for Previous / Next, so content never slides under them */
-@media (min-width: 1000px) {
-  body.has-thumbs .wrap, body.has-thumbs.thumbs-off .wrap { bottom: 50px; }
-  body.has-thumbs main[data-paged] section.part { padding-bottom: 24px; }
-  body.has-thumbs .pagebar .inner { padding-bottom: 8px; }
-}
+
 /* No up/down spinner arrows on number boxes anywhere: just type */
 input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 input[type=number]::-webkit-outer-spin-button,
