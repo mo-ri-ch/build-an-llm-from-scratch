@@ -88,7 +88,7 @@
       <p class="say">Lesson 3 left Neo stuck:</p>
       <ul class="stuck">
         <li>It sees only the <b>last letter</b>, so it writes words like “sathe”.</li>
-        <li>Looking further back makes the counting table <b>explode</b>.</li>
+        <li>Looking further back makes the counting table <b>grow huge</b>.</li>
         <li>Sharing numbers would help, but shared numbers <b>can't be counted</b>.</li>
       </ul>
       <p class="say">So the question is: <b>can Neo find good numbers without counting?</b></p>
@@ -104,7 +104,7 @@
         <tr><td>Lesson 3 counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
         <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>1.07</td><td>1.31</td><td>0.94</td></tr>
       </table>
-      <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
+      <p class="say">Scores can be any number, even negative. So Neo can easily change them a little, up or down.</p>
       <div class="vs">
         <div class="vs-card">
           <div class="vs-title">Counting <small>(Lesson 3)</small></div>
@@ -119,18 +119,18 @@
       </div>
       <p class="say">Learning repeats 4 steps:</p>
       <ol class="loop">
-        <li><span class="k">a)</span><span><b>Predict</b> the next character</span></li>
-        <li><span class="k">b)</span><span><b>Measure</b> how wrong</span></li>
+        <li><span class="k">a)</span><span><b>Guess</b> the next character</span></li>
+        <li><span class="k">b)</span><span><b>Check</b> how wrong it was</span></li>
         <li><span class="k">c)</span><span><b>Find</b> which way to change each score</span></li>
-        <li><span class="k">d)</span><span><b>Move</b> each score a little</span></li>
+        <li><span class="k">d)</span><span><b>Change</b> each score a little</span></li>
       </ol>
-      <p class="hook">To predict, Neo needs chances, not scores. How do scores become chances?</p>
+      <p class="hook">To guess, Neo needs chances, not scores. How do scores become chances?</p>
     </section>
 
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
-      <p class="say">a) <b>Predict.</b> To guess, Neo needs chances that add up to 1, like Lesson 3's rows.</p>
+      <p class="say">a) <b>Guess.</b> To guess, Neo needs chances that add up to 1, like Lesson 3's rows.</p>
       <div class="activity">
         <div class="do">Drag the scores. Watch the chances.</div>
         <div class="slider-row"><span>h</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="1.1" aria-label="Score for h"><output>1.1</output></div>
@@ -153,7 +153,7 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <!-- 4 -->
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
-      <p class="say">b) <b>Measure.</b> To get better, Neo needs one number that says how bad a guess was.</p>
+      <p class="say">b) <b>Check how wrong.</b> To get better, Neo needs one number that says how bad a guess was.</p>
       <p class="say">The right answer after <code>t</code> is <code>h</code>.</p>
       <div class="activity">
         <div class="do">Drag: how much chance did the model give h?</div>
@@ -174,14 +174,14 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <!-- 5 -->
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
-      <p class="say">c) <b>Find directions.</b> For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
+      <p class="say">c) <b>Find which way.</b> For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
       <p class="say">That direction is called the <mark>gradient</mark>. For one pair, <code>t → h</code>, it's simple:</p>
       <ul class="rules">
         <li>The right answer (<code>h</code>): gradient = chance − 1. Always <b>negative</b>, so push it <b>up</b>.</li>
         <li>Every wrong one: gradient = its chance. Always <b>positive</b>, so push it <b>down</b>.</li>
       </ul>
       <div class="activity">
-        <div class="do">Look at the gradients. Then press “Move a little”. d) <b>Move.</b></div>
+        <div class="do">Look at the gradients. Then press “Move a little”. d) <b>Change each score a little.</b></div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
           <button class="primary" id="gradStep">Move a little</button>
@@ -317,7 +317,7 @@ Step 250 loss: 0.709
           <li><code>F.cross_entropy</code>: softmax, pick the right answer's chance, −log, average.</li>
           <li><code>weights.grad = None</code>: clears old gradients. PyTorch adds new ones on top.</li>
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
-          <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
+          <li><code>weights.data - learning_rate * weights.grad</code>: the minus makes a negative gradient push the score up.</li>
         </ul>
       </details>
       <p class="run-links">
@@ -367,11 +367,11 @@ Step 250 loss: 0.709
     <section class="part" data-title="Still one letter">
       <h2>Still one letter</h2>
       <p class="say">Neo learned its numbers by itself. But it still looks at only the <b>last letter</b>.</p>
-      <p class="say">So it still writes words like “sathe”. To fix that, it must look further back, without the table exploding.</p>
+      <p class="say">So it still writes words like “sathe”. To fix that, it must look further back, without the table growing huge.</p>
       <p class="neo-say">I learned the same chances as counting, all by myself! Now I can learn any numbers, even shared ones. Can I finally look further back?</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?</div>
+        <div class="big">Neo can learn now, but it still sees only 1 letter. How can it look further back without the table growing huge?</div>
         <div>Lesson 5 answers it. (Coming soon.)</div>
       </div>
       <p><button class="done-toggle" data-done="4">Mark lesson as done</button></p>
@@ -388,9 +388,9 @@ Step 250 loss: 0.709
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161310"></script>
+<script src="../assets/common.js?v=202610161325"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610161015"></script>
+<script src="../assets/codewalk.js?v=202610161325"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;

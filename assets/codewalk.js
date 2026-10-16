@@ -274,7 +274,7 @@
       if (!data) {
         startBtn.disabled = true;
         try {
-          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610161015`);
+          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610161325`);
           data = await res.json();
         } catch (e) {
           startBtn.disabled = false;

@@ -294,11 +294,11 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="fill-label" id="fillLabel"></div>
         <div class="fill-track"><div class="fill-bar" id="fillBar"></div></div>
       </div>
-      <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays 0. Neo knows nothing about those.</p>
-      <p class="say">A smarter model would <b>share numbers</b> across many words, instead of one box for every combination.</p>
-      <p class="note"><b>The catch:</b> a shared number can't be counted. It's used for many words at once, so there's no single “times seen” to write in it.</p>
+      <p class="say">Looking further back makes the table <b>grow huge</b>, and almost every box stays 0. Neo knows nothing about those.</p>
+      <p class="say">A smarter model would use <b>the same numbers for many words</b> (shared numbers), instead of one box for every group of letters.</p>
+      <p class="note"><b>But:</b> a shared number can't be counted. It's used for many words at once, so there's no single “times seen” to write in it.</p>
     
-      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. Looking further back makes my table explode. Sharing numbers would help, but I can't count shared numbers. How do I find them?</p>
+      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. Looking further back makes my table grow huge. Sharing numbers would help, but I can't count shared numbers. How do I find them?</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Looking further back needs shared numbers, and shared numbers can't be counted. How can Neo find numbers without counting?</div>
@@ -318,9 +318,9 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161310"></script>
+<script src="../assets/common.js?v=202610161325"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610161015"></script>
+<script src="../assets/codewalk.js?v=202610161325"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]
