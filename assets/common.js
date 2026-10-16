@@ -99,8 +99,19 @@ function setupPagedLesson() {
   const thumbs = buildThumbnails(parts, (i) => go(i));
   const seen = new Set();
 
+  // The lessons before and after this one (only ready ones), so the arrows can cross between lessons
+  const file = location.pathname.split("/").pop();
+  const here = LESSONS.findIndex(l => l.file === file);
+  const prevLesson = here > 0 && LESSONS[here - 1].ready ? LESSONS[here - 1] : null;
+  const nextLesson = here >= 0 && LESSONS[here + 1] && LESSONS[here + 1].ready ? LESSONS[here + 1] : null;
+  const nextText = next ? next.textContent : "";
+  const backText = back ? back.textContent : "";
+
   let current = 0;
   function go(i) {
+    // Past the last page: open the next lesson. Before the first page: open the previous lesson's last page.
+    if (i > parts.length - 1 && nextLesson) { location.href = nextLesson.file + "#1"; return; }
+    if (i < 0 && prevLesson) { location.href = prevLesson.file + "#last"; return; }
     current = Math.max(0, Math.min(parts.length - 1, i));
     seen.add(current);
     parts.forEach((p, k) => { p.hidden = k !== current; });
@@ -114,9 +125,13 @@ function setupPagedLesson() {
       if (k === current) t.setAttribute("aria-current", "step"); else t.removeAttribute("aria-current");
     });
     if (thumbs[current]) thumbs[current].scrollIntoView({ block: "nearest" });
-    if (back) back.disabled = current === 0;
+    if (back) {
+      back.disabled = current === 0 && !prevLesson;
+      back.textContent = current === 0 && prevLesson ? `← Lesson ${prevLesson.n}` : backText;
+    }
     if (next) {
-      next.hidden = current === parts.length - 1;
+      next.hidden = current === parts.length - 1 && !nextLesson;
+      next.textContent = current === parts.length - 1 && nextLesson ? `Lesson ${nextLesson.n} →` : nextText;
     }
     if (label) label.textContent = `${current + 1} / ${parts.length}  ${parts[current].dataset.title || ""}`;
     try { history.replaceState(null, "", `#${current + 1}`); } catch (e) { /* file:// */ }
@@ -129,8 +144,8 @@ function setupPagedLesson() {
   if (back) back.addEventListener("click", () => go(current - 1));
   if (next) next.addEventListener("click", () => go(current + 1));
 
-  const start = parseInt(location.hash.slice(1), 10);
-  go(Number.isFinite(start) ? start - 1 : 0);
+  const start = location.hash === "#last" ? parts.length : parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? Math.min(start, parts.length) - 1 : 0);
 
   // Links like lesson4.html#5 jump straight to part 5
   window.addEventListener("hashchange", () => {
