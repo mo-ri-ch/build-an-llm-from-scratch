@@ -56,6 +56,8 @@
   .grads .down { color: var(--redpen); font-weight: 700; }
   .grads tr.right td { background: var(--hl-yellow); color: #1A2440; }
   .grad-loss { font-family: var(--mono); margin-left: 8px; }
+  .stuck { margin: 4px 0 16px; padding-left: 1.2em; font-size: 1.1rem; }
+  .stuck li { margin: 6px 0; }
   .loop { list-style: none; padding: 0; margin: 0 0 1.2em; display: grid; gap: 10px; }
   .loop li { display: grid; grid-template-columns: 2em 1fr; gap: 8px; font-size: 1.1rem; }
   .loop .k { font-family: var(--mono); color: var(--pen); font-weight: 600; }
@@ -83,7 +85,26 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
-      <p class="say">Lesson 3 ended with a problem: to look further back, Neo needs <b>shared</b> numbers, and shared numbers can't be counted.</p>
+      <p class="say">Lesson 3 left Neo stuck:</p>
+      <ul class="stuck">
+        <li>It sees only the <b>last letter</b>, so it writes words like “sathe”.</li>
+        <li>Looking further back makes the counting table <b>explode</b>.</li>
+        <li>Sharing numbers would help, but shared numbers <b>can't be counted</b>.</li>
+      </ul>
+      <p class="say">So the question is: <b>can Neo find good numbers without counting?</b></p>
+      <p class="hook">Yes. It starts with random numbers and fixes them.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="Start random">
+      <h2>Start random</h2>
+      <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
+      <table class="plain cmp">
+        <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
+        <tr><td>Lesson 3 counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
+        <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>1.07</td><td>1.31</td><td>0.94</td></tr>
+      </table>
+      <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <div class="vs">
         <div class="vs-card">
           <div class="vs-title">Counting <small>(Lesson 3)</small></div>
@@ -96,20 +117,6 @@
           <p class="vs-good">Works for any numbers, even shared ones.</p>
         </div>
       </div>
-      <p class="say">This lesson teaches learning on the same table as Lesson 3, so you can check it gets the same answer. Lesson 5 then uses it for shared numbers.</p>
-      <p class="hook">First step of learning: start with random numbers.</p>
-    </section>
-
-    <!-- 2 -->
-    <section class="part" data-title="Start random">
-      <h2>Start random</h2>
-      <p class="say">Neo can't count shared numbers, so it starts with <b>random</b> ones and fixes them. Here's row <code>t</code>:</p>
-      <table class="plain cmp">
-        <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
-        <tr><td>Lesson 3 counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
-        <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>1.07</td><td>1.31</td><td>0.94</td></tr>
-      </table>
-      <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <p class="say">Learning repeats 4 steps:</p>
       <ol class="loop">
         <li><span class="k">a)</span><span><b>Predict</b> the next character</span></li>
