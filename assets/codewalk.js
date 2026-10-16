@@ -188,7 +188,7 @@
       const parts = value.pairs.map(([k, v]) => {
         const text = esc(`${k}: ${typeof v === "object" ? v.text : v}`);
         const fresh = before !== undefined && old[k] !== v;
-        return fresh ? `<span class="now">${text}</span>` : text;
+        return `<span class="kv${fresh ? " now" : ""}">${text}</span>`;   // a pair never splits across lines
       });
       return "{" + parts.join(", ") + "}";
     }
