@@ -5,7 +5,7 @@
 // On or off is remembered across pages. Self-contained: adds its own styles.
 (function () {
   const KEY = "tiny-llm-guide";
-  const JOIN_PREV = ["our-text", "muted-note", "loss-strip", "loss-avg"];   // small lines that belong to the thing before them
+  const JOIN_PREV = ["our-text", "muted-note", "loss-strip", "loss-avg", "run-area"];   // run-area: the code box, its terminal and Step through glow as one   // small lines that belong to the thing before them
   const JOIN_NEXT = ["step-label"];               // labels that belong to the thing after them
 
   const css = `
@@ -39,6 +39,7 @@
   @media (prefers-reduced-motion: reduce) { .guide-now .do { animation: none; } }
   `;
 
+  const sizeWatch = window.ResizeObserver ? new ResizeObserver(() => placeGlow()) : null;
   let on = false, step = 0, steps = [], section = null, hasNext = false, host = document.body;
   const startHash = location.hash;   // read now: the page list rewrites it once the page is set up
 
@@ -100,6 +101,8 @@
     steps[step].forEach(el => el.classList.add("guide-now"));
     count.textContent = `${step + 1} / ${steps.length}`;
     placeGlow();
+    // Follow the step's size as it changes (an activity opening, Step through starting, a terminal appearing)
+    if (sizeWatch) { sizeWatch.disconnect(); steps[step].forEach(el => sizeWatch.observe(el)); }
     if (scroll) scrollToStep();
   }
 
@@ -185,6 +188,20 @@
     host.appendChild(glow);
     window.addEventListener("resize", placeGlow);
     if (window.ResizeObserver) new ResizeObserver(placeGlow).observe(document.querySelector("main[data-paged]"));
+    // Step through moves the code box into a wider layout: put the glow on the code and its terminal again
+    let walking = false;
+    new MutationObserver(() => {
+      const now = document.body.classList.contains("walking-code");
+      if (now === walking) { requestAnimationFrame(placeGlow); return; }   // some other class (pen, page list): just re-place
+      walking = now;
+      if (!on) return;
+      requestAnimationFrame(() => {
+        buildSteps();
+        const k = steps.findIndex(g => g.some(el => el.classList.contains("walk-wrap") || el.classList.contains("run-area")));
+        if (k >= 0) step = k;
+        show(document.body.classList.contains("walking-code"));
+      });
+    }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
     document.addEventListener("transitionend", placeGlow);
 
     toggle.addEventListener("click", () => { setOn(!on); toggle.blur(); });
@@ -212,7 +229,7 @@
       if (!on || !section || !section.contains(e.target)) return;
       buildSteps();
       const k = steps.findIndex(group => group.some(el => el.contains(e.target)));
-      if (k >= 0 && k !== step) { step = k; show(false); }
+      if (k >= 0) { step = k; requestAnimationFrame(() => show(false)); }
     });
 
     // A new page (Next link, page list, arrows): start at its first thing (or last, when going back)
