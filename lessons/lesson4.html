@@ -452,7 +452,7 @@ function bar(label, p, target) {
     html += `<span class="rule"></span>`;
     html += `<span class="total" style="grid-column: span 3">total</span>` +
       (math ? `<span class="total ex" data-ex="total"></span>` : "") +
-      `<span class="total arrow"></span><span class="total others-label">all 14 letters</span><span class="total pct">100%</span>`;
+      `<span class="total arrow"></span><span class="total others-label">all 14 letters</span><span class="total pct">100.0%</span>`;
     box.innerHTML = html;
     box.querySelectorAll("input").forEach(inp => inp.oninput = () => { row[Number(inp.dataset.k)] = Number(inp.value); last = Number(inp.dataset.k); update(); });
     update();
@@ -461,20 +461,27 @@ function bar(label, p, target) {
     const e = row.map(Math.exp), total = e.reduce((a, b) => a + b, 0);
     const restE = e.reduce((a, v, k) => shown.includes(k) ? a : a + v, 0);
     const set = (sel, text) => { const el = box.querySelector(sel); if (el) el.textContent = text; };
+    // Round so the shown percentages always add up to exactly 100 (largest remainder first)
+    // (in tenths of a percent, so equal scores show equal chances)
+    const parts = shown.map(k => e[k] / total * 1000).concat([restE / total * 1000]);
+    const whole = parts.map(Math.floor);
+    let left = 1000 - whole.reduce((a, b) => a + b, 0);
+    parts.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { whole[i] += 1; left -= 1; } });
+    const pct = {}; shown.forEach((k, i) => { pct[k] = (whole[i] / 10).toFixed(1); }); pct.rest = (whole[whole.length - 1] / 10).toFixed(1);
     shown.forEach(k => {
       const p = e[k] / total;
       set(`[data-score="${k}"]`, row[k].toFixed(2));
       set(`[data-ex="${k}"]`, e[k].toFixed(2));
-      set(`[data-pct="${k}"]`, Math.round(p * 100) + "%");
+      set(`[data-pct="${k}"]`, pct[k] + "%");
       box.querySelector(`[data-fill="${k}"]`).style.width = (p * 100).toFixed(1) + "%";
     });
     set(`[data-ex="rest"]`, restE.toFixed(2));
-    set(`[data-pct="rest"]`, Math.round(restE / total * 100) + "%");
+    set(`[data-pct="rest"]`, pct.rest + "%");
     box.querySelector(`[data-fill="rest"]`).style.width = (restE / total * 100).toFixed(1) + "%";
     set(`[data-ex="total"]`, total.toFixed(2));
     // One worked example: the letter you last dragged
     const name = showChar(CHARS[last]);
-    worked.innerHTML = `<b>${name}</b>: ${e[last].toFixed(2)} ÷ ${total.toFixed(2)} = <b>${Math.round(e[last] / total * 100)}%</b>`;
+    worked.innerHTML = `<b>${name}</b>: ${e[last].toFixed(2)} ÷ ${total.toFixed(2)} = <b>${(e[last] / total * 100).toFixed(1)}%</b>`;
   }
   mathBtn.onclick = () => {
     math = !math; note.hidden = !math; worked.hidden = !math;
