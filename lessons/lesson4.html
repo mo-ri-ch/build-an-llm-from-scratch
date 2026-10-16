@@ -142,7 +142,7 @@
       <p class="say">This is <mark>softmax</mark>.</p>
       <details class="unclear">
         <summary>How does softmax work?</summary>
-        <p>Make every score positive with e<sup>score</sup>. Then divide each by the total.</p>
+        <p><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then divide each by the total, so they add up to 1.</p>
 <pre><code>scores = [2.0, 1.0, -1.0]
 e^     = [7.389, 2.718, 0.368]    <span class="c"># total 10.475</span>
 chance = [0.705, 0.259, 0.035]</code></pre>
@@ -163,6 +163,10 @@ chance = [0.705, 0.259, 0.035]</code></pre>
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
       </div>
       <p class="say">Low chance for the right answer → big <mark>loss</mark>. Perfect → 0.</p>
+      <details class="unclear">
+        <summary>What is log?</summary>
+        <p>You don't need the math. Just remember: −log turns a chance into a “how wrong” number. Chance 1 → 0 (perfect). The smaller the chance, the bigger the number.</p>
+      </details>
       <table class="plain cmp">
         <tr><th>chance given to the right answer</th><td>0.9</td><td>0.5</td><td>0.13</td><td>0.01</td></tr>
         <tr><th>loss</th><td>0.11</td><td>0.69</td><td>2.04</td><td>4.61</td></tr>
@@ -196,9 +200,10 @@ chance = [0.705, 0.259, 0.035]</code></pre>
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
       <p class="say">Now you be the model. These are Neo's real random scores for row <code>t</code>.</p>
+      <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, “.” 1 out of 8.</p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
-        <div class="muted" style="margin-bottom:10px">After t, the text really has: h 4 times, space 3 times, “.” once.</div>
+        <div class="muted" style="margin-bottom:10px">After t, the text really has: h 4 times, space 3 times, “.” once. The green dashed line is each one's goal.</div>
         <div class="game" id="game"></div>
         <div class="score-line">
           <div>Loss for t<b id="gameLoss">–</b></div>
@@ -215,6 +220,7 @@ chance = [0.705, 0.259, 0.035]</code></pre>
         <summary>Why is negative “up”?</summary>
         <p>A gradient says: <b>if this score goes up, what happens to the loss?</b></p>
         <p>Negative: the loss goes down. Good, so raise it. Positive: the loss goes up, so lower it.</p>
+        <p>With all 8 pairs, each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. That's different from the single pair <code>t → h</code> on the last page, where space was a wrong answer.</p>
       </details>
       <p class="hook">Doing this by hand for 196 scores would take forever. Let Neo do it.</p>
     </section>
