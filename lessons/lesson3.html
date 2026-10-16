@@ -72,7 +72,9 @@
   .sees { font-family: var(--mono); font-size: 1.4rem; margin: 4px 0 4px; color: var(--pencil); }
   .sees #seesBefore { white-space: pre; }
   .sees #seesText { background: var(--hl-yellow); color: #1A2440; padding: 0 4px; border-radius: 4px; white-space: pre; }
-  .sees .q-next { color: var(--ink); margin-left: 4px; }
+  .sees .next-box { display: inline-flex; flex-direction: column; align-items: center; vertical-align: top; margin-left: 6px; }
+  .sees .next-slot { width: 1.2em; height: 1.35em; border: 2px dashed var(--ink); border-radius: 4px; }
+  .sees .next-label { font-family: var(--head); font-size: 0.8rem; color: var(--ink); line-height: 1.2; }
   .sees-note { font-size: 0.95rem; min-height: 1.5em; margin-bottom: 14px; }
   .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
@@ -245,7 +247,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
           <input type="range" id="lookBack" min="1" max="6" value="1">
           <b id="lookN">1 letter</b>
         </div>
-        <div class="sees">…<span id="seesBefore"></span><span id="seesText"></span><span class="q-next">?</span></div>
+        <div class="sees">…<span id="seesBefore"></span><span id="seesText"></span><span class="next-box" title="The next letter Neo has to guess"><span class="next-slot"></span><span class="next-label">next</span></span></div>
         <div class="sees-note" id="seesNote"></div>
         <div class="boxes">
           <div class="box-card">
