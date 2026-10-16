@@ -60,7 +60,7 @@
   .stuck li { margin: 6px 0; }
   .sm { display: grid; grid-template-columns: 4.2em minmax(90px, 170px) 3.2em 1.4em 1fr 3.4em; gap: 8px 10px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin: 6px 0 4px; }
   .sm.math { grid-template-columns: 4.2em minmax(90px, 170px) 3.2em 4.6em 1.4em 1fr 3.4em; }
-  .sm .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); }
+  .sm .hd { font-family: var(--body, inherit); font-size: 0.85rem; color: var(--pencil); align-self: end; line-height: 1.2; }
   .sm .num { text-align: right; }
   .sm .arrow { color: var(--pencil); text-align: center; }
   .sm .ex { color: var(--pencil); text-align: right; font-size: 0.85rem; }
@@ -68,16 +68,19 @@
   .sm .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight); border-right: 2px solid var(--ink); transition: width 0.15s; }
   .sm .pct { text-align: right; }
   .sm .others { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; }
-  .sm .total { border-top: 2px solid var(--ink); padding-top: 6px; font-weight: 700; }
+  .sm .rule { grid-column: 1 / -1; border-top: 2px solid var(--ink); height: 0; margin: 2px 0 -2px; }
+  .sm .total { font-weight: 700; }
   .sm input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; background: var(--ink); border-radius: 2px; accent-color: var(--ink); }
   .sm input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
   .sm input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--hl-yellow); border: 2px solid var(--ink); cursor: grab; }
-  .math-toggle { margin-top: 10px; background: none; border: 0; padding: 0; box-shadow: none; font-family: var(--head); font-size: 1.05rem; color: var(--pen); }
+  .math-toggle { margin-top: 12px; background: none; border: 0; padding: 0; box-shadow: none; font-family: var(--head); font-weight: 400; font-size: 1.05rem; color: var(--pen); text-decoration: underline; text-underline-offset: 3px; }
+  .sm-worked { font-family: var(--mono); font-size: 0.95rem; margin: 10px 0 0; max-width: none; }
+  .sm .others-label { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; font-weight: 400; }
   .math-toggle:hover { background: none; color: var(--ink); }
-  .sm-math-note { font-size: 0.9rem; color: var(--pencil); margin: 6px 0 0; max-width: none; }
+  .sm-math-note { font-size: 0.9rem; color: var(--pencil); margin: 0 0 12px; max-width: none; }
   @media (max-width: 640px) {
     .sm, .sm.math { grid-template-columns: 3.4em 1fr 2.8em 2.8em; }
-    .sm .arrow, .sm .track, .sm .hd.h-bar, .sm .hd.h-arrow, .sm .gap { display: none; }
+    .sm .arrow, .sm .track, .sm .hd.h-bar, .sm .hd.h-arrow, .sm .gap, .sm .others-label { display: none; }
     .sm.math .ex, .sm.math .hd.h-ex { display: none; }
   }
   .loop { list-style: none; padding: 0; margin: 0 0 1.2em; display: grid; gap: 10px; }
@@ -156,9 +159,10 @@
       <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <div class="activity">
         <div class="do">These are Neo's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
-        <div class="sm" id="smTable"></div>
-        <button type="button" class="math-toggle" id="smMath" aria-expanded="false">Show the math</button>
         <p class="sm-math-note" id="smMathNote" hidden><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
+        <div class="sm" id="smTable"></div>
+        <p class="sm-worked" id="smWorked" hidden></p>
+        <button type="button" class="math-toggle" id="smMath" aria-expanded="false">Show the math</button>
       </div>
       <p class="say">Any scores in, chances out. They always add up to 1, and raising one score takes chance away from the others.</p>
       <p class="say">This is <mark>softmax</mark>.</p>
@@ -426,12 +430,13 @@ function bar(label, p, target) {
   const start = INIT_LESSON4[T].slice();
   const shown = [" ", ".", "h", "l", "d"].map(c => CHAR_TO_NUMBER[c]);
   const box = document.getElementById("smTable"), mathBtn = document.getElementById("smMath"), note = document.getElementById("smMathNote");
-  let row = start.slice(), math = false;
+  let row = start.slice(), math = false, last = CHAR_TO_NUMBER["h"];
+  const worked = document.getElementById("smWorked");
 
   function build() {
     box.classList.toggle("math", math);
     let html = `<span class="hd"></span><span class="hd">score</span><span class="hd"></span>` +
-      (math ? `<span class="hd h-ex">e<sup>score</sup></span>` : "") +
+      (math ? `<span class="hd h-ex num">e^score</span>` : "") +
       `<span class="hd h-arrow"></span><span class="hd h-bar">chance</span><span class="hd"></span>`;
     shown.forEach(k => {
       html += `<span>${showChar(CHARS[k])}</span>` +
@@ -440,13 +445,16 @@ function bar(label, p, target) {
         (math ? `<span class="ex" data-ex="${k}"></span>` : "") +
         `<span class="arrow">→</span><span class="track"><span class="fill" data-fill="${k}"></span></span><span class="pct" data-pct="${k}"></span>`;
     });
-    html += `<span class="others" style="grid-column: 1 / 4">the other 9 letters</span>` +
+    html += `<span class="others" style="grid-column: span 3">the other 9 letters</span>` +
       (math ? `<span class="ex" data-ex="rest"></span>` : "") +
       `<span class="arrow">→</span><span class="track"><span class="fill" data-fill="rest"></span></span><span class="pct" data-pct="rest"></span>`;
-    html += `<span class="total" style="grid-column: 1 / ${math ? 5 : 4}">${math ? "total" : ""}</span>` +
-      (math ? "" : "") + `<span class="total gap" style="grid-column: span 2">${math ? `<span data-ex="total"></span>` : "all 14 letters"}</span><span class="total pct" data-pct="total"></span>`;
+    // Total row: each value under its own column
+    html += `<span class="rule"></span>`;
+    html += `<span class="total" style="grid-column: span 3">total</span>` +
+      (math ? `<span class="total ex" data-ex="total"></span>` : "") +
+      `<span class="total arrow"></span><span class="total others-label">all 14 letters</span><span class="total pct">100%</span>`;
     box.innerHTML = html;
-    box.querySelectorAll("input").forEach(inp => inp.oninput = () => { row[Number(inp.dataset.k)] = Number(inp.value); update(); });
+    box.querySelectorAll("input").forEach(inp => inp.oninput = () => { row[Number(inp.dataset.k)] = Number(inp.value); last = Number(inp.dataset.k); update(); });
     update();
   }
   function update() {
@@ -463,11 +471,13 @@ function bar(label, p, target) {
     set(`[data-ex="rest"]`, restE.toFixed(2));
     set(`[data-pct="rest"]`, Math.round(restE / total * 100) + "%");
     box.querySelector(`[data-fill="rest"]`).style.width = (restE / total * 100).toFixed(1) + "%";
-    set(`[data-ex="total"]`, total.toFixed(2) + "  → each ÷ " + total.toFixed(2));
-    set(`[data-pct="total"]`, "100%");
+    set(`[data-ex="total"]`, total.toFixed(2));
+    // One worked example: the letter you last dragged
+    const name = showChar(CHARS[last]);
+    worked.innerHTML = `<b>${name}</b>: ${e[last].toFixed(2)} ÷ ${total.toFixed(2)} = <b>${Math.round(e[last] / total * 100)}%</b>`;
   }
   mathBtn.onclick = () => {
-    math = !math; note.hidden = !math;
+    math = !math; note.hidden = !math; worked.hidden = !math;
     mathBtn.textContent = math ? "Hide the math" : "Show the math";
     mathBtn.setAttribute("aria-expanded", math);
     build();
