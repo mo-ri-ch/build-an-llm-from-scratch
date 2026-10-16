@@ -32,3 +32,10 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Bump `?v=` on changed assets. Regenerate notebooks/code (`tools/make_notebooks.py`) and traces (`tools/make_traces.py`) after code changes; add a plain explanation for every new code line in `tools/explanations.py`.
 - Test with Playwright (desktop and phone), then check the GitHub Pages deploy succeeded.
 - Lesson 5 plan: `drafts/lesson5-plan.md` (teach shared numbers properly, starting from the pairs table).
+
+## Progress (keep this up to date)
+- Lessons 1–4: built and reviewed as a student (Oct 16). Lesson 4 reworked into one connected story.
+- Home page: Neo demo (after Lesson 5 / after the course), note on why Neo is tiny, lesson path.
+- Site tools: pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
+- **Next:** the user finishes going through Lesson 4 as a student → then learn Lesson 5 together → build its pages (plan in drafts/lesson5-plan.md).
+- Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).
