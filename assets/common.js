@@ -105,6 +105,16 @@ function setupPagedLesson() {
   const prevLesson = here > 0 && LESSONS[here - 1].ready ? LESSONS[here - 1] : null;
   const nextLesson = here >= 0 && LESSONS[here + 1] && LESSONS[here + 1].ready ? LESSONS[here + 1] : null;
   const nextText = next ? next.textContent : "";
+  // Each page's closing line (.hook) is shown right above the Next link, so it reads as "what's next"
+  let hint = null;
+  if (next) {
+    const side = document.createElement("div");
+    side.className = "next-side";
+    hint = document.createElement("div");
+    hint.className = "next-hint";
+    next.replaceWith(side);
+    side.append(hint, next);
+  }
   const backText = back ? back.textContent : "";
 
   let current = 0;
@@ -132,6 +142,11 @@ function setupPagedLesson() {
     if (next) {
       next.hidden = current === parts.length - 1 && !nextLesson;
       next.textContent = current === parts.length - 1 && nextLesson ? `Lesson ${nextLesson.n} →` : nextText;
+    }
+    if (hint) {
+      const h = parts[current].querySelector(".hook");
+      hint.textContent = h ? h.textContent : "";
+      hint.hidden = !h || next.hidden;
     }
     if (label) label.textContent = `${current + 1} / ${parts.length}  ${parts[current].dataset.title || ""}`;
     try { history.replaceState(null, "", `#${current + 1}`); } catch (e) { /* file:// */ }

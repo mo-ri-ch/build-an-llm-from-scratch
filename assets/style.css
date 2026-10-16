@@ -614,3 +614,9 @@ table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; fo
 /* "Next:" line at the end of a page, so every page leads into the next */
 .hook { font-family: var(--hand); color: var(--pencil); font-size: 1.05rem; margin: 26px 0 0; }
 /* No "Next" label here: the one Next link is in the corner */
+/* The closing line sits just above Next, in the corner */
+main[data-paged] .hook { display: none; }
+.pagebar .next-side { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; max-width: min(420px, 70%); }
+.pagebar .next-hint { font-family: var(--hand); color: var(--pencil); font-size: 0.95rem; line-height: 1.3; text-align: right; }
+.pagebar .inner { align-items: flex-end; }
+.pagebar button { white-space: nowrap; }
