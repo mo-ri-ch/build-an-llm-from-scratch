@@ -151,13 +151,47 @@
       panel.querySelector(".walk-close").onclick = stop;
     }
 
-    function table(title, vars, changed, prefix) {
+    // A small 2-D tensor is drawn as a grid, with the characters as row and column labels
+    function fmt(x) {
+      if (Number.isInteger(x)) return String(x);
+      const t = x.toFixed(2);
+      return t.replace(/^0\./, ".").replace(/^-0\./, "-.");
+    }
+    function grid(name, value, before) {
+      const g = value.grid, labels = data.labels;
+      const rowsLab = labels && labels.length === g.length ? labels : null;
+      const colsLab = labels && labels.length === g[0].length ? labels : null;
+      const lab = (c, i) => c === undefined || c === null ? i : (c === " " ? "␣" : esc(c));
+      let most = 0;
+      g.forEach(r => r.forEach(x => { if (Math.abs(x) > most) most = Math.abs(x); }));
+      let html = '<div class="walk-grid-wrap"><table class="walk-grid"><tr><th></th>';
+      g[0].forEach((_, k) => { html += `<th>${lab(colsLab && colsLab[k], k)}</th>`; });
+      html += "</tr>";
+      g.forEach((row, r) => {
+        html += `<tr><th>${lab(rowsLab && rowsLab[r], r)}</th>`;
+        row.forEach((x, k) => {
+          const was = before && before.grid && before.grid[r] ? before.grid[r][k] : x;
+          const heat = most ? Math.abs(x) / most : 0;
+          const cls = (x !== was ? "now " : "") + (x === 0 ? "zero" : x < 0 ? "neg" : "pos");
+          const where = `${name}[${r}, ${k}]` + (rowsLab && colsLab ? `: ${rowsLab[r] === " " ? "space" : rowsLab[r]} → ${colsLab[k] === " " ? "space" : colsLab[k]}` : "");
+          html += `<td class="${cls}" style="--heat:${heat.toFixed(2)}" title="${esc(where)} = ${x}">${x === 0 ? "·" : fmt(x)}</td>`;
+        });
+        html += "</tr>";
+      });
+      return html + "</table></div>";
+    }
+
+    function table(title, vars, changed, prefix, beforeVars) {
       const names = Object.keys(vars);
       if (!names.length) return "";
       let html = `<div class="walk-vars-title">${title}</div><table>`;
       names.forEach(k => {
         const hot = changed.includes(prefix + k);
-        html += `<tr class="${hot ? "hot" : ""}" title="Click to show all"><th>${esc(k)}</th><td>${esc(vars[k])}</td></tr>`;
+        const v = vars[k];
+        const isGrid = v && typeof v === "object" && v.grid;
+        const text = isGrid ? v.text + (hot ? "" : "  (click to see it)") : v;
+        html += `<tr class="${hot ? "hot" : ""}${isGrid ? " has-grid" : ""}" data-name="${esc(k)}" title="Click to show all"><th>${esc(k)}</th><td>${esc(text)}</td></tr>`;
+        if (isGrid) html += `<tr class="grid-row${hot ? " open" : ""}"><td colspan="2">${grid(k, v, beforeVars && beforeVars[k])}</td></tr>`;
       });
       return html + "</table>";
     }
@@ -199,16 +233,22 @@
       }
       let html = "";
       if (s.ret) html += `<div class="walk-ret">↩ <b>${esc(s.ret[0])}()</b> gives back <code>${esc(s.ret[1])}</code></div>`;
-      if (s.scope) html += table(`Inside ${esc(s.scope)}()`, s.locals || {}, s.changed || [], "@");
-      html += table(s.scope ? "Outside" : "Variables", s.vars, s.changed || [], "");
+      const prev = at > 1 ? data.steps[at - 2] : null;
+      if (s.scope) html += table(`Inside ${esc(s.scope)}()`, s.locals || {}, s.changed || [], "@", prev && prev.locals);
+      html += table(s.scope ? "Outside" : "Variables", s.vars, s.changed || [], "", prev && prev.vars);
       varsBox.innerHTML = html || '<p class="walk-empty">No variables yet.</p>';
       // Long values fit on one line; click a row to see all of it
-      varsBox.querySelectorAll("tr").forEach(tr => tr.addEventListener("click", () => tr.classList.toggle("full")));
+      varsBox.querySelectorAll(":scope > table > tbody > tr:not(.grid-row), :scope > table > tr:not(.grid-row)").forEach(tr => tr.addEventListener("click", () => {
+        tr.classList.toggle("full");
+        const g = tr.nextElementSibling;
+        if (tr.classList.contains("has-grid") && g) g.classList.toggle("open");
+      }));
       // Bring what changed into view inside the panel
-      const hot = varsBox.querySelector("tr.hot, .walk-ret");
+      const cell = varsBox.querySelector("tr.grid-row.open td.now");
+      const hot = cell || varsBox.querySelector("tr.hot, .walk-ret");
       if (hot) {
         const vr = varsBox.getBoundingClientRect(), hr = hot.getBoundingClientRect();
-        if (hr.bottom > vr.bottom || hr.top < vr.top) varsBox.scrollTop += hr.top - vr.top - 40;
+        if (hr.bottom > vr.bottom - 10 || hr.top < vr.top) varsBox.scrollTop += hr.top - vr.top - (cell ? vr.height / 2 : 40);
       }
       const prevOut = at > 1 ? data.steps[at - 2].out : "";
       const fresh = s.out.startsWith(prevOut) ? s.out.slice(prevOut.length) : "";
@@ -220,7 +260,7 @@
       if (!data) {
         startBtn.disabled = true;
         try {
-          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610152245`);
+          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610160935`);
           data = await res.json();
         } catch (e) {
           startBtn.disabled = false;

@@ -31,6 +31,13 @@ def show(value):
         if isinstance(value, torch.Tensor):
             v = value.detach()
             shape = " × ".join(str(s) for s in v.shape)
+            if v.dim() == 2 and max(v.shape) <= 20:
+                # A small table: keep every number, so the page can draw it as a grid
+                rows = v.tolist()
+                if v.dtype.is_floating_point:
+                    whole = all(float(x).is_integer() for row in rows for x in row)
+                    rows = [[int(x) if whole else round(x, 3) for x in row] for row in rows]
+                return {"text": f"table, {shape}", "grid": rows}
             if v.numel() <= 16:
                 text = repr(v).replace("\n", "").replace("       ", " ")
                 text = re.sub(r"\s+", " ", text).replace("[ ", "[").replace("( ", "(")
@@ -234,7 +241,8 @@ def trace(path):
     missing = sorted({s["line"] for s in steps if s["line"] not in explain})
     if missing:
         print(f"  {path}: no explanation for lines", [lines[i - 1].strip() for i in missing])
-    return {"steps": steps, "explain": explain}
+    labels = namespace.get("unique_chars")
+    return {"steps": steps, "explain": explain, "labels": labels if isinstance(labels, list) else None}
 
 
 if __name__ == "__main__":

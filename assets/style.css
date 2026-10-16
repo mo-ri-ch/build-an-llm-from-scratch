@@ -591,3 +591,17 @@ pre .ln.now { background: rgba(255, 228, 92, 0.3); box-shadow: -1.2rem 0 0 rgba(
 .walk-wrap.walking > pre { max-height: calc(100vh - 120px); overflow: auto; }
 .walk-panel { max-height: calc(100vh - 120px); }
 @media (max-width: 900px) { .walk-wrap.walking > pre { max-height: 50vh; } .walk-panel { max-height: 45vh; } }
+/* Tables (2-D tensors) in Step through */
+.walk-vars tr.grid-row { display: none; cursor: default; }
+.walk-vars tr.grid-row.open { display: table-row; }
+.walk-vars tr.grid-row > td { padding: 4px 0 8px; max-width: none; white-space: normal; }
+.walk-grid-wrap { overflow-x: auto; }
+table.walk-grid { border-collapse: collapse; font-size: 0.62rem; width: auto; }
+table.walk-grid th { color: var(--pencil); font-weight: 600; padding: 0 2px; text-align: center; width: auto; white-space: nowrap; }
+table.walk-grid td { min-width: 1.7em; height: 1.6em; padding: 0 1px; text-align: center; border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  white-space: nowrap; max-width: none; overflow: visible;
+  background: color-mix(in srgb, var(--hl-orange) calc(var(--heat) * 85%), var(--card)); }
+table.walk-grid td.neg { background: color-mix(in srgb, var(--hl-blue) calc(var(--heat) * 90%), var(--card)); }
+table.walk-grid td.zero { color: color-mix(in srgb, var(--pencil) 50%, transparent); }
+table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; font-weight: 700; background: var(--hl-yellow); }
+.walk-vars tr.hot table.walk-grid, .walk-vars tr.grid-row table.walk-grid { color: var(--ink); }

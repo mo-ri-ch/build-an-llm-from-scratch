@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610152255">
+<link rel="stylesheet" href="../assets/style.css?v=202610160935">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -33,6 +33,29 @@
   .dice div:last-child { border-right: 0; }
   .dice div.picked { background: var(--highlight); color: #1A2440; font-weight: 700; }
   .written { font-family: var(--mono); font-size: 1.1rem; background: var(--paper); border: 1px solid var(--grid); border-radius: var(--radius); padding: 10px 12px; min-height: 2.6em; word-break: break-all; }
+  .codeline { font-size: 0.85rem; margin: -4px 0 10px; min-height: 1.6em; }
+  .codeline code { padding: 2px 6px; }
+  .codeline .num { background: var(--highlight); color: #1A2440; border-radius: 3px; padding: 0 3px; }
+  .table-scroll { overflow-x: auto; margin-top: 12px; }
+  table.counts { border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; margin: 0 auto; }
+  table.counts th, table.counts td { width: 1.85em; height: 1.85em; text-align: center; padding: 0; }
+  table.counts th { color: var(--pencil); font-weight: 600; font-size: 0.78rem; line-height: 1; }
+  table.counts th small { display: block; font-size: 0.6rem; font-weight: 400; opacity: 0.7; }
+  table.counts thead th { vertical-align: bottom; padding-bottom: 3px; }
+  table.counts tbody th { text-align: right; padding-right: 5px; white-space: nowrap; }
+  table.counts tbody th small { display: inline; margin-left: 2px; }
+  table.counts td { border: 1px solid var(--grid); color: var(--pencil); background: color-mix(in srgb, var(--hl-orange) calc(var(--heat, 0) * 100%), var(--paper)); cursor: default; }
+  table.counts td.some { color: var(--ink); font-weight: 600; }
+  table.counts td.zero { color: color-mix(in srgb, var(--pencil) 45%, transparent); }
+  table.counts tr.watch th { color: var(--ink); background: var(--hl-yellow); }
+  table.counts tr.watch td { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+  table.counts th.colnow { color: var(--ink); background: var(--hl-yellow); }
+  table.counts td.now { outline: 3px solid var(--ink); outline-offset: -2px; animation: bump 0.5s ease; }
+  table.counts tbody th { cursor: pointer; }
+  @keyframes bump { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { table.counts td.now { animation: none; } }
+  .tally { display: none; }
+  @media (max-width: 640px) { .tally { display: grid; } }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -69,19 +92,21 @@
     <!-- 2 -->
     <section class="part" data-title="Count the pairs">
       <h2>Count the pairs</h2>
-      <p class="say">Move along the text, two characters at a time. Keep a tally.</p>
+      <p class="say">Move along the text, two characters at a time. Count each pair in a table.</p>
       <div class="activity">
-        <div class="do">Press “Next pair”. Watch the tally for the row you pick.</div>
+        <div class="do">Press “Next pair”. Watch the table fill up.</div>
         <div class="strip" id="strip"></div>
         <div class="pairline" id="pairline">pair –</div>
+        <div class="codeline" id="codeline"><code>counts[row, column] = counts[row, column] + 1</code></div>
         <div class="row">
           <button class="primary" id="nextPair">Next pair</button>
           <button id="allPairs">Count all</button>
           <label style="margin-left:auto">Watch row <select class="pick" id="tallyRow"></select></label>
         </div>
+        <div class="table-scroll"><table class="counts" id="countsTable" aria-label="The counts table"></table></div>
         <div class="tally" id="tally"></div>
       </div>
-      <p class="say">Row = this character. Column = the next one. That's the whole table.</p>
+      <p class="say">Row = this character. Column = the next one. This table is <code>counts</code> in the code.</p>
     </section>
 
     <!-- 3 -->
@@ -219,7 +244,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 <script src="../assets/tinylm.js?v=202610151417"></script>
 <script src="../assets/common.js?v=202610152205"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
-<script src="../assets/codewalk.js?v=202610152255"></script>
+<script src="../assets/codewalk.js?v=202610160940"></script>
 <script>
 const model = new OneCharModel();          // gives us the full counts: model.timesCorrect
 const COUNTS = model.timesCorrect;          // COUNTS[row][col]
@@ -255,13 +280,46 @@ function fillRowSelect(sel, chosen) {
     pos = 0;
     render(-1);
   }
+  // The whole table: one row and one column for every character
+  const table = document.getElementById("countsTable");
+  const codeline = document.getElementById("codeline");
+  const label = c => c === " " ? "␣" : c;
+  let head = "<thead><tr><th></th>";
+  CHARS.forEach((c, k) => { head += `<th title="column ${k}: ${showChar(c)}">${label(c)}<small>${k}</small></th>`; });
+  head += "</tr></thead><tbody>";
+  CHARS.forEach((c, r) => {
+    head += `<tr data-row="${r}"><th title="row ${r}: ${showChar(c)} (click to watch)">${label(c)}<small>${r}</small></th>`;
+    CHARS.forEach((_, k) => { head += `<td data-r="${r}" data-k="${k}"></td>`; });
+    head += "</tr>";
+  });
+  table.innerHTML = head + "</tbody>";
+  const tds = Array.from(table.querySelectorAll("td"));
+  table.querySelectorAll("tbody th").forEach(th => th.addEventListener("click", () => {
+    sel.value = th.parentElement.dataset.row; render(pos - 1);
+  }));
+
   function render(i) {
     cells.forEach((c, k) => {
       c.className = "ch" + (k === i ? " now" : k === i + 1 ? " next" : k < i ? " done" : "");
     });
     line.textContent = i < 0 ? "pair –" :
-      `pair ${i + 1} of ${TEXT.length - 1}:  ${showChar(TEXT[i])} → ${showChar(TEXT[i + 1])}   (row ${showChar(TEXT[i])}, column ${showChar(TEXT[i + 1])}, +1)`;
+      `pair ${i + 1} of ${TEXT.length - 1}:  ${showChar(TEXT[i])} → ${showChar(TEXT[i + 1])}`;
+    const nowR = i < 0 ? -1 : N[TEXT[i]], nowK = i < 0 ? -1 : N[TEXT[i + 1]];
+    codeline.innerHTML = i < 0
+      ? "<code>counts[row, column] = counts[row, column] + 1</code>"
+      : `<code>counts[<span class="num">${nowR}</span>, <span class="num">${nowK}</span>] = ${counts[nowR][nowK] - 1} + 1</code>  <span style="color:var(--pencil)">row ${nowR} is ${showChar(TEXT[i])}, column ${nowK} is ${showChar(TEXT[i + 1])}</span>`;
+    let most = 1;
+    counts.forEach(rw => rw.forEach(v => { if (v > most) most = v; }));
+    tds.forEach(td => {
+      const r = +td.dataset.r, k = +td.dataset.k, v = counts[r][k];
+      td.textContent = v;
+      td.className = (v ? "some" : "zero") + (r === nowR && k === nowK ? " now" : "");
+      td.style.setProperty("--heat", (v / most * 0.85).toFixed(2));
+      td.title = `counts[${r}, ${k}]: ${showChar(CHARS[r])} → ${showChar(CHARS[k])} seen ${v} time${v === 1 ? "" : "s"}`;
+    });
     const row = Number(sel.value);
+    table.querySelectorAll("tbody tr").forEach(tr => tr.classList.toggle("watch", +tr.dataset.row === row));
+    table.querySelectorAll("thead th").forEach((th, k) => th.classList.toggle("colnow", k - 1 === nowK));
     tally.innerHTML = "";
     CHARS.forEach((c, k) => {
       const n = counts[row][k];
