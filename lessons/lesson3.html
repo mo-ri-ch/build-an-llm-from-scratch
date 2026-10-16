@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161025">
+<link rel="stylesheet" href="../assets/style.css?v=202610161125">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
   .ch {
@@ -253,6 +253,31 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
     </section>
 
     <!-- 6 -->
+    <section class="part" data-title="Check yourself">
+      <h2>Check yourself</h2>
+
+      <div class="quiz" data-right="Yes. In this text, h is always followed by e.">
+        <div class="q">What is the chance of <code>e</code> after <code>h</code>?</div>
+        <div class="options">
+          <button data-why="Look at part 3: pick the h row.">0.5</button>
+          <button data-right>1.0</button>
+          <button data-why="h appears 4 times, always in “the”.">0.25</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="quiz" data-right="Right. It's random, but likely characters win more often. Always picking the top one would repeat “the the the”.">
+        <div class="q">After <code>t</code>, does the wheel always pick <code>h</code>?</div>
+        <div class="options">
+          <button data-why="h has a 50% chance, not 100%. Space and “.” still win sometimes.">Yes, h is the most likely</button>
+          <button data-right>No, only about half the time</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+    </section>
+
+    <!-- 7 -->
     <section class="part" data-title="Why not count more?">
       <h2>Why not count more?</h2>
       <p class="say">Neo wrote “sathe” because it only sees the <b>last letter</b>. Let it see more.</p>
@@ -299,31 +324,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
       </div>
       <p class="say">“sat”, “mat” and “cat” all use the <b>same</b> row <code>t</code> in Table 1 and row <code>a</code> in Table 2. That's sharing.</p>
       <p class="note"><b>The catch:</b> a shared box can't be counted. Row <code>t</code> in Table 1 works for many words at once, so there's no single “times seen” to write in it. Neo needs another way to find these numbers.</p>
-    </section>
-
-    <!-- 7 -->
-    <section class="part" data-title="Check yourself">
-      <h2>Check yourself</h2>
-
-      <div class="quiz" data-right="Yes. In this text, h is always followed by e.">
-        <div class="q">What is the chance of <code>e</code> after <code>h</code>?</div>
-        <div class="options">
-          <button data-why="Look at part 3: pick the h row.">0.5</button>
-          <button data-right>1.0</button>
-          <button data-why="h appears 4 times, always in “the”.">0.25</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Right. It's random, but likely characters win more often. Always picking the top one would repeat “the the the”.">
-        <div class="q">After <code>t</code>, does the wheel always pick <code>h</code>?</div>
-        <div class="options">
-          <button data-why="h has a 50% chance, not 100%. Space and “.” still win sometimes.">Yes, h is the most likely</button>
-          <button data-right>No, only about half the time</button>
-        </div>
-        <div class="feedback"></div>
-      </div>
-
+    
       <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. Looking further back makes my table explode. Sharing boxes would fix that, but I can't count shared boxes. How do I find them?</p>
       <div class="open-question">
         <div>This leaves a question</div>

@@ -606,3 +606,8 @@ table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; fo
 .walk-pairs { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
 .walk-vars td span.now { background: var(--ink); color: var(--hl-yellow); border-radius: 3px; padding: 0 2px; font-weight: 700; }
 .walk-vars td span.kv { white-space: pre; }
+/* "What comes next" demo on a lesson's last page */
+.next-demo { font-family: var(--mono); font-size: 1.5rem; margin: 4px 0 18px; display: flex; align-items: center; gap: 10px; }
+.next-demo code { font-size: inherit; background: none; padding: 0; }
+.next-box-sm { display: inline-grid; place-items: center; width: 1.3em; height: 1.5em; border: 2px dashed var(--ink); border-radius: 4px; font-family: var(--head); font-size: 1.1rem; color: var(--pencil); }
+.say code { white-space: nowrap; }
