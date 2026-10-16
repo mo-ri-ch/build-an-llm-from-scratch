@@ -55,8 +55,13 @@ def show(value):
         return f"function {value.__name__}({args})"
     if isinstance(value, float):
         value = round(value, 4)
+    if isinstance(value, dict) and 0 < len(value) <= 80:
+        # A dictionary: keep every pair, so the page can show them all as "key → value"
+        n = len(value)
+        return {"text": f"dictionary, {n} pair{'s' if n != 1 else ''}",
+                "pairs": [[repr(k), show(v)] for k, v in value.items()]}
     text = repr(value)
-    if len(text) > 110:
+    if len(text) > 600:
         size = f"  ({len(value)} items)" if hasattr(value, "__len__") else ""
         text = text[:100] + " …" + size
     return text

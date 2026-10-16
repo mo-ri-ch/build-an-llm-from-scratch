@@ -181,6 +181,18 @@
       return html + "</table></div>";
     }
 
+    // A dictionary: every pair as "key → value"; new or changed pairs are highlighted
+    function pairs(value, before) {
+      const old = {};
+      if (before && before.pairs) before.pairs.forEach(([k, v]) => { old[k] = v; });
+      let html = '<div class="walk-pairs">';
+      value.pairs.forEach(([k, v]) => {
+        const fresh = before !== undefined && old[k] !== v;   // a pair that's new or changed
+        html += `<span class="${fresh ? "now" : ""}">${esc(k)} → ${esc(typeof v === "object" ? v.text : v)}</span>`;
+      });
+      return html + "</div>";
+    }
+
     function table(title, vars, changed, prefix, beforeVars) {
       const names = Object.keys(vars);
       if (!names.length) return "";
@@ -188,10 +200,14 @@
       names.forEach(k => {
         const hot = changed.includes(prefix + k);
         const v = vars[k];
-        const isGrid = v && typeof v === "object" && v.grid;
+        const isGrid = v && typeof v === "object" && (v.grid || v.pairs);
         const text = isGrid ? v.text + (hot ? "" : "  (click to see it)") : v;
         html += `<tr class="${hot ? "hot" : ""}${isGrid ? " has-grid" : ""}" data-name="${esc(k)}" title="Click to show all"><th>${esc(k)}</th><td>${esc(text)}</td></tr>`;
-        if (isGrid) html += `<tr class="grid-row${hot ? " open" : ""}"><td colspan="2">${grid(k, v, beforeVars && beforeVars[k])}</td></tr>`;
+        if (isGrid) {
+          const was = beforeVars && beforeVars[k];
+          const body = v.grid ? grid(k, v, was) : pairs(v, was);
+          html += `<tr class="grid-row${hot ? " open" : ""}"><td colspan="2">${body}</td></tr>`;
+        }
       });
       return html + "</table>";
     }
@@ -244,7 +260,7 @@
         if (tr.classList.contains("has-grid") && g) g.classList.toggle("open");
       }));
       // Bring what changed into view inside the panel
-      const cell = varsBox.querySelector("tr.grid-row.open td.now");
+      const cell = varsBox.querySelector("tr.grid-row.open td.now, tr.grid-row.open .walk-pairs .now");
       const hot = cell || varsBox.querySelector("tr.hot, .walk-ret");
       if (hot) {
         const vr = varsBox.getBoundingClientRect(), hr = hot.getBoundingClientRect();
@@ -260,7 +276,7 @@
       if (!data) {
         startBtn.disabled = true;
         try {
-          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610160935`);
+          const res = await fetch(`../assets/traces/lesson${n}.json?v=202610160940`);
           data = await res.json();
         } catch (e) {
           startBtn.disabled = false;

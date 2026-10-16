@@ -605,3 +605,7 @@ table.walk-grid td.neg { background: color-mix(in srgb, var(--hl-blue) calc(var(
 table.walk-grid td.zero { color: color-mix(in srgb, var(--pencil) 50%, transparent); }
 table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; font-weight: 700; background: var(--hl-yellow); }
 .walk-vars tr.hot table.walk-grid, .walk-vars tr.grid-row table.walk-grid { color: var(--ink); }
+.walk-pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 3px; font-family: var(--mono); font-size: 0.74rem; }
+.walk-pairs span { padding: 2px 5px; border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 3px; white-space: pre; background: var(--card); }
+.walk-pairs span.now { background: var(--hl-yellow); color: var(--on-hl); border-color: var(--ink); font-weight: 700; }
+.walk-pairs { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
