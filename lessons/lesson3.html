@@ -21,9 +21,6 @@
   .ch.done { color: var(--pencil); }
   .pairline { font-family: var(--mono); margin: 4px 0 10px; min-height: 1.5em; }
   select.pick { font: inherit; font-family: var(--mono); padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
-  .tally { display: grid; grid-template-columns: 4.2em 1fr 2.4em; gap: 4px 10px; align-items: center; font-family: var(--mono); margin-top: 10px; }
-  .tally .marks { color: var(--ink); letter-spacing: 1px; font-weight: 600; }
-  .tally .n { text-align: right; color: var(--pencil); }
   .probs { display: grid; grid-template-columns: 4.2em 1fr 7.5em; gap: 6px 10px; align-items: center; font-family: var(--mono); font-size: 0.92rem; margin-top: 10px; }
   .probs .track { height: 20px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; overflow: hidden; }
   .probs .fill { height: 100%; background: var(--highlight); border-right: 2px solid var(--ink); }
@@ -54,8 +51,6 @@
   table.counts tbody th { cursor: pointer; }
   @keyframes bump { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
   @media (prefers-reduced-motion: reduce) { table.counts td.now { animation: none; } }
-  .tally { display: none; }
-  @media (max-width: 640px) { .tally { display: grid; } }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -101,10 +96,8 @@
         <div class="row">
           <button class="primary" id="nextPair">Next pair</button>
           <button id="allPairs">Count all</button>
-          <label style="margin-left:auto">Watch row <select class="pick" id="tallyRow"></select></label>
         </div>
         <div class="table-scroll"><table class="counts" id="countsTable" aria-label="The counts table"></table></div>
-        <div class="tally" id="tally"></div>
       </div>
       <p class="say">Row = this character. Column = the next one. This table is <code>counts</code> in the code.</p>
     </section>
@@ -264,9 +257,7 @@ function fillRowSelect(sel, chosen) {
 (function pairs() {
   const strip = document.getElementById("strip");
   const line = document.getElementById("pairline");
-  const tally = document.getElementById("tally");
-  const sel = document.getElementById("tallyRow");
-  fillRowSelect(sel, "t");
+  let watchRow = -1;   // click a row's letter to highlight it (click again to clear)
   Array.from(TEXT).forEach(c => {
     const d = document.createElement("div");
     d.className = "ch"; d.textContent = c === " " ? "␣" : c;
@@ -288,14 +279,15 @@ function fillRowSelect(sel, chosen) {
   CHARS.forEach((c, k) => { head += `<th title="column ${k}: ${showChar(c)}">${label(c)}<small>${k}</small></th>`; });
   head += "</tr></thead><tbody>";
   CHARS.forEach((c, r) => {
-    head += `<tr data-row="${r}"><th title="row ${r}: ${showChar(c)} (click to watch)">${label(c)}<small>${r}</small></th>`;
+    head += `<tr data-row="${r}"><th title="row ${r}: ${showChar(c)} (click to highlight)">${label(c)}<small>${r}</small></th>`;
     CHARS.forEach((_, k) => { head += `<td data-r="${r}" data-k="${k}"></td>`; });
     head += "</tr>";
   });
   table.innerHTML = head + "</tbody>";
   const tds = Array.from(table.querySelectorAll("td"));
   table.querySelectorAll("tbody th").forEach(th => th.addEventListener("click", () => {
-    sel.value = th.parentElement.dataset.row; render(pos - 1);
+    const r = +th.parentElement.dataset.row;
+    watchRow = watchRow === r ? -1 : r; render(pos - 1);
   }));
 
   function render(i) {
@@ -317,16 +309,8 @@ function fillRowSelect(sel, chosen) {
       td.style.setProperty("--heat", (v / most * 0.85).toFixed(2));
       td.title = `counts[${r}, ${k}]: ${showChar(CHARS[r])} → ${showChar(CHARS[k])} seen ${v} time${v === 1 ? "" : "s"}`;
     });
-    const row = Number(sel.value);
-    table.querySelectorAll("tbody tr").forEach(tr => tr.classList.toggle("watch", +tr.dataset.row === row));
+    table.querySelectorAll("tbody tr").forEach(tr => tr.classList.toggle("watch", +tr.dataset.row === watchRow));
     table.querySelectorAll("thead th").forEach((th, k) => th.classList.toggle("colnow", k - 1 === nowK));
-    tally.innerHTML = "";
-    CHARS.forEach((c, k) => {
-      const n = counts[row][k];
-      if (n === 0 && COUNTS[row][k] === 0) return;
-      tally.innerHTML += `<span>${showChar(c)}</span><span class="marks">${"|".repeat(n) || "&nbsp;"}</span><span class="n">${n}</span>`;
-    });
-    if (!tally.innerHTML) tally.innerHTML = `<span></span><span style="color:var(--pencil)">Nothing comes after this character.</span><span></span>`;
   }
   function step() {
     if (pos >= TEXT.length - 1) return;
@@ -336,8 +320,7 @@ function fillRowSelect(sel, chosen) {
   }
   document.getElementById("nextPair").onclick = step;
   document.getElementById("allPairs").onclick = () => { while (pos < TEXT.length - 1) step(); };
-  addReset(strip, () => { sel.value = CHAR_TO_NUMBER["t"]; reset(); });
-  sel.onchange = () => render(pos - 1);
+  addReset(strip, () => { watchRow = -1; reset(); });
   reset();
 })();
 
