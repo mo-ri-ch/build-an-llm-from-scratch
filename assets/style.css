@@ -432,9 +432,12 @@ body.teach pre { font-size: 0.8rem; }
 }
 @media (min-width: 1000px) { body.has-thumbs .topbar .where[data-full] { font-size: 0; } body.has-thumbs .topbar .where[data-full]::after { content: attr(data-full); font-size: 1.3rem; } }
 
-/* Previous / Next sit at the end of each page, below the content (not fixed to the screen) */
+/* Previous / Next: in the bottom corners, at the end of each page (they scroll with it, not fixed).
+   A short page pushes them down to the bottom of the screen. */
 @media (min-width: 1000px) {
-  body.has-thumbs .pagebar { position: static; margin: 12px 0 48px; }
+  body.has-thumbs .wrap { display: flex; flex-direction: column; }
+  body.has-thumbs .wrap > main[data-paged] { flex: 1 0 auto; width: 100%; }
+  body.has-thumbs .pagebar { position: static; margin: 12px -12px 0; padding-bottom: 12px; }
   body.has-thumbs main[data-paged] section.part { padding-bottom: 12px; }
 }
 

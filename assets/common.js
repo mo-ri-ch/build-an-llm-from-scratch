@@ -83,7 +83,7 @@ function setupPagedLesson() {
 
   // Previous / Next sit right below the slide, as quiet text
   const pagebar = document.querySelector(".pagebar");
-  if (pagebar) main.appendChild(pagebar);
+  if (pagebar) (document.querySelector(".wrap") || main).appendChild(pagebar);
 
   // Progress bar: one segment per part, each one clickable
   if (bar) {
