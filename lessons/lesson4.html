@@ -36,6 +36,15 @@
   svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
   svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 12px; }
 
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 14px; }
+  .vs-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 12px 16px; background: var(--card); }
+  .vs-card.learn { background: var(--note-green, #E3F7E9); }
+  .vs-card p { margin: 6px 0; font-size: 0.95rem; max-width: none; }
+  .vs-title { font-family: var(--head); font-size: 1.25rem; }
+  .vs-title small { font-size: 0.85rem; color: var(--pencil); }
+  .vs-card code { white-space: nowrap; }
+  .vs-bad { color: var(--redpen); } .vs-good { color: var(--good, #1E8F4E); }
+  @media (max-width: 700px) { .vs { grid-template-columns: 1fr; } }
   .loop { list-style: none; padding: 0; margin: 0 0 1.2em; display: grid; gap: 10px; }
   .loop li { display: grid; grid-template-columns: 2em 1fr; gap: 8px; font-size: 1.1rem; }
   .loop .k { font-family: var(--mono); color: var(--pen); font-weight: 600; }
@@ -63,18 +72,20 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
-      <p class="say">Lesson 3 counted. But counting only works for tiny tables.</p>
-      <div class="activity">
-        <div class="do">Move the slider: how many characters should the model look back?</div>
-        <div class="slider-row">
-          <span>back</span>
-          <input type="range" id="lookBack" min="1" max="10" value="1" aria-label="Characters to look back">
-          <output id="lookBackOut">1</output>
+      <p class="say">Lesson 3 ended with a problem: to look further back, Neo needs <b>shared</b> boxes, and shared boxes can't be counted.</p>
+      <div class="vs">
+        <div class="vs-card">
+          <div class="vs-title">Counting <small>(Lesson 3)</small></div>
+          <p>Read the text. Write each count in its box: <code>t → h</code> seen 4 times → <b>4</b>.</p>
+          <p class="vs-bad">Only works when each box is one exact pair.</p>
         </div>
-        <div class="muted">Rows to count:</div>
-        <div class="big-number" id="rows">14</div>
+        <div class="vs-card learn">
+          <div class="vs-title">Learning <small>(this lesson)</small></div>
+          <p>Start with random numbers. Guess, see how wrong, fix them a little. Repeat thousands of times.</p>
+          <p class="vs-good">Works for any boxes, even shared ones.</p>
+        </div>
       </div>
-      <p class="say">Too many to count. So the model must <mark>learn</mark> instead.</p>
+      <p class="say">This lesson teaches learning on the same table as Lesson 3, so you can check it gets the same answer. Lesson 5 then uses it for shared boxes.</p>
     </section>
 
     <!-- 2 -->
@@ -286,10 +297,10 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
-      <p class="neo-say">I learned the same chances as counting, all by myself! But I still only see one letter at a time. How can I see more?</p>
+      <p class="neo-say">I learned the same chances as counting, all by myself! Now I can learn any numbers, even shared ones. Can I finally look further back?</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">Neo looks at only the last letter, so it repeats itself. An LLM looks at much more. How can Neo see more than one letter?</div>
+        <div class="big">Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?</div>
         <div>Lesson 5 answers it. (Coming soon.)</div>
       </div>
       <p><button class="done-toggle" data-done="4">Mark lesson as done</button></p>
@@ -306,22 +317,13 @@ Step 250 loss: 0.709
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161035"></script>
+<script src="../assets/common.js?v=202610161110"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
 <script src="../assets/codewalk.js?v=202610161015"></script>
 <script>
 function bar(label, p, target) {
   return `<span>${label}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span>${target !== undefined ? `<span class="target" style="left:${(target * 100).toFixed(1)}%"></span>` : ""}</span><span class="pct">${(p * 100).toFixed(0)}%</span>`;
 }
-
-// ---------- 1: rows explode ----------
-(function rowsExplode() {
-  const s = document.getElementById("lookBack");
-  const o = document.getElementById("lookBackOut");
-  const r = document.getElementById("rows");
-  s.oninput = () => { o.textContent = s.value; r.textContent = (BigInt(14) ** BigInt(s.value)).toLocaleString("en-US"); };
-  addReset(s, () => { s.value = 1; s.oninput(); });
-})();
 
 // ---------- 3: softmax sliders ----------
 (function softmaxSliders() {

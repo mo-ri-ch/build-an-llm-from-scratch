@@ -85,20 +85,22 @@
   .fill-track { height: 22px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); overflow: hidden; }
   .fill-bar { height: 100%; background: var(--good, #1E8F4E); transition: width 0.3s; min-width: 2px; }
   @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
-  .vs { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; margin: 6px 0 10px; }
-  .vs-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 12px 16px; background: var(--card); }
-  .vs-card.learn { background: var(--note-green, #E3F7E9); }
-  .vs-card p { margin: 6px 0; font-size: 0.95rem; max-width: none; }
-  .vs-title { font-family: var(--head); font-size: 1.25rem; }
-  .vs-title small { font-size: 0.85rem; color: var(--pencil); }
-  .vs-eg code { font-size: 0.85rem; }
-  .vs-bad { color: var(--redpen); }
-  .loop { list-style: none; padding: 0; margin: 8px 0 6px; display: grid; gap: 6px; }
-  .loop li { display: flex; gap: 10px; align-items: center; font-size: 0.95rem; }
-  .loop li span { flex: 0 0 auto; width: 1.6em; height: 1.6em; border-radius: 50%; display: grid; place-items: center;
     background: var(--ink); color: var(--paper); font-family: var(--head); font-size: 0.9rem; }
-  .vs-repeat { font-family: var(--head); font-size: 1.05rem; color: var(--good, #1E8F4E); }
-  @media (max-width: 700px) { .vs { grid-template-columns: 1fr; } }
+  .idea-h { font-family: var(--head); font-size: 1.5rem; font-weight: 400; margin: 28px 0 4px; }
+  .share { border: 2px dashed color-mix(in srgb, var(--ink) 35%, transparent); border-radius: var(--radius); padding: 14px 16px; margin: 4px 0 12px; }
+  .share-word { font-family: var(--mono); font-size: 1.5rem; display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+  .share-word > span:not(.share-next) { width: 1.4em; text-align: center; border-radius: 4px; padding: 0 2px; color: #1A2440; }
+  .share-next { font-family: var(--head); font-size: 1rem; color: var(--pencil); margin-left: 8px; border: 2px dashed var(--ink); border-radius: 4px; padding: 0 6px; }
+  .p1 { background: var(--hl-yellow); } .p2 { background: var(--hl-green); } .p3 { background: var(--hl-blue); }
+  .share-tables { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .st { border: 2px solid var(--ink); border-radius: 6px; padding: 6px 10px; display: flex; flex-direction: column; font-size: 0.85rem; color: #1A2440; min-width: 92px; }
+  .st span { font-size: 0.75rem; opacity: 0.8; }
+  .st code { background: rgba(255,255,255,0.6); margin-top: 3px; font-size: 0.8rem; align-self: flex-start; }
+  .st.vote { background: var(--card); color: var(--ink); }
+  .plus { font-family: var(--head); font-size: 1.4rem; }
+  .share-math { margin-top: 12px; font-family: var(--mono); font-size: 0.95rem; display: grid; gap: 4px; }
+  .share-math span { display: inline-block; width: 6.5em; color: var(--pencil); }
+  .share-math .bad { color: var(--redpen); } .share-math .good { color: var(--good, #1E8F4E); }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -277,25 +279,26 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="fill-track"><div class="fill-bar" id="fillBar"></div></div>
       </div>
       <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays 0. Neo knows nothing about those.</p>
-      <p class="say">So we can't fill a box for every combination. Instead, Neo will <mark>learn</mark>.</p>
-      <div class="vs">
-        <div class="vs-card">
-          <div class="vs-title">Counting <small>(this lesson)</small></div>
-          <p>We read the text and write each count in its box.</p>
-          <p class="vs-eg"><code>t → h</code> seen 4 times → write <b>4</b></p>
-          <p class="vs-bad">Needs a box for every combination.</p>
+      <h3 class="idea-h">An idea: share boxes</h3>
+      <p class="say">Instead of a box for every 3-letter combination, use <b>3 small tables</b>, one per position, and add their votes.</p>
+      <div class="share">
+        <div class="share-word"><span class="p3">s</span><span class="p2">a</span><span class="p1">t</span><span class="share-next">next?</span></div>
+        <div class="share-tables">
+          <div class="st p3"><b>Table 3</b><span>3 letters back</span><code>row s</code></div>
+          <div class="plus">+</div>
+          <div class="st p2"><b>Table 2</b><span>2 letters back</span><code>row a</code></div>
+          <div class="plus">+</div>
+          <div class="st p1"><b>Table 1</b><span>last letter</span><code>row t</code></div>
+          <div class="plus">=</div>
+          <div class="st vote"><b>votes</b><span>for the next letter</span></div>
         </div>
-        <div class="vs-card learn">
-          <div class="vs-title">Learning <small>(Lesson 4)</small></div>
-          <ol class="loop">
-            <li><span>1</span><div>Start with <b>random</b> numbers</div></li>
-            <li><span>2</span><div><b>Guess</b> the next letter</div></li>
-            <li><span>3</span><div>Check <b>how wrong</b> it was</div></li>
-            <li><span>4</span><div><b>Change</b> the numbers a little</div></li>
-          </ol>
-          <p class="vs-repeat">↻ Repeat thousands of times. The numbers get good by themselves.</p>
+        <div class="share-math">
+          <div><span>Counting:</span> 14 × 14 × 14 × 14 = <b class="bad">38,416</b> boxes</div>
+          <div><span>Shared:</span> 196 + 196 + 196 = <b class="good">588</b> boxes</div>
         </div>
       </div>
+      <p class="say">“sat”, “mat” and “cat” all use the <b>same</b> row <code>t</code> in Table 1 and row <code>a</code> in Table 2. That's sharing.</p>
+      <p class="note"><b>The catch:</b> a shared box can't be counted. Row <code>t</code> in Table 1 works for many words at once, so there's no single “times seen” to write in it. Neo needs another way to find these numbers.</p>
     </section>
 
     <!-- 7 -->
@@ -321,10 +324,10 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="feedback"></div>
       </div>
 
-      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. To look further back, my counting table gets way too big. Can I learn instead of count?</p>
+      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. Looking further back makes my table explode. Sharing boxes would fix that, but I can't count shared boxes. How do I find them?</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">To write better, a model must look further back, but a counting table gets impossibly big. How can a model learn its numbers instead of counting them?</div>
+        <div class="big">Looking further back needs shared boxes, and shared boxes can't be counted. How can Neo find numbers without counting?</div>
         <div><a href="lesson4.html">Lesson 4 answers it.</a></div>
       </div>
       <p><button class="done-toggle" data-done="3">Mark lesson as done</button></p>
@@ -341,7 +344,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161035"></script>
+<script src="../assets/common.js?v=202610161110"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
 <script src="../assets/codewalk.js?v=202610161015"></script>
 <script>
