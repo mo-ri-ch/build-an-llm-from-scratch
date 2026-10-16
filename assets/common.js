@@ -10,7 +10,7 @@ const LESSONS = [
     leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
   { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true,
     summary: "Count which character follows which, then generate text.",
-    leaves: "Looking further back needs shared boxes, and shared boxes can't be counted. How can Neo find numbers without counting?" },
+    leaves: "Looking further back needs shared numbers, and shared numbers can't be counted. How can Neo find numbers without counting?" },
   { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
     leaves: "Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },

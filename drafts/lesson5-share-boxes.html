@@ -1,0 +1,39 @@
+<!-- Saved from Lesson 3 for Lesson 5: the "share boxes" picture (3 tables, 588 vs 38,416). -->
+<style>
+  .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
+  .idea-h { font-family: var(--head); font-size: 1.5rem; font-weight: 400; margin: 28px 0 4px; }
+  .share { border: 2px dashed color-mix(in srgb, var(--ink) 35%, transparent); border-radius: var(--radius); padding: 14px 16px; margin: 4px 0 12px; }
+  .share-word { font-family: var(--mono); font-size: 1.5rem; display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+  .share-word > span:not(.share-next) { width: 1.4em; text-align: center; border-radius: 4px; padding: 0 2px; color: #1A2440; }
+  .share-next { font-family: var(--head); font-size: 1rem; color: var(--pencil); margin-left: 8px; border: 2px dashed var(--ink); border-radius: 4px; padding: 0 6px; }
+  .p1 { background: var(--hl-yellow); } .p2 { background: var(--hl-green); } .p3 { background: var(--hl-blue); }
+  .share-tables { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .st { border: 2px solid var(--ink); border-radius: 6px; padding: 6px 10px; display: flex; flex-direction: column; font-size: 0.85rem; color: #1A2440; min-width: 92px; }
+  .st span { font-size: 0.75rem; opacity: 0.8; }
+  .st code { background: rgba(255,255,255,0.6); margin-top: 3px; font-size: 0.8rem; align-self: flex-start; }
+  .st.vote { background: var(--card); color: var(--ink); }
+  .plus { font-family: var(--head); font-size: 1.4rem; }
+  .share-math { margin-top: 12px; font-family: var(--mono); font-size: 0.95rem; display: grid; gap: 4px; }
+  .share-math span { display: inline-block; width: 6.5em; color: var(--pencil); }
+  .share-math .bad { color: var(--redpen); } .share-math .good { color: var(--good, #1E8F4E); }
+</style>
+      <h3 class="idea-h">An idea: share boxes</h3>
+      <p class="say">Instead of a box for every 3-letter combination, use <b>3 small tables</b>, one per position, and add their votes.</p>
+      <div class="share">
+        <div class="share-word"><span class="p3">s</span><span class="p2">a</span><span class="p1">t</span><span class="share-next">next?</span></div>
+        <div class="share-tables">
+          <div class="st p3"><b>Table 3</b><span>3 letters back</span><code>row s</code></div>
+          <div class="plus">+</div>
+          <div class="st p2"><b>Table 2</b><span>2 letters back</span><code>row a</code></div>
+          <div class="plus">+</div>
+          <div class="st p1"><b>Table 1</b><span>last letter</span><code>row t</code></div>
+          <div class="plus">=</div>
+          <div class="st vote"><b>votes</b><span>for the next letter</span></div>
+        </div>
+        <div class="share-math">
+          <div><span>Counting:</span> 14 × 14 × 14 × 14 = <b class="bad">38,416</b> boxes</div>
+          <div><span>Shared:</span> 196 + 196 + 196 = <b class="good">588</b> boxes</div>
+        </div>
+      </div>
+      <p class="say">“sat”, “mat” and “cat” all use the <b>same</b> row <code>t</code> in Table 1 and row <code>a</code> in Table 2. That's sharing.</p>
+      <p class="note"><b>The catch:</b> a shared box can't be counted. Row <code>t</code> in Table 1 works for many words at once, so there's no single “times seen” to write in it. Neo needs another way to find these numbers.</p>
