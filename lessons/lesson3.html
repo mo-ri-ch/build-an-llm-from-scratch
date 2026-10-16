@@ -85,6 +85,20 @@
   .fill-track { height: 22px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); overflow: hidden; }
   .fill-bar { height: 100%; background: var(--good, #1E8F4E); transition: width 0.3s; min-width: 2px; }
   @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
+  .vs { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; margin: 6px 0 10px; }
+  .vs-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 12px 16px; background: var(--card); }
+  .vs-card.learn { background: var(--note-green, #E3F7E9); }
+  .vs-card p { margin: 6px 0; font-size: 0.95rem; max-width: none; }
+  .vs-title { font-family: var(--head); font-size: 1.25rem; }
+  .vs-title small { font-size: 0.85rem; color: var(--pencil); }
+  .vs-eg code { font-size: 0.85rem; }
+  .vs-bad { color: var(--redpen); }
+  .loop { list-style: none; padding: 0; margin: 8px 0 6px; display: grid; gap: 6px; }
+  .loop li { display: flex; gap: 10px; align-items: center; font-size: 0.95rem; }
+  .loop li span { flex: 0 0 auto; width: 1.6em; height: 1.6em; border-radius: 50%; display: grid; place-items: center;
+    background: var(--ink); color: var(--paper); font-family: var(--head); font-size: 0.9rem; }
+  .vs-repeat { font-family: var(--head); font-size: 1.05rem; color: var(--good, #1E8F4E); }
+  @media (max-width: 700px) { .vs { grid-template-columns: 1fr; } }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -263,7 +277,25 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="fill-track"><div class="fill-bar" id="fillBar"></div></div>
       </div>
       <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays 0. Neo knows nothing about those.</p>
-      <p class="note">So we can't fill a box for every combination. Instead, Neo will <b>learn</b>: start with random numbers, guess the next letter, check how wrong the guess was, and change the numbers a little. Repeat thousands of times. That's Lesson 4.</p>
+      <p class="say">So we can't fill a box for every combination. Instead, Neo will <mark>learn</mark>.</p>
+      <div class="vs">
+        <div class="vs-card">
+          <div class="vs-title">Counting <small>(this lesson)</small></div>
+          <p>We read the text and write each count in its box.</p>
+          <p class="vs-eg"><code>t → h</code> seen 4 times → write <b>4</b></p>
+          <p class="vs-bad">Needs a box for every combination.</p>
+        </div>
+        <div class="vs-card learn">
+          <div class="vs-title">Learning <small>(Lesson 4)</small></div>
+          <ol class="loop">
+            <li><span>1</span><div>Start with <b>random</b> numbers</div></li>
+            <li><span>2</span><div><b>Guess</b> the next letter</div></li>
+            <li><span>3</span><div>Check <b>how wrong</b> it was</div></li>
+            <li><span>4</span><div><b>Change</b> the numbers a little</div></li>
+          </ol>
+          <p class="vs-repeat">↻ Repeat thousands of times. The numbers get good by themselves.</p>
+        </div>
+      </div>
     </section>
 
     <!-- 7 -->
