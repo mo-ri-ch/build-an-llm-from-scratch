@@ -66,6 +66,22 @@
   .legend .won { font-weight: 700; background: var(--hl-yellow); color: #1A2440; padding: 0 4px; border-radius: 3px; }
   .spin-code { font-family: var(--mono); font-size: 0.8rem; margin-top: 12px; color: var(--pencil); min-height: 2.6em; }
   .spin-code b { color: var(--ink); }
+  .look-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0 14px; }
+  .look-row input { flex: 1; min-width: 160px; }
+  .look-row b { font-family: var(--head); font-size: 1.2rem; min-width: 5.5em; }
+  .sees { font-family: var(--mono); font-size: 1.4rem; margin: 4px 0 4px; color: var(--pencil); }
+  .sees #seesText { background: var(--hl-yellow); color: #1A2440; padding: 0 4px; border-radius: 4px; white-space: pre; }
+  .sees .q-next { color: var(--ink); margin-left: 4px; }
+  .sees-note { font-size: 0.95rem; min-height: 1.5em; margin-bottom: 14px; }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
+  .box-label { font-size: 0.85rem; color: var(--pencil); }
+  .box-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; margin-top: 4px; transition: color 0.2s; }
+  .box-num.huge { color: var(--redpen); }
+  .fill-label { margin: 14px 0 6px; font-size: 0.95rem; }
+  .fill-track { height: 22px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); overflow: hidden; }
+  .fill-bar { height: 100%; background: var(--good, #1E8F4E); transition: width 0.3s; min-width: 2px; }
+  @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
 </head>
@@ -218,6 +234,36 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
     </section>
 
     <!-- 6 -->
+    <section class="part" data-title="Why not count more?">
+      <h2>Why not count more?</h2>
+      <p class="say">Neo wrote “sathe” because it only sees the <b>last letter</b>. Let it see more.</p>
+      <div class="activity">
+        <div class="do">Drag the slider. How many letters does Neo look back at?</div>
+        <div class="look-row">
+          <label for="lookBack">Neo looks back at</label>
+          <input type="range" id="lookBack" min="1" max="6" value="1">
+          <b id="lookN">1 letter</b>
+        </div>
+        <div class="sees">…the cat <span id="seesText"></span><span class="q-next">?</span></div>
+        <div class="sees-note" id="seesNote"></div>
+        <div class="boxes">
+          <div class="box-card">
+            <div class="box-label">Boxes in the table (our 14 characters)</div>
+            <div class="box-num" id="boxOurs"></div>
+          </div>
+          <div class="box-card">
+            <div class="box-label">With real text (about 100 characters)</div>
+            <div class="box-num" id="boxReal"></div>
+          </div>
+        </div>
+        <div class="fill-label" id="fillLabel"></div>
+        <div class="fill-track"><div class="fill-bar" id="fillBar"></div></div>
+      </div>
+      <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays 0. Neo knows nothing about those.</p>
+      <p class="note">So counting every combination can't work. Instead, the model must <b>learn</b> its numbers. That's Lesson 4.</p>
+    </section>
+
+    <!-- 7 -->
     <section class="part" data-title="Check yourself">
       <h2>Check yourself</h2>
 
@@ -240,10 +286,10 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="feedback"></div>
       </div>
 
-      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? And counting only works for tiny tables. Can I learn by myself instead?</p>
+      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. To look further back, my counting table gets way too big. Can I learn instead of count?</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">Counting works for one sentence. A real LLM learns from millions of words. How can a model learn its numbers by itself?</div>
+        <div class="big">To write better, a model must look further back, but a counting table gets impossibly big. How can a model learn its numbers instead of counting them?</div>
         <div><a href="lesson4.html">Lesson 4 answers it.</a></div>
       </div>
       <p><button class="done-toggle" data-done="3">Mark lesson as done</button></p>
@@ -260,7 +306,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
-<script src="../assets/common.js?v=202610161025"></script>
+<script src="../assets/common.js?v=202610161035"></script>
 <script src="../assets/pen.js?v=202610152205"></script>
 <script src="../assets/codewalk.js?v=202610161015"></script>
 <script>
@@ -475,6 +521,44 @@ function fillRowSelect(sel, chosen) {
   };
   addReset(wheel, () => { stopAll = true; gen++; setBusy(false); text = "t"; drawWheel(); show(); });
   drawWheel(); show();
+})();
+
+// ---------- Part 6: why counting can't look further back ----------
+(function lookBack() {
+  const slider = document.getElementById("lookBack");
+  const ending = "the cat sat";
+  function nice(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(n >= 1e13 ? 0 : 1) + " trillion";
+    if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + " billion";
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + " million";
+    return n.toLocaleString("en");
+  }
+  // How many boxes our text actually fills: every (last n letters → next letter) it contains
+  function filled(n) {
+    const seen = new Set();
+    for (let i = n; i < TEXT.length; i++) seen.add(TEXT.slice(i - n, i) + "→" + TEXT[i]);
+    return seen.size;
+  }
+  function render() {
+    const n = Number(slider.value);
+    document.getElementById("lookN").textContent = n === 1 ? "1 letter" : `${n} letters`;
+    document.getElementById("seesText").textContent = ending.slice(-n);
+    document.getElementById("seesNote").innerHTML = n === 1
+      ? "Neo sees only <b>t</b>. It doesn't know “sat” is finished, so it may add “he”."
+      : n < 3 ? `Neo sees <b>${ending.slice(-n).replace(/ /g, "␣")}</b>. Still not the whole word.`
+      : `Neo sees <b>${ending.slice(-n).replace(/ /g, "␣")}</b>: now it knows the word is “sat”, so a space comes next.`;
+    const ours = Math.pow(VOCAB, n + 1), real = Math.pow(100, n + 1), f = filled(n);
+    const a = document.getElementById("boxOurs"), b = document.getElementById("boxReal");
+    a.textContent = nice(ours); b.textContent = nice(real);
+    a.classList.toggle("huge", ours > 1e5); b.classList.toggle("huge", real > 1e6);
+    const pct = f / ours * 100;
+    document.getElementById("fillLabel").innerHTML =
+      `Our text fills only <b>${f}</b> of the ${nice(ours)} boxes (${pct >= 1 ? pct.toFixed(0) : pct.toPrecision(1)}%). The rest stay 0.`;
+    document.getElementById("fillBar").style.width = Math.max(pct, 0.3) + "%";
+  }
+  slider.oninput = render;
+  addReset(slider, () => { slider.value = 1; render(); });
+  render();
 })();
 </script>
 </body>

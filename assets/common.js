@@ -10,7 +10,7 @@ const LESSONS = [
     leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
   { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true,
     summary: "Count which character follows which, then generate text.",
-    leaves: "Counting works for one sentence. A real LLM learns from millions of words. How can a model learn its numbers by itself?" },
+    leaves: "To write better, a model must look further back, but a counting table gets impossibly big. How can a model learn its numbers instead of counting them?" },
   { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
     leaves: "Neo looks at only the last letter, so it repeats itself. An LLM looks at much more. How can Neo see more than one letter?" },
