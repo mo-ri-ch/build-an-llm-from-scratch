@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/style.css?v=202610161315">
+<link rel="stylesheet" href="../assets/style.css?v=202610161450">
 <style>
   .big-number { font-family: var(--mono); font-size: clamp(1.6rem, 6vw, 2.6rem); font-weight: 600; margin: 8px 0 2px; word-break: break-all; }
   .muted { color: var(--pencil); font-size: 0.95rem; }
@@ -85,7 +85,7 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">No more counting for me. This time, I want to learn from my own mistakes.</p>
-      <p class="say">Lesson 3 left Neo stuck:</p>
+      <p class="say"><a class="xref" href="lesson3.html#7">Lesson 3</a> left Neo stuck:</p>
       <ul class="stuck">
         <li>It sees only the <b>last letter</b>, so it writes words like “sathe”.</li>
         <li>Looking further back makes the counting table <b>explode</b>.</li>
@@ -101,13 +101,13 @@
       <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
-        <tr><td>Lesson 3 counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
+        <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
         <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>1.07</td><td>1.31</td><td>0.94</td></tr>
       </table>
       <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <div class="vs">
         <div class="vs-card">
-          <div class="vs-title">Counting <small>(Lesson 3)</small></div>
+          <div class="vs-title">Counting <small>(<a class="xref" href="lesson3.html#2">Lesson 3</a>)</small></div>
           <p>Read the text. Write each count in its box: <code>t → h</code> seen 4 times → <b>4</b>.</p>
           <p class="vs-bad">Only works when every number simply means “how many times this pair appeared”.</p>
         </div>
@@ -130,7 +130,7 @@
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
-      <p class="say">a) <b>Predict.</b> To guess, Neo needs chances that add up to 1, like Lesson 3's rows.</p>
+      <p class="say">a) <b>Predict.</b> To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <div class="activity">
         <div class="do">Drag the scores. Watch the chances.</div>
         <div class="slider-row"><span>h</span><input type="range" class="sc" min="-3" max="3" step="0.1" value="1.1" aria-label="Score for h"><output>1.1</output></div>
@@ -244,7 +244,7 @@ chance = [0.705, 0.259, 0.035]</code></pre>
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Row t. Dashed line = what counting gave in Lesson 3.</div>
+        <div class="muted">Row t. Dashed line = what counting gave in <a class="xref" href="lesson3.html#3">Lesson 3</a>.</div>
         <div class="bars" id="trainBars"></div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss<b id="trainLoss">3.0865</b></div></div>
       </div>
@@ -252,7 +252,7 @@ chance = [0.705, 0.259, 0.035]</code></pre>
       <p class="say">This step size is the <mark>learning rate</mark>.</p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
-        <tr><td>Counting (Lesson 3)</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
+        <tr><td>Counting (<a class="xref" href="lesson3.html#3">Lesson 3</a>)</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
         <tr><td>Learning (300 steps)</td><td>0.374</td><td>0.124</td><td>0.499</td></tr>
       </table>
       <p class="say">The same answer, and Neo never counted a single pair. Learning works.</p>

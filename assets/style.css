@@ -620,3 +620,6 @@ main[data-paged] .hook { display: none; }
 .pagebar .next-hint { font-family: var(--hand); color: var(--pencil); font-size: 0.95rem; line-height: 1.3; text-align: right; }
 .pagebar .inner { align-items: flex-end; }
 .pagebar button { white-space: nowrap; }
+/* Links to another lesson's page */
+a.xref { color: inherit; text-decoration: underline; text-decoration-color: var(--pen); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+a.xref:hover { color: var(--pen); }
