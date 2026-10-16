@@ -609,3 +609,4 @@ table.walk-grid td.now { outline: 2px solid var(--ink); outline-offset: -2px; fo
 .walk-pairs span { padding: 2px 5px; border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 3px; white-space: pre; background: var(--card); }
 .walk-pairs span.now { background: var(--hl-yellow); color: var(--on-hl); border-color: var(--ink); font-weight: 700; }
 .walk-pairs { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.walk-vars td span.now { background: var(--ink); color: var(--hl-yellow); border-radius: 3px; padding: 0 2px; font-weight: 700; }
