@@ -38,7 +38,7 @@
   @media (prefers-reduced-motion: reduce) { .guide-now .do { animation: none; } }
   `;
 
-  let on = false, step = 0, steps = [], section = null;
+  let on = false, step = 0, steps = [], section = null, hasNext = false;
   const startHash = location.hash;   // read now: the page list rewrites it once the page is set up
 
   function load() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
@@ -64,7 +64,8 @@
     // Last step: the closing line and the Next link
     const nextSide = document.querySelector(".pagebar .next-side");
     const nextBtn = nextSide && nextSide.querySelector("[data-page-next]");
-    if (nextSide && nextBtn && !nextBtn.hidden) steps.push([nextSide]);
+    hasNext = !!(nextSide && nextBtn && !nextBtn.hidden);
+    if (hasNext) steps.push([nextSide]);
   }
 
   function clear() {
@@ -109,7 +110,7 @@
   function move(delta) {
     buildSteps();
     const target = step + delta;
-    if (target >= steps.length) { pageGo(1, 0); return; }
+    if (target >= steps.length) { if (hasNext) pageGo(1, 0); return; }   // the very last page: stay
     if (target < 0) { pageGo(-1, "last"); return; }
     step = target;
     show(true);
@@ -118,6 +119,8 @@
   let wantLast = false;
   function pageGo(delta, where) {
     if (typeof pagedGo !== "function") return;
+    buildSteps();
+    if (delta > 0 && !hasNext) return;
     wantLast = where === "last";
     step = 0;
     pagedGo(delta);
@@ -174,7 +177,12 @@
     document.addEventListener("keydown", (e) => {
       if (!on || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-      if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+      // Typing boxes keep their arrows. Sliders and buttons don't: while guiding, arrows move the guide.
+      const a = document.activeElement;
+      const typing = a.isContentEditable || a.tagName === "TEXTAREA" || a.tagName === "SELECT" ||
+        (a.tagName === "INPUT" && !/^(range|button|checkbox|radio|submit)$/.test(a.type));
+      if (typing) return;
+      if (a.tagName === "INPUT" || a.tagName === "BUTTON") a.blur();
       e.preventDefault(); e.stopImmediatePropagation();
       const d = e.key === "ArrowRight" ? 1 : -1;
       if (e.shiftKey) pageGo(d, 0); else move(d);
