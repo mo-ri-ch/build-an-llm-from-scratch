@@ -286,7 +286,7 @@ main[data-paged] section.part { padding-top: 26px; }
 .pagebar [data-page-next] { margin-left: auto; }
 .pagebar [data-page-back]:disabled { visibility: hidden; }
 
-.say { font-size: 1.25rem; line-height: 1.5; max-width: 38ch; margin-bottom: 1em; }
+.say { font-size: 1.25rem; line-height: 1.5; max-width: 100%; margin-bottom: 1em; text-wrap: pretty; }
 
 /* Number tiles */
 .tiles { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
