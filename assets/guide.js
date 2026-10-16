@@ -30,15 +30,16 @@
     border: 2px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); }
   body.guiding .guide-bar { display: flex; }
   body.guiding { padding-bottom: 80px; }
+  body.guiding .wrap { padding-bottom: 90px; }
   .guide-bar button { padding: 6px 12px; font-size: 0.95rem; white-space: nowrap; }
-  .guide-bar .guide-count { color: var(--pencil); font-size: 0.85rem; min-width: 3.2em; text-align: center; font-family: var(--mono); }
+  .guide-bar .guide-count { white-space: nowrap; color: var(--pencil); font-size: 0.85rem; min-width: 3.2em; text-align: center; font-family: var(--mono); }
   .guide-bar .guide-keys { color: var(--pencil); font-size: 0.8rem; }
   .guide-bar .guide-stop { border: 0; background: none; box-shadow: none; color: var(--pencil); padding: 6px; }
   @media (max-width: 700px) { .guide-bar .guide-keys { display: none; } }
   @media (prefers-reduced-motion: reduce) { .guide-now .do { animation: none; } }
   `;
 
-  let on = false, step = 0, steps = [], section = null, hasNext = false;
+  let on = false, step = 0, steps = [], section = null, hasNext = false, host = document.body;
   const startHash = location.hash;   // read now: the page list rewrites it once the page is set up
 
   function load() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
@@ -82,8 +83,11 @@
       l = Math.min(l, box.left); t = Math.min(t, box.top); r = Math.max(r, box.right); b = Math.max(b, box.bottom);
     });
     if (l === Infinity) return;
-    const pad = 4;
-    Object.assign(glow.style, { left: (l + scrollX - pad) + "px", top: (t + scrollY - pad) + "px", width: (r - l + pad * 2) + "px", height: (b - t + pad * 2) + "px" });
+    // The glow lives inside the page area, so it scrolls with the content
+    const pad = 4, h = host.getBoundingClientRect();
+    Object.assign(glow.style, {
+      left: (l - h.left + host.scrollLeft - pad) + "px", top: (t - h.top + host.scrollTop - pad) + "px",
+      width: (r - l + pad * 2) + "px", height: (b - t + pad * 2) + "px" });
     glow.classList.add("on");
   }
 
@@ -96,15 +100,28 @@
     steps[step].forEach(el => el.classList.add("guide-now"));
     count.textContent = `${step + 1} / ${steps.length}`;
     placeGlow();
-    if (scroll) {
-      const first = steps[step][0], last = steps[step][steps[step].length - 1];
-      const top = first.getBoundingClientRect().top, bottom = last.getBoundingClientRect().bottom;
-      const room = window.innerHeight - 100;
-      if (top < 70 || bottom > room) {
-        const y = window.scrollY + top - (bottom - top < room - 70 ? (room - (bottom - top)) / 2 : 80);
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-      }
-    }
+    if (scroll) scrollToStep();
+  }
+
+  // On wide screens the page area scrolls by itself (next to the page list); on phones the window scrolls
+  function scroller() {
+    const o = getComputedStyle(host).overflowY;
+    return o === "auto" || o === "scroll" ? host : null;
+  }
+  function scrollToStep() {
+    const first = steps[step][0], last = steps[step][steps[step].length - 1];
+    const top = first.getBoundingClientRect().top, bottom = last.getBoundingClientRect().bottom;
+    const box = scroller();
+    const viewTop = box ? box.getBoundingClientRect().top : 0;
+    const viewBottom = (box ? box.getBoundingClientRect().bottom : window.innerHeight) - 90;   // above the guide bar
+    const margin = 60;
+    if (top >= viewTop + margin && bottom <= viewBottom) return;   // already in view
+    const room = viewBottom - viewTop - margin;
+    const tall = bottom - top;
+    // Centre it if it fits, otherwise show its top
+    const shift = (top - viewTop) - (tall < room ? margin + (room - tall) / 2 : margin);
+    if (box) box.scrollBy({ top: shift, behavior: "smooth" });
+    else window.scrollBy({ top: shift, behavior: "smooth" });
   }
 
   function move(delta) {
@@ -163,7 +180,9 @@
     const top = document.querySelector(".topbar");
     if (top) top.appendChild(toggle);
     document.body.appendChild(bar);
-    document.body.appendChild(glow);
+    host = document.querySelector(".wrap") || document.body;
+    if (getComputedStyle(host).position === "static") host.style.position = "relative";
+    host.appendChild(glow);
     window.addEventListener("resize", placeGlow);
     if (window.ResizeObserver) new ResizeObserver(placeGlow).observe(document.querySelector("main[data-paged]"));
     document.addEventListener("transitionend", placeGlow);
