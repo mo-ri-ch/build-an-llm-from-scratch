@@ -10,3 +10,5 @@
 - Bring Lessons 1–4 in line with the newer guidelines: keep the main idea on the page, move side
   details into hover peeks (data-peek / data-peek-from), put doubts behind a 🤔 (.doubt), make sure every
   activity has ↺ Reset, hide buttons that can't be used instead of greying them out, and split any slide that holds more than one idea. Show him the list of changes first.
+- When a lesson that explains layers (inside a network) is ready, add a link to it in the Transformers & LLMs
+  Lesson 1a 🤔 "What's inside the box?" (it links to Lesson 4 for now).
