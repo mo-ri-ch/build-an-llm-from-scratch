@@ -52,13 +52,16 @@ Each file shows its expected output as comments, so you can check your results.
 
 Plain HTML, CSS and JavaScript, with no build step.
 
+The notebook look and the shared features (slides, teach mode, pen, guide, quizzes,
+"Step through" and tap-to-explain Python words) come from
+[study-notebook-design](https://github.com/mo-ri-ch/study-notebook-design), shared with the other courses.
+Change the design there, and every course updates.
+
 ```
 index.html          home page and roadmap
 lessons/            one page per lesson
-assets/style.css    shared look
-assets/common.js    lesson list, progress, teach mode
+assets/course.js    this course's lesson list, Neo and "our text" (settings for the shared design)
 assets/tinylm.js    the lesson models rewritten in JavaScript, so they run in the browser
-assets/codewalk.js  "Step through" the code line by line, and tap-to-explain Python words
 assets/traces/      the recorded step-by-step runs used by Step through
 assets/finalmodel.js + neo-final.json   the course's final model (a small transformer
                     trained on Grimm's Fairy Tales), run in the browser on the home page
