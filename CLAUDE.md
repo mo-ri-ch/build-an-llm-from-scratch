@@ -9,4 +9,4 @@
 ## To do (later, when Rishal says)
 - Bring Lessons 1–4 in line with the newer guidelines: keep the main idea on the page, move side
   details into hover peeks (data-peek / data-peek-from), put doubts behind a 🤔 (.doubt), make sure every
-  activity has ↺ Reset, and split any slide that holds more than one idea. Show him the list of changes first.
+  activity has ↺ Reset, hide buttons that can't be used instead of greying them out, and split any slide that holds more than one idea. Show him the list of changes first.
