@@ -16,3 +16,13 @@ Lesson 5 must teach "shared numbers" step by step, using the pairs table student
 
 Note: do NOT use a single "at → space" box as the example; that one *can* be counted (it's a 2-letter table).
 The saved picture for step 3 is in lesson5-share-boxes.html.
+
+## Questions Rishal had while learning Lesson 4 (answer these clearly in Lesson 5)
+- "Learning also goes through all the pairs, so isn't the effort the same as counting?"
+  → Yes, both read the whole text (learning even reads it many times). The saving is in the **number of boxes**,
+  not the reading. Say this plainly, early.
+- "What does 'can't be counted' mean? Too many to count?"
+  → No: a reused number doesn't belong to one combination, so there's nothing to tally for it.
+  Show it with the tables: point at one number in the "second-last letter" table and ask "how many times was this seen?"
+  — no answer, because it's used for at, an, as… Then show learning filling it anyway.
+- Teach it in small steps (counting → too many boxes, mostly empty → fewer reused numbers → can't tally them → learning fills them).
