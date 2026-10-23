@@ -83,7 +83,8 @@
   .grow .total.huge { color: var(--redpen); }
   .grow-example { margin-top: 6px; font-size: 0.95rem; }
   .dots-label { margin: 26px 0 8px; font-size: 0.95rem; }
-  .dots { display: block; width: 100%; }
+  .dots { display: block; width: 100%; margin-top: 18px; }
+  .dots-label { margin-bottom: 0; }
   .cube-wrap { position: relative; }
   .cube { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
   .cube:active { cursor: grabbing; }
@@ -91,6 +92,7 @@
     background: var(--note-yellow); color: var(--on-hl, #1A2440); border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 4px; }
   .cube-hint { text-align: center; color: var(--pencil); font-size: 0.85rem; margin: 6px 0 0; }
   .dots-none { font-size: 0.95rem; color: var(--pencil); margin: 4px 0; }
+  .dots-count { font-size: 0.95rem; margin: 14px 0 0; }
     background: var(--ink); color: var(--paper); font-family: var(--head); font-size: 0.9rem; }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
@@ -299,12 +301,13 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
           <p class="cube-hint">Drag to turn the cube. Hover over (or tap) a green dot.</p>
         </div>
         <p class="dots-none" id="dotsNone" hidden></p>
+        <p class="dots-count" id="dotsCount"></p>
       </div>
       <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays empty.</p>
       <p class="say">There's a smarter kind of model that can look further back with far fewer boxes. You'll build it in <b>Lesson 5</b>.</p>
       <p class="note"><b>The catch:</b> that model's numbers can't be found by counting. So first, Neo needs a way to find numbers <b>without counting</b>. That's <a class="xref" href="lesson4.html#1">Lesson 4</a>.</p>
     
-      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter. Looking further back makes my table explode. Can I find my numbers without counting?</p>
+      <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter.</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Counting can't look further back, and the smarter model's numbers can't be counted. How can Neo find numbers without counting?</div>
@@ -602,9 +605,12 @@ function fillRowSelect(sel, chosen) {
     const canvas = document.getElementById("dots"), none = document.getElementById("dotsNone"), label = document.getElementById("dotsLabel");
     const wrap = document.getElementById("cubeWrap");
     label.innerHTML = n === 2
-      ? `Neo sees the last 2 letters (in “at”: the second-last is <b>a</b>, the last is <b>t</b>) and guesses the next one. So the table becomes a <b>cube</b>, 14 × 14 × 14. Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
-      : n === 1 ? `Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
-      : `Our text fills only <b>${f}</b> of these boxes. Every other box stays 0: Neo knows nothing there.`;
+      ? `Neo sees the last 2 letters (in “at”: second-last <b>a</b>, last <b>t</b>). So the table becomes a <b>cube</b>, 14 × 14 × 14.`
+      : "";
+    label.hidden = n !== 2;
+    document.getElementById("dotsCount").innerHTML = n <= 2
+      ? `Each dot is one box. Our text fills only <b>${f}</b> (green). The rest stay 0: Neo knows nothing there.`
+      : `Our text fills only <b>${f}</b> of these boxes. The rest stay 0: Neo knows nothing there.`;
     canvas.hidden = n !== 1; wrap.hidden = n !== 2; none.hidden = n <= 2;
     if (n === 2) { cube.start(); return; }
     cube.stop();
@@ -644,20 +650,20 @@ function fillRowSelect(sel, chosen) {
   // ----- The cube: x = next letter, y = last letter, z = second-last letter -----
   const cube = (function () {
     const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
-    let yaw = -0.6, pitchA = 0.45, spin = false, running = false, frame = 0, size = 300, projected = [], seen = null;
+    let yaw = -0.6, pitchA = 0.6, spin = false, running = false, frame = 0, size = 300, projected = [], seen = null;
     const show = c => c === " " ? "␣" : c;
     function project(x, y, z) {
       // centre the 14 positions around 0, then turn
       const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitchA), sp = Math.sin(pitchA);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const y1 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
-      const scale = size * 0.165, persp = 1 / (1 + z2 * 0.06);   // small enough that every corner stays inside, at any angle
+      const scale = size * 0.215, persp = 1 / (1 + z2 * 0.06);   // small enough that every corner stays inside, at any angle
       return [size / 2 + x1 * scale * persp, size / 2 + y1 * scale * persp, z2];
     }
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
-      size = Math.min(580, innerWidth(canvas.parentElement.parentElement));
+      size = Math.min(440, innerWidth(canvas.parentElement.parentElement));
       if (canvas.width !== Math.round(size * dpr)) {
         canvas.style.width = size + "px"; canvas.style.height = size + "px";
         canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
@@ -668,9 +674,23 @@ function fillRowSelect(sel, chosen) {
       g.strokeStyle = c.pencil; g.globalAlpha = 0.55; g.lineWidth = 1.2;
       [[0,1],[0,2],[1,3],[2,3],[4,5],[4,6],[5,7],[6,7],[0,4],[1,5],[2,6],[3,7]].forEach(([i, j]) => { g.beginPath(); g.moveTo(corners[i][0], corners[i][1]); g.lineTo(corners[j][0], corners[j][1]); g.stroke(); });
       g.globalAlpha = 1;
-      // Three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
+      // dots, back to front
+      projected = [];
+      for (let z = 0; z < VOCAB; z++) for (let y = 0; y < VOCAB; y++) for (let x = 0; x < VOCAB; x++) {
+        const key = CHARS[z] + CHARS[y] + CHARS[x], n = seen.get(key) || 0;
+        const [px, py, d] = project(pos(x), pos(y), pos(z));
+        projected.push({ px, py, d, n, key });
+      }
+      projected.sort((a, b) => b.d - a.d);
+      const r = Math.max(1.2, size / 320);
+      for (const p of projected) {
+        if (p.n) { g.globalAlpha = 1; g.fillStyle = c.green; g.beginPath(); g.arc(p.px, p.py, r * 3.4, 0, Math.PI * 2); g.fill(); }
+        else { g.globalAlpha = 0.28; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
+      }
+      g.globalAlpha = 1;
+      // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
-      const E = 1.08, o = project(-E, -E, -E), unit = 1 / (size * 0.165);   // world size of one screen pixel (face-on)
+      const E = 1.08, o = project(-E, -E, -E), unit = 1 / (size * 0.215);   // world size of one screen pixel (face-on)
       const paint = (text, at, along, down, font, color) => {
         // draw text at a 3D point: its x runs "along", its y runs "down" (both 3D directions)
         const p0 = project(...at);
@@ -704,20 +724,6 @@ function fillRowSelect(sel, chosen) {
         // the name, a little further out, in the middle of the edge
         paint(a.text, off(0.26), a.along, a.down, `600 13px ${c.mono}`, c.ink);
       });
-      // dots, back to front
-      projected = [];
-      for (let z = 0; z < VOCAB; z++) for (let y = 0; y < VOCAB; y++) for (let x = 0; x < VOCAB; x++) {
-        const key = CHARS[z] + CHARS[y] + CHARS[x], n = seen.get(key) || 0;
-        const [px, py, d] = project(pos(x), pos(y), pos(z));
-        projected.push({ px, py, d, n, key });
-      }
-      projected.sort((a, b) => b.d - a.d);
-      const r = Math.max(1.2, size / 320);
-      for (const p of projected) {
-        if (p.n) { g.globalAlpha = 1; g.fillStyle = c.green; g.beginPath(); g.arc(p.px, p.py, r * 3.4, 0, Math.PI * 2); g.fill(); }
-        else { g.globalAlpha = 0.28; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
-      }
-      g.globalAlpha = 1;
     }
     function loop() {
       if (!running) return;
