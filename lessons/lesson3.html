@@ -85,9 +85,11 @@
   .dots-label { margin: 26px 0 8px; font-size: 0.95rem; }
   .dots { display: block; margin: 18px auto 0; }
   .dots-label { margin-bottom: 0; }
-  .cube-wrap { position: relative; }
-  .cube { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
-  .cube:active { cursor: grabbing; }
+  .cube-wrap { position: relative; overflow-x: clip; }
+  /* The frame is the size of the flat table; the cube may reach past it while you turn it */
+  .cube-frame { position: relative; margin: 18px auto 0; touch-action: none; cursor: grab; }
+  .cube-frame:active { cursor: grabbing; }
+  .cube { position: absolute; pointer-events: none; }
   .cube-tip { position: absolute; pointer-events: none; padding: 4px 8px; font-family: var(--mono); font-size: 0.85rem; white-space: nowrap;
     background: var(--note-yellow); color: var(--on-hl, #1A2440); border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 4px; }
   .cube-hint { text-align: center; color: var(--pencil); font-size: 0.85rem; margin: 6px 0 0; }
@@ -296,8 +298,10 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="dots-label" id="dotsLabel"></div>
         <canvas class="dots" id="dots" aria-label="One dot per box in the table; green dots are boxes our text fills"></canvas>
         <div class="cube-wrap" id="cubeWrap" hidden>
-          <canvas class="cube" id="cube" aria-label="The counting table as a cube: second-last letter, last letter, next letter. Drag to turn it."></canvas>
-          <div class="cube-tip" id="cubeTip" hidden></div>
+          <div class="cube-frame" id="cubeFrame" role="img" aria-label="The counting table as a cube: second-last letter, last letter, next letter. Drag to turn it.">
+            <canvas class="cube" id="cube"></canvas>
+            <div class="cube-tip" id="cubeTip" hidden></div>
+          </div>
           <p class="cube-hint">Drag to turn the cube. Hover over (or tap) a green dot.</p>
         </div>
         <p class="dots-none" id="dotsNone" hidden></p>
@@ -655,10 +659,11 @@ function fillRowSelect(sel, chosen) {
 
   // ----- The cube: x = next letter, y = last letter, z = second-last letter -----
   const cube = (function () {
-    const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
-    let yaw = -0.6, pitchA = 0.6, spin = false, running = false, frame = 0, size = 300, W = 300, H = 300, projected = [], seen = null;
+    const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip"), box = document.getElementById("cubeFrame");
+    let PAD = 120;   // room around the frame, so a turned cube isn't cut off
+    let yaw = 0, pitchA = 0, spin = false, running = false, frame = 0, size = 300, W = 300, H = 300, projected = [], seen = null;
     let scale = 100, offX = 150, offY = 150;   // set in fit(): the cube always fills the same frame as the flat table
-    let blend = 1, anim = 0;   // blend 0: seen face-on, exactly like the flat table; 1: sized to fill the frame
+    let blend = 0;   // 0: face-on, looks exactly like the flat table; 1: once turned, a see-through cube with depth
     const show = c => c === " " ? "␣" : c;
     function project(x, y, z) {
       // centre the 14 positions around 0, then turn
@@ -669,32 +674,28 @@ function fillRowSelect(sel, chosen) {
       return [offX + x1 * scale * persp, offY + y1 * scale * persp, z2];
     }
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
-    // Size the cube so it (with room for the axis names) fills the frame at the current angle
+    // Once it has depth, give it a little room above and below, so a turned cube doesn't cover the text
+    function room() { const m = Math.round(blend * H * 0.22); box.style.marginTop = (18 + m) + "px"; box.style.marginBottom = m + "px"; }
     function fit() {
-      scale = 1; offX = 0; offY = 0;
-      let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
-      for (const a of [-1.08, 1.08]) for (const bb of [-1.08, 1.08]) for (const d of [-1.08, 1.08]) {
-        const q = project(a, bb, d); l = Math.min(l, q[0]); r = Math.max(r, q[0]); t = Math.min(t, q[1]); b = Math.max(b, q[1]);
-      }
-      const m = 44;   // room for the names and small letters
-      const fs = Math.min((W - 2 * m) / (r - l), (H - 2 * m) / (b - t));
-      const fx = W / 2 - fs * (l + r) / 2, fy = H / 2 - fs * (t + b) / 2;
-      // Face-on, the front layer lands exactly on the flat table's dots (same pitch, same place)
-      const pitch = (W - 100) / VOCAB, front = 1;
-      const ts = (VOCAB - 1) / 2 * pitch / front, tx = 92 + VOCAB * pitch / 2, ty = 46 + VOCAB * pitch / 2;
-      scale = ts + (fs - ts) * blend; offX = tx + (fx - tx) * blend; offY = ty + (fy - ty) * blend;
+      // Always the flat table's size and place: face-on, the cube lands exactly on the flat table's dots
+      const pitch = (W - 100) / VOCAB;
+      scale = (VOCAB - 1) / 2 * pitch; offX = 92 + VOCAB * pitch / 2; offY = 46 + VOCAB * pitch / 2;
     }
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
       // The same frame as the flat 1-letter picture
       const avail = innerWidth(canvas.parentElement.parentElement), pitch = Math.min(22, Math.floor((avail - 100) / VOCAB));
       W = 92 + VOCAB * pitch + 8; H = 46 + VOCAB * pitch + 8; size = Math.min(W, H);
-      if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
-        canvas.style.width = W + "px"; canvas.style.height = H + "px";
-        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      PAD = Math.round(W * 0.35);
+      box.style.width = W + "px"; box.style.height = H + "px"; room();
+      const CW = W + 2 * PAD, CH = H + 2 * PAD;
+      if (canvas.width !== Math.round(CW * dpr) || canvas.height !== Math.round(CH * dpr)) {
+        canvas.style.width = CW + "px"; canvas.style.height = CH + "px"; canvas.style.left = -PAD + "px"; canvas.style.top = -PAD + "px";
+        canvas.width = Math.round(CW * dpr); canvas.height = Math.round(CH * dpr);
       }
       fit();
-      const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, CW, CH);
+      g.translate(PAD, PAD);   // draw in the frame's own coordinates
       // cube edges
       const corners = []; for (const a of [-1.08, 1.08]) for (const b of [-1.08, 1.08]) for (const d of [-1.08, 1.08]) corners.push(project(a, b, d));
       g.strokeStyle = c.pencil; g.globalAlpha = 0.55; g.lineWidth = 1.2;
@@ -730,7 +731,7 @@ function fillRowSelect(sel, chosen) {
         const py = project(at[0] + down[0] * unit, at[1] + down[1] * unit, at[2] + down[2] * unit);
         const dpr = window.devicePixelRatio || 1;
         g.save();
-        g.setTransform(dpr * (px[0] - p0[0]), dpr * (px[1] - p0[1]), dpr * (py[0] - p0[0]), dpr * (py[1] - p0[1]), dpr * p0[0], dpr * p0[1]);
+        g.setTransform(dpr * (px[0] - p0[0]), dpr * (px[1] - p0[1]), dpr * (py[0] - p0[0]), dpr * (py[1] - p0[1]), dpr * (p0[0] + PAD), dpr * (p0[1] + PAD));   // + PAD: the frame sits inside the bigger canvas
         g.font = font; g.fillStyle = color; g.textAlign = "center"; g.textBaseline = "middle";
         g.fillText(text, 0, 0); g.restore();
       };
@@ -763,50 +764,39 @@ function fillRowSelect(sel, chosen) {
       if (spin) { yaw += 0.006; draw(); }
       frame = requestAnimationFrame(loop);
     }
-    // Coming from 1 letter: start as the flat table, then turn a little (once) to show it has depth
+    // Coming from 1 letter: start face-on, looking exactly like the flat table. Turning it is up to you.
     function start(fresh) {
       seen = counts(2);
-      if (fresh) {
-        cancelAnimationFrame(anim);
-        const from = performance.now(), goal = [-0.55, 0.5];
-        yaw = 0; pitchA = 0; blend = 0;
-        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const step = now => {
-          const k = reduce ? 1 : Math.min(1, (now - from - 500) / 1300);   // wait half a second, then turn
-          const e = k <= 0 ? 0 : k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-          yaw = goal[0] * e; pitchA = goal[1] * e; blend = e; draw();
-          if (k < 1) anim = requestAnimationFrame(step);
-        };
-        anim = requestAnimationFrame(step);
-      }
+      if (fresh) { yaw = 0; pitchA = 0; blend = 0; }
       draw();
       if (!running) { running = true; frame = requestAnimationFrame(loop); }
     }
-    function stop() { running = false; cancelAnimationFrame(frame); cancelAnimationFrame(anim); tip.hidden = true; }
+    function stop() { running = false; cancelAnimationFrame(frame); tip.hidden = true; }
     // drag to turn
     let drag = null, moved = false;
-    canvas.addEventListener("pointerdown", e => { cancelAnimationFrame(anim); blend = 1; drag = [e.clientX, e.clientY]; moved = false; spin = false; canvas.setPointerCapture(e.pointerId); });
-    canvas.addEventListener("pointermove", e => {
+    box.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; moved = false; spin = false; box.setPointerCapture(e.pointerId); });
+    box.addEventListener("pointermove", e => {
       if (drag) {
         const dx = e.clientX - drag[0], dy = e.clientY - drag[1];
         if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
         yaw += dx * 0.01; pitchA = Math.max(-1.4, Math.min(1.4, pitchA + dy * 0.01));
+        blend = Math.min(1, Math.max(blend, (Math.abs(yaw) + Math.abs(pitchA)) / 0.35));   // depth appears as you start turning
+        room();
         drag = [e.clientX, e.clientY]; draw(); tip.hidden = true; return;
       }
       if (e.pointerType === "mouse") pick(e);
     });
-    canvas.addEventListener("pointerup", e => { if (drag && !moved) pick(e); drag = null; });
-    canvas.addEventListener("pointerleave", () => { if (!drag) tip.hidden = true; });
+    box.addEventListener("pointerup", e => { if (drag && !moved) pick(e); drag = null; });
+    box.addEventListener("pointerleave", () => { if (!drag) tip.hidden = true; });
     // hover or tap a green dot: what does it mean?
     function pick(e) {
-      const b = canvas.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top;
+      const b = box.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top;
       let best = null, bestD = 14 * 14;
       for (const p of projected) if (p.n) { const d = (p.px - x) ** 2 + (p.py - y) ** 2; if (d < bestD || (best && d === bestD && p.d < best.d)) { best = p; bestD = d; } }
       if (!best) { tip.hidden = true; return; }
       tip.textContent = `${show(best.key[0])}${show(best.key[1])} → ${show(best.key[2])}: seen ${best.n} time${best.n === 1 ? "" : "s"}`;
       tip.hidden = false;
-      const left = canvas.offsetLeft + best.px + 10, top = canvas.offsetTop + best.py - 30;
-      tip.style.left = Math.min(left, canvas.offsetLeft + W - tip.offsetWidth) + "px"; tip.style.top = Math.max(0, top) + "px";
+      tip.style.left = Math.min(best.px + 10, W - tip.offsetWidth) + "px"; tip.style.top = (best.py - 30) + "px";
     }
     return { start, stop, redraw: () => { if (seen) draw(); } };
   })();
