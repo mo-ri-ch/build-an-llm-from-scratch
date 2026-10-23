@@ -82,6 +82,9 @@
   .sm-worked { font-family: var(--mono); font-size: 0.95rem; margin: 10px 0 0; max-width: none; }
   .sm .others-label { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.85rem; font-weight: 400; }
   .math-toggle:hover { background: none; color: var(--ink); }
+  .check-line { font-family: var(--mono); line-height: 2; margin: 6px 0 18px; padding: 8px 14px; border-left: 3px solid var(--hl-yellow); background: var(--paper); }
+  .check-line span { display: inline-block; min-width: 11em; font-family: var(--body, inherit); color: var(--pencil); }
+  .check-line small { font-family: var(--body, inherit); color: var(--pencil); }
   .loss-row { display: grid; grid-template-columns: auto 1fr 4em; gap: 14px; align-items: center; margin: 14px 0 6px; font-family: var(--mono); }
   .loss-row output { text-align: right; font-weight: 600; }
   .loss-label { margin-top: 22px; font-family: var(--head); font-size: 1.05rem; }
@@ -201,10 +204,11 @@
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
       <p class="step-label">Step b) Measure</p>
-      <p class="say">Your model's guesses are bad. To get better, it needs one number that says how bad.</p>
+      <p class="say">Your model's guesses are bad. To get better, it needs one number that says how bad. The text shows the right answers: just look at what really comes next.</p>
       <p class="say">Take the first pair in the text, <code>t → h</code>.</p>
       <p class="our-text" data-pair="0"></p>
-      <p class="say">Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, your model gave <code>h</code> only 13.3%. How wrong is that?</p>
+      <div class="check-line"><span>Your model guessed:</span> <code>h</code> 13.3% <small>(<a class="xref" href="lesson4.html#3">the last page</a>)</small><br><span>The text says:</span> <code>h</code> comes next</div>
+      <p class="say">It gave the right answer only 13.3%. How wrong is that?</p>
       <div class="activity">
         <div class="do">Drag the chance for h. Try 90%, 50% and 1%.</div>
         <div class="loss-row"><span>chance for h</span><input type="range" class="ink" id="pRight" min="1" max="100" step="0.1" value="13.3" aria-label="Chance given to h"><output id="pRightOut">13.3%</output></div>
@@ -224,7 +228,7 @@
       <p class="say">Your model does this for every pair in the text, all 46 of them. These are the first 8, with its real random scores:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
-      <p class="say">One number for how bad all of your model's guesses are.</p>
+      <p class="say">One number for how far your model's guesses are from the real text.</p>
       <p class="hook">The goal is to make the loss small. But which of the 196 scores should change, and which way?</p>
     </section>
 
