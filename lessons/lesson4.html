@@ -201,11 +201,12 @@
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
       <p class="say">The less chance Neo gives the right answer, the bigger the <mark>loss</mark>. Give it 100% and the loss is 0.</p>
-      <p class="say">The rule Neo uses: <code style="white-space:nowrap">loss = −log(chance)</code></p>
-      <details class="unclear">
-        <summary>What is log?</summary>
-        <p>You don't need the math. Just remember: −log turns a chance into a “how wrong” number. Chance 100% → 0 (perfect). The smaller the chance, the bigger the number.</p>
-      </details>
+      <p class="say" style="position:relative">The rule Neo uses: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <div hidden id="logPeek"><b>🤔 What is log?</b>
+        <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
+        <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
+        <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
+      </div>
       <p class="say">Neo does this for every pair in the text, all 46 of them. These are the first few, with Neo's real random scores:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
@@ -256,14 +257,13 @@
           <button id="askBackward">Ask PyTorch which way</button>
         </div>
       </div>
-      <p class="say">The arrows PyTorch shows are <mark>gradients</mark>.</p>
+      <p class="say" style="position:relative">The arrows PyTorch shows are <mark>gradients</mark>.<button class="doubt" type="button" data-peek-from="negPeek" aria-label="Why does a negative gradient mean up?">🤔</button></p>
+      <div hidden id="negPeek"><b>🤔 Why does a negative gradient mean “up”?</b>
+        <p style="margin:6px 0 0">A gradient says: <b>if this score goes up, what happens to the loss?</b></p>
+        <p style="margin:6px 0 0">Negative: the loss goes down. Good, so raise it. Positive: the loss goes up, so lower it.</p>
+        <p style="margin:6px 0 0">Here all 8 pairs count, so each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. On the last page, with only the pair <code>t → h</code>, space was a wrong answer, so it went down.</p>
+      </div>
       <p class="say"><code>loss.backward()</code> finds them for all 196 scores at once.</p>
-      <details class="unclear">
-        <summary>Why is negative “up”?</summary>
-        <p>A gradient says: <b>if this score goes up, what happens to the loss?</b></p>
-        <p>Negative: the loss goes down. Good, so raise it. Positive: the loss goes up, so lower it.</p>
-        <p>With all 8 pairs, each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. That's different from the single pair <code>t → h</code> on the last page, where space was a wrong answer.</p>
-      </details>
       <p class="hook">Doing this by hand for 196 scores would take forever. Let Neo do it.</p>
     </section>
 
@@ -346,7 +346,8 @@ probabilities = F.softmax(weights, dim=1)
 t_row = probabilities[char_to_number['t']]
 for char in [' ', '.', 'h']:
     print(repr(char), round(t_row[char_to_number[char]].item(), 3))</code></pre>
-      <div class="run-area">
+      <div class="run-area" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="loopPeek" aria-label="What does each line in the training loop do?">🤔</button>
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
         <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson4.py</span>
 Step 0 loss: 3.086
@@ -359,16 +360,15 @@ Step 250 loss: 0.709
 '.' 0.124
 'h' 0.499</pre></div>
       </div>
-      <details class="unclear">
-        <summary>What does each line do?</summary>
-        <ul>
+      <div hidden id="loopPeek"><b>🤔 What does each line in the training loop do?</b>
+        <ul style="margin:6px 0 0; padding-left:1.2em">
           <li><code>weights[current_chars]</code>: copies the row of each of the 46 characters.</li>
           <li><code>F.cross_entropy</code>: softmax, pick the right answer's chance, −log, average.</li>
           <li><code>weights.grad = None</code>: clears old gradients. PyTorch adds new ones on top.</li>
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
         </ul>
-      </details>
+      </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson4.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
