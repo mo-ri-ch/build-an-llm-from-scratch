@@ -232,16 +232,21 @@
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
       <p class="step-label">Steps c) Find directions and d) Move</p>
-      <p class="say">For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
-      <p class="say">The <mark>gradient</mark> tells you. It answers: <b>if this score goes up, does the loss go up or down?</b> Negative: the loss goes down, so push the score <b>up</b>. Positive: push it <b>down</b>.</p>
-      <p class="say">Take one pair, <code>t → h</code>.</p>
+      <p class="say">Take the pair <code>t → h</code> again.</p>
       <p class="our-text" data-pair="0"></p>
-      <p class="say">For one pair, the gradients are simple:</p>
+      <p class="say">Your model gave <code>h</code> only 13.3%. To make the loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
+      <p class="say">Those chances come from the scores in row <code>t</code> (<a class="xref" href="lesson4.html#3">softmax</a>). So we change the scores:</p>
+      <ul class="rules">
+        <li><b><code>h</code>'s score goes up</b>, so <code>h</code> gets a bigger chance.</li>
+        <li><b>Every other letter's score goes down</b>, so they take less of the 100%, and <code>h</code> gets even more.</li>
+      </ul>
+      <p class="say">Which way each score should go, and how hard, is its <mark>gradient</mark>:</p>
       <ul class="rules" style="position:relative">
         <button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − 1?">🤔</button>
-        <li>The right answer (<code>h</code>): gradient = chance − 1. Always <b>negative</b>, so push it <b>up</b>.</li>
-        <li>Every wrong one: gradient = its chance. Always <b>positive</b>, so push it <b>down</b>.</li>
+        <li><code>h</code> (the right answer): gradient = its chance − 1 = 0.133 − 1 = <b>−0.867</b>. <b>Negative</b> means: raise this score.</li>
+        <li>Every wrong letter: gradient = its chance, like <b>+0.177</b> for “.”. <b>Positive</b> means: lower this score.</li>
       </ul>
+      <p class="say">The bigger the number, the harder the push.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
         <p style="margin:6px 0 0">If your model already gave <code>h</code> 100%, the gradient is 1 − 1 = <b>0</b>: nothing to fix.</p>
         <p style="margin:6px 0 0">It gave only 13.3%, so the gradient is 0.133 − 1 = <b>−0.867</b>: a big push up.</p>
