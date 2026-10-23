@@ -37,7 +37,7 @@ EXPLAIN = {
     "print(torch.tensor(encode(text)))": "Encode the whole text and put the numbers in a tensor.",
 
     # ---------- Lesson 3 ----------
-    'text = "the cat sat on the mat. the dog sat on the log."': "Our training text: the only thing Neo will learn from.",
+    'text = "the cat sat on the mat. the dog sat on the log."': "Our training text: the only thing your model will learn from.",
     "vocab_size = len(unique_chars)": "len() counts the characters in the vocabulary.",
     "counts = torch.zeros((vocab_size, vocab_size))": "A table full of zeros: one row and one column for every character.",
     "for i in range(len(text) - 1):": "Go through every position in the text, except the last (it has nothing after it).",
@@ -57,7 +57,7 @@ EXPLAIN = {
     "picked = torch.multinomial(probabilities[current], num_samples=1)": "Spin the weighted wheel, using the current character's row of chances.",
     "current = picked.item()": "Take the number out of the tensor. This is the new current character.",
     "output = output + number_to_char[current]": "Turn the number into a character and add it to the text.",
-    "print(output)": "Show what Neo wrote.",
+    "print(output)": "Show what your model wrote.",
 
     # ---------- Lesson 4 ----------
     "import torch.nn.functional as F": "Load PyTorch's ready-made functions (softmax, cross_entropy) under the short name F.",

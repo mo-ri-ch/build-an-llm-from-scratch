@@ -1,6 +1,6 @@
 # Usage: put a plain-text book as input.txt next to this file, then:
 #   python train_final.py 128 4 5000 128   (embedding size, layers, steps, context length)
-# The home-page Neo was trained on Grimm's Fairy Tales (Project Gutenberg) in about 22 minutes on 2 CPU cores.
+# The home-page model was trained on Grimm's Fairy Tales (Project Gutenberg) in about 22 minutes on 2 CPU cores.
 # The final Build a Tiny LLM model: a small character-level transformer (Lessons 6-9).
 import math, time, json, sys, torch, torch.nn as nn, torch.nn.functional as F
 torch.manual_seed(1337)

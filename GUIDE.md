@@ -6,10 +6,10 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - **Every word matters.** Re-read each changed page as a student before calling it done. Check facts against the real text and real numbers (run the code).
 - **Never use a term before it's taught.** If a later idea must be mentioned, say it's coming ("you'll build it in Lesson 5") and teach it properly there. No half-explanations.
 - **Plain, short words.** Hand examples with real numbers first, then code. Explain any maths symbol (e, log, …) the first time it appears.
-- **Nobody should ever think "why am I learning this?"** Each page opens with why Neo needs it, and ends with a closing line (`<p class="hook">`) that leads to the next page. The closing line is shown just above the Next link.
+- **Nobody should ever think "why am I learning this?"** Each page opens with why the model needs it, and ends with a closing line (`<p class="hook">`) that leads to the next page. The closing line is shown just above the Next link.
 - **Never make the student remember.** Keep the context on the page: every page that talks about pairs in the training text shows a small "from our text:" line right where it's needed (just after the sentence that mentions the pair, never as a page header) (`<p class="our-text" data-after="t">` or `data-pair="0"`), with the pairs it's about highlighted. Same idea for anything else from earlier pages: show it again, don't assume it's remembered.
 - One training text: `the cat sat on the mat. the dog sat on the log.` from Lesson 2 onward (14 characters, 46 pairs).
-- **Same real numbers everywhere.** A number shown on one page (e.g. Neo gives h 13.3%, loss 2.02) must match every other page that uses it. Say where it came from ("on the last page…"), and state facts exactly ("the first pair, t → h", not "after t comes h").
+- **Same real numbers everywhere.** A number shown on one page (e.g. the model gives h 13.3%, loss 2.02) must match every other page that uses it. Say where it came from ("on the last page…"), and state facts exactly ("the first pair, t → h", not "after t comes h").
 - Don't show the same thing twice (e.g. a slider and a table of the same values). Make averages and totals visible (show a few real items, then the result).
 - Simple code style: `char_to_number`, plain loops, no `zip`, outputs as comments.
 
@@ -18,7 +18,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 2. Teaching pages, each with an activity, a reason at the top and a closing line.
 3. **The code:** guess-first, ▶ Run (terminal), 👣 Step through, Python-word cards, Run in Colab.
 4. **Check yourself:** quiz only, on what was taught (never test something not taught).
-5. **Last page:** the problem the next lesson solves, Neo's line, the closing question with the "Building the LLM" path, Mark lesson as done.
+5. **Last page:** the problem the next lesson solves, the model's line, the closing question with the "Building the LLM" path, Mark lesson as done.
 - The closing question must point to exactly what the next lesson delivers. Don't give away the next lesson's solution.
 - Mentions of other lessons link to the exact page (`<a class="xref" href="lesson3.html#3">`). Unbuilt lessons stay plain text.
 
@@ -32,8 +32,9 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Previous / Next as plain text in the bottom corners, at the end of the page (not fixed to the screen); arrows cross into the next/previous lesson.
 - Must look good on phones too: check at 400px width.
 
-## Neo
-- Neo is the model the student builds, a sticky note with a face. One line at the start and end of each lesson.
+## Your model (no name)
+- Call it **"your model"** ("the model" where "your" reads oddly, e.g. code explanations; "the smarter model" for Lesson 5's). No name: "Neo" was dropped on Oct 23.
+- Shown as a sticky note with a face, labelled "Your model", speaking in first person. One line at the start and end of each lesson.
 
 ## Workflow
 - Bump `?v=` on changed assets. Regenerate notebooks/code (`tools/make_notebooks.py`) and traces (`tools/make_traces.py`) after code changes; add a plain explanation for every new code line in `tools/explanations.py`.
@@ -42,7 +43,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 
 ## Progress (keep this up to date)
 - Lessons 1–4: built and reviewed as a student (Oct 16). Lesson 4 reworked into one connected story.
-- Home page: Neo demo (after Lesson 5 / after the course), note on why Neo is tiny, lesson path.
+- Home page: model demo (after Lesson 5 / after the course), note on why the model is tiny, lesson path.
 - Site tools: Guide me (assets/guide.js: one glow at a time, → / ←, Shift+→ next page, activities wait for the student; steps come from each page's elements, so keep pages as a clean list of paragraphs and boxes), pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
 - **Next:** the user finishes going through Lesson 4 as a student → then learn Lesson 5 together → build its pages (plan in drafts/lesson5-plan.md).
 - Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).

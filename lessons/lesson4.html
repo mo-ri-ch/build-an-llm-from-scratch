@@ -127,27 +127,27 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">Counting got me stuck. Is there another way to find my numbers?</p>
-      <p class="say"><a class="xref" href="lesson3.html#8">Lesson 3</a> left Neo stuck:</p>
+      <p class="say"><a class="xref" href="lesson3.html#8">Lesson 3</a> left your model stuck:</p>
       <ul class="stuck">
         <li>It sees only the <b>last letter</b>, so it writes words like “sathe”.</li>
         <li>Looking further back makes the counting table <a class="xref" href="lesson3.html#7"><b>explode</b></a>.</li>
         <li>A smarter model (Lesson 5) would need far fewer boxes, but its numbers <b>can't be counted</b>.</li>
       </ul>
-      <p class="say">So the question is: <b>can Neo find good numbers without counting?</b></p>
-      <p class="hook">Without counting, where would Neo even start?</p>
+      <p class="say">So the question is: <b>can your model find good numbers without counting?</b></p>
+      <p class="hook">Without counting, where would your model even start?</p>
     </section>
 
     <!-- 2 -->
     <section class="part" data-title="Start random">
       <h2>Start random</h2>
-      <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
+      <p class="say">Instead of counting, your model starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
       <p class="our-text" data-after="t"></p>
       <div class="table-scroll"><table class="plain cmp all14">
         <tr><th>after t</th><th title="space">␣</th><th>.</th><th>a</th><th>c</th><th>d</th><th>e</th><th>g</th><th>h</th><th>l</th><th>m</th><th>n</th><th>o</th><th>s</th><th>t</th></tr>
         <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td><b>3</b></td><td><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b>4</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-        <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
+        <tr><td>Your model's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
       </table></div>
-      <p class="say">Neo has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>.</p>
+      <p class="say">Your model has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>.</p>
       <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <div class="vs">
         <div class="vs-card">
@@ -168,17 +168,17 @@
         <li><span class="k">c)</span><span><b>Find</b> which way to change each score</span></li>
         <li><span class="k">d)</span><span><b>Move</b> each score a little</span></li>
       </ol>
-      <p class="hook">To predict, Neo needs chances, not scores. How do scores become chances?</p>
+      <p class="hook">To predict, your model needs chances, not scores. How do scores become chances?</p>
     </section>
 
     <!-- 3 -->
     <section class="part" data-title="Scores into chances">
       <h2>Scores into chances</h2>
       <p class="step-label">Step a) Predict</p>
-      <p class="say">To guess, Neo needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
+      <p class="say">To guess, your model needs chances that add up to 1, like <a class="xref" href="lesson3.html#3">Lesson 3's rows</a>.</p>
       <p class="our-text" data-after="t"></p>
       <div class="activity">
-        <div class="do">These are Neo's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
+        <div class="do">These are your model's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
         <div class="muted" style="margin-bottom:10px">You can drag 5 of the 14 scores. The other 9 letters keep their scores and are added together at the bottom.</div>
         <p class="sm-math-note" id="smMathNote" hidden><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
         <div class="sm" id="smTable"></div>
@@ -187,17 +187,17 @@
       </div>
       <p class="say">Any scores in, chances out. They always add up to 1, and raising one score takes chance away from the others.</p>
       <p class="say">This is <mark>softmax</mark>.</p>
-      <p class="hook">Now Neo can guess. But its scores are random, so its guesses are bad. How bad?</p>
+      <p class="hook">Now your model can guess. But its scores are random, so its guesses are bad. How bad?</p>
     </section>
 
     <!-- 4 -->
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
       <p class="step-label">Step b) Measure</p>
-      <p class="say">Neo's guesses are bad. To get better, it needs one number that says how bad.</p>
+      <p class="say">Your model's guesses are bad. To get better, it needs one number that says how bad.</p>
       <p class="say">Take the first pair in the text, <code>t → h</code>.</p>
       <p class="our-text" data-pair="0"></p>
-      <p class="say">Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, Neo gave <code>h</code> only 13.3%. How wrong is that?</p>
+      <p class="say">Here the right answer is <code>h</code>. On <a class="xref" href="lesson4.html#3">the last page</a>, your model gave <code>h</code> only 13.3%. How wrong is that?</p>
       <div class="activity">
         <div class="do">Drag the chance for h. Try 90%, 50% and 1%.</div>
         <div class="loss-row"><span>chance for h</span><input type="range" class="ink" id="pRight" min="1" max="100" step="0.1" value="13.3" aria-label="Chance given to h"><output id="pRightOut">13.3%</output></div>
@@ -206,17 +206,17 @@
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
-      <p class="say">The less chance Neo gives the right answer, the bigger the <mark>loss</mark>. Give it 100% and the loss is 0.</p>
-      <p class="say" style="position:relative">The rule Neo uses: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <p class="say">The less chance your model gives the right answer, the bigger the <mark>loss</mark>. Give it 100% and the loss is 0.</p>
+      <p class="say" style="position:relative">The rule your model uses: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
       <div hidden id="logPeek"><b>🤔 What is log?</b>
         <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
         <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
       </div>
-      <p class="say">Neo does this for every pair in the text, all 46 of them. These are the first few, with Neo's real random scores:</p>
+      <p class="say">Your model does this for every pair in the text, all 46 of them. These are the first few, with its real random scores:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
-      <p class="say">One number for how bad all of Neo's guesses are.</p>
+      <p class="say">One number for how bad all of your model's guesses are.</p>
       <p class="hook">The goal is to make the loss small. But which of the 196 scores should change, and which way?</p>
     </section>
 
@@ -247,7 +247,7 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
-      <p class="say">Now you be the model. These are Neo's real random scores for row <code>t</code>.</p>
+      <p class="say">Now you fix the scores yourself. These are your model's real random scores for row <code>t</code>.</p>
       <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, “.” 1 out of 8.</p>
       <p class="our-text" data-after="t"></p>
       <div class="activity">
@@ -270,7 +270,7 @@
         <p style="margin:6px 0 0">Here all 8 pairs count, so each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. On the last page, with only the pair <code>t → h</code>, space was a wrong answer, so it went down.</p>
       </div>
       <p class="say"><code>loss.backward()</code> finds them for all 196 scores at once.</p>
-      <p class="hook">Doing this by hand for 196 scores would take forever. Let Neo do it.</p>
+      <p class="hook">Doing this by hand for 196 scores would take forever. Let your model do it.</p>
     </section>
 
     <!-- 7 -->
@@ -304,7 +304,7 @@
         <tr><td>Counting (<a class="xref" href="lesson3.html#3">Lesson 3</a>)</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
         <tr><td>Learning (300 steps)</td><td>0.374</td><td>0.124</td><td>0.499</td></tr>
       </table>
-      <p class="say">The same answer, and Neo never counted a single pair. Learning works.</p>
+      <p class="say">The same answer, and your model never counted a single pair. Learning works.</p>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -415,18 +415,18 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
-      <p class="hook">What Neo still can't do.</p>
+      <p class="hook">What your model still can't do.</p>
     </section>
 
     <!-- 10 -->
     <section class="part" data-title="Still one letter">
       <h2>Still one letter</h2>
-      <p class="say">Neo learned its numbers by itself. But it still looks at only the <b>last letter</b>.</p>
+      <p class="say">Your model learned its numbers by itself. But it still looks at only the <b>last letter</b>.</p>
       <p class="say">So it still writes words like “sathe”. To fix that, it must look further back, without the table exploding.</p>
       <p class="neo-say">I learned the same chances as counting, all by myself! Now I can find numbers without counting. Can I finally look further back?</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?</div>
+        <div class="big">Your model can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?</div>
         <div>Lesson 5 answers it. (Coming soon.)</div>
       </div>
       <p><button class="done-toggle" data-done="4">Mark lesson as done</button></p>
@@ -455,7 +455,7 @@ function bar(label, p, target) {
 
 // ---------- 3: softmax sliders ----------
 (function softmaxRow() {
-  // Neo's real random scores for row t; five of them can be dragged, the other 9 letters stay as they are
+  // The model's real random scores for row t; five of them can be dragged, the other 9 letters stay as they are
   const T = CHAR_TO_NUMBER["t"];
   const start = INIT_LESSON4[T].slice();
   const shown = [" ", ".", "h", "l", "d"].map(c => CHAR_TO_NUMBER[c]);
@@ -536,7 +536,7 @@ function bar(label, p, target) {
   s.oninput = render;
   addReset(s, () => { s.value = 13.3; render(); });
   render();
-  // The real loss of each pair in the text, with Neo's random starting scores
+  // The real loss of each pair in the text, with the model's random starting scores
   const losses = [];
   for (let i = 0; i < TEXT.length - 1; i++) {
     const row = INIT_LESSON4[CHAR_TO_NUMBER[TEXT[i]]], e = row.map(Math.exp);

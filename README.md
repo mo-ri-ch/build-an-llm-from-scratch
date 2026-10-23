@@ -60,7 +60,7 @@ Change the design there, and every course updates.
 ```
 index.html          home page and roadmap
 lessons/            one page per lesson
-assets/course.js    this course's lesson list, Neo and "our text" (settings for the shared design)
+assets/course.js    this course's lesson list, the model's sticky note and "our text" (settings for the shared design)
 assets/tinylm.js    the lesson models rewritten in JavaScript, so they run in the browser
 assets/traces/      the recorded step-by-step runs used by Step through
 assets/finalmodel.js + neo-final.json   the course's final model (a small transformer

@@ -11,10 +11,10 @@ const COURSE_LESSONS = [
     leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
   { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true,
     summary: "Count which character follows which, then generate text.",
-    leaves: "Counting can't look further back, and the smarter model's numbers can't be counted. How can Neo find numbers without counting?" },
+    leaves: "Counting can't look further back, and the smarter model's numbers can't be counted. How can your model find numbers without counting?" },
   { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
-    leaves: "Neo can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },
+    leaves: "Your model can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },
   { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: false,
     summary: "Three small tables vote on the next character.",
     leaves: "Votes can't understand combinations. Can a character carry meaning?" },
@@ -35,8 +35,8 @@ const COURSE_LESSONS = [
     leaves: null },
 ];
 
-// ---------- Neo: a little sticky note who learns to write ----------
-// <p class="neo-say">Hello!</p>  becomes Neo with a speech bubble.
+// ---------- Your model: a little sticky note who learns to write ----------
+// <p class="neo-say">Hello!</p>  becomes your model, with a speech bubble.
 const NEO_SVG = `
 <svg class="neo-face" viewBox="0 0 64 64" aria-hidden="true">
   <path d="M10 10 H50 L56 16 V54 H10 Z" class="neo-note" />
@@ -54,7 +54,7 @@ function setupNeo() {
     box.innerHTML = NEO_SVG;
     const bubble = document.createElement("div");
     bubble.className = "neo-bubble";
-    bubble.innerHTML = `<span class="neo-name">${p.dataset.name || "Neo"}</span>${p.innerHTML}`;
+    bubble.innerHTML = `<span class="neo-name">${p.dataset.name || "Your model"}</span>${p.innerHTML}`;
     box.appendChild(bubble);
     p.replaceWith(box);
   });
