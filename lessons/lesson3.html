@@ -649,6 +649,13 @@ function fillRowSelect(sel, chosen) {
       g.textAlign = "center"; g.fillText(show(CHARS[i]), ox + i * pitch + pitch / 2, oy - 20);
       g.textAlign = "right"; g.fillText(show(CHARS[i]), ox - 16, oy + i * pitch + pitch / 2);
     }
+    // faint lines around every box, like the cube's
+    g.strokeStyle = c.pencil; g.globalAlpha = 0.13; g.lineWidth = 1; g.beginPath();
+    for (let i = 0; i <= VOCAB; i++) {
+      g.moveTo(ox + i * pitch, oy); g.lineTo(ox + i * pitch, oy + side);
+      g.moveTo(ox, oy + i * pitch); g.lineTo(ox + side, oy + i * pitch);
+    }
+    g.stroke(); g.globalAlpha = 1;
     const r = pitch * 0.3;
     for (let row = 0; row < VOCAB; row++) for (let col = 0; col < VOCAB; col++) {
       const on = filledBoxes.has(CHARS[row] + CHARS[col]);
@@ -696,8 +703,28 @@ function fillRowSelect(sel, chosen) {
       fit();
       const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, CW, CH);
       g.translate(PAD, PAD);   // draw in the frame's own coordinates
+      // The 2,744 boxes: faint lines along every box border, in all three directions.
+      // Face-on, only the front layer's lines show (the others would lie on top of them); the rest fade in as you turn it.
+      {
+        const step = 2 / (VOCAB - 1), b0 = -1 - step / 2, Bd = 1 + step / 2;
+        const lines = (alpha, pick) => {
+          if (alpha <= 0) return;
+          g.strokeStyle = c.pencil; g.globalAlpha = alpha; g.lineWidth = 1; g.beginPath();
+          for (let i = 0; i <= VOCAB; i++) for (let j = 0; j <= VOCAB; j++) {
+            const u = b0 + i * step, v = b0 + j * step;
+            for (const [p1, p2, front] of [[[-Bd, u, v], [Bd, u, v], j === 0], [[u, -Bd, v], [u, Bd, v], j === 0], [[u, v, -Bd], [u, v, Bd], false]]) {
+              if (front !== pick) continue;
+              const q1 = project(...p1), q2 = project(...p2); g.moveTo(q1[0], q1[1]); g.lineTo(q2[0], q2[1]);
+            }
+          }
+          g.stroke(); g.globalAlpha = 1;
+        };
+        lines(0.13, true);            // the front layer: the flat table's lines
+        lines(0.13 * blend, false);   // every other layer, as depth appears
+      }
       // cube edges
-      const corners = []; for (const a of [-1.08, 1.08]) for (const b of [-1.08, 1.08]) for (const d of [-1.08, 1.08]) corners.push(project(a, b, d));
+      const B = 1 + 1 / (VOCAB - 1);   // the outer border of the boxes: half a box past the outer dots
+      const corners = []; for (const a of [-B, B]) for (const b of [-B, B]) for (const d of [-B, B]) corners.push(project(a, b, d));
       g.strokeStyle = c.pencil; g.globalAlpha = 0.55; g.lineWidth = 1.2;
       [[0,1],[0,2],[1,3],[2,3],[4,5],[4,6],[5,7],[6,7],[0,4],[1,5],[2,6],[3,7]].forEach(([i, j]) => { g.beginPath(); g.moveTo(corners[i][0], corners[i][1]); g.lineTo(corners[j][0], corners[j][1]); g.stroke(); });
       g.globalAlpha = 1;
@@ -723,7 +750,7 @@ function fillRowSelect(sel, chosen) {
       g.globalAlpha = 1;
       // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
-      const E = 1.08, o = project(-E, -E, -E), unit = 1 / scale;   // world size of one screen pixel (face-on)
+      const E = 1 + 1 / (VOCAB - 1), o = project(-E, -E, -E), unit = 1 / scale;   // world size of one screen pixel (face-on)
       const paint = (text, at, along, down, font, color) => {
         // draw text at a 3D point: its x runs "along", its y runs "down" (both 3D directions)
         const p0 = project(...at);
