@@ -76,15 +76,15 @@
   .sees .next-slot { width: 1.2em; height: 1.35em; border: 2px dashed var(--ink); border-radius: 4px; }
   .sees .next-label { font-family: var(--head); font-size: 0.8rem; color: var(--ink); line-height: 1.2; }
   .sees-note { font-size: 0.95rem; min-height: 1.5em; margin-bottom: 14px; }
-  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
-  .box-label { font-size: 0.85rem; color: var(--pencil); }
-  .box-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; margin-top: 4px; transition: color 0.2s; }
-  .box-num.huge { color: var(--redpen); }
-  .fill-label { margin: 14px 0 6px; font-size: 0.95rem; }
-  .fill-track { height: 22px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); overflow: hidden; }
-  .fill-bar { height: 100%; background: var(--good, #1E8F4E); transition: width 0.3s; min-width: 2px; }
-  @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
+  .grow-label { margin: 26px 0 8px; font-family: var(--head); font-size: 1.1rem; }
+  .grow { font-family: var(--mono); font-size: 1rem; line-height: 1.9; }
+  .grow .why { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.9rem; }
+  .grow .total { font-weight: 700; white-space: nowrap; }
+  .grow .total.huge { color: var(--redpen); }
+  .grow-example { margin-top: 6px; font-size: 0.95rem; }
+  .dots-label { margin: 26px 0 8px; font-size: 0.95rem; }
+  .dots { display: block; width: 100%; }
+  .dots-none { font-size: 0.95rem; color: var(--pencil); margin: 4px 0; }
     background: var(--ink); color: var(--paper); font-family: var(--head); font-size: 0.9rem; }
   .written .last { background: var(--highlight); color: #1A2440; }
 </style>
@@ -278,25 +278,18 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="do">Drag the slider. How many letters does Neo look back at?</div>
         <div class="look-row">
           <label for="lookBack">Neo looks back at</label>
-          <input type="range" id="lookBack" min="1" max="6" value="1">
+          <input type="range" class="ink" id="lookBack" min="1" max="6" value="1">
           <b id="lookN">1 letter</b>
         </div>
         <div class="sees">…<span id="seesBefore"></span><span id="seesText"></span><span class="next-box" title="The next letter Neo has to guess"><span class="next-slot"></span><span class="next-label">next</span></span></div>
         <div class="sees-note" id="seesNote"></div>
-        <div class="boxes">
-          <div class="box-card">
-            <div class="box-label">Boxes needed for our text (14 different characters)</div>
-            <div class="box-num" id="boxOurs"></div>
-          </div>
-          <div class="box-card">
-            <div class="box-label">For real books (about 100 different characters: a–z, A–Z, 0–9, punctuation)</div>
-            <div class="box-num" id="boxReal"></div>
-          </div>
-        </div>
-        <div class="fill-label" id="fillLabel"></div>
-        <div class="fill-track"><div class="fill-bar" id="fillBar"></div></div>
+        <div class="grow-label">The counting table Neo needs</div>
+        <div class="grow" id="grow"></div>
+        <div class="dots-label" id="dotsLabel"></div>
+        <canvas class="dots" id="dots" aria-label="One dot per box in the table; green dots are boxes our text fills"></canvas>
+        <p class="dots-none" id="dotsNone" hidden></p>
       </div>
-      <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays 0. Neo knows nothing about those.</p>
+      <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays empty.</p>
       <p class="say">There's a smarter kind of model that can look further back with far fewer boxes. You'll build it in <b>Lesson 5</b>.</p>
       <p class="note"><b>The catch:</b> that model's numbers can't be found by counting. So first, Neo needs a way to find numbers <b>without counting</b>. That's <a class="xref" href="lesson4.html#1">Lesson 4</a>.</p>
     
@@ -566,17 +559,57 @@ function fillRowSelect(sel, chosen) {
       ? "Neo sees only <b>t</b>. It doesn't know “sat” is finished, so it may add “he”."
       : n < 3 ? `Neo sees <b>${ending.slice(-n).replace(/ /g, "␣")}</b>. Still not the whole word.`
       : `Neo sees <b>${ending.slice(-n).replace(/ /g, "␣")}</b>: now it knows the word is “sat”, so a space comes next.`;
-    const ours = Math.pow(VOCAB, n + 1), real = Math.pow(100, n + 1), f = filled(n);
-    const a = document.getElementById("boxOurs"), b = document.getElementById("boxReal");
-    a.textContent = nice(ours); b.textContent = nice(real);
-    a.classList.toggle("huge", ours > 1e5); b.classList.toggle("huge", real > 1e6);
-    const pct = f / ours * 100;
-    document.getElementById("fillLabel").innerHTML =
-      `Our text fills only <b>${f}</b> of the ${nice(ours)} boxes (${pct >= 1 ? pct.toFixed(0) : pct.toPrecision(1)}%). The rest stay 0.`;
-    document.getElementById("fillBar").style.width = Math.max(pct, 0.3) + "%";
+    const rows = Math.pow(VOCAB, n), ours = rows * VOCAB, real = Math.pow(100, n + 1), f = filled(n);
+    const times = Array(n).fill(VOCAB).join(" × ");
+    const realPeek = `With real books (about 100 different characters: a–z, A–Z, 0–9, punctuation) it would be ${nice(real)} boxes.`;
+    const shown = ending.slice(-n).replace(/ /g, "␣");
+    document.getElementById("grow").innerHTML = n === 1
+      ? `14 rows × 14 next letters = <span class="total" data-peek="${realPeek}">196 boxes</span><br>` +
+        `<span class="why">One row for each letter Neo can see. It's <a class="xref" href="lesson3.html#2">the table you filled</a>.</span>` +
+        `<div class="grow-example">Example row: <b>${shown}</b> → ?</div>`
+      : `${nice(rows)} rows × 14 next letters = <span class="total${ours > 1e5 ? " huge" : ""}" data-peek="${realPeek}">${nice(ours)} boxes</span><br>` +
+        `<span class="why">One row for every ${n} letters Neo could see: <span style="white-space:nowrap">${times} = ${nice(rows)}</span> rows.</span>` +
+        `<div class="grow-example">Example row: <b>${shown}</b> → ?</div>`;
+    drawDots(n, ours, f);
+  }
+  // One dot per box. Green: a box our text fills (it saw that "last n letters → next letter" at least once)
+  function drawDots(n, ours, f) {
+    const canvas = document.getElementById("dots"), none = document.getElementById("dotsNone"), label = document.getElementById("dotsLabel");
+    label.innerHTML = `Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`;
+    if (n > 2) {
+      canvas.hidden = true; none.hidden = false;
+      none.textContent = `${nice(ours)} dots: too many to draw.`;
+      return;
+    }
+    canvas.hidden = false; none.hidden = true;
+    const css = getComputedStyle(document.body);
+    const empty = css.getPropertyValue("--grid").trim() || "#cfd6e6";
+    const green = css.getPropertyValue("--good").trim() || "#1E8F4E";
+    const box = canvas.parentElement, pad = getComputedStyle(box);
+    const width = box.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
+    const pitch = n === 1 ? Math.min(18, Math.floor(width / VOCAB)) : (width < 500 ? 6 : 7);
+    const cols = n === 1 ? VOCAB : Math.floor(width / pitch);
+    const rowsDrawn = Math.ceil(ours / cols);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = cols * pitch + "px"; canvas.style.height = rowsDrawn * pitch + "px";
+    canvas.width = cols * pitch * dpr; canvas.height = rowsDrawn * pitch * dpr;
+    const g = canvas.getContext("2d"); g.scale(dpr, dpr);
+    const hit = new Set();
+    for (let i = n; i < TEXT.length; i++) {
+      let row = 0;
+      for (const c of TEXT.slice(i - n, i)) row = row * VOCAB + CHAR_TO_NUMBER[c];
+      hit.add(row * VOCAB + CHAR_TO_NUMBER[TEXT[i]]);
+    }
+    const r = pitch * 0.32;
+    for (let k = 0; k < ours; k++) {
+      const x = (k % cols) * pitch + pitch / 2, y = Math.floor(k / cols) * pitch + pitch / 2;
+      g.fillStyle = hit.has(k) ? green : empty;
+      g.beginPath(); g.arc(x, y, hit.has(k) ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
+    }
   }
   slider.oninput = render;
   addReset(slider, () => { slider.value = 1; render(); });
+  window.addEventListener("resize", render);
   render();
 })();
 </script>
