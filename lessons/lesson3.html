@@ -654,25 +654,40 @@ function fillRowSelect(sel, chosen) {
   // ----- The cube: x = next letter, y = last letter, z = second-last letter -----
   const cube = (function () {
     const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
-    let yaw = -0.6, pitchA = 0.6, spin = false, running = false, frame = 0, size = 300, projected = [], seen = null;
+    let yaw = -0.6, pitchA = 0.6, spin = false, running = false, frame = 0, size = 300, W = 300, H = 300, projected = [], seen = null;
+    let scale = 100, offX = 150, offY = 150;   // set in fit(): the cube always fills the same frame as the flat table
     const show = c => c === " " ? "␣" : c;
     function project(x, y, z) {
       // centre the 14 positions around 0, then turn
       const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitchA), sp = Math.sin(pitchA);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const y1 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
-      const scale = size * 0.215, persp = 1 / (1 + z2 * 0.06);   // small enough that every corner stays inside, at any angle
-      return [size / 2 + x1 * scale * persp, size / 2 + y1 * scale * persp, z2];
+      const persp = 1 / (1 + z2 * 0.06);
+      return [offX + x1 * scale * persp, offY + y1 * scale * persp, z2];
     }
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
+    // Size the cube so it (with room for the axis names) fills the frame at the current angle
+    function fit() {
+      scale = 1; offX = 0; offY = 0;
+      let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+      for (const a of [-1.08, 1.08]) for (const bb of [-1.08, 1.08]) for (const d of [-1.08, 1.08]) {
+        const q = project(a, bb, d); l = Math.min(l, q[0]); r = Math.max(r, q[0]); t = Math.min(t, q[1]); b = Math.max(b, q[1]);
+      }
+      const m = 44;   // room for the names and small letters
+      scale = Math.min((W - 2 * m) / (r - l), (H - 2 * m) / (b - t));
+      offX = W / 2 - scale * (l + r) / 2; offY = H / 2 - scale * (t + b) / 2;
+    }
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
-      size = Math.min(440, innerWidth(canvas.parentElement.parentElement));
-      if (canvas.width !== Math.round(size * dpr)) {
-        canvas.style.width = size + "px"; canvas.style.height = size + "px";
-        canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
+      // The same frame as the flat 1-letter picture
+      const avail = innerWidth(canvas.parentElement.parentElement), pitch = Math.min(22, Math.floor((avail - 100) / VOCAB));
+      W = 92 + VOCAB * pitch + 8; H = 46 + VOCAB * pitch + 8; size = Math.min(W, H);
+      if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
+        canvas.style.width = W + "px"; canvas.style.height = H + "px";
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       }
-      const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, size, size);
+      fit();
+      const g = canvas.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
       // cube edges
       const corners = []; for (const a of [-1.08, 1.08]) for (const b of [-1.08, 1.08]) for (const d of [-1.08, 1.08]) corners.push(project(a, b, d));
       g.strokeStyle = c.pencil; g.globalAlpha = 0.55; g.lineWidth = 1.2;
@@ -694,7 +709,7 @@ function fillRowSelect(sel, chosen) {
       g.globalAlpha = 1;
       // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
-      const E = 1.08, o = project(-E, -E, -E), unit = 1 / (size * 0.215);   // world size of one screen pixel (face-on)
+      const E = 1.08, o = project(-E, -E, -E), unit = 1 / scale;   // world size of one screen pixel (face-on)
       const paint = (text, at, along, down, font, color) => {
         // draw text at a 3D point: its x runs "along", its y runs "down" (both 3D directions)
         const p0 = project(...at);
@@ -760,7 +775,7 @@ function fillRowSelect(sel, chosen) {
       tip.textContent = `${show(best.key[0])}${show(best.key[1])} → ${show(best.key[2])}: seen ${best.n} time${best.n === 1 ? "" : "s"}`;
       tip.hidden = false;
       const left = canvas.offsetLeft + best.px + 10, top = canvas.offsetTop + best.py - 30;
-      tip.style.left = Math.min(left, canvas.offsetLeft + size - tip.offsetWidth) + "px"; tip.style.top = Math.max(0, top) + "px";
+      tip.style.left = Math.min(left, canvas.offsetLeft + W - tip.offsetWidth) + "px"; tip.style.top = Math.max(0, top) + "px";
     }
     return { start, stop, redraw: () => { if (seen) draw(); } };
   })();
