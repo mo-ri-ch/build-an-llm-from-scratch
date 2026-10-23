@@ -609,17 +609,35 @@ function fillRowSelect(sel, chosen) {
     if (n === 2) { cube.start(); return; }
     cube.stop();
     if (n > 2) { none.textContent = `A square, then a cube… ${n} letters before plus the next one would need ${n + 1} directions. It can't be drawn.`; return; }
-    // 1 letter: the flat table
+    // 1 letter: the flat table, laid out like the one you filled: next letter across the top, last letter down the side
     const c = colors(), filledBoxes = counts(1);
-    const width = innerWidth(canvas.parentElement), pitch = Math.min(18, Math.floor(width / VOCAB)), side = VOCAB * pitch;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = side + "px"; canvas.style.height = side + "px"; canvas.width = side * dpr; canvas.height = side * dpr;
+    const left = 92, top = 46;   // room for the axes, their letters and names
+    const width = innerWidth(canvas.parentElement), pitch = Math.min(22, Math.floor((width - left - 8) / VOCAB)), side = VOCAB * pitch;
+    const W = left + side + 8, H = top + side + 8, dpr = window.devicePixelRatio || 1;
+    canvas.style.width = W + "px"; canvas.style.height = H + "px"; canvas.width = W * dpr; canvas.height = H * dpr;
     const g = canvas.getContext("2d"); g.scale(dpr, dpr);
-    const r = pitch * 0.32;
+    const ox = left, oy = top, show = ch => ch === " " ? "␣" : ch;
+    // bold axes with arrows
+    g.strokeStyle = c.ink; g.fillStyle = c.ink; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(ox - 6, oy - 6); g.lineTo(ox + side, oy - 6); g.stroke();
+    g.beginPath(); g.moveTo(ox + side + 6, oy - 6); g.lineTo(ox + side - 6, oy - 12); g.lineTo(ox + side - 6, oy); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(ox - 6, oy - 6); g.lineTo(ox - 6, oy + side); g.stroke();
+    g.beginPath(); g.moveTo(ox - 6, oy + side + 6); g.lineTo(ox - 12, oy + side - 6); g.lineTo(ox, oy + side - 6); g.closePath(); g.fill();
+    // axis names
+    g.font = `600 13px ${c.mono}`; g.textBaseline = "middle";
+    g.textAlign = "center"; g.fillText("next letter", ox + side / 2, 10);
+    g.save(); g.translate(16, oy + side / 2); g.rotate(-Math.PI / 2); g.fillText("last letter", 0, 0); g.restore();
+    // the 14 characters, small
+    g.font = `11px ${c.mono}`; g.fillStyle = c.pencil;
+    for (let i = 0; i < VOCAB; i++) {
+      g.textAlign = "center"; g.fillText(show(CHARS[i]), ox + i * pitch + pitch / 2, oy - 20);
+      g.textAlign = "right"; g.fillText(show(CHARS[i]), ox - 16, oy + i * pitch + pitch / 2);
+    }
+    const r = pitch * 0.3;
     for (let row = 0; row < VOCAB; row++) for (let col = 0; col < VOCAB; col++) {
       const on = filledBoxes.has(CHARS[row] + CHARS[col]);
       g.fillStyle = on ? c.green : c.empty;
-      g.beginPath(); g.arc(col * pitch + pitch / 2, row * pitch + pitch / 2, on ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(ox + col * pitch + pitch / 2, oy + row * pitch + pitch / 2, on ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
     }
   }
 
@@ -652,29 +670,37 @@ function fillRowSelect(sel, chosen) {
       g.globalAlpha = 1;
       // Three axes from one corner, drawn as arrows, each name written right along its arrow
       const centre = project(0, 0, 0), E = 1.08;
-      const axis = (to, text) => {
-        const p1 = project(-E, E, -E), p2 = project(...to);
+      const axis = (to, text, along) => {
+        const p1 = project(-E, -E, -E), p2 = project(...to);
         const dx = p2[0] - p1[0], dy = p2[1] - p1[1], len = Math.hypot(dx, dy) || 1;
         // the arrow
-        g.strokeStyle = c.ink; g.fillStyle = c.ink; g.globalAlpha = 0.85; g.lineWidth = 1.8;
+        g.strokeStyle = c.ink; g.fillStyle = c.ink; g.globalAlpha = 1; g.lineWidth = 3;
         g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); g.stroke();
         const ux = dx / len, uy = dy / len;
-        g.beginPath(); g.moveTo(p2[0], p2[1]); g.lineTo(p2[0] - ux * 9 - uy * 4.5, p2[1] - uy * 9 + ux * 4.5); g.lineTo(p2[0] - ux * 9 + uy * 4.5, p2[1] - uy * 9 - ux * 4.5); g.closePath(); g.fill();
+        g.beginPath(); g.moveTo(p2[0], p2[1]); g.lineTo(p2[0] - ux * 12 - uy * 6, p2[1] - uy * 12 + ux * 6); g.lineTo(p2[0] - ux * 12 + uy * 6, p2[1] - uy * 12 - ux * 6); g.closePath(); g.fill();
         g.globalAlpha = 1;
         if (len < 40) return;   // the axis points straight at you: no room for its name
-        // the name: parallel to the arrow, on the side away from the cube
+        // the side away from the cube
         let nx = -uy, ny = ux;
         const mx = (p1[0] + p2[0]) / 2, my = (p1[1] + p2[1]) / 2;
         if ((mx - centre[0]) * nx + (my - centre[1]) * ny < 0) { nx = -nx; ny = -ny; }
+        // the 14 characters, small, beside the arrow at each row of dots
+        if (len > 120) {
+          g.font = `11px ${c.mono}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = c.pencil;
+          for (let i = 0; i < VOCAB; i++) {
+            const q = project(...along(pos(i)));
+            g.fillText(show(CHARS[i]), q[0] + nx * 11, q[1] + ny * 11);
+          }
+        }
         let angle = Math.atan2(dy, dx);
         if (angle > Math.PI / 2) angle -= Math.PI; if (angle < -Math.PI / 2) angle += Math.PI;   // never upside down
-        g.save(); g.translate(mx + nx * 14, my + ny * 14); g.rotate(angle);
+        g.save(); g.translate(mx + nx * (len > 120 ? 28 : 14), my + ny * (len > 120 ? 28 : 14)); g.rotate(angle);
         g.font = `600 13px ${c.mono}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = c.ink;
         g.fillText(text, 0, 0); g.restore();
       };
-      axis([E, E, -E], "next letter");
-      axis([-E, -E, -E], "last letter");
-      axis([-E, E, E], "first letter");
+      axis([E, -E, -E], "next letter", t => [t, -E, -E]);
+      axis([-E, E, -E], "last letter", t => [-E, t, -E]);
+      axis([-E, -E, E], "first letter", t => [-E, -E, t]);
       // dots, back to front
       projected = [];
       for (let z = 0; z < VOCAB; z++) for (let y = 0; y < VOCAB; y++) for (let x = 0; x < VOCAB; x++) {
