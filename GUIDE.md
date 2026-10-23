@@ -20,7 +20,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 1. **The problem:** uses only things the student already knows. Recaps the previous lesson's closing question (linked to that page) and shows something familiar that doesn't work yet. No new words, no solution.
 2. Teaching pages, each with an activity, a reason at the top and a closing line.
 3. **The code:** guess-first, ▶ Run (terminal), 👣 Step through, Python-word cards, Run in Colab.
-4. **Check yourself:** quiz only, on what was taught (never test something not taught).
+4. **Lesson test:** one thought-provoking question per key idea (see the shared GUIDELINES.md, "Lesson tests"). Only what was taught.
 5. **Last page:** the problem the next lesson solves, the model's line, the closing question with the "Building the LLM" path, Mark lesson as done.
 - The closing question must point to exactly what the next lesson delivers. Don't give away the next lesson's solution.
 - Mentions of other lessons link to the exact page (`<a class="xref" href="lesson3.html#3">`). Unbuilt lessons stay plain text.

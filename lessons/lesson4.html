@@ -412,38 +412,83 @@ Step 250 loss: 0.709
     </section>
 
     <!-- 9 -->
-    <section class="part" data-title="Check yourself">
-      <h2>Check yourself</h2>
-
-      <div class="quiz" data-right="Right. Positive means raising it makes the loss worse.">
-        <div class="q">A gradient is <code>+0.009</code>. Will the score go up or down?</div>
-        <div class="options">
-          <button data-why="Positive means raising it hurts. So it goes the other way.">Up</button>
-          <button data-right>Down</button>
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 4 test</h2>
+      <p class="say">8 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <div class="test" data-test="4">
+        <div class="quiz" data-page="lesson4.html#2" data-topic="Start random" data-right="Right. It knows the vocabulary (all 14), not which ones follow t. Every one gets a random score.">
+          <div class="q"><small>1. Starting point</small>Before any learning, which characters does your model have a score for after <code>t</code>?</div>
+          <div class="options">
+            <button data-why="No. It doesn't know yet which letters come after t. That's what it has to learn.">Only h, space and “.”, the ones that really come after t</button>
+            <button data-right>All 14 characters</button>
+            <button data-why="It doesn't start empty: it starts with random scores.">None. It starts empty.</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Right. Without it, PyTorch can't find gradients, so your model can't learn.">
-        <div class="q">What if we remove <code>requires_grad=True</code>?</div>
-        <div class="options">
-          <button data-why="It doesn't just slow down. backward() can't run at all.">It learns slower</button>
-          <button data-right>backward() gives an error</button>
-          <button data-why="Something does change. Without it, PyTorch can't find gradients.">Nothing changes</button>
+        <div class="quiz" data-page="lesson4.html#3" data-topic="Scores into chances" data-right="Right. The chances always add up to 100%. If h takes more, the others get less, even though their scores didn't move.">
+          <div class="q"><small>2. Predict</small>You raise <b>h's score</b>. Space's score stays the same. What happens to <b>space's chance</b>?</div>
+          <div class="options">
+            <button data-why="Its score didn't change, but its chance did. Think: what do the chances always add up to?">Stays the same</button>
+            <button data-right>Goes down</button>
+            <button data-why="Raising h takes chance away from the others, it doesn't give them more.">Goes up</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Yes. Lesson 5's smarter model has numbers that counting can't fill, but learning can. Here we checked that learning finds the right answer.">
-        <div class="q">Learning gave the same answer as counting. So why learn?</div>
-        <div class="options">
-          <button data-why="It's actually slower here: it goes through the text 300 times.">It's faster</button>
-          <button data-right>It can fill numbers that counting can't (Lesson 5)</button>
-          <button data-why="Both gave the same answer here.">It's more accurate</button>
+        <div class="quiz" data-page="lesson4.html#4" data-topic="How wrong?" data-right="Right. The less chance the right answer gets, the bigger the loss.">
+          <div class="q"><small>3. Compare</small>For the pair <code>t → h</code>, model A gives h <b>80%</b> and model B gives h <b>20%</b>. Which one has the bigger loss?</div>
+          <div class="options">
+            <button data-why="A gave the right answer more chance, so it's less wrong.">A</button>
+            <button data-right>B</button>
+            <button data-why="The loss depends on the chance given to the right answer, and those are different.">The same</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
+        <div class="quiz" data-page="lesson4.html#4" data-topic="How wrong?" data-right="Right. Each guess is checked against the letter that really comes next in the text.">
+          <div class="q"><small>4. The truth</small>Where does the loss get the right answer from?</div>
+          <div class="options">
+            <button data-why="Learning never uses the counts. That's the point of it.">From the counts in Lesson 3</button>
+            <button data-right>From the text: the letter that really comes next</button>
+            <button data-why="The highest score is just your model's guess. It can be wrong.">From the letter with the highest score</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. A wrong answer's gradient is its chance: +0.6. Positive means down, and 0.6 is far from 0, so it moves a lot.">
+          <div class="q"><small>5. Read a gradient</small>For the pair <code>t → h</code>, your model gives “.” a chance of <b>0.6</b>. What is its gradient, and what happens to its score?</div>
+          <div class="options">
+            <button data-why="“.” is a wrong answer here, so its gradient is its chance, which is positive.">−0.6, it goes up</button>
+            <button data-right>+0.6, it goes down a lot</button>
+            <button data-why="Positive means the score goes down, not up.">+0.6, it goes up</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. Gradient = 0.95 − 1 = −0.05, very close to 0. Almost right, so it barely moves.">
+          <div class="q"><small>6. Almost right</small>Your model already gives the right answer <b>95%</b>. How much will that answer's score move?</div>
+          <div class="options">
+            <button data-why="Work out the gradient: chance − 1 = 0.95 − 1. Is that far from 0?">A lot</button>
+            <button data-right>Only a little</button>
+            <button data-why="It's not 100% yet, so there is still a little to fix.">Not at all</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson4.html#7" data-topic="Let it learn" data-right="Right. New score = old score − learning rate × gradient = 2.0 − 10 × 0.3 = 2.0 − 3.0 = −1.0.">
+          <div class="q"><small>7. Work it out</small>A score is <b>2.0</b>, its gradient is <b>+0.3</b>, and the learning rate is <b>10</b>. What is the new score?</div>
+          <div class="options">
+            <button data-why="You forgot the learning rate: the gradient is multiplied by 10 first.">1.7</button>
+            <button data-right>−1.0</button>
+            <button data-why="The gradient is taken away, not added.">5.0</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson4.html#7" data-topic="Let it learn" data-right="Right. Learning took 300 passes, counting took 1. We learn because Lesson 5's numbers can't be filled by counting.">
+          <div class="q"><small>8. Spot the mistake</small>A friend says: <i>“Learning is better than counting because it's faster.”</i> What's wrong?</div>
+          <div class="options">
+            <button data-why="Compare the effort: counting needed 1 pass through the text, learning needed 300.">Nothing, that's right</button>
+            <button data-right>Learning is slower here. Its value is that it works where counting can't.</button>
+            <button data-why="Both ended with the same chances: 0.375, 0.125, 0.500.">Learning gives a different answer from counting</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
       </div>
-
       <p class="hook">What your model still can't do.</p>
     </section>
 
