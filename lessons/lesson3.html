@@ -644,7 +644,7 @@ function fillRowSelect(sel, chosen) {
   // ----- The cube: x = next letter, y = last letter, z = second-last letter -----
   const cube = (function () {
     const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
-    let yaw = -0.6, pitchA = 0.45, spin = true, running = false, frame = 0, size = 300, projected = [], seen = null;
+    let yaw = -0.6, pitchA = 0.45, spin = false, running = false, frame = 0, size = 300, projected = [], seen = null;
     const show = c => c === " " ? "␣" : c;
     function project(x, y, z) {
       // centre the 14 positions around 0, then turn
