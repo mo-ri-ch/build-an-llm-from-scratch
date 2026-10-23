@@ -304,6 +304,13 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <p class="dots-count" id="dotsCount"></p>
       </div>
       <p class="say">Looking further back makes the table <b>explode</b>, and almost every box stays empty.</p>
+      <p class="hook">So what can Neo do instead?</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="part" data-title="What now?">
+      <h2>What now?</h2>
+      <p class="say">Counting needs a box for every combination, and almost all of them stay empty.</p>
       <p class="say">There's a smarter kind of model that can look further back with far fewer boxes. You'll build it in <b>Lesson 5</b>.</p>
       <p class="note"><b>The catch:</b> that model's numbers can't be found by counting. So first, Neo needs a way to find numbers <b>without counting</b>. That's <a class="xref" href="lesson4.html#1">Lesson 4</a>.</p>
     
@@ -576,14 +583,11 @@ function fillRowSelect(sel, chosen) {
     const rows = Math.pow(VOCAB, n), ours = rows * VOCAB, real = Math.pow(100, n + 1), f = filled(n);
     const times = Array(n).fill(VOCAB).join(" × ");
     const realPeek = `With real books (about 100 different characters: a–z, A–Z, 0–9, punctuation) it would be ${nice(real)} boxes.`;
-    const shown = ending.slice(-n).replace(/ /g, "␣");
     document.getElementById("grow").innerHTML = n === 1
       ? `14 rows × 14 next letters = <span class="total" data-peek="${realPeek}">196 boxes</span><br>` +
-        `<span class="why">One row for each letter Neo can see. It's <a class="xref" href="lesson3.html#2">the table you filled</a>.</span>` +
-        `<div class="grow-example">Example row: <b>${shown}</b> → ?</div>`
+        `<span class="why">One row for each letter Neo can see. It's <a class="xref" href="lesson3.html#2">the table you filled</a>.</span>`
       : `${nice(rows)} rows × 14 next letters = <span class="total${ours > 1e5 ? " huge" : ""}" data-peek="${realPeek}">${nice(ours)} boxes</span><br>` +
-        `<span class="why">One row for every ${n} letters Neo could see: <span style="white-space:nowrap">${times} = ${nice(rows)}</span> rows.</span>` +
-        `<div class="grow-example">Example row: <b>${shown}</b> → ?</div>`;
+        `<span class="why">One row for every ${n} letters Neo could see: <span style="white-space:nowrap">${times} = ${nice(rows)}</span> rows.</span>`;
     drawDots(n, ours, f);
   }
   // One dot per box. Green: a box our text fills (it saw that "last n letters → next letter" at least once).
