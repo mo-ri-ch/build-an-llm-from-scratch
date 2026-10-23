@@ -11,6 +11,8 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - One training text: `the cat sat on the mat. the dog sat on the log.` from Lesson 2 onward (14 characters, 46 pairs).
 - **Same real numbers everywhere.** A number shown on one page (e.g. the model gives h 13.3%, loss 2.02) must match every other page that uses it. Say where it came from ("on the last page…"), and state facts exactly ("the first pair, t → h", not "after t comes h").
 - Don't show the same thing twice (e.g. a slider and a table of the same values). Make averages and totals visible (show a few real items, then the result).
+- **Never show part of something without saying so.** If a table or activity shows only some characters (5 of 14), say where the rest are ("the other 9 letters") so the student never thinks the model only knows those.
+- **Explain each idea where it first appears,** not a page later (e.g. why a negative gradient means "up").
 - Simple code style: `char_to_number`, plain loops, no `zip`, outputs as comments.
 
 ## Lesson structure (same in every lesson)
