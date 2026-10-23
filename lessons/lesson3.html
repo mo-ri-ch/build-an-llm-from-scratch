@@ -572,39 +572,53 @@ function fillRowSelect(sel, chosen) {
         `<div class="grow-example">Example row: <b>${shown}</b> → ?</div>`;
     drawDots(n, ours, f);
   }
-  // One dot per box. Green: a box our text fills (it saw that "last n letters → next letter" at least once)
+  // One dot per box. Green: a box our text fills (it saw that "last n letters → next letter" at least once).
+  // 1 letter: the table you filled. 2 letters: 14 copies of that table, one for each first letter.
   function drawDots(n, ours, f) {
     const canvas = document.getElementById("dots"), none = document.getElementById("dotsNone"), label = document.getElementById("dotsLabel");
-    label.innerHTML = `Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`;
+    label.innerHTML = n === 2
+      ? `That's <b>14 copies</b> of the table you filled: one for each first letter (a, c, t, …). Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
+      : `Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`;
     if (n > 2) {
       canvas.hidden = true; none.hidden = false;
-      none.textContent = `${nice(ours)} dots: too many to draw.`;
+      none.textContent = `That's ${nice(ours / 196)} copies of the table you filled: too many to draw.`;
       return;
     }
     canvas.hidden = false; none.hidden = true;
     const css = getComputedStyle(document.body);
     const empty = css.getPropertyValue("--grid").trim() || "#cfd6e6";
     const green = css.getPropertyValue("--good").trim() || "#1E8F4E";
+    const ink = css.getPropertyValue("--pencil").trim() || "#626A7E";
     const box = canvas.parentElement, pad = getComputedStyle(box);
     const width = box.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight);
-    const pitch = n === 1 ? Math.min(18, Math.floor(width / VOCAB)) : (width < 500 ? 6 : 7);
-    const cols = n === 1 ? VOCAB : Math.floor(width / pitch);
-    const rowsDrawn = Math.ceil(ours / cols);
-    const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = cols * pitch + "px"; canvas.style.height = rowsDrawn * pitch + "px";
-    canvas.width = cols * pitch * dpr; canvas.height = rowsDrawn * pitch * dpr;
-    const g = canvas.getContext("2d"); g.scale(dpr, dpr);
+    // Which boxes our text fills: table = first letter (only for 2 letters), row = last letter, column = next letter
     const hit = new Set();
     for (let i = n; i < TEXT.length; i++) {
-      let row = 0;
-      for (const c of TEXT.slice(i - n, i)) row = row * VOCAB + CHAR_TO_NUMBER[c];
-      hit.add(row * VOCAB + CHAR_TO_NUMBER[TEXT[i]]);
+      const table = n === 2 ? CHAR_TO_NUMBER[TEXT[i - 2]] : 0;
+      hit.add(table + ":" + CHAR_TO_NUMBER[TEXT[i - 1]] + ":" + CHAR_TO_NUMBER[TEXT[i]]);
     }
+    const tables = n === 2 ? VOCAB : 1;
+    const pitch = n === 1 ? Math.min(18, Math.floor(width / VOCAB)) : (width < 500 ? 5 : 7);
+    const side = VOCAB * pitch, gap = n === 1 ? 0 : (width < 500 ? 10 : 14), labelH = n === 1 ? 0 : 18;
+    const perRow = Math.max(1, Math.floor((width + gap) / (side + gap)));
+    const lines = Math.ceil(tables / perRow);
+    const W = n === 1 ? side : perRow * (side + gap) - gap, H = lines * (side + labelH + gap) - gap;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = W + "px"; canvas.style.height = H + "px";
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const g = canvas.getContext("2d"); g.scale(dpr, dpr);
     const r = pitch * 0.32;
-    for (let k = 0; k < ours; k++) {
-      const x = (k % cols) * pitch + pitch / 2, y = Math.floor(k / cols) * pitch + pitch / 2;
-      g.fillStyle = hit.has(k) ? green : empty;
-      g.beginPath(); g.arc(x, y, hit.has(k) ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
+    for (let t = 0; t < tables; t++) {
+      const ox = (t % perRow) * (side + gap), oy = Math.floor(t / perRow) * (side + labelH + gap);
+      if (labelH) {
+        g.fillStyle = ink; g.font = `12px ${css.getPropertyValue("--mono").trim() || "monospace"}`; g.textBaseline = "top";
+        g.fillText(`${CHARS[t] === " " ? "␣" : CHARS[t]} + ?`, ox, oy + 1);
+      }
+      for (let row = 0; row < VOCAB; row++) for (let col = 0; col < VOCAB; col++) {
+        const on = hit.has(t + ":" + row + ":" + col);
+        g.fillStyle = on ? green : empty;
+        g.beginPath(); g.arc(ox + col * pitch + pitch / 2, oy + labelH + row * pitch + pitch / 2, on ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
+      }
     }
   }
   slider.oninput = render;
