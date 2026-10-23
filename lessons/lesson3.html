@@ -223,7 +223,8 @@ for step in range(40):
     current = picked.item()
     output = output + number_to_char[current]
 print(output)</code></pre>
-      <div class="run-area">
+      <div class="run-area" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What do sum(dim=1, keepdim=True) and multinomial do?">🤔</button>
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
         <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out"><span class="prompt">$ python lesson3.py</span>
 ' ' 0.375
@@ -231,11 +232,11 @@ print(output)</code></pre>
 'h' 0.5
 t on dog mat mat. sathe log the mat cat t</pre></div>
       </div>
-      <details class="unclear">
-        <summary>What do <code>sum(dim=1, keepdim=True)</code> and <code>multinomial</code> mean?</summary>
-        <p><code>dim=1</code> adds up across each row. <code>keepdim=True</code> keeps one total per row, so each row is divided by its own total.</p>
-        <p><code>torch.multinomial(chances, num_samples=1)</code> is the weighted wheel. It picks 1 position, where bigger chances are picked more often.</p>
-      </details>
+      <div hidden id="codePeek"><b>🤔 What do <code>sum(dim=1, keepdim=True)</code> and <code>multinomial</code> do?</b>
+        <p style="margin:8px 0 0"><code>sum(dim=1)</code> adds up each <b>row</b>. Row <code>t</code>: 3 + 1 + 4 = 8.</p>
+        <p style="margin:6px 0 0"><code>keepdim=True</code> keeps those totals as a column, one per row, so each row is divided by its own total: <span style="white-space:nowrap">3 ÷ 8,</span> <span style="white-space:nowrap">1 ÷ 8,</span> <span style="white-space:nowrap">4 ÷ 8.</span></p>
+        <p style="margin:6px 0 0"><code>multinomial</code> is the weighted wheel: it picks 1 character, and bigger chances get picked more often.</p>
+      </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson3.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
       </p>
