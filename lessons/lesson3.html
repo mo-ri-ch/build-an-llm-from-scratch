@@ -657,7 +657,7 @@ function fillRowSelect(sel, chosen) {
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
-      size = Math.min(620, innerWidth(canvas.parentElement.parentElement));
+      size = Math.min(480, innerWidth(canvas.parentElement.parentElement));
       if (canvas.width !== Math.round(size * dpr)) {
         canvas.style.width = size + "px"; canvas.style.height = size + "px";
         canvas.width = Math.round(size * dpr); canvas.height = Math.round(size * dpr);
