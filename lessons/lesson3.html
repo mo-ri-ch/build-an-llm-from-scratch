@@ -628,7 +628,7 @@ function fillRowSelect(sel, chosen) {
     // 1 letter: the flat table, laid out like the one you filled: next letter across the top, the last letter down the side
     const c = colors(), filledBoxes = counts(1);
     const left = 92, top = 46;   // room for the axes, their letters and names
-    const width = innerWidth(canvas.parentElement), pitch = Math.min(22, Math.floor((width - left - 8) / VOCAB)), side = VOCAB * pitch;
+    const width = innerWidth(canvas.parentElement), pitch = Math.max(6, Math.min(22, Math.floor((width - left - 8) / VOCAB))), side = VOCAB * pitch;
     const W = left + side + 8, H = top + side + 8, dpr = window.devicePixelRatio || 1;
     canvas.style.width = W + "px"; canvas.style.height = H + "px"; canvas.width = W * dpr; canvas.height = H * dpr;
     const g = canvas.getContext("2d"); g.scale(dpr, dpr);
@@ -691,7 +691,7 @@ function fillRowSelect(sel, chosen) {
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
       // The same frame as the flat 1-letter picture
-      const avail = innerWidth(canvas.parentElement.parentElement), pitch = Math.min(22, Math.floor((avail - 100) / VOCAB));
+      const avail = innerWidth(canvas.parentElement.parentElement), pitch = Math.max(6, Math.min(22, Math.floor((avail - 100) / VOCAB)));
       W = 92 + VOCAB * pitch + 8; H = 46 + VOCAB * pitch + 8; size = Math.min(W, H);
       PAD = Math.round(W * 0.35);
       box.style.width = W + "px"; box.style.height = H + "px"; room();
