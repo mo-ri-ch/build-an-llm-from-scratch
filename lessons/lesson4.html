@@ -145,11 +145,12 @@
       <div class="table-scroll"><table class="plain cmp all14">
         <tr><th>after t</th><th title="space">␣</th><th>.</th><th>a</th><th>c</th><th>d</th><th>e</th><th>g</th><th>h</th><th>l</th><th>m</th><th>n</th><th>o</th><th>s</th><th>t</th></tr>
         <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td><b>3</b></td><td><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b>4</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-        <tr><td>Your model's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
+        <tr><td>Random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
       </table></div>
       <p class="say">Your model has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>.</p>
       <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
-      <div class="vs">
+      <div class="vs" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="effortPeek" aria-label="Isn't this more work than counting?">🤔</button>
         <div class="vs-card">
           <div class="vs-title">Counting <small>(<a class="xref" href="lesson3.html#2">Lesson 3</a>)</small></div>
           <p>Read the text. Write each count in its box: <code>t → h</code> seen 4 times → <b>4</b>.</p>
@@ -157,9 +158,14 @@
         </div>
         <div class="vs-card learn">
           <div class="vs-title">Learning <small>(this lesson)</small></div>
-          <p>Start with random numbers. Guess, see how wrong, fix them a little. Repeat thousands of times.</p>
+          <p>Start with random numbers. Guess, see how wrong, fix them a little. Repeat many times.</p>
           <p class="vs-good">Works for any numbers, even ones that can't be counted.</p>
         </div>
+      </div>
+      <div hidden id="effortPeek"><b>🤔 Isn't this more work than counting?</b>
+        <p style="margin:8px 0 0">Yes. Counting reads the text once. Learning goes through all 46 pairs, fixes every score a little, and repeats that <b>300 times</b>.</p>
+        <p style="margin:6px 0 0">For this small table, counting is quicker. But the smarter model in Lesson 5 has numbers that can't be counted, and learning still works there.</p>
+        <p style="margin:6px 0 0">Here we can check it: learning ends with the same chances as counting.</p>
       </div>
       <p class="say">Learning repeats 4 steps:</p>
       <ol class="loop">
