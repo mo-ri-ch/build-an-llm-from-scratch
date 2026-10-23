@@ -668,49 +668,41 @@ function fillRowSelect(sel, chosen) {
       g.strokeStyle = c.pencil; g.globalAlpha = 0.55; g.lineWidth = 1.2;
       [[0,1],[0,2],[1,3],[2,3],[4,5],[4,6],[5,7],[6,7],[0,4],[1,5],[2,6],[3,7]].forEach(([i, j]) => { g.beginPath(); g.moveTo(corners[i][0], corners[i][1]); g.lineTo(corners[j][0], corners[j][1]); g.stroke(); });
       g.globalAlpha = 1;
-      // Three axes from one corner, drawn as arrows. Each name sits just past its arrow's tip, along the arrow,
-      // so it always stays with its own axis. The small letters show only when the axis has room.
-      const centre = project(0, 0, 0), E = 1.08, o = project(-E, -E, -E);
+      // Three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
+      // next to their edge, so they turn with the cube like everything else.
+      const E = 1.08, o = project(-E, -E, -E), unit = 1 / (size * 0.165);   // world size of one screen pixel (face-on)
+      const paint = (text, at, along, down, font, color) => {
+        // draw text at a 3D point: its x runs "along", its y runs "down" (both 3D directions)
+        const p0 = project(...at);
+        const px = project(at[0] + along[0] * unit, at[1] + along[1] * unit, at[2] + along[2] * unit);
+        const py = project(at[0] + down[0] * unit, at[1] + down[1] * unit, at[2] + down[2] * unit);
+        const dpr = window.devicePixelRatio || 1;
+        g.save();
+        g.setTransform(dpr * (px[0] - p0[0]), dpr * (px[1] - p0[1]), dpr * (py[0] - p0[0]), dpr * (py[1] - p0[1]), dpr * p0[0], dpr * p0[1]);
+        g.font = font; g.fillStyle = color; g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText(text, 0, 0); g.restore();
+      };
       const axes = [
-        { to: [E, -E, -E], text: "next letter", along: t => [t, -E, -E] },
-        { to: [-E, E, -E], text: "last letter", along: t => [-E, t, -E] },
-        { to: [-E, -E, E], text: "second-last letter", along: t => [-E, -E, t] },
-      ].map(a => {
-        const p2 = project(...a.to), dx = p2[0] - o[0], dy = p2[1] - o[1], len = Math.hypot(dx, dy) || 1;
-        return { ...a, p2, len, ux: dx / len, uy: dy / len };
-      });
-      // An axis that lies almost on top of a longer one gets no small letters (they would pile up)
+        // next letter: along the top front edge; writing sits above it
+        { to: [E, -E, -E], text: "next letter", along: [1, 0, 0], down: [0, 1, 0], at: t => [t, -E, -E], out: [0, -1, 0] },
+        // last letter: down the left front edge; writing sits to its left, reading bottom to top
+        { to: [-E, E, -E], text: "last letter", along: [0, -1, 0], down: [1, 0, 0], at: t => [-E, t, -E], out: [-1, 0, 0] },
+        // second-last letter: along the top left edge, going back; writing sits to its left, on the top face
+        { to: [-E, -E, E], text: "second-last letter", along: [0, 0, 1], down: [1, 0, 0], at: t => [-E, -E, t], out: [-1, 0, 0] },
+      ];
       axes.forEach(a => {
-        a.crowded = axes.some(b => b !== a && b.len >= a.len && Math.abs(a.ux * b.ux + a.uy * b.uy) > 0.94);
-      });
-      axes.forEach(a => {
-        const { p2, len, ux, uy } = a;
+        const p2 = project(...a.to), dx = p2[0] - o[0], dy = p2[1] - o[1], len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
         g.strokeStyle = c.ink; g.fillStyle = c.ink; g.globalAlpha = 1; g.lineWidth = 3;
         g.beginPath(); g.moveTo(o[0], o[1]); g.lineTo(p2[0], p2[1]); g.stroke();
         g.beginPath(); g.moveTo(p2[0], p2[1]); g.lineTo(p2[0] - ux * 12 - uy * 6, p2[1] - uy * 12 + ux * 6); g.lineTo(p2[0] - ux * 12 + uy * 6, p2[1] - uy * 12 - ux * 6); g.closePath(); g.fill();
-        if (len < 30) return;   // pointing straight at you
-        // small letters, on the side away from the cube
-        let nx = -uy, ny = ux;
-        const mx = (o[0] + p2[0]) / 2, my = (o[1] + p2[1]) / 2;
-        if ((mx - centre[0]) * nx + (my - centre[1]) * ny < 0) { nx = -nx; ny = -ny; }
-        if (len > 120 && !a.crowded) {
-          g.font = `11px ${c.mono}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = c.pencil;
-          for (let i = 0; i < VOCAB; i++) { const q = project(...a.along(pos(i))); g.fillText(show(CHARS[i]), q[0] + nx * 11, q[1] + ny * 11); }
+        const off = d => a.at(0).map((v, k) => v + a.out[k] * d);
+        // the 14 characters, small, at each row of dots
+        for (let i = 0; i < VOCAB; i++) {
+          const q = a.at(pos(i)).map((v, k) => v + a.out[k] * 0.09);
+          paint(show(CHARS[i]), q, a.along, a.down, `11px ${c.mono}`, c.pencil);
         }
-        // the name, just past the tip, running along the arrow (never upside down)
-        g.font = `600 13px ${c.mono}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = c.ink;
-        const half = g.measureText(a.text).width / 2;
-        let tx = p2[0] + ux * (half + 10), ty = p2[1] + uy * (half + 10);
-        let angle = Math.atan2(uy, ux);
-        if (angle > Math.PI / 2) angle -= Math.PI; if (angle < -Math.PI / 2) angle += Math.PI;
-        // no room past the tip (near the picture's edge)? Then write it beside the arrow, just before the tip
-        const limX = Math.abs(Math.cos(angle)) * half + 2, limY = Math.abs(Math.sin(angle)) * half + 2;
-        if (!a.crowded && (tx < limX || tx > size - limX || ty < limY || ty > size - limY)) {
-          const side = a.crowded || !(len > 120) ? 14 : 30;   // past the small letters, if they're shown
-          tx = p2[0] - ux * (half + 16) + nx * side; ty = p2[1] - uy * (half + 16) + ny * side;
-        }
-        tx = Math.max(limX, Math.min(size - limX, tx)); ty = Math.max(limY, Math.min(size - limY, ty));
-        g.save(); g.translate(tx, ty); g.rotate(angle); g.fillText(a.text, 0, 0); g.restore();
+        // the name, a little further out, in the middle of the edge
+        paint(a.text, off(0.26), a.along, a.down, `600 13px ${c.mono}`, c.ink);
       });
       // dots, back to front
       projected = [];
