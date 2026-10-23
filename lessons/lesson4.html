@@ -331,7 +331,9 @@
         <tr><td>Counting (<a class="xref" href="lesson3.html#3">Lesson 3</a>)</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
         <tr><td>Learning (300 steps)</td><td>0.374</td><td>0.124</td><td>0.499</td></tr>
       </table>
-      <p class="say">The same answer, and your model never counted a single pair. Learning works.</p>
+      <p class="say">The same answer. Learning works.</p>
+      <p class="say">But notice the effort: counting needed <b>one</b> pass through the text. Learning needed <b>300</b> passes to reach the same chances. For this small table, counting is quicker.</p>
+      <p class="say">So why learn? Learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. That is why it will still work in <b>Lesson 5</b>, where the numbers can't be filled by counting.</p>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
