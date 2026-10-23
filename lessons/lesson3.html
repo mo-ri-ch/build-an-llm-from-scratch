@@ -719,7 +719,7 @@ function fillRowSelect(sel, chosen) {
         if (blend > 0) { g.globalAlpha = 0.28 * blend; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
       }
       g.globalAlpha = 1; g.fillStyle = c.green;
-      for (const p of projected) if (p.n) { g.beginPath(); g.arc(p.px, p.py, lerp(flat * 0.45, r * 3.4), 0, Math.PI * 2); g.fill(); }
+      for (const p of projected) if (p.n) { g.beginPath(); g.arc(p.px, p.py, flat * 0.45, 0, Math.PI * 2); g.fill(); }   // green dots keep the flat table's size
       g.globalAlpha = 1;
       // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
