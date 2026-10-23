@@ -83,7 +83,7 @@
   .grow .total.huge { color: var(--redpen); }
   .grow-example { margin-top: 6px; font-size: 0.95rem; }
   .dots-label { margin: 26px 0 8px; font-size: 0.95rem; }
-  .dots { display: block; width: 100%; margin-top: 18px; }
+  .dots { display: block; margin: 18px auto 0; }
   .dots-label { margin-bottom: 0; }
   .cube-wrap { position: relative; }
   .cube { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
@@ -605,6 +605,7 @@ function fillRowSelect(sel, chosen) {
   }
   function innerWidth(el) { const st = getComputedStyle(el); return el.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight); }
 
+  let lastN = 1;
   function drawDots(n, ours, f) {
     const canvas = document.getElementById("dots"), none = document.getElementById("dotsNone"), label = document.getElementById("dotsLabel");
     const wrap = document.getElementById("cubeWrap");
@@ -616,7 +617,8 @@ function fillRowSelect(sel, chosen) {
       ? `Each dot is one box. Our text fills only <b>${f}</b> (green). The rest stay 0: Neo knows nothing there.`
       : `Our text fills only <b>${f}</b> of these boxes. The rest stay 0: Neo knows nothing there.`;
     canvas.hidden = n !== 1; wrap.hidden = n !== 2; none.hidden = n <= 2;
-    if (n === 2) { cube.start(); return; }
+    if (n === 2) { cube.start(lastN !== 2); lastN = n; return; }
+    lastN = n;
     cube.stop();
     if (n > 2) { none.textContent = `A square, then a cube… ${n} letters before plus the next one would need ${n + 1} directions. It can't be drawn.`; return; }
     // 1 letter: the flat table, laid out like the one you filled: next letter across the top, the last letter down the side
@@ -656,13 +658,14 @@ function fillRowSelect(sel, chosen) {
     const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
     let yaw = -0.6, pitchA = 0.6, spin = false, running = false, frame = 0, size = 300, W = 300, H = 300, projected = [], seen = null;
     let scale = 100, offX = 150, offY = 150;   // set in fit(): the cube always fills the same frame as the flat table
+    let blend = 1, anim = 0;   // blend 0: seen face-on, exactly like the flat table; 1: sized to fill the frame
     const show = c => c === " " ? "␣" : c;
     function project(x, y, z) {
       // centre the 14 positions around 0, then turn
       const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitchA), sp = Math.sin(pitchA);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const y1 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
-      const persp = 1 / (1 + z2 * 0.06);
+      const persp = 1 / (1 + z2 * 0.06 * blend);   // face-on (blend 0): no depth, every layer lies on the flat table
       return [offX + x1 * scale * persp, offY + y1 * scale * persp, z2];
     }
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
@@ -674,8 +677,12 @@ function fillRowSelect(sel, chosen) {
         const q = project(a, bb, d); l = Math.min(l, q[0]); r = Math.max(r, q[0]); t = Math.min(t, q[1]); b = Math.max(b, q[1]);
       }
       const m = 44;   // room for the names and small letters
-      scale = Math.min((W - 2 * m) / (r - l), (H - 2 * m) / (b - t));
-      offX = W / 2 - scale * (l + r) / 2; offY = H / 2 - scale * (t + b) / 2;
+      const fs = Math.min((W - 2 * m) / (r - l), (H - 2 * m) / (b - t));
+      const fx = W / 2 - fs * (l + r) / 2, fy = H / 2 - fs * (t + b) / 2;
+      // Face-on, the front layer lands exactly on the flat table's dots (same pitch, same place)
+      const pitch = (W - 100) / VOCAB, front = 1;
+      const ts = (VOCAB - 1) / 2 * pitch / front, tx = 92 + VOCAB * pitch / 2, ty = 46 + VOCAB * pitch / 2;
+      scale = ts + (fs - ts) * blend; offX = tx + (fx - tx) * blend; offY = ty + (fy - ty) * blend;
     }
     function draw() {
       const c = colors(), dpr = window.devicePixelRatio || 1;
@@ -701,11 +708,17 @@ function fillRowSelect(sel, chosen) {
         projected.push({ px, py, d, n, key });
       }
       projected.sort((a, b) => b.d - a.d);
-      const r = Math.max(1.2, size / 320);
+      const r = Math.max(1.2, size / 320), flat = (W - 100) / VOCAB;   // flat: the flat table's dot spacing
+      const lerp = (a, b) => a + (b - a) * blend;
+      // empty boxes first, then the green ones on top, so a green dot is never hidden
       for (const p of projected) {
-        if (p.n) { g.globalAlpha = 1; g.fillStyle = c.green; g.beginPath(); g.arc(p.px, p.py, r * 3.4, 0, Math.PI * 2); g.fill(); }
-        else { g.globalAlpha = 0.28; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
+        if (p.n) continue;
+        // the flat table's light dots fade into the cube's tiny see-through ones
+        if (blend < 1) { g.globalAlpha = 1 - blend; g.fillStyle = c.empty; g.beginPath(); g.arc(p.px, p.py, lerp(flat * 0.3, r * 0.8), 0, Math.PI * 2); g.fill(); }
+        if (blend > 0) { g.globalAlpha = 0.28 * blend; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
       }
+      g.globalAlpha = 1; g.fillStyle = c.green;
+      for (const p of projected) if (p.n) { g.beginPath(); g.arc(p.px, p.py, lerp(flat * 0.45, r * 3.4), 0, Math.PI * 2); g.fill(); }
       g.globalAlpha = 1;
       // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
@@ -750,11 +763,29 @@ function fillRowSelect(sel, chosen) {
       if (spin) { yaw += 0.006; draw(); }
       frame = requestAnimationFrame(loop);
     }
-    function start() { seen = counts(2); draw(); if (!running) { running = true; frame = requestAnimationFrame(loop); } }
-    function stop() { running = false; cancelAnimationFrame(frame); tip.hidden = true; }
+    // Coming from 1 letter: start as the flat table, then turn a little (once) to show it has depth
+    function start(fresh) {
+      seen = counts(2);
+      if (fresh) {
+        cancelAnimationFrame(anim);
+        const from = performance.now(), goal = [-0.55, 0.5];
+        yaw = 0; pitchA = 0; blend = 0;
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const step = now => {
+          const k = reduce ? 1 : Math.min(1, (now - from - 500) / 1300);   // wait half a second, then turn
+          const e = k <= 0 ? 0 : k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          yaw = goal[0] * e; pitchA = goal[1] * e; blend = e; draw();
+          if (k < 1) anim = requestAnimationFrame(step);
+        };
+        anim = requestAnimationFrame(step);
+      }
+      draw();
+      if (!running) { running = true; frame = requestAnimationFrame(loop); }
+    }
+    function stop() { running = false; cancelAnimationFrame(frame); cancelAnimationFrame(anim); tip.hidden = true; }
     // drag to turn
     let drag = null, moved = false;
-    canvas.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; moved = false; spin = false; canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener("pointerdown", e => { cancelAnimationFrame(anim); blend = 1; drag = [e.clientX, e.clientY]; moved = false; spin = false; canvas.setPointerCapture(e.pointerId); });
     canvas.addEventListener("pointermove", e => {
       if (drag) {
         const dx = e.clientX - drag[0], dy = e.clientY - drag[1];
