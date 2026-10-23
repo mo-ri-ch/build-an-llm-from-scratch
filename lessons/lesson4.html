@@ -47,6 +47,10 @@
   @media (max-width: 700px) { .vs { grid-template-columns: 1fr; } }
   .cmp { margin: 6px 0 16px; font-family: var(--mono); font-size: 0.9rem; }
   .cmp th, .cmp td { padding: 4px 12px 4px 0; text-align: left; }
+  .table-scroll { overflow-x: auto; }
+  .cmp.all14 { font-size: 0.8rem; }
+  .cmp.all14 th, .cmp.all14 td { padding: 4px 7px 4px 0; white-space: nowrap; }
+  .cmp.all14 td:first-child, .cmp.all14 th:first-child { white-space: normal; min-width: 6.5em; padding-right: 10px; }
   .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
   .rules { margin: 4px 0 14px; padding-left: 1.2em; }
   .rules li { margin: 4px 0; }
@@ -138,11 +142,12 @@
       <h2>Start random</h2>
       <p class="say">Instead of counting, Neo starts with <b>random</b> numbers and fixes them. Here's row <code>t</code>:</p>
       <p class="our-text" data-after="t"></p>
-      <table class="plain cmp">
-        <tr><th>after t</th><th>space</th><th>.</th><th>h</th><th>l</th><th>d</th></tr>
-        <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td>3</td><td>1</td><td>4</td><td>0</td><td>0</td></tr>
-        <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>1.07</td><td>1.31</td><td>0.94</td></tr>
-      </table>
+      <div class="table-scroll"><table class="plain cmp all14">
+        <tr><th>after t</th><th title="space">␣</th><th>.</th><th>a</th><th>c</th><th>d</th><th>e</th><th>g</th><th>h</th><th>l</th><th>m</th><th>n</th><th>o</th><th>s</th><th>t</th></tr>
+        <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td><b>3</b></td><td><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b>4</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>Neo's random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
+      </table></div>
+      <p class="say">Neo has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>.</p>
       <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <div class="vs">
         <div class="vs-card">
@@ -174,6 +179,7 @@
       <p class="our-text" data-after="t"></p>
       <div class="activity">
         <div class="do">These are Neo's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
+        <div class="muted" style="margin-bottom:10px">You can drag 5 of the 14 scores. The other 9 letters keep their scores and are added together at the bottom.</div>
         <p class="sm-math-note" id="smMathNote" hidden><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
         <div class="sm" id="smTable"></div>
         <p class="sm-worked" id="smWorked" hidden></p>
