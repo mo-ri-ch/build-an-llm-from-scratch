@@ -670,7 +670,7 @@ function fillRowSelect(sel, chosen) {
       const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitchA), sp = Math.sin(pitchA);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const y1 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
-      const persp = 1 / (1 + z2 * 0.06 * blend);   // face-on (blend 0): no depth, every layer lies on the flat table
+      const persp = 1;   // no perspective: the cube keeps exactly the flat table's size, however you turn it
       return [offX + x1 * scale * persp, offY + y1 * scale * persp, z2];
     }
     const pos = i => (i - (VOCAB - 1) / 2) / ((VOCAB - 1) / 2);   // -1 … 1
@@ -761,7 +761,6 @@ function fillRowSelect(sel, chosen) {
     function loop() {
       if (!running) return;
       if (canvas.offsetParent === null) { running = false; return; }   // page not shown: stop
-      if (spin) { yaw += 0.006; draw(); }
       frame = requestAnimationFrame(loop);
     }
     // Coming from 1 letter: start face-on, looking exactly like the flat table. Turning it is up to you.
