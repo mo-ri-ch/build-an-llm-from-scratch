@@ -56,6 +56,7 @@
   .rules li { margin: 4px 0; }
   .grads { font-family: var(--mono); font-size: 0.9rem; }
   .grads th, .grads td { padding: 4px 14px 4px 0; text-align: left; }
+  .grads tr.others td { color: var(--pencil); font-family: var(--body, inherit); font-size: 0.9em; }
   .grads .up { color: var(--good, #1E8F4E); font-weight: 700; }
   .grads .down { color: var(--redpen); font-weight: 700; }
   .grads tr.right td { background: var(--hl-yellow); color: #1A2440; }
@@ -147,7 +148,7 @@
         <tr><td><a class="xref" href="lesson3.html#2">Lesson 3</a> counts</td><td><b>3</b></td><td><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b>4</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
         <tr><td>Random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
       </table></div>
-      <p class="say">Your model has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>.</p>
+      <p class="say">Your model has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>. Every row is like this: 14 rows × 14 = <b>196 scores</b> in all.</p>
       <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
       <div class="vs" style="position:relative">
         <button class="doubt" type="button" data-peek-from="effortPeek" aria-label="Isn't this more work than counting?">🤔</button>
@@ -219,7 +220,8 @@
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
         <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
       </div>
-      <p class="say">Your model does this for every pair in the text, all 46 of them. These are the first few, with its real random scores:</p>
+      <p class="say">That was just one pair. Every pair has its own right answer: in “ca<b>t </b>”, <code>t</code> is followed by a space, so there the right answer is space.</p>
+      <p class="say">Your model does this for every pair in the text, all 46 of them. These are the first 8, with its real random scores:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
       <p class="say">One number for how bad all of your model's guesses are.</p>
@@ -231,22 +233,29 @@
       <h2>Which way?</h2>
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">For each score: should it go <b>up</b> or <b>down</b> to lower the loss?</p>
-      <p class="say">That direction is called the <mark>gradient</mark>. Take one pair, <code>t → h</code>.</p>
+      <p class="say">The <mark>gradient</mark> tells you. It answers: <b>if this score goes up, does the loss go up or down?</b> Negative: the loss goes down, so push the score <b>up</b>. Positive: push it <b>down</b>.</p>
+      <p class="say">Take one pair, <code>t → h</code>.</p>
       <p class="our-text" data-pair="0"></p>
       <p class="say">For one pair, the gradients are simple:</p>
-      <ul class="rules">
+      <ul class="rules" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − 1?">🤔</button>
         <li>The right answer (<code>h</code>): gradient = chance − 1. Always <b>negative</b>, so push it <b>up</b>.</li>
         <li>Every wrong one: gradient = its chance. Always <b>positive</b>, so push it <b>down</b>.</li>
       </ul>
+      <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
+        <p style="margin:6px 0 0">If your model already gave <code>h</code> 100%, the gradient is 1 − 1 = <b>0</b>: nothing to fix.</p>
+        <p style="margin:6px 0 0">It gave only 13.3%, so the gradient is 0.133 − 1 = <b>−0.867</b>: a big push up.</p>
+        <p style="margin:6px 0 0">The less chance the right answer got, the bigger the push.</p>
+      </div>
       <div class="activity">
-        <div class="do">Look at the gradients. Then press “Move a little”.</div>
+        <div class="do">Look at the gradients. Then press “Move a little”: every score moves a bit in its direction.</div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
           <button class="primary" id="gradStep">Move a little</button>
           <span class="grad-loss" id="gradLoss"></span>
         </div>
       </div>
-      <p class="say">PyTorch finds all 196 gradients at once with <code>loss.backward()</code>. To do that, it records every step of the math, then works backwards. <code>requires_grad=True</code> tells it to record.</p>
+      <p class="say">In code, one line finds all 196 gradients at once: <code>loss.backward()</code>. You'll see it on <a class="xref" href="lesson4.html#8">the code page</a>.</p>
       <p class="hook">Your turn: fix the scores yourself, using these directions.</p>
     </section>
 
@@ -258,10 +267,10 @@
       <p class="our-text" data-after="t"></p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
-        <div class="muted" style="margin-bottom:10px">After t, the text really has: h 4 times, space 3 times, “.” once. The green dashed line is each one's goal.</div>
+        <div class="muted" style="margin-bottom:10px">The green dashed line is each one's goal. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown).</div>
         <div class="game" id="game"></div>
         <div class="score-line">
-          <div>Loss for t<b id="gameLoss">–</b></div>
+          <div>Loss for the 8 t-pairs<b id="gameLoss">–</b></div>
           <div>Moves<b id="gameMoves">0</b></div>
         </div>
         <div class="win" id="gameWin"></div>
@@ -269,22 +278,20 @@
           <button id="askBackward">Ask PyTorch which way</button>
         </div>
       </div>
-      <p class="say" style="position:relative">The arrows PyTorch shows are <mark>gradients</mark>.<button class="doubt" type="button" data-peek-from="negPeek" aria-label="Why does a negative gradient mean up?">🤔</button></p>
-      <div hidden id="negPeek"><b>🤔 Why does a negative gradient mean “up”?</b>
-        <p style="margin:6px 0 0">A gradient says: <b>if this score goes up, what happens to the loss?</b></p>
-        <p style="margin:6px 0 0">Negative: the loss goes down. Good, so raise it. Positive: the loss goes up, so lower it.</p>
+      <p class="say" style="position:relative">The arrows PyTorch shows are <mark>gradients</mark>.<button class="doubt" type="button" data-peek-from="negPeek" aria-label="Why does space go up here?">🤔</button></p>
+      <div hidden id="negPeek"><b>🤔 Why does space go up here? On the last page it went down.</b>
         <p style="margin:6px 0 0">Here all 8 pairs count, so each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. On the last page, with only the pair <code>t → h</code>, space was a wrong answer, so it went down.</p>
       </div>
-      <p class="say"><code>loss.backward()</code> finds them for all 196 scores at once.</p>
       <p class="hook">Doing this by hand for 196 scores would take forever. Let your model do it.</p>
     </section>
 
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">Now the model does your job, 300 times.</p>
+      <p class="say">Now your model does your job, 300 times.</p>
       <div class="activity">
-        <div class="do">Pick a step size. Press Train.</div>
+        <div class="do">Pick a step size (how big each nudge is). Press Train.</div>
+        <div class="muted" style="margin-bottom:10px">One step = a) predict, b) measure, c) find directions, d) move.</div>
         <div class="row">
           <label>Step size
             <select id="lr" style="font:inherit;font-family:var(--mono);padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
@@ -298,9 +305,9 @@
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Row t. Dashed line = what counting gave in <a class="xref" href="lesson3.html#3">Lesson 3</a>.</div>
+        <div class="muted">The chances after <code>t</code>. Dashed line = what counting gave in <a class="xref" href="lesson3.html#3">Lesson 3</a>.</div>
         <div class="bars" id="trainBars"></div>
-        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss<b id="trainLoss">3.0865</b></div></div>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
       <p class="say">Too small: slow. Too big: it jumps around.</p>
       <p class="say">This step size is the <mark>learning rate</mark>.</p>
@@ -401,7 +408,7 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
-      <div class="quiz" data-right="Right. No record of the math, so no gradients, so no learning.">
+      <div class="quiz" data-right="Right. Without it, PyTorch can't find gradients, so your model can't learn.">
         <div class="q">What if we remove <code>requires_grad=True</code>?</div>
         <div class="options">
           <button data-why="It doesn't just slow down. backward() can't run at all.">It learns slower</button>
@@ -411,11 +418,11 @@ Step 250 loss: 0.709
         <div class="feedback"></div>
       </div>
 
-      <div class="quiz" data-right="Yes. Lesson 5's smarter model has numbers that can't be counted, but they can be learned. Here we proved learning finds the right answer.">
+      <div class="quiz" data-right="Yes. Lesson 5's smarter model has numbers that counting can't fill, but learning can. Here we checked that learning finds the right answer.">
         <div class="q">Learning gave the same answer as counting. So why learn?</div>
         <div class="options">
-          <button data-why="It's actually slower here. The reason is size.">It's faster</button>
-          <button data-right>It can find numbers that can't be counted</button>
+          <button data-why="It's actually slower here: it goes through the text 300 times.">It's faster</button>
+          <button data-right>It can fill numbers that counting can't (Lesson 5)</button>
           <button data-why="Both gave the same answer here.">It's more accurate</button>
         </div>
         <div class="feedback"></div>
@@ -549,8 +556,8 @@ function bar(label, p, target) {
     const p = e[CHAR_TO_NUMBER[TEXT[i + 1]]] / e.reduce((x, y) => x + y, 0);
     losses.push([TEXT[i], TEXT[i + 1], -Math.log(p)]);
   }
-  document.getElementById("lossStrip").innerHTML = losses.slice(0, 6)
-    .map(([a, b, L]) => `<span>${showChar(a)} → ${showChar(b)}<b>${L.toFixed(2)}</b></span>`).join("") + `<span class="more">… 40 more</span>`;
+  document.getElementById("lossStrip").innerHTML = losses.slice(0, 8)
+    .map(([a, b, L]) => `<span>${showChar(a)} → ${showChar(b)}<b>${L.toFixed(2)}</b></span>`).join("") + `<span class="more">… 38 more</span>`;
   const avg = losses.reduce((x, l) => x + l[2], 0) / losses.length;
   document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length}: <b>${avg.toFixed(2)}</b>`;
 })();
@@ -647,6 +654,9 @@ function bar(label, p, target) {
       const g = p[k] - (k === H ? 1 : 0);
       html += `<tr class="${k === H ? "right" : ""}"><td>${showChar(CHARS[k])}${k === H ? " (right)" : ""}</td><td>${row[k].toFixed(2)}</td><td>${p[k].toFixed(3)}</td><td>${g >= 0 ? "+" : ""}${g.toFixed(3)}</td><td class="${g < 0 ? "up" : "down"}">${g < 0 ? "↑ up" : "↓ down"}</td></tr>`;
     });
+    // The other 9 letters are wrong answers too: each one's gradient is its own (small) chance, so each goes down a little
+    const rest = p.reduce((a, v, k) => shown.includes(k) ? a : a + v, 0);
+    html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${rest.toFixed(3)} in all</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
     table.innerHTML = html;
     lossOut.innerHTML = `loss = ${(-Math.log(p[H])).toFixed(2)}` + (steps ? `  (after ${steps} move${steps > 1 ? "s" : ""})` : "");
   }
