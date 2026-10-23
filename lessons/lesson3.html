@@ -294,7 +294,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
         <div class="dots-label" id="dotsLabel"></div>
         <canvas class="dots" id="dots" aria-label="One dot per box in the table; green dots are boxes our text fills"></canvas>
         <div class="cube-wrap" id="cubeWrap" hidden>
-          <canvas class="cube" id="cube" aria-label="The counting table as a cube: first letter, last letter, next letter. Drag to turn it."></canvas>
+          <canvas class="cube" id="cube" aria-label="The counting table as a cube: second-last letter, last letter, next letter. Drag to turn it."></canvas>
           <div class="cube-tip" id="cubeTip" hidden></div>
           <p class="cube-hint">Drag to turn the cube. Hover over (or tap) a green dot.</p>
         </div>
@@ -602,14 +602,14 @@ function fillRowSelect(sel, chosen) {
     const canvas = document.getElementById("dots"), none = document.getElementById("dotsNone"), label = document.getElementById("dotsLabel");
     const wrap = document.getElementById("cubeWrap");
     label.innerHTML = n === 2
-      ? `Two letters before, plus the next one: the table becomes a <b>cube</b>, 14 × 14 × 14. Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
+      ? `Neo sees the last 2 letters (in “at”: the second-last is <b>a</b>, the last is <b>t</b>) and guesses the next one. So the table becomes a <b>cube</b>, 14 × 14 × 14. Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
       : n === 1 ? `Each dot is one box. Our text fills only <b>${f}</b> of them (green). Every other box stays 0: Neo knows nothing there.`
       : `Our text fills only <b>${f}</b> of these boxes. Every other box stays 0: Neo knows nothing there.`;
     canvas.hidden = n !== 1; wrap.hidden = n !== 2; none.hidden = n <= 2;
     if (n === 2) { cube.start(); return; }
     cube.stop();
     if (n > 2) { none.textContent = `A square, then a cube… ${n} letters before plus the next one would need ${n + 1} directions. It can't be drawn.`; return; }
-    // 1 letter: the flat table, laid out like the one you filled: next letter across the top, last letter down the side
+    // 1 letter: the flat table, laid out like the one you filled: next letter across the top, the last letter down the side
     const c = colors(), filledBoxes = counts(1);
     const left = 92, top = 46;   // room for the axes, their letters and names
     const width = innerWidth(canvas.parentElement), pitch = Math.min(22, Math.floor((width - left - 8) / VOCAB)), side = VOCAB * pitch;
@@ -641,7 +641,7 @@ function fillRowSelect(sel, chosen) {
     }
   }
 
-  // ----- The cube: x = next letter, y = last letter, z = first letter -----
+  // ----- The cube: x = next letter, y = last letter, z = second-last letter -----
   const cube = (function () {
     const canvas = document.getElementById("cube"), tip = document.getElementById("cubeTip");
     let yaw = -0.6, pitchA = 0.45, spin = true, running = false, frame = 0, size = 300, projected = [], seen = null;
@@ -700,7 +700,7 @@ function fillRowSelect(sel, chosen) {
       };
       axis([E, -E, -E], "next letter", t => [t, -E, -E]);
       axis([-E, E, -E], "last letter", t => [-E, t, -E]);
-      axis([-E, -E, E], "first letter", t => [-E, -E, t]);
+      axis([-E, -E, E], "second-last letter", t => [-E, -E, t]);
       // dots, back to front
       projected = [];
       for (let z = 0; z < VOCAB; z++) for (let y = 0; y < VOCAB; y++) for (let x = 0; x < VOCAB; x++) {
