@@ -3,6 +3,7 @@
 These are the rules agreed while building Lessons 1–4. Follow all of them for every new lesson and every change.
 
 ## Teaching
+- **Explain properly; never assume the student already gets it.** Say what changes, why, and show it with the page's real numbers (e.g. new score = old score − gradient: 1.07 − (−0.867) = 1.94). Avoid vague words ("harder push", "size", "magnitude"); say it plainly ("the further from 0, the more it moves"). More words are fine when they make it clear; still keep each sentence short.
 - **Every word matters.** Re-read each changed page as a student before calling it done. Check facts against the real text and real numbers (run the code).
 - **Never use a term before it's taught.** If a later idea must be mentioned, say it's coming ("you'll build it in Lesson 5") and teach it properly there. No half-explanations.
 - **Plain, short words.** Hand examples with real numbers first, then code. Explain any maths symbol (e, log, …) the first time it appears.

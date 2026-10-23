@@ -238,26 +238,31 @@
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">Take the pair <code>t → h</code> again.</p>
       <p class="our-text" data-pair="0"></p>
-      <p class="say">Your model gave <code>h</code> only 13.3%. To make the loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
-      <p class="say">Those chances come from the scores in row <code>t</code> (<a class="xref" href="lesson4.html#3">softmax</a>). So we change the scores:</p>
+      <p class="say">Your model gave <code>h</code> only 13.3%, but the text says <code>h</code> is the right answer. To make the loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
+      <p class="say">The chances come from the scores in row <code>t</code> (<a class="xref" href="lesson4.html#3">softmax</a>: a higher score gives a higher chance). So we change the scores:</p>
       <ul class="rules">
-        <li><b><code>h</code>'s score goes up</b>, so <code>h</code> gets a bigger chance.</li>
-        <li><b>Every other letter's score goes down</b>, so they take less of the 100%, and <code>h</code> gets even more.</li>
+        <li><b><code>h</code>'s score goes up</b>, so <code>h</code>'s chance grows.</li>
+        <li><b>Every other letter's score goes down</b>, so their chances shrink. The chances always add up to 100%, so what they lose goes to <code>h</code>.</li>
       </ul>
-      <p class="say">Which way each score should go, and how hard, is its <mark>gradient</mark>:</p>
+      <p class="say">For each score, one number tells us which way to move it, and by how much. That number is its <mark>gradient</mark>:</p>
       <ul class="rules" style="position:relative">
         <button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − 1?">🤔</button>
-        <li><code>h</code> (the right answer): gradient = its chance − 1 = 0.133 − 1 = <b>−0.867</b>. <b>Negative</b> means: raise this score.</li>
-        <li>Every wrong letter: gradient = its chance, like <b>+0.177</b> for “.”. <b>Positive</b> means: lower this score.</li>
+        <li><code>h</code> (the right answer): gradient = its chance − 1 = 0.133 − 1 = <b>−0.867</b>. <small>(13.3% is written as 0.133.)</small></li>
+        <li>Every wrong letter: gradient = its chance. For “.”: <b>+0.177</b>.</li>
       </ul>
-      <p class="say">The bigger the number, the harder the push.</p>
+      <p class="say">To move a score: <b>new score = old score − gradient</b>.</p>
+      <ul class="rules">
+        <li><code>h</code>: 1.07 − (−0.867) = <b>1.94</b>. Taking away a negative number adds it, so <code>h</code>'s score goes <b>up</b>.</li>
+        <li>“.”: 1.35 − 0.177 = <b>1.17</b>. A positive gradient makes the score go <b>down</b>.</li>
+      </ul>
+      <p class="say">So the + or − tells the direction, and the distance from 0 tells how much: <code>h</code> (−0.867, far from 0) moves a lot, space (+0.074, close to 0) hardly moves.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
-        <p style="margin:6px 0 0">If your model already gave <code>h</code> 100%, the gradient is 1 − 1 = <b>0</b>: nothing to fix.</p>
-        <p style="margin:6px 0 0">It gave only 13.3%, so the gradient is 0.133 − 1 = <b>−0.867</b>: a big push up.</p>
-        <p style="margin:6px 0 0">The less chance the right answer got, the bigger the push.</p>
+        <p style="margin:6px 0 0">“1” means 100%, a sure guess. So “chance − 1” is how far the right answer is from 100%.</p>
+        <p style="margin:6px 0 0">If your model already gave <code>h</code> 100%: 1 − 1 = <b>0</b>. Nothing to fix, so the score doesn't move.</p>
+        <p style="margin:6px 0 0">It gave only 13.3%: 0.133 − 1 = <b>−0.867</b>. Far from 100%, so the score moves up a lot.</p>
       </div>
       <div class="activity">
-        <div class="do">Look at the gradients. Then press “Move a little”: every score moves a bit in its direction.</div>
+        <div class="do">Press “Move a little”. Every score moves by the rule above. Watch <code>h</code>'s chance grow and the loss shrink.</div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
           <button class="primary" id="gradStep">Move a little</button>
@@ -319,7 +324,7 @@
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
       <p class="say">Too small: slow. Too big: it jumps around.</p>
-      <p class="say">This step size is the <mark>learning rate</mark>.</p>
+      <p class="say">This step size is the <mark>learning rate</mark>. Each step uses the rule from <a class="xref" href="lesson4.html#5">“Which way?”</a>, with the gradient multiplied by it: <b>new score = old score − learning rate × gradient</b>.</p>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
