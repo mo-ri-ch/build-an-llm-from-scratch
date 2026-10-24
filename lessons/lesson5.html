@@ -233,6 +233,7 @@
         </div>
         <div class="sh-eqs" id="shEqs"></div>
         <div class="sh-result" id="shResult"></div>
+        <div class="muted">Only a demo, to show sharing. Real training uses all 44 examples in every step (<a class="xref" href="lesson5.html#6">page 6</a>).</div>
       </div>
       <p class="say">Learning from “cat” moved its 3 numbers. Two of them are in “sat” too, so “sat” improved without being trained. <b>One row helps every group that uses it.</b></p>
       <p class="say">A giant table gives every group its own row, so “cat” would teach “sat” nothing. It also needs far more numbers:</p>
@@ -620,7 +621,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   }
   function line(g, isTrained) {
     const sharedWith = g === "cat" ? other : "cat";
-    return `<div class="sh-line"><div class="sh-name">“${g}”${isTrained ? `<small>learned from</small>` : `<small>never learned from</small>`}</div>` +
+    return `<div class="sh-line"><div class="sh-name">“${g}”${isTrained ? `<small>learned from</small>` : `<small>not used in this demo</small>`}</div>` +
       [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") + card(t, g, g[t] === sharedWith[t], steps > 0 && "cat"[t] === g[t])).join("") +
       `<div class="sh-op">=</div><div class="sh-total"><b>${fmt(total(g))}</b><small>chance of space: ${steps ? pct(start[g]) + " → " : ""}<b>${pct(chance(g))}</b></small></div></div>`;
   }
