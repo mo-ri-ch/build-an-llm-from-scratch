@@ -145,30 +145,58 @@ tensor(6)</pre></div>
     </section>
 
     <!-- 6 -->
-    <section class="part" data-title="Check yourself">
-      <h2>Check yourself</h2>
-
-      <div class="quiz" data-right="Yes. First × 3 gives [6, 12, 18]. Then + 1 gives [7, 13, 19].">
-        <div class="q"><code>x = torch.tensor([2, 4, 6])</code><br>What does <code>print(x * 3 + 1)</code> show?</div>
-        <div class="options">
-          <button data-why="That's only × 3. Don't forget the + 1.">tensor([ 6, 12, 18])</button>
-          <button data-right>tensor([ 7, 13, 19])</button>
-          <button data-why="That's + 1 only. The × 3 happens too.">tensor([3, 5, 7])</button>
-          <button data-why="Tensors can do this. Lists can't.">Error</button>
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 1 test</h2>
+      <p class="say">5 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <div class="test" data-test="1">
+        <div class="quiz" data-page="lesson1.html#2" data-topic="Meet the tensor" data-right="Right. One line of math changes every number in the tensor: 10×2, 20×2, 30×2.">
+          <div class="q"><small>1. Predict</small><code>numbers = torch.tensor([10, 20, 30])</code>. What does <code>numbers * 2</code> give?</div>
+          <div class="options">
+            <button data-right>[20, 40, 60]</button>
+            <button data-why="That's what a Python list does with * 2. A tensor does the math on every number inside it.">[10, 20, 30, 10, 20, 30]</button>
+            <button data-why="Math on a whole tensor works: that's what tensors are for.">An error</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Yes. One position inside the brackets gives you a whole row.">
-        <div class="q"><code>table = torch.tensor([[1, 2], [3, 4]])</code><br>What is <code>table[1]</code>?</div>
-        <div class="options">
-          <button data-why="That's table[0]. Counting starts at 0.">tensor([1, 2])</button>
-          <button data-right>tensor([3, 4])</button>
-          <button data-why="One position gives a whole row, not a single number.">tensor(2)</button>
+        <div class="quiz" data-page="lesson1.html#3" data-topic="Pick one number" data-right="Right. Positions start at 0: 10 is at 0, 20 at 1, 30 at 2.">
+          <div class="q"><small>2. Position</small>Same tensor <code>[10, 20, 30]</code>. What is <code>numbers[2]</code>?</div>
+          <div class="options">
+            <button data-why="Counting starts at 0: position 0 is 10, position 1 is 20…">20</button>
+            <button data-right>30</button>
+            <button data-why="Position 2 exists: there are 3 numbers, at positions 0, 1 and 2.">An error</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
+        <div class="quiz" data-page="lesson1.html#4" data-topic="Tables of numbers" data-right="Right. Row 2 is [7, 8, 9], and column 0 of it is 7.">
+          <div class="q"><small>3. Table</small>What is <code>table[2, 0]</code>?<pre class="q-code"><code>table = torch.tensor([[1, 2, 3],
+                      [4, 5, 6],
+                      [7, 8, 9]])</code></pre></div>
+          <div class="options">
+            <button data-why="That's row 0, column 2. The first number picks the row, the second the column.">3</button>
+            <button data-right>7</button>
+            <button data-why="Close: 8 is row 2, column 1. Columns start at 0 too.">8</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson1.html#1" data-topic="The problem" data-right="Right. A model is millions of numbers, and a tensor changes them all with one line.">
+          <div class="q"><small>4. Why tensors</small>Why does a model use tensors instead of normal Python lists?</div>
+          <div class="options">
+            <button data-why="Lists can hold numbers. The difference is the math.">Lists can't hold numbers</button>
+            <button data-right>A tensor does math on all its numbers at once</button>
+            <button data-why="Tensors hold numbers. Text comes in Lesson 2.">Tensors are only for text</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson1.html#4" data-topic="Tables of numbers" data-right="Right. 14 rows × 14 columns: one row and one column for each character.">
+          <div class="q"><small>5. Connect</small>In Lessons 3 and 4, your whole model is one tensor. What shape is it?</div>
+          <div class="options">
+            <button data-why="It's a table: a row for each character, and a column for each character.">A row of 14 numbers</button>
+            <button data-right>A 14 × 14 table</button>
+            <button data-why="46 is the number of pairs in the text, not the shape of the model.">A row of 46 numbers</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
       </div>
-
       <p class="hook">What your model still can't do.</p>
     </section>
 

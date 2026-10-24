@@ -255,28 +255,65 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
     </section>
 
     <!-- 6 -->
-    <section class="part" data-title="Check yourself">
-      <h2>Check yourself</h2>
-
-      <div class="quiz" data-right="Yes. In this text, h is always followed by e.">
-        <div class="q">What is the chance of <code>e</code> after <code>h</code>?</div>
-        <div class="options">
-          <button data-why="Look at part 3: pick the h row.">0.5</button>
-          <button data-right>1.0</button>
-          <button data-why="h appears 4 times, always in “the”.">0.25</button>
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 3 test</h2>
+      <p class="say">6 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <div class="test" data-test="3">
+        <div class="quiz" data-page="lesson3.html#2" data-topic="Count the pairs" data-right="Right. “on” (twice), “dog”, “log”: n 2 times, g 2 times.">
+          <div class="q"><small>1. Count</small>In our text, which characters come after <code>o</code>?</div>
+          <div class="options">
+            <button data-why="Look at “dog” and “log” too.">Only n</button>
+            <button data-right>n twice and g twice</button>
+            <button data-why="Count again: “on” twice, “dog” and “log” once each.">n 3 times, g once</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Right. It's random, but likely characters win more often. Always picking the top one would repeat “the the the”.">
-        <div class="q">After <code>t</code>, does the wheel always pick <code>h</code>?</div>
-        <div class="options">
-          <button data-why="h has a 50% chance, not 100%. Space and “.” still win sometimes.">Yes, h is the most likely</button>
-          <button data-right>No, only about half the time</button>
+        <div class="quiz" data-page="lesson3.html#3" data-topic="Counts into chances" data-right="Right. 2 out of 4 = 2 ÷ 4 = 0.5 = 50%.">
+          <div class="q"><small>2. Chances</small>So what is the chance of <code>g</code> coming after <code>o</code>?</div>
+          <div class="options">
+            <button data-why="There are only 4 pairs after o, and 2 of them are g.">25%</button>
+            <button data-right>50%</button>
+            <button data-why="n also comes after o, so g can't be certain.">100%</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
+        <div class="quiz" data-page="lesson3.html#4" data-topic="Write new text" data-right="Right. t's chance is 100%, so the whole wheel is t.">
+          <div class="q"><small>3. Sure thing</small>After <code>a</code>, our text always has <code>t</code> (4 out of 4). The wheel spins on row <code>a</code>. What comes out?</div>
+          <div class="options">
+            <button data-right>Always t</button>
+            <button data-why="t has the whole wheel: 100%. No other letter has a slice.">Usually t, sometimes another letter</button>
+            <button data-why="The wheel isn't fair: slices match the chances, and t has all of it.">Any letter, at random</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson3.html#4" data-topic="Write new text" data-right="Right. h has the biggest slice, so it wins most often, but each spin is random.">
+          <div class="q"><small>4. Predict</small>You spin the wheel on row <code>t</code> 8 times. Will you get h exactly 4 times?</div>
+          <div class="options">
+            <button data-why="The wheel is random. 50% means h comes up about half the time, not exactly.">Yes, always exactly 4</button>
+            <button data-right>No. It's random; h just comes up most often</button>
+            <button data-why="h has the biggest slice (50%), so it comes out most often.">No, h never comes out</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson3.html#7" data-topic="Why not count more?" data-right="Right. After “sat”, it sees only “t”, and after t, h is likely, so it writes “sathe”.">
+          <div class="q"><small>5. Why “sathe”</small>Why does your model write words like “sathe”?</div>
+          <div class="options">
+            <button data-why="More text wouldn't fix it. The problem is how much it looks at.">It doesn't have enough text</button>
+            <button data-right>It only looks at the last letter</button>
+            <button data-why="The wheel works. After “t”, h really is common (“the”).">The wheel is broken</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson3.html#7" data-topic="Why not count more?" data-right="Right. 14 × 14 = 196 rows, each with 14 next letters: 2,744 boxes, and almost all stay empty.">
+          <div class="q"><small>6. The explosion</small>Looking back 2 letters, how many boxes does the counting table need?</div>
+          <div class="options">
+            <button data-why="The table multiplies: every pair of letters needs its own row.">28: 14 + 14</button>
+            <button data-right>2,744: 196 rows (every pair of letters) × 14 next letters</button>
+            <button data-why="That's for 1 letter. With 2 letters, each pair of letters needs its own row.">196: 14 × 14</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
       </div>
-
       <p class="hook">What your model still can't do.</p>
     </section>
 

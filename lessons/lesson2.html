@@ -148,29 +148,56 @@ tensor([13,  7,  5,  0,  3,  2, 13,  0, 12,  2, 13,  0, 11, 10,  0, 13,  7,  5,
     </section>
 
     <!-- 5 -->
-    <section class="part" data-title="Check yourself">
-      <h2>Check yourself</h2>
-
-      <div class="quiz" data-right="Yes. b, a, n are the only different characters.">
-        <div class="q">How big is the vocabulary of <code>"banana"</code>?</div>
-        <div class="options">
-          <button data-why="That counts every letter. We only count different ones.">6</button>
-          <button data-right>3</button>
-          <button data-why="Count the different letters: b, a, n.">2</button>
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 2 test</h2>
+      <p class="say">5 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <div class="test" data-test="2">
+        <div class="quiz" data-page="lesson2.html#2" data-topic="Find the letters" data-right="Right. b, a, n and !: 4 different characters.">
+          <div class="q"><small>1. Vocabulary</small>How many different characters are in <code>"banana!"</code>?</div>
+          <div class="options">
+            <button data-why="That counts every character. The vocabulary counts each different one once.">7</button>
+            <button data-right>4</button>
+            <button data-why="Don't forget the “!”: it's a character too.">3</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
-      </div>
-
-      <div class="quiz" data-right="Yes. In our vocabulary, l is 8 and o is 11.">
-        <div class="q">With our text's vocabulary, what is <code>encode("lol")</code>?</div>
-        <div class="options">
-          <button data-right>[8, 11, 8]</button>
-          <button data-why="Check the numbers on page 3: l is 8, o is 11.">[11, 8, 11]</button>
-          <button data-why="“l” and “o” are both in our text (“log”).">Error</button>
+        <div class="quiz" data-page="lesson2.html#3" data-topic="Encode and decode" data-right="Right. c → 3, a → 2, t → 13.">
+          <div class="q"><small>2. Encode</small>Our vocabulary is <code>␣ . a c d e g h l m n o s t</code>, numbered 0 to 13. What is <code>encode("cat")</code>?</div>
+          <div class="options">
+            <button data-right>[3, 2, 13]</button>
+            <button data-why="Check the order: c is number 3, a is number 2.">[2, 3, 13]</button>
+            <button data-why="Counting starts at 0, so a is 2 and t (the last one) is 13.">[3, 1, 14]</button>
+          </div>
+          <div class="feedback"></div>
         </div>
-        <div class="feedback"></div>
+        <div class="quiz" data-page="lesson2.html#3" data-topic="Encode and decode" data-right="Right. 4 → d, 11 → o, 6 → g.">
+          <div class="q"><small>3. Decode</small>Same vocabulary. What is <code>decode([4, 11, 6])</code>?</div>
+          <div class="options">
+            <button data-right>"dog"</button>
+            <button data-why="l is 8, not 4. 4 is d.">"log"</button>
+            <button data-why="Look each number up: 4 is d, 11 is o, 6 is g.">"cot"</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson2.html#3" data-topic="Encode and decode" data-right="Right. A model can only use characters in its vocabulary. “!” isn't one, so there's no number to look up.">
+          <div class="q"><small>4. Spot the problem</small>With the same vocabulary, what happens with <code>encode("hat!")</code>?</div>
+          <div class="options">
+            <button data-why="It can't just skip the “!”. Every character needs a number.">[7, 2, 13]</button>
+            <button data-right>An error: “!” isn't in the vocabulary</button>
+            <button data-why="There is no number 14. The vocabulary only has 0 to 13.">[7, 2, 13, 14]</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson2.html#1" data-topic="The problem" data-right="Right. Letters can't do math (“h” + 5 is an error). Numbers can, so the model can work with them.">
+          <div class="q"><small>5. Why</small>Why do we turn text into numbers at all?</div>
+          <div class="options">
+            <button data-why="The text isn't shorter: every character becomes one number.">To make the text shorter</button>
+            <button data-right>A model can only do math on numbers</button>
+            <button data-why="Computers store letters fine. The problem is doing math on them.">Because computers can't store letters</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
       </div>
-
       <p class="hook">What your model still can't do.</p>
     </section>
 
