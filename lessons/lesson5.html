@@ -58,22 +58,36 @@
   .uses { font-family: var(--mono); font-size: 1.1rem; line-height: 2.1; word-break: break-word; margin: 10px 0; }
   .uses .use { background: var(--hl-yellow); color: var(--ink); border-radius: 3px; padding: 2px 1px; }
   .uses .use .key { text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
-  .sh-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.85rem; color: var(--pencil); margin: 4px 0 10px; }
+  select.sh-sel { width: 8.5em; }
+  .sh-legend .it { display: inline-flex; align-items: center; gap: 5px; margin-right: 6px; }
+  @media (max-width: 640px) { .sh-mini .sh-title { font-size: 0.75rem; white-space: nowrap; } .sh-minis { gap: 8px; } }
+  .sh-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 0.78rem; color: var(--pencil); margin: 8px 0 0; }
   .sh-legend .k { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--grid); }
   .k.a, .sh tr.a td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); }
   .k.b, .sh tr.b td { background: color-mix(in srgb, var(--hl-blue) 45%, transparent); }
   .k.both, .sh tr.both td { background: color-mix(in srgb, var(--hl-green) 60%, transparent); }
-  .sh-tables { display: grid; gap: 18px; }
+  .sh-tables { display: grid; gap: 12px; }
+  .sh-minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .sh-mini .sh-title { text-align: center; font-size: 0.9rem; }
+  .sh-grid { display: grid; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); gap: 1px; max-width: 190px; margin: 0 auto; font-family: var(--mono); font-size: 0.55rem; }
+  .sh-grid span { height: 8px; border-radius: 1px; outline: 1px solid color-mix(in srgb, var(--grid, #d9dfeb) 50%, transparent); }
+  .sh-grid .lab { outline: none; color: var(--pencil); line-height: 8px; text-align: center; }
+  .sh-grid span.a:not(.lab) { outline: 2px solid var(--hl-yellow); }
+  .sh-grid span.b:not(.lab) { outline: 2px solid var(--hl-blue); }
+  .sh-grid span.both:not(.lab) { outline: 2px solid var(--good, #1E8F4E); }
+  .sh-grid .lab.a, .sh-grid .lab.b, .sh-grid .lab.both { color: var(--ink); font-weight: 700; }
+  .sh .who { color: var(--pencil); font-weight: 400; }
+  .sh td:first-child { text-align: left !important; font-family: var(--body, inherit); font-size: 0.75rem; }
   .sh-title { font-family: var(--head); font-size: 1rem; margin-bottom: 2px; }
   .sh-title small { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.8rem; }
-  .sh { border-collapse: collapse; font-family: var(--mono); font-size: 0.68rem; }
-  .sh th, .sh td { padding: 2px 4px; text-align: right; white-space: nowrap; }
+  .sh { border-collapse: collapse; font-family: var(--mono); font-size: 0.66rem; }
+  .sh th, .sh td { padding: 1px 4px; text-align: right; white-space: nowrap; }
   .sh th { color: var(--pencil); font-weight: 600; }
   .sh td:first-child { color: var(--pencil); text-align: center; font-weight: 700; padding-right: 6px; }
   .sh tr.a td:first-child, .sh tr.b td:first-child, .sh tr.both td:first-child { color: var(--ink); }
   .sh td.chg { font-weight: 700; color: var(--pen); }
   .sh-result i { color: var(--pencil); font-style: normal; font-size: 0.85rem; }
-  .sh-result { font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; margin-bottom: 12px; min-height: 1.7em; }
+  .sh-result { font-family: var(--mono); font-size: 0.8rem; line-height: 1.6; margin-bottom: 12px; min-height: 1.7em; }
   .l4t { border-collapse: collapse; font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; }
   .l4t th, .l4t td { padding: 1px 3px; text-align: right; }
   .l4t th { color: var(--pencil); }
@@ -182,15 +196,15 @@
       <h2>Shared rows</h2>
       <p class="say">Compare “<b>c</b>at” and “<b>s</b>at”. They differ only in the third-last letter. So they use the <b>same row</b> <code>a</code> of the second-last table and the <b>same row</b> <code>t</code> of the last table. Those rows are <b>shared</b>.</p>
       <div class="activity">
-        <div class="do">These are the 3 full tables, with your model's random starting numbers. Pick two groups and see which rows they use. Then press “Learn from the first group” a few times, and watch the second group.</div>
+        <div class="do">Pick two groups. Press “Learn from the first group” a few times, and watch the second group.</div>
         <div class="row" style="margin-bottom:8px">
-          <label>First group <select id="shA" class="pick"></select></label>
-          <label>Second group <select id="shB" class="pick"></select></label>
+          <label>First <select id="shA" class="pick sh-sel"></select></label>
+          <label>Second <select id="shB" class="pick sh-sel"></select></label>
           <button class="primary" id="shLearn">Learn from the first group</button>
         </div>
-        <div class="sh-legend"><span class="k a"></span> first group only <span class="k b"></span> second group only <span class="k both"></span> both: shared</div>
         <div class="sh-result" id="shResult"></div>
         <div class="sh-tables" id="shTables"></div>
+        <div class="sh-legend"><span class="it"><span class="k a"></span> first group only</span><span class="it"><span class="k b"></span> second group only</span><span class="it"><span class="k both"></span> both: shared</span><span class="it">The 3 pictures are the full tables (darker = bigger; hover to read a number).</span></div>
       </div>
       <p class="say">Learning from “cat” changed its 3 rows. Two of them are also used by “sat”, so “sat” got better too, without ever being trained. That is what sharing does: <b>one row helps every group that uses it</b>. Row <code>t</code> of the last table, for example, is used by <b id="shCount"></b> of the 44 groups in our text.</p>
       <p class="say">One giant table would give each 3-letter group its own row, so learning from “cat” would teach nothing about “sat”. And it needs far more numbers:</p>
@@ -536,7 +550,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
 (function sharedDemo() {
   const selA = document.getElementById("shA"), selB = document.getElementById("shB"), box = document.getElementById("shTables"), res = document.getElementById("shResult");
   const opts = ["cat", "sat", "mat", "dog", "hat"];
-  const label = g => groupLabel(g) + (GROUPS.some(x => x.g === g) ? "" : " (never in the text)");
+  const label = g => groupLabel(g) + (GROUPS.some(x => x.g === g) ? "" : " (new)");
   selA.innerHTML = opts.map(g => `<option value="${g}">${label(g)}</option>`).join("");
   selB.innerHTML = opts.map(g => `<option value="${g}">${label(g)}</option>`).join("");
   let tables, changed, before, steps = 0;
@@ -548,16 +562,27 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   function reset() { tables = INIT_LESSON5.map(copyTable); changed = null; before = null; steps = 0; }
   function render() {
     const A = selA.value, B = selB.value;
-    box.innerHTML = [0, 1, 2].map(t => {
+    // Top: the 3 full tables, small, every number shaded (hover a square to read it). The used rows are coloured.
+    const shade = v => { const k = Math.max(-1, Math.min(1, v / 2.5)); return k >= 0 ? `color-mix(in srgb, var(--pen) ${Math.round(k * 55)}%, transparent)` : `color-mix(in srgb, var(--redpen) ${Math.round(-k * 45)}%, transparent)`; };
+    let h = `<div class="sh-minis">` + [0, 1, 2].map(t => {
       const ra = A[t], rb = B[t];
-      let h = `<div><div class="sh-title">${TABLE_NAMES[t]} <small>looks at the ${POS[t]} letter: ${groupLabel(A)} uses row ${sc(ra)}, ${groupLabel(B)} uses row ${sc(rb)}</small></div><div class="table-scroll"><table class="sh">`;
-      h += `<tr><th></th>${CHARS.map(c => `<th>${sc(c)}</th>`).join("")}</tr>`;
+      let g = `<div class="sh-mini"><div class="sh-title">${TABLE_NAMES[t]}</div><div class="sh-grid">`;
       CHARS.forEach((c, r) => {
         const cls = c === ra && c === rb ? "both" : c === ra ? "a" : c === rb ? "b" : "";
-        h += `<tr class="${cls}"><td>${sc(c)}</td>${tables[t][r].map((v, k) => `<td class="${changed && changed[t] === r ? "chg" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
+        g += `<span class="lab ${cls}">${sc(c)}</span>` + tables[t][r].map((v, k) => `<span class="${cls}" style="background:${shade(v)}" title="row ${sc(c)}, column ${sc(CHARS[k])}: ${fmt(v)}"></span>`).join("");
       });
-      return h + "</table></div></div>";
-    }).join("");
+      return g + `</div></div>`;
+    }).join("") + `</div>`;
+    // Bottom: the numbers of the rows the two groups use
+    h += `<div class="table-scroll"><table class="sh"><tr><th></th>${CHARS.map(c => `<th>${sc(c)}</th>`).join("")}</tr>`;
+    [0, 1, 2].forEach(t => {
+      const rowsHere = A[t] === B[t] ? [[A[t], "both", `${groupLabel(A)} and ${groupLabel(B)}`]] : [[A[t], "a", groupLabel(A)], [B[t], "b", groupLabel(B)]];
+      rowsHere.forEach(([c, cls, who]) => {
+        const r = CHAR_TO_NUMBER[c];
+        h += `<tr class="${cls}"><td>${POS[t]} <b>${sc(c)}</b></td>${tables[t][r].map(v => `<td class="${changed && changed[t] === r ? "chg" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
+      });
+    });
+    box.innerHTML = h + `</table></div>`;
     const shared = [0, 1, 2].filter(t => A[t] === B[t]).map(t => `row ${sc(A[t])} of the ${TABLE_NAMES[t].toLowerCase()}`);
     const cA = answer(A), cB = answer(B);
     let html = shared.length ? `${groupLabel(A)} and ${groupLabel(B)} share ${shared.join(" and ")}.` : `${groupLabel(A)} and ${groupLabel(B)} share no rows.`;
