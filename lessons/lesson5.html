@@ -481,7 +481,9 @@ const TABLE_NAMES = ["Table 1", "Table 2", "Table 3"], POS = ["third-last", "sec
     document.getElementById("addWorked").innerHTML =
       `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}:</span><br>` +
       `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${Math.round(ch[col] * 100)}%</b>`;
-    document.getElementById("addNote").innerHTML = `Green column: the letter that really comes next in the text (${nm(nextC)}). The scores are still random, so it doesn't get a big chance yet.`;
+    const shown = TEXT.slice(Math.max(0, GROUPS.find(x => x.g === g).at - 4), GROUPS.find(x => x.g === g).at + 3);
+    document.getElementById("addNote").innerHTML = `<b>Green column = the right answer.</b> In our text, ${groupLabel(g)} is followed by <b>${nm(nextC)}</b> (“…${shown.replace(/ /g, "␣")}<u>${sc(nextC)}</u>”). ` +
+      `Right now your model gives it only <b>${Math.round(softmax(CHARS.map((_, k) => [0, 1, 2].reduce((a, t) => a + INIT_LESSON5[t][CHAR_TO_NUMBER[g[t]]][k], 0)))[real] * 100)}%</b>, because the scores are still random. Learning (<a class="xref" href="lesson5.html#6">Let it learn</a>) will make it big.`;
   }
   tab.addEventListener("click", e => { const c = e.target.closest("[data-k]"); if (!c) return; col = Number(c.dataset.k); render(); });
   sel.onchange = render;
