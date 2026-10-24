@@ -42,6 +42,8 @@
   #addTab .pick-col { outline: 2px solid var(--pen); outline-offset: -2px; background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
   #addTab .pick-col.real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
   .worked { font-family: var(--mono); font-size: 1rem; line-height: 1.9; margin: 14px 0 4px; padding: 10px 14px; border-left: 3px solid var(--pen); background: var(--paper); }
+  .worked .pats { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 2px 18px; margin: 6px 0 8px; font-size: 0.95rem; }
+  .worked .pats i { font-family: var(--body, inherit); font-style: normal; color: var(--pencil); font-size: 0.8rem; }
   .worked .lab { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.85rem; }
   .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 8px; }
   .addtab tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
@@ -477,10 +479,13 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     h += `<tr class="sum"><td><span class="op">=</span>added</td>${sum.map((v, k) => `<td data-k="${k}" class="${cls(k)}">${fmt(v)}</td>`).join("")}</tr>`;
     h += `<tr class="chance"><td><span class="op"></span>chance</td>${ch.map((p, k) => `<td data-k="${k}" class="${cls(k)}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
     tab.innerHTML = h;
-    const v = rows.map(r => r[col]);
+    const v = rows.map(r => r[col]), n = sc(CHARS[col]);
+    // what each number means: the letter in its position, the gaps as _, then the next letter
+    const pat = t => [0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ") + ` → <b>${n}</b>`;
     const terms = `${fmt(v[0])} ${v[1] < 0 ? "−" : "+"} ${fmt(Math.abs(v[1]))} ${v[2] < 0 ? "−" : "+"} ${fmt(Math.abs(v[2]))}`;
     document.getElementById("addWorked").innerHTML =
-      `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}:</span><br>` +
+      `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}. Each number means:</span>` +
+      `<div class="pats">${[0, 1, 2].map(t => `<span>${pat(t)} <i>(${TABLE_NAMES[t].toLowerCase()})</i></span><span>${fmt(v[t])}</span>`).join("")}</div>` +
       `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${Math.round(ch[col] * 100)}%</b>`;
     const shown = TEXT.slice(Math.max(0, GROUPS.find(x => x.g === g).at - 4), GROUPS.find(x => x.g === g).at + 3);
     document.getElementById("addNote").innerHTML = `<b>Green column = the right answer.</b> In our text, ${groupLabel(g)} is followed by <b>${nm(nextC)}</b> (“…${shown.replace(/ /g, "␣")}<u>${sc(nextC)}</u>”). ` +
