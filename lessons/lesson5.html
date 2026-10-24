@@ -158,35 +158,34 @@
       <p class="neo-say">I can learn my own numbers now. But I still write words like “sathe”.</p>
       <p class="say"><a class="xref" href="lesson4.html#10">Lesson 4</a> left your model here:</p>
       <ul class="stuck">
-        <li>It learns its numbers by itself, from random scores.</li>
-        <li>But it still sees only the <b>last letter</b>. After “sa<b>t</b>”, it only sees <code>t</code>, and after <code>t</code> comes <code>h</code> most often. So it writes “sathe”.</li>
-        <li>Counting with the last 3 letters would need a table of <b>38,416 boxes</b>, and almost all of them <a class="xref" href="lesson3.html#7">stay empty</a>.</li>
+        
+        <li>It sees only the <b>last letter</b>, so it writes “sathe”.</li>
+        <li>Counting the last 3 letters needs <b>38,416 boxes</b>, and almost all <a class="xref" href="lesson3.html#7">stay empty</a>.</li>
       </ul>
-      <p class="say">So the question is: <b>can your model look at the last 3 letters without a giant table?</b></p>
+      <p class="say"><b>Can your model look at the last 3 letters without a giant table?</b></p>
       <p class="hook">What if, instead of one giant table, it used small ones?</p>
     </section>
 
     <!-- 2 -->
     <section class="part" data-title="Three small tables">
       <h2>Three small tables</h2>
-      <p class="say">Your model will look at the last <b>3 letters</b>. Take “cat”: the third-last letter is <code>c</code>, the second-last is <code>a</code>, the last is <code>t</code>.</p>
-      <p class="say">Instead of one giant table, it uses <b>3 small tables</b>, one for each of those positions. Each is 14 × 14, exactly like <span data-peek-from="l4Peek">the table in Lesson 4</span> (<a class="xref" href="lesson4.html#2">see it there</a>):</p>
+      <p class="say">Your model will look at the last <b>3 letters</b>. In “cat”: third-last <code>c</code>, second-last <code>a</code>, last <code>t</code>.</p>
+      <p class="say">It uses <b>3 small tables</b>, one per position, each 14 × 14 like <span data-peek-from="l4Peek">the table in Lesson 4</span>:</p>
       <div hidden id="l4Peek"></div>
       <ul class="stuck">
-        <li>The <b>third-last table</b> looks at the third-last letter (<code>c</code> in “cat”).</li>
-        <li>The <b>second-last table</b> looks at the second-last letter (<code>a</code>).</li>
-        <li>The <b>last table</b> looks at the last letter (<code>t</code>).</li>
+        <li><b>third-last table</b>: looks at <code>c</code></li>
+        <li><b>second-last table</b>: looks at <code>a</code></li>
+        <li><b>last table</b>: looks at <code>t</code></li>
       </ul>
       <div class="activity">
-        <div class="do">Click any letter in the text. It becomes the next letter to guess, and the 3 letters before it light up.</div>
+        <div class="do">Click a letter. The 3 letters before it light up.</div>
         <div class="window-text" id="winText" aria-label="Our text. Click a letter."></div>
         <div class="group-line" id="groupLine"></div>
         <div class="muted" id="groupNote"></div>
         <div class="three" id="three"></div>
       </div>
-      <p class="say">Each letter picks <b>one row</b> in its own table. So every guess uses 3 rows: one from each table.</p>
-      <p class="say">Each table works like the one in Lesson 4: <b>one letter → a score for every possible next letter</b>. The last table is exactly that table (last letter → next). The other two do the same, but with a letter further back.</p>
-      <p class="say">So each table only looks at <b>2 specific letters</b>: its own letter and the next one. It has no place for the letters in between, so it uses the same score whatever they are. For example, the third-last table's score for <code>c _ _ → space</code> is used after “cat”, and would be used after “cot” or “con” too.</p>
+      <p class="say">Each letter picks <b>one row</b> in its own table. Each table works like Lesson 4's: one letter → a score for every next letter.</p>
+      <p class="say">It ignores the letters in between: <code>c _ _ → ?</code>, <code>_ a _ → ?</code>, <code>_ _ t → ?</code>.</p>
       <p class="hook">Three rows. How do they make one guess?</p>
     </section>
 
@@ -194,26 +193,24 @@
     <section class="part" data-title="Add the rows">
       <h2>Add the rows</h2>
       <p class="step-label">Step a) Predict</p>
-      <p class="say">To guess the next letter, your model <b>adds</b> the 3 rows together, score by score. Then softmax turns the added scores into chances, just like in <a class="xref" href="lesson4.html#3">Lesson 4</a>.</p>
-      <p class="say">The tables start with <b>random</b> scores, like in Lesson 4. So for now the chances are random too.</p>
+      <p class="say">Your model <b>adds</b> the 3 rows, score by score. Then softmax turns the sums into chances, like in <a class="xref" href="lesson4.html#3">Lesson 4</a>.</p>
+      <p class="say">The scores start <b>random</b>, so the chances are random too.</p>
       <div class="activity">
-        <div class="do">Pick a 3-letter group. Then click any letter's column to see its addition worked out below.</div>
+        <div class="do">Pick a group. Click a column to see its sum.</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="addGroup" class="pick"></select></label></div>
         <div class="table-scroll"><table class="addtab" id="addTab"></table></div>
         <div class="worked" id="addWorked"></div>
         <div class="muted" id="addNote"></div>
       </div>
-      <p class="say">Every column is added the same way. All 14 added scores then go through softmax, so the chances add up to 100%.</p>
       <p class="hook">“cat” and “sat” use two of the same rows. Why does that matter?</p>
     </section>
 
     <!-- 4 -->
     <section class="part" data-title="Shared rows">
       <h2>Shared rows</h2>
-      <p class="say">Compare “<b>c</b>at” and “<b>s</b>at”. They differ only in the third-last letter. So they use the <b>same row</b> <code>a</code> of the second-last table and the <b>same row</b> <code>t</code> of the last table. Those rows are <b>shared</b>.</p>
-      <p class="say">Look at just one guess: how likely is a <b>space</b> next? Each group adds 3 numbers. “cat” and “sat” add <b>two of the very same numbers</b>.</p>
+      <p class="say">“<b>c</b>at” and “<b>s</b>at” differ only in the first letter. So they add <b>two of the very same numbers</b>: those are <b>shared</b>.</p>
       <div class="activity">
-        <div class="do">Press “Learn from cat” a few times. Only “cat” is learned from. Watch what happens to “sat”.</div>
+        <div class="do">Press “Learn from cat” a few times. Watch “sat”.</div>
         <div class="row" style="margin-bottom:12px">
           <button class="primary" id="shLearn">Learn from “cat”</button>
           <span class="muted">Compare “cat” with:</span>
@@ -223,8 +220,8 @@
         <div class="sh-eqs" id="shEqs"></div>
         <div class="sh-result" id="shResult"></div>
       </div>
-      <p class="say">Learning from “cat” changed its 3 rows. Two of them are also used by “sat”, so “sat” got better too, without ever being trained. That is what sharing does: <b>one row helps every group that uses it</b>. Row <code>t</code> of the last table, for example, is used by <b id="shCount"></b> of the 44 groups in our text.</p>
-      <p class="say">One giant table would give each 3-letter group its own row, so learning from “cat” would teach nothing about “sat”. And it needs far more numbers:</p>
+      <p class="say">Learning from “cat” moved its 3 numbers. Two of them are in “sat” too, so “sat” improved without being trained. <b>One row helps every group that uses it.</b></p>
+      <p class="say">A giant table gives every group its own row, so “cat” would teach “sat” nothing. It also needs far more numbers:</p>
       <div class="boxes">
         <div class="box-card"><div class="box-label">One giant table (every 3-letter group × 14 next letters)</div><div class="box-num huge">38,416</div></div>
         <div class="box-card"><div class="box-label">Three small tables (3 × 14 × 14)</div><div class="box-num small">588</div></div>
@@ -235,10 +232,9 @@
     <!-- 5 -->
     <section class="part" data-title="Why not count them?">
       <h2>Why not count them?</h2>
-      <p class="say">In <a class="xref" href="lesson3.html#2">Lesson 3</a> we filled boxes by counting. Let's try that here. For example, the box <code>_ _ t → ␣</code> gets the number of times a space came right after <code>t</code> in our text: 3.</p>
-      <p class="say">Take “mat”. In our text it is always followed by a full stop: “ma<b>t.</b>” Will counted boxes get that right?</p>
+      <p class="say">Can we fill the boxes by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>? Try “mat”: in our text it is always followed by a full stop.</p>
       <div class="activity">
-        <div class="do">Compare counted boxes with learned ones. Which next letter wins?</div>
+        <div class="do">Which next letter wins? Try counting, then learning.</div>
         <div class="row" style="margin-bottom:12px">
           <span class="muted">Group:</span>
           <button class="cnt-g on" data-g="mat">“mat”</button>
@@ -250,20 +246,19 @@
         <div class="sh-eqs" id="cntEqs"></div>
         <div class="sh-result" id="cntNote"></div>
       </div>
-      <p class="say">Counting fails because the boxes are <b>shared</b>. <code>_ a _ → ␣</code> and <code>_ _ t → ␣</code> were counted from “cat ” and “sat ” too, so they push hard for a space, even after “mat”.</p>
-      <p class="say">To get “mat.” right, the box <code>m _ _ → ␣</code> must push <b>back</b>: it needs a <b>negative</b> number. A count can never be negative. It only says how often something happened.</p>
-      <p class="say">Learning can. It nudges all the boxes together until their <b>sum</b> gives good chances. Look at the learned boxes: <code>m _ _ → ␣</code> became <b>−2.16</b>.</p>
-      <p class="say">Numbers like these, used in many guesses and only one part of each, are called <mark>shared numbers</mark>. They can't be filled by counting. They have to be learned.</p>
-      <p class="say">Learning still reads the whole text, many times, like in Lesson 4. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
+      <p class="say">Counting fails because the green boxes are <b>shared</b>: they were also counted from “cat ” and “sat ”, so they push for a space.</p>
+      <p class="say">To fix “mat”, the box <code>m _ _ → ␣</code> must push back with a <b>negative</b> number. A count is never negative. Learning finds it: <b>−2.16</b>.</p>
+      <p class="say">Numbers like these, used in many guesses, are called <mark>shared numbers</mark>. They must be learned.</p>
+      <p class="say">Learning still reads the text many times. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
       <p class="hook">So let it learn, the same way as in Lesson 4.</p>
     </section>
 
     <!-- 6 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The same 4 steps as <a class="xref" href="lesson4.html#7">Lesson 4</a>: a) predict, b) measure, c) find directions, d) move. Now all 3 tables move at every step.</p>
+      <p class="say">The same 4 steps as <a class="xref" href="lesson4.html#7">Lesson 4</a>, now moving all 3 tables.</p>
       <div class="activity">
-        <div class="do">Press Train. Then pick a group to see what your model learned.</div>
+        <div class="do">Press Train, then pick a group.</div>
         <div class="row">
           <button class="primary" id="train">Train 300 steps</button>
           <button id="step1">1 step</button>
@@ -275,15 +270,15 @@
         <div class="top3" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
       </div>
-      <p class="say">With 588 numbers, your model gets almost the same loss as the giant table of 38,416.</p>
-      <p class="say">And try “hat”. It never appears in our text, so the giant table's row for “hat” would be empty. But your model shares row <code>a</code> of the second-last table and row <code>t</code> of the last table with “cat”, “sat” and “mat”, so it still guesses a space.</p>
+      <p class="say">588 numbers reach almost the same loss as the giant table.</p>
+      <p class="say">Try “hat”: it isn't in our text, yet your model guesses a space, thanks to the rows it shares with “cat”, “sat” and “mat”.</p>
       <p class="hook">Now let it write.</p>
     </section>
 
     <!-- 7 -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
-      <p class="say">Writing works like <a class="xref" href="lesson3.html#4">Lesson 3</a>: spin the weighted wheel, add the letter, repeat. The only change: the chances now come from the last <b>3</b> letters.</p>
+      <p class="say">Writing works like <a class="xref" href="lesson3.html#4">Lesson 3</a>, but the chances now come from the last <b>3</b> letters.</p>
       <div class="activity">
         <div class="do">Press Write. Compare with what your model wrote in Lesson 3.</div>
         <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
@@ -292,7 +287,7 @@
         <div class="written-label">Looking at the last letter only (Lesson 3)</div>
         <div class="written">t on dog mat mat. sathe log the mat cat t</div>
       </div>
-      <p class="say">No more “sathe”: after “sat”, your model sees all of “sat”, so a space comes next.</p>
+      <p class="say">No more “sathe”: after “sat”, your model sees all of “sat”.</p>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -391,7 +386,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
     <!-- 9 -->
     <section class="part" data-title="Lesson test">
       <h2>Lesson 5 test</h2>
-      <p class="say">6 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <p class="say">6 questions, one per idea. Get them all right to pass.</p>
       <div class="test" data-test="5">
         <div class="quiz" data-page="lesson5.html#2" data-topic="Three small tables" data-right="Right. In “dog”, the second-last letter is o, so the second-last table uses row o.">
           <div class="q"><small>1. Which row?</small>For the group “dog”, which row does the <b>second-last table</b> use?</div>
@@ -454,15 +449,15 @@ the mat. the cat sat on the dog sat on the </pre></div>
     <!-- 10 -->
     <section class="part" data-title="Letters on their own">
       <h2>Letters on their own</h2>
-      <p class="say">Your model now looks at 3 letters, with only 588 numbers. But each table looks at <b>its own letter only</b>, and the 3 rows are simply added.</p>
+      <p class="say">Each table only looks at its own letter, and the rows are just added.</p>
       <div class="activity">
         <div class="do">Type any 3 letters from our vocabulary. Try “lat”.</div>
         <div class="row"><input class="try-in" id="tryIn" value="lat" maxlength="3" spellcheck="false" autocomplete="off" aria-label="3 letters"></div>
         <div class="top3" id="tryTop"></div>
         <div class="muted" id="tryNote" style="margin-top:8px"></div>
       </div>
-      <p class="say">After “lat”, it guesses a full stop. Why? Row <code>l</code> of the third-last table learned from “<b>l</b>og.”, where a full stop came next. It doesn't see “lat” as one thing: each letter adds its own scores, without looking at the other two.</p>
-      <p class="neo-say">I can look at 3 letters now, and I stopped writing “sathe”! But my letters never talk to each other. Can they work together?</p>
+      <p class="say">After “lat” it guesses a full stop: row <code>l</code> of the third-last table learned from “<b>l</b>og.”. It never sees “lat” as a whole.</p>
+      <p class="neo-say">I stopped writing “sathe”! But my letters never work together.</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Each letter adds its own scores, without looking at the others. How can your model understand letters together?</div>
@@ -610,7 +605,6 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   document.querySelectorAll(".sh-other").forEach(b => b.onclick = () => { other = b.dataset.g; render(); });
   addReset(box, () => { other = "sat"; reset(); render(); });
   reset(); render();
-  document.getElementById("shCount").textContent = GROUPS.filter(x => x.g[2] === "t").length;
 })();
 
 // ---------- 5: fill the tables by counting, then add ----------
