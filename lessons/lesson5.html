@@ -178,11 +178,11 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">I can learn my own numbers now. But I still write words like “sathe”.</p>
-      <p class="say"><a class="xref" href="lesson4.html#10">Lesson 4</a> left your model here:</p>
+      <p class="say">Right now your model:</p>
       <ul class="stuck">
         
-        <li>It sees only the <b>last letter</b>, so it writes “sathe”.</li>
-        <li>Counting the last 3 letters needs <b>38,416 boxes</b>, and almost all <a class="xref" href="lesson3.html#7">stay empty</a>.</li>
+        <li>sees only the <b>last letter</b>, so it writes “sathe”.</li>
+        <li>would need <b>38,416 boxes</b> to count the last 3 letters, and almost all would stay empty.</li>
       </ul>
       <p class="say"><b>Can your model look at the last 3 letters without a giant table?</b></p>
       <p class="hook">What if, instead of one giant table, it used small ones?</p>
@@ -192,7 +192,7 @@
     <section class="part" data-title="Three small tables">
       <h2>Three small tables</h2>
       <p class="say">Your model will look at the last <b>3 letters</b>. In “cat”: third-last <code>c</code>, second-last <code>a</code>, last <code>t</code>.</p>
-      <p class="say">It uses <b>3 small tables</b>, one per position, each 14 × 14 like <span data-peek-from="l4Peek">the table in Lesson 4</span>:</p>
+      <p class="say">It uses <b>3 small tables</b>, one per position, each 14 × 14 like <span data-peek-from="l4Peek">your model's one-letter table</span>:</p>
       <div hidden id="l4Peek"></div>
       <ul class="stuck">
         <li><b>third-last table</b>: looks at <code>c</code></li>
@@ -206,7 +206,7 @@
         <div class="muted" id="groupNote"></div>
         <div class="three" id="three"></div>
       </div>
-      <p class="say">Each letter picks <b>one row</b> in its own table. Each table works like Lesson 4's: one letter → a score for every next letter.</p>
+      <p class="say">Each letter picks <b>one row</b> in its own table. Each row gives a score for every next letter.</p>
       <p class="say">It ignores the letters in between: <code>c _ _ → ?</code>, <code>_ a _ → ?</code>, <code>_ _ t → ?</code>.</p>
       <p class="hook">Three rows. How do they make one guess?</p>
     </section>
@@ -215,7 +215,7 @@
     <section class="part" data-title="Add the rows">
       <h2>Add the rows</h2>
       <p class="step-label">Step a) Predict</p>
-      <p class="say">Your model <b>adds</b> the 3 rows, score by score. Then softmax turns the sums into chances, like in <a class="xref" href="lesson4.html#3">Lesson 4</a>.</p>
+      <p class="say">Your model <b>adds</b> the 3 rows, score by score. Then softmax turns the sums into chances: a higher score gives a higher chance.</p>
       <p class="say">The scores start <b>random</b>, so the chances are random too.</p>
       <div class="activity">
         <div class="do">Pick a group. Click a column to see its sum.</div>
@@ -241,7 +241,7 @@
         </div>
         <div class="sh-eqs" id="shEqs"></div>
         <div class="sh-result" id="shResult"></div>
-        <div class="muted">Only a demo, to show sharing. Real training uses all 44 examples in every step (<a class="xref" href="lesson5.html#6">page 6</a>).</div>
+        <div class="muted">Only a demo, to show sharing. Real training uses all 44 examples in every step, as you'll see two pages on.</div>
       </div>
       <p class="say">Learning from “cat” moved its 3 numbers. Two of them are in “sat” too, so “sat” improved without being trained. <b>One row helps every group that uses it.</b></p>
       <p class="say">A giant table gives every group its own row, so “cat” would teach “sat” nothing. It also needs far more numbers:</p>
@@ -249,13 +249,13 @@
         <div class="box-card"><div class="box-label">One giant table (every 3-letter group × 14 next letters)</div><div class="box-num huge">38,416</div></div>
         <div class="box-card"><div class="box-label">Three small tables (3 × 14 × 14)</div><div class="box-num small">588</div></div>
       </div>
-      <p class="hook">Could we fill these 588 numbers by counting, like in Lesson 3?</p>
+      <p class="hook">Could we fill these 588 numbers just by counting?</p>
     </section>
 
     <!-- 5 -->
     <section class="part" data-title="Why not count them?">
       <h2>Why not count them?</h2>
-      <p class="say">Can we fill the boxes by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>? Try “mat”: in our text it is always followed by a full stop.</p>
+      <p class="say">Can we fill the boxes by counting how often each letter comes next? Try “mat”: in our text it is always followed by a full stop.</p>
       <div class="activity">
         <div class="do">Which next letter wins? Try counting, then learning.</div>
         <div class="row" style="margin-bottom:12px">
@@ -282,7 +282,7 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">For each example, your model guesses. Then it writes down which way each box should move: its <a class="xref" href="lesson4.html#5">gradient</a>. The right answer's boxes should go up.</p>
+      <p class="say">For each example, your model guesses. Then it writes down which way each box should move: its <b>gradient</b>. The right answer's boxes should go up.</p>
       <div class="activity">
         <div class="do">Press “Next example” and watch the 3 boxes. After all 44, move them.</div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
@@ -297,14 +297,14 @@
         </div>
         <div class="sh-result" id="osResult"></div>
       </div>
-      <p class="say">The boxes don't move after each example. The gradients are <b>added up</b> first, so examples that pull opposite ways cancel out. Then every box moves once: <b>new = old − 10 × (total ÷ 44)</b>. 10 is the <a class="xref" href="lesson4.html#7">learning rate</a>.</p>
+      <p class="say">The boxes don't move after each example. The gradients are <b>added up</b> first, so examples that pull opposite ways cancel out. Then every box moves once: <b>new = old − 10 × (total ÷ 44)</b>. 10 is the learning rate: how big each move is.</p>
       <p class="hook">That was one step. Now repeat it 300 times.</p>
     </section>
 
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The step from <a class="xref" href="lesson5.html#6">the last page</a>, repeated. Compare the learned chances with what a giant counting table would give.</p>
+      <p class="say">The step from the last page, repeated. Compare the learned chances with what a giant counting table would give.</p>
       <div class="activity">
         <div class="do">Press Train, then pick a group.</div>
         <div class="row">
@@ -326,13 +326,13 @@
     <!-- 8 -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
-      <p class="say">Writing works like <a class="xref" href="lesson3.html#4">Lesson 3</a>, but the chances now come from the last <b>3</b> letters.</p>
+      <p class="say">Your model writes one letter at a time, picked by chance. The chances now come from the last <b>3</b> letters.</p>
       <div class="activity">
-        <div class="do">Press Write. Compare with what your model wrote in Lesson 3.</div>
+        <div class="do">Press Write. Compare with the old way, looking at the last letter only.</div>
         <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
-        <div class="written-label">Looking at the last 3 letters (this lesson)</div>
+        <div class="written-label">Looking at the last 3 letters (now)</div>
         <div class="written" id="written" aria-live="polite"></div>
-        <div class="written-label">Looking at the last letter only (Lesson 3)</div>
+        <div class="written-label">Looking at the last letter only (before)</div>
         <div class="written">t on dog mat mat. sathe log the mat cat t</div>
       </div>
       <p class="say">No more “sathe”: after “sat”, your model sees all of “sat”.</p>
@@ -378,7 +378,7 @@ table_second_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 table_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 print("Numbers in the model:", 3 * vocab_size * vocab_size)
 
-<span class="c"># Learn: the same 4 steps as Lesson 4, for all 3 tables</span>
+<span class="c"># Learn: predict, measure, find directions, move, for all 3 tables</span>
 learning_rate = 10
 for step in range(300):
     scores = table_third_last[third_last] + table_second_last[second_last] + table_last[last]<span class="c">   # a) predict</span>
@@ -403,7 +403,7 @@ for step in range(40):
     output = output + number_to_char[picked]
 print(output)</code></pre>
       <div class="run-area" style="position:relative">
-        <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What is new compared with Lesson 4?">🤔</button>
+        <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What is new in this code?">🤔</button>
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
         <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out" id="termOut"><span class="prompt">$ python lesson5.py</span>
 Groups: 44
@@ -416,7 +416,7 @@ Step 200 loss: 0.177
 Step 250 loss: 0.175
 the mat. the cat sat on the dog sat on the </pre></div>
       </div>
-      <div hidden id="codePeek"><b>🤔 What is new compared with Lesson 4?</b>
+      <div hidden id="codePeek"><b>🤔 What is new in this code?</b>
         <ul style="margin:6px 0 0; padding-left:1.2em">
           <li>Each group has 3 letters, so there are 3 lists: <code>third_last</code>, <code>second_last</code>, <code>last</code>.</li>
           <li>3 tables instead of 1, and <code>scores</code> adds one row from each.</li>
@@ -543,7 +543,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
 // ---------- 2: hover "the table in Lesson 4" to see it ----------
 (function lesson4Peek() {
   const T = CHAR_TO_NUMBER["t"];
-  let h = `<b>The Lesson 4 table</b><br><span style="font-size:0.85rem">One row for the letter it sees, one column for each possible next letter. These are its random starting scores. Row <b>t</b>: how much each letter is expected right after t.</span>`;
+  let h = `<b>Your model's one-letter table</b><br><span style="font-size:0.85rem">One row for the letter it sees, one column for each possible next letter. These are its random starting scores. Row <b>t</b>: how much each letter is expected right after t.</span>`;
   h += `<div style="overflow-x:auto"><table class="l4t"><tr><th></th>${CHARS.map(c => `<th>${sc(c)}</th>`).join("")}</tr>`;
   INIT_LESSON4.forEach((row, r) => { h += `<tr class="${r === T ? "hl" : ""}"><td>${sc(CHARS[r])}</td>${row.map(v => `<td>${(v <= -0.05 ? "−" : "") + Math.abs(v).toFixed(1)}</td>`).join("")}</tr>`; });
   document.getElementById("l4Peek").innerHTML = h + "</table></div>";
@@ -608,7 +608,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${pctS(ch[col])}</b>`;
     const shown = TEXT.slice(Math.max(0, GROUPS.find(x => x.g === g).at - 4), GROUPS.find(x => x.g === g).at + 3);
     document.getElementById("addNote").innerHTML = `<b>Green column = the right answer.</b> In our text, ${groupLabel(g)} is followed by <b>${nm(nextC)}</b> (“…${shown.replace(/ /g, "␣")}<u>${sc(nextC)}</u>”). ` +
-      `Right now your model gives it only <b>${pctS(ch[real])}</b>, because the scores are still random. Learning (<a class="xref" href="lesson5.html#7">Let it learn</a>) will make it big.`;
+      `Right now your model gives it only <b>${pctS(ch[real])}</b>, because the scores are still random. Learning will make it big.`;
   }
   tab.addEventListener("click", e => { const c = e.target.closest("[data-k]"); if (!c) return; col = Number(c.dataset.k); render(); });
   sel.onchange = render;

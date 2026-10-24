@@ -17,13 +17,13 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Simple code style: `char_to_number`, plain loops, no `zip`, outputs as comments.
 
 ## Lesson structure (same in every lesson)
-1. **The problem:** uses only things the student already knows. Recaps the previous lesson's closing question (linked to that page) and shows something familiar that doesn't work yet. No new words, no solution.
+1. **The problem:** uses only things the student already knows. Recaps the previous lesson's closing question in plain words (no "Lesson N ended with…") and shows something familiar that doesn't work yet. No new words, no solution.
 2. Teaching pages, each with an activity, a reason at the top and a closing line.
 3. **The code:** guess-first, ▶ Run (terminal), 👣 Step through, Python-word cards, Run in Colab.
 4. **Lesson test:** one thought-provoking question per key idea (see the shared GUIDELINES.md, "Lesson tests"). Only what was taught.
 5. **Last page:** the problem the next lesson solves, the model's line, the closing question with the "Building the LLM" path, Mark lesson as done.
 - The closing question must point to exactly what the next lesson delivers. Don't give away the next lesson's solution.
-- Mentions of other lessons link to the exact page (`<a class="xref" href="lesson3.html#3">`). Unbuilt lessons stay plain text.
+- **Don't make the reader recall a lesson by its name.** Say the idea itself in a few words ("by counting how often each letter comes next", not "like in Lesson 3"). Earlier lessons are not named in passing. Lesson names appear only for what's coming ("coming in Lesson 6", "Lesson 6 answers it").
 
 ## Look and feel
 - Notebook style, light background, lots of empty space, few words, no clutter.

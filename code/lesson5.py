@@ -33,7 +33,7 @@ table_second_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 table_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 print("Numbers in the model:", 3 * vocab_size * vocab_size)
 
-# Learn: the same 4 steps as Lesson 4, for all 3 tables
+# Learn: predict, measure, find directions, move, for all 3 tables
 learning_rate = 10
 for step in range(300):
     scores = table_third_last[third_last] + table_second_last[second_last] + table_last[last]   # a) predict

@@ -31,5 +31,5 @@ print(encode("cat"))
 
 print(decode([4, 11, 6]))
 
-# The whole text as a tensor (from Lesson 1)
+# The whole text as a tensor
 print(torch.tensor(encode(text)))

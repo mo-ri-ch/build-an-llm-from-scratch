@@ -35,7 +35,7 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">I see letters everywhere, but they mean nothing to me. Can you turn them into numbers?</p>
-      <p class="say"><a class="xref" href="lesson1.html#7">Lesson 1</a> ended with a question: an LLM reads text, but tensors hold only numbers. How do we turn text into numbers?</p>
+      <p class="say">An LLM reads text, but tensors hold only numbers. How do we turn text into numbers?</p>
       <div class="activity">
         <div class="do">Try it: do math on a letter.</div>
 <pre><code>print("h" + 5)</code></pre>
@@ -58,7 +58,7 @@
       </div>
       <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows.</p>
       <p class="note">The blank tile is the space. It's a character too.</p>
-      <p class="say">Your model learns from this same sentence in <a class="xref" href="lesson3.html#1">Lesson 3</a> and <a class="xref" href="lesson4.html#1">Lesson 4</a>, so these 14 characters will come back.</p>
+      <p class="say">Your model will learn from this same sentence in every lesson, so these 14 characters will come back.</p>
       <p class="hook">Each character has a number now. Let's turn whole words into numbers.</p>
     </section>
 
@@ -128,7 +128,7 @@ print(encode("cat"))
 
 print(decode([4, 11, 6]))
 
-<span class="c"># The whole text as a tensor (from Lesson 1)</span>
+<span class="c"># The whole text as a tensor</span>
 print(torch.tensor(encode(text)))</code></pre>
       <div class="run-area">
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
