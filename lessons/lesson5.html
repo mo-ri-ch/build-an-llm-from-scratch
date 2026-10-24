@@ -133,7 +133,7 @@
       </div>
       <p class="say">Each letter picks <b>one row</b> in its own table. So every guess uses 3 rows: one from each table.</p>
       <p class="say">Each table works like the one in Lesson 4: <b>one letter → a score for every possible next letter</b>. The last table is exactly that table (last letter → next). The other two do the same, but with a letter further back.</p>
-      <p class="say">So each table only looks at <b>2 letters</b>: its own letter and the next one. The letters in between can be anything: <code>c _ _ → ?</code>, <code>_ a _ → ?</code>, <code>_ _ t → ?</code>.</p>
+      <p class="say">So each table only looks at <b>2 specific letters</b>: its own letter and the next one. It has no place for the letters in between, so it uses the same score whatever they are. For example, the third-last table's score for <code>c _ _ → space</code> is used after “cat”, and would be used after “cot” or “cup” too.</p>
       <p class="hook">Three rows. How do they make one guess?</p>
     </section>
 
