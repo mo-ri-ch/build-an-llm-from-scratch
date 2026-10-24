@@ -109,6 +109,9 @@
   .l4t th { color: var(--pencil); }
   .l4t td:first-child { font-weight: 700; color: var(--pencil); text-align: center; }
   .l4t tr.hl td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); color: var(--ink); }
+  .l4t.pk th, .l4t.pk td { padding: 1px 2px; }
+  .l4t td.hc, .l4t th.hc { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .l4t tr.hl td.hc { background: var(--hl-yellow); outline: 2px solid var(--pen); outline-offset: -2px; font-weight: 700; }
   .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
   .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
   .box-label { font-size: 0.85rem; color: var(--pencil); }
@@ -221,6 +224,7 @@
         <div class="do">Pick a group. Click a column to see its sum.</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="addGroup" class="pick"></select></label></div>
         <div class="table-scroll"><table class="addtab" id="addTab"></table></div>
+        <div hidden id="addPeek0"></div><div hidden id="addPeek1"></div><div hidden id="addPeek2"></div>
         <div class="worked" id="addWorked"></div>
         <div class="muted" id="addNote"></div>
       </div>
@@ -592,11 +596,20 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     const rows = [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER[g[t]]]);
     const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0)), ch = softmax(sum);
     const cls = k => [k === real ? "real" : "", k === col ? "pick-col" : ""].join(" ");
-    const labels = [0, 1, 2].map(t => `<span class="op">${t ? "+" : ""}</span>${TABLE_NAMES[t]}, row ${sc(g[t])}`);
+    // hover a table's name to see the whole table, with this row and column marked
+    [0, 1, 2].forEach(t => {
+      const r0 = CHAR_TO_NUMBER[g[t]];
+      let h = `<b>${TABLE_NAMES[t]}</b> (all 14 rows, random starting scores)<br><span style="font-size:0.85rem">Row <b>${sc(g[t])}</b> (yellow): the ${POS[t]} letter of ${groupLabel(g)}. Column <b>${sc(CHARS[col])}</b> (green): the next letter you picked. The marked box is exact; the rest are rounded.</span>`;
+      h += `<div style="overflow-x:auto"><table class="l4t pk"><tr><th></th>${CHARS.map((c, k) => `<th class="${k === col ? "hc" : ""}">${sc(c)}</th>`).join("")}</tr>`;
+      INIT_LESSON5[t].forEach((row, r) => { h += `<tr class="${r === r0 ? "hl" : ""}"><td>${sc(CHARS[r])}</td>${row.map((v, k) => `<td class="${k === col ? "hc" : ""}">${k === col && r === r0 ? fmt(v) : (v <= -0.05 ? "−" : "") + Math.abs(v).toFixed(1)}</td>`).join("")}</tr>`; });
+      document.getElementById("addPeek" + t).innerHTML = h + "</table></div>";
+    });
+    const tname = t => `<span data-peek-from="addPeek${t}">${TABLE_NAMES[t]}</span>`;
+    const labels = [0, 1, 2].map(t => `<span class="op">${t ? "+" : ""}</span>${tname(t)}, row ${sc(g[t])}`);
     let h = `<tr><th></th>${CHARS.map((c, k) => `<th data-k="${k}" class="${cls(k)}">${sc(c)}</th>`).join("")}</tr>`;
     rows.forEach((row, i) => { h += `<tr><td>${labels[i]}</td>${row.map((v, k) => `<td data-k="${k}" class="${cls(k)}">${fmt(v)}</td>`).join("")}</tr>`; });
     h += `<tr class="sum"><td><span class="op">=</span>added</td>${sum.map((v, k) => `<td data-k="${k}" class="${cls(k)}">${fmt(v)}</td>`).join("")}</tr>`;
-    h += `<tr class="chance"><td><span class="op"></span>chance</td>${ch.map((p, k) => `<td data-k="${k}" class="${cls(k)}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
+    h += `<tr class="chance"><td><span class="op"></span>chance</td>${ch.map((p, k) => `<td data-k="${k}" class="${cls(k)}">${pctS(p)}</td>`).join("")}</tr>`;
     tab.innerHTML = h;
     const v = rows.map(r => r[col]), n = sc(CHARS[col]);
     // what each number means: the letter in its position, the gaps as _, then the next letter
@@ -604,7 +617,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     const terms = `${fmt(v[0])} ${v[1] < 0 ? "−" : "+"} ${fmt(Math.abs(v[1]))} ${v[2] < 0 ? "−" : "+"} ${fmt(Math.abs(v[2]))}`;
     document.getElementById("addWorked").innerHTML =
       `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}. Each number means:</span>` +
-      `<div class="pats">${[0, 1, 2].map(t => `<span>${pat(t)} <i>(${TABLE_NAMES[t].toLowerCase()})</i></span><span>${fmt(v[t])}</span>`).join("")}</div>` +
+      `<div class="pats">${[0, 1, 2].map(t => `<span>${pat(t)} <i>(<span data-peek-from="addPeek${t}">${TABLE_NAMES[t].toLowerCase()}</span>)</i></span><span>${fmt(v[t])}</span>`).join("")}</div>` +
       `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${pctS(ch[col])}</b>`;
     const shown = TEXT.slice(Math.max(0, GROUPS.find(x => x.g === g).at - 4), GROUPS.find(x => x.g === g).at + 3);
     document.getElementById("addNote").innerHTML = `<b>Green column = the right answer.</b> In our text, ${groupLabel(g)} is followed by <b>${nm(nextC)}</b> (“…${shown.replace(/ /g, "␣")}<u>${sc(nextC)}</u>”). ` +
