@@ -78,8 +78,8 @@
   .sh-tab { font-size: 0.7rem; color: var(--pencil); }
   .sh-op { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
   .sh-total { font-family: var(--mono); font-size: 1.25rem; min-width: 8em; }
-  .sh-other { padding: 6px 12px; }
-  .sh-other.on { background: var(--ink); color: var(--paper); }
+  .sh-other, .cnt-g, .cnt-m { padding: 6px 12px; }
+  .sh-other.on, .cnt-g.on, .cnt-m.on { background: var(--ink); color: var(--paper); }
   .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
   @media (max-width: 640px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } }
   .sh-tables { display: grid; gap: 12px; }
@@ -235,16 +235,25 @@
     <!-- 5 -->
     <section class="part" data-title="Why not count them?">
       <h2>Why not count them?</h2>
-      <p class="say">Let's try. Fill each table by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>. For example, the last table counts which letter comes right after the last letter. Then add the 3 rows, as your model does.</p>
+      <p class="say">In <a class="xref" href="lesson3.html#2">Lesson 3</a> we filled boxes by counting. Let's try that here. For example, the box <code>_ _ t → ␣</code> gets the number of times a space came right after <code>t</code> in our text: 3.</p>
+      <p class="say">Take “mat”. In our text it is always followed by a full stop: “ma<b>t.</b>” Will counted boxes get that right?</p>
       <div class="activity">
-        <div class="do">Pick a group. Does adding counted rows give the right answer?</div>
-        <div class="row" style="margin-bottom:10px"><label>Group <select id="cntGroup" class="pick"><option>cat</option><option>mat</option></select></label></div>
-        <div class="table-scroll"><table class="addtab" id="cntTab"></table></div>
-        <div class="muted" id="cntNote"></div>
+        <div class="do">Compare counted boxes with learned ones. Which next letter wins?</div>
+        <div class="row" style="margin-bottom:12px">
+          <span class="muted">Group:</span>
+          <button class="cnt-g on" data-g="mat">“mat”</button>
+          <button class="cnt-g" data-g="cat">“cat”</button>
+          <span class="muted" style="margin-left:10px">Boxes filled by:</span>
+          <button class="cnt-m on" data-m="count">counting</button>
+          <button class="cnt-m" data-m="learn">learning</button>
+        </div>
+        <div class="sh-eqs" id="cntEqs"></div>
+        <div class="sh-result" id="cntNote"></div>
       </div>
-      <p class="say">It goes wrong. A count says how often a pair appeared. But here each row is only <b>one part</b> of a guess, added to two other rows. No count can tell you how big each part should be so that the <b>sum</b> comes out right.</p>
-      <p class="say">That's what <b>learning</b> does: guess, measure the loss, and nudge all three rows together until their sum gives good chances.</p>
-      <p class="say">Numbers like these, each used in many guesses and only one part of each, are called <mark>shared numbers</mark>. They can't be filled by counting. They have to be learned.</p>
+      <p class="say">Counting fails because the boxes are <b>shared</b>. <code>_ a _ → ␣</code> and <code>_ _ t → ␣</code> were counted from “cat ” and “sat ” too, so they push hard for a space, even after “mat”.</p>
+      <p class="say">To get “mat.” right, the box <code>m _ _ → ␣</code> must push <b>back</b>: it needs a <b>negative</b> number. A count can never be negative. It only says how often something happened.</p>
+      <p class="say">Learning can. It nudges all the boxes together until their <b>sum</b> gives good chances. Look at the learned boxes: <code>m _ _ → ␣</code> became <b>−2.16</b>.</p>
+      <p class="say">Numbers like these, used in many guesses and only one part of each, are called <mark>shared numbers</mark>. They can't be filled by counting. They have to be learned.</p>
       <p class="say">Learning still reads the whole text, many times, like in Lesson 4. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
       <p class="hook">So let it learn, the same way as in Lesson 4.</p>
     </section>
@@ -606,25 +615,36 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
 
 // ---------- 5: fill the tables by counting, then add ----------
 (function countDemo() {
-  const sel = document.getElementById("cntGroup"), tab = document.getElementById("cntTab");
+  const box = document.getElementById("cntEqs"), note = document.getElementById("cntNote");
+  // counted boxes: how often each letter came next, with this letter in this position
   const counts = [0, 1, 2].map(() => Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0)));
   GROUPS.forEach(x => { const n = CHAR_TO_NUMBER[x.next]; [0, 1, 2].forEach(t => counts[t][CHAR_TO_NUMBER[x.g[t]]][n] += 1); });
+  // learned boxes: a copy of the model, trained the same way as on the next page
+  const learned = new ThreeCharModel(); learned.train(300);
+  let g = "mat", mode = "count";
+  const val = (t, c) => mode === "count" ? counts[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]] : learned.tables[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]];
+  const show = v => mode === "count" ? String(v) : fmt(v);
   function render() {
-    const g = sel.value, nextC = GROUPS.find(x => x.g === g).next, real = CHAR_TO_NUMBER[nextC];
-    const rows = [0, 1, 2].map(t => counts[t][CHAR_TO_NUMBER[g[t]]]);
-    const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0)), total = sum.reduce((a, b) => a + b, 0);
-    const chances = sum.map(v => v / total);
-    let h = `<tr><th></th>${CHARS.map((c, k) => `<th class="${k === real ? "real" : ""}">${sc(c)}</th>`).join("")}</tr>`;
-    rows.forEach((row, i) => { h += `<tr><td>${TABLE_NAMES[i]}, row ${sc(g[i])} (counts)</td>${row.map((v, k) => `<td class="${k === real ? "real" : ""}">${v}</td>`).join("")}</tr>`; });
-    h += `<tr class="sum"><td>added</td>${sum.map((v, k) => `<td class="${k === real ? "real" : ""}">${v}</td>`).join("")}</tr>`;
-    h += `<tr class="chance"><td>chance</td>${chances.map((p, k) => `<td class="${k === real ? "real" : ""}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
-    tab.innerHTML = h;
-    const best = chances.indexOf(Math.max(...chances));
-    document.getElementById("cntNote").innerHTML = `The text says: after “${g}” comes <b>${nm(nextC)}</b>, every time. Added counts give it only <b>${Math.round(chances[real] * 100)}%</b>` +
-      (best !== real ? `, and <b>${nm(CHARS[best])}</b> wins with ${Math.round(chances[best] * 100)}%.` : `, and still give ${CHARS.map((c, k) => k !== real && chances[k] > 0 ? `${nm(c)} ${Math.round(chances[k] * 100)}%` : "").filter(Boolean).join(" and ")}.`);
+    const real = GROUPS.find(x => x.g === g).next, cands = [".", " "];
+    const sums = cands.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0));
+    let chances;
+    if (mode === "count") { const all = CHARS.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0)), tot = all.reduce((a, b) => a + b, 0); chances = cands.map(c => all[CHAR_TO_NUMBER[c]] / tot); }
+    else { const p = learned.predict(g); chances = cands.map(c => p[CHAR_TO_NUMBER[c]]); }
+    const win = sums[0] >= sums[1] ? 0 : 1;
+    box.innerHTML = cands.map((c, i) => `<div class="sh-line"><div class="sh-name">→ ${sc(c)}<small>${nm(c)}${c === real ? ", the right answer" : ""}</small></div>` +
+      [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") +
+        `<div class="sh-card ${t > 0 ? "shared" : ""}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ${sc(c)}</div><div class="sh-num" style="${val(t, c) < 0 ? "color:var(--redpen)" : ""}">${show(val(t, c))}</div><div class="sh-tab">${POS[t]} table</div></div>`).join("") +
+      `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? "chance (sum ÷ all sums)" : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
+    const right = cands.indexOf(real) === win;
+    note.innerHTML = (mode === "count"
+      ? (right ? `Counting picks the right letter for “${g}”, but only just: it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like “cat ” and “sat ”.`
+      : `<b>Learning gets “${g}” right.</b> ${g === "mat" ? "Look at <code>m _ _ → ␣</code>: a negative number that cancels the shared boxes' push for a space." : "Look at <code>c _ _ → .</code>: negative, so the shared boxes' push for a full stop is cancelled."}`);
+    document.querySelectorAll(".cnt-g").forEach(b => b.classList.toggle("on", b.dataset.g === g));
+    document.querySelectorAll(".cnt-m").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
   }
-  sel.onchange = render;
-  addReset(tab, () => { sel.value = "cat"; render(); });
+  document.querySelectorAll(".cnt-g").forEach(b => b.onclick = () => { g = b.dataset.g; render(); });
+  document.querySelectorAll(".cnt-m").forEach(b => b.onclick = () => { mode = b.dataset.m; render(); });
+  addReset(box, () => { g = "mat"; mode = "count"; render(); });
   render();
 })();
 
