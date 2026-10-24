@@ -151,7 +151,7 @@
   .os-head { font-size: 0.95rem; margin: 0 0 10px; }
   .os-head .g { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; margin-right: 8px; }
   .os-push { font-size: 0.98rem; line-height: 1.55; padding: 8px 12px; background: var(--paper); border-left: 3px solid var(--pen); border-radius: 4px; }
-  .os-push code { font-size: 0.85em; }
+  .os-push code, .os-watch code { font-size: 0.85em; white-space: nowrap; }
   .os-push .up { color: var(--good, #1E8F4E); font-weight: 700; white-space: nowrap; }
   .os-push .down { color: var(--redpen); font-weight: 700; white-space: nowrap; }
   .os-watch { margin-top: 12px; padding: 8px 12px; border: 2px dashed var(--good, #1E8F4E); border-radius: 8px; font-size: 0.92rem; }
@@ -823,7 +823,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     const tot = push[W.t][W.r][W.k];
     btn("osWatch").innerHTML = `<div class="title">Watching one shared box: <b><code>_ _ t → ␣</code></b> (last table). Every example ending in t writes its push here:</div>` +
       `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v >= 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${c.v >= 0 ? "↑" : "↓"}${Math.abs(c.v).toFixed(2)}</span>`).join("") : `<span class="muted">nothing yet</span>`}</div>` +
-      `<div class="tot">Total push so far: ${tot >= 0 ? "↑" : "↓"} ${Math.abs(tot).toFixed(2)}` +
+      `<div class="tot">Total push${moved ? "" : " so far"}: ${tot >= 0 ? "↑" : "↓"} ${Math.abs(tot).toFixed(2)}` +
       (moved ? ` → it moved by 10 × ${Math.abs(tot).toFixed(2)} ÷ 44 = ${(LR * Math.abs(tot) / N).toFixed(2)}: <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
     btn("osNext").hidden = done; btn("osAll").hidden = done;
@@ -841,6 +841,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   };
   btn("osAgain").onclick = () => { startStep(); render(); };
   const reset = () => { m.reset(); stepNo = 0; startStep(); render(); };
+  window.__oneStep = () => ({ m, stepNo, noted, moved });   // for automated checks
   addReset(textBox, reset);
   reset();
   // Show me how
@@ -849,17 +850,17 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   if (typeof addTour === "function") addTour(textBox, [
     { run: () => { if (stepNo) reset(); goTo(1); }, at: () => textBox,
       say: "<b>What's this for?</b> This is how the text teaches your model. A window of 3 letters slides along our text. Each position is one example. The first: “the”, followed by a space." },
-    { run: () => goTo(1), at: () => btn("osPush"), keep: () => textBox,
+    { run: () => { if (stepNo) reset(); goTo(1); }, at: () => btn("osPush"), keep: () => textBox,
       say: () => { const ex = m.examples[0], p = chancesOf(ex); return `Your model gave space only <b>${P(p[ex.next])}</b> after “the”. It should be 100%. The gap, 1 − ${(p[ex.next]).toFixed(3)} = <b>${(1 - p[ex.next]).toFixed(3)}</b>, is the push up for space's 3 boxes. The bigger the mistake, the bigger the push.`; } },
-    { run: () => goTo(1), at: () => btn("osWatch"),
+    { run: () => { if (stepNo) reset(); goTo(1); }, at: () => btn("osWatch"),
       say: "Now watch one box: <code>_ _ t → ␣</code>. It's shared: every example that ends in t uses it. Each one writes its push here." },
-    { run: () => goTo(iOf("cat") + 1), at: () => btn("osWatch"), keep: () => textBox,
+    { run: () => { if (stepNo) reset(); goTo(iOf("cat") + 1); }, at: () => btn("osWatch"), keep: () => textBox,
       say: () => `Example ${iOf("cat") + 1}, “cat”, is followed by a space, so it pushes this box <b>up</b> ${chips[chips.length - 1].v.toFixed(2)}.` },
-    { run: () => goTo(iOf("mat") + 1), at: () => btn("osWatch"), keep: () => textBox,
+    { run: () => { if (stepNo) reset(); goTo(iOf("mat") + 1); }, at: () => btn("osWatch"), keep: () => textBox,
       say: () => `Example ${iOf("mat") + 1}, “mat”, is followed by a full stop, not a space. So it pushes this box <b>down</b>, by its chance of space: ${Math.abs(chips[chips.length - 1].v).toFixed(2)}. Opposite directions: they will partly cancel.` },
-    { run: () => goTo(N), at: () => btn("osWatch"),
+    { run: () => { if (stepNo) reset(); goTo(N); }, at: () => btn("osWatch"),
       say: () => `All 44 examples are written down. This box's pushes add up to <b>↑ ${push[W.t][W.r][W.k].toFixed(2)}</b>. Still, nothing has moved yet.` },
-    { run: () => goTo(N), at: () => btn("osMove"), click: () => btn("osMove"),
+    { run: () => { if (stepNo) reset(); goTo(N); }, at: () => btn("osMove"), click: () => btn("osMove"),
       say: "Now move every box once, by its total push." },
     { at: () => btn("osResult"), keep: () => btn("osWatch"),
       say: () => `Every box moved once. This box: ${fmt(before.box)} → <b>${fmt(m.tables[W.t][W.r][W.k])}</b> (10 × ${push[W.t][W.r][W.k].toFixed(2)} ÷ 44). And the guesses got better, see the list. That was <b>one learning step</b>. The next page repeats it 300 times.` },
