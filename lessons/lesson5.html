@@ -729,7 +729,13 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   const L = (t, c) => fmt(learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]]);
   const SUM = c => [0, 1, 2].reduce((a, t) => a + learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0);
   const set = (gg, mm, pp) => () => { g = gg; mode = mm; point = pp; render(); };
+  const ACT = () => box.closest(".activity");
+  const LEARN_BTN = () => ACT().querySelector('.cnt-m[data-m="learn"]');
+  const countTotal = () => CHARS.reduce((a, c) => a + [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0), 0);
+  const pct = c => Math.round(learned.predict("mat")[CHAR_TO_NUMBER[c]] * 100) + "%";
   if (typeof addTour === "function") addTour(box, [   // (older cached copies of the shared design lack it)
+    { run: set("mat", "count", null), at: () => ACT().querySelector(".do"),
+      say: "<b>Why this activity?</b> Your model's 3 small tables have 588 boxes to fill. The easy way would be <b>counting</b>. Let's test it on one group, “mat”: does counting make your model pick the right next letter?" },
     { run: set("mat", "count", null), at: () => textBox,
       say: "Our text. “mat” is always followed by a <b>full stop</b>. So after “mat”, your model should pick a full stop." },
     { run: set("mat", "count", [0, "."]), at: () => card(0, "."), keep: () => textBox,
@@ -740,14 +746,18 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       say: "Add the 3 boxes in each row, like your model does. Full stop: 1 + 1 + 1 = <b>3</b>." },
     { run: set("mat", "count", null), at: () => line(1),
       say: "Space: 0 + 3 + 3 = <b>6</b>." },
+    { run: set("mat", "count", null), at: () => line(0).querySelector(".sh-total"), keep: () => line(1).querySelector(".sh-total"),
+      say: () => `<b>Sums into chances.</b> Do the same for all 14 next letters: the sums add up to <b>${countTotal()}</b> (${CHARS.filter(c => c !== "." && c !== " ").map(c => [c, [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0)]).filter(x => x[1]).map(([c, n]) => `${nm(c)} gets ${n}`).join(", ")}: the last-table box <code>_ _ t → h</code> counts the t in “the”). Divide each sum by that: full stop 3 ÷ ${countTotal()} = <b>${Math.round(300 / countTotal())}%</b>, space 6 ÷ ${countTotal()} = <b>${Math.round(600 / countTotal())}%</b>.` },
     { run: set("mat", "count", null), at: () => line(1).querySelector(".sh-total"),
-      say: "Space has the bigger sum, so space wins. <b>Wrong!</b> The text says a full stop. The green boxes brought in counts from “cat” and “sat”." },
-    { run: set("mat", "count", null), at: () => box.closest(".activity").querySelector('.cnt-m[data-m="learn"]'), click: () => box.closest(".activity").querySelector('.cnt-m[data-m="learn"]'),
-      say: "Now let <b>learning</b> fill the same boxes. Press <b>learning</b>." },
+      say: "Space has the bigger chance, so your model would write a space after “mat”. <b>Wrong!</b> The text says a full stop. The green boxes brought in counts from “cat” and “sat”." },
+    { run: set("mat", "count", null), at: LEARN_BTN, click: LEARN_BTN,
+      say: "So counting fails. Now let <b>learning</b> fill the same boxes, the way your model learned its one-letter table." },
     { run: set("mat", "learn", [0, " "]), at: () => card(0, " "),
       say: () => `<code>m _ _ → ␣</code> is now <b>${L(0, " ")}</b>. Negative: a count can never be that. And <code>m _ _ → .</code> grew to <b>${L(0, ".")}</b>.` },
-    { run: set("mat", "learn", null), at: () => line(0).querySelector(".sh-total"),
-      say: () => `Full stop: <b>${fmt(SUM("."))}</b>, space: ${fmt(SUM(" "))}. Full stop wins. Learning gets “mat” right. Try “cat” and “sat” yourself.` },
+    { run: set("mat", "learn", null), at: () => line(0).querySelector(".sh-total"), keep: () => line(1).querySelector(".sh-total"),
+      say: () => `Full stop: <b>${fmt(SUM("."))}</b>, space: ${fmt(SUM(" "))}. Learned numbers can be negative, so they go through <b>softmax</b> instead: a higher score gives a higher chance. Full stop <b>${pct(".")}</b>, space ${pct(" ")}. Full stop wins: right!` },
+    { run: set("mat", "learn", null), at: () => ACT().querySelector(".do"),
+      say: "<b>What this shows:</b> counting can't fill the 3 small tables, because shared boxes mix in other groups. Learning can, because its numbers can be any size, even negative. That's why your model must <b>learn</b> its numbers. Try “cat” and “sat” yourself." },
   ], { id: "l5-count" });
 })();
 
