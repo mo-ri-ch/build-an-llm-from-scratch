@@ -133,7 +133,21 @@
   .cmp th, .cmp td { padding: 4px 14px 4px 0; text-align: left; }
   .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
 
-  /* Page 7: writing */
+  /* Page 6: one learning step */
+  .window-text.static span { cursor: default; }
+  .window-text.static span:hover { background: none; }
+  .window-text.static .w1, .window-text.static .w2, .window-text.static .w3 { background: var(--hl-yellow); }
+  .os-head { font-size: 0.95rem; margin: 0 0 10px; }
+  .os-head .g { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; margin-right: 8px; }
+  .os-cards .sh-card { min-width: 8.5em; }
+  .os-g { font-family: var(--mono); font-size: 0.8rem; margin-top: 3px; }
+  .os-g .up { color: var(--good, #1E8F4E); font-weight: 700; }
+  .os-g .down { color: var(--redpen); font-weight: 700; }
+  .os-tot { font-family: var(--mono); font-size: 0.75rem; color: var(--pencil); }
+  .top3.cmp4 { grid-template-columns: 6.2em 1fr 3.6em 4.4em; }
+  .top3 .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); text-align: right; }
+
+  /* Page 8: writing */
   .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
   .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
   .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
@@ -250,32 +264,55 @@
       <p class="say">To fix “mat”, the box <code>m _ _ → ␣</code> must push back with a <b>negative</b> number. A count is never negative. Learning finds it: <b>−2.16</b>.</p>
       <p class="say">Numbers like these, used in many guesses, are called <mark>shared numbers</mark>. They must be learned.</p>
       <p class="say">Learning still reads the text many times. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
-      <p class="hook">So let it learn, the same way as in Lesson 4.</p>
+      <p class="hook">How does learning use the text? Watch one step.</p>
     </section>
 
     <!-- 6 -->
+    <section class="part" data-title="One learning step">
+      <h2>One learning step</h2>
+      <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
+      <p class="say">For each example, your model guesses. Then it writes down which way each box should move: its <a class="xref" href="lesson4.html#5">gradient</a>. The right answer's boxes should go up.</p>
+      <div class="activity">
+        <div class="do">Press “Next example” and watch the 3 boxes. After all 44, move them.</div>
+        <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
+        <div class="os-head" id="osHead"></div>
+        <div class="sh-eqs"><div class="sh-line os-cards" id="osCards"></div></div>
+        <div class="muted" id="osOthers" style="margin-top:8px"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="primary" id="osNext">Next example →</button>
+          <button id="osAll">Do all 44</button>
+          <button class="primary" id="osMove" hidden>Move the boxes</button>
+          <button class="primary" id="osAgain" hidden>Start the next step</button>
+        </div>
+        <div class="sh-result" id="osResult"></div>
+      </div>
+      <p class="say">The boxes don't move after each example. The gradients are <b>added up</b> first, so examples that pull opposite ways cancel out. Then every box moves once: <b>new = old − 10 × (total ÷ 44)</b>. 10 is the <a class="xref" href="lesson4.html#7">learning rate</a>.</p>
+      <p class="hook">That was one step. Now repeat it 300 times.</p>
+    </section>
+
+    <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The same 4 steps as <a class="xref" href="lesson4.html#7">Lesson 4</a>, now moving all 3 tables.</p>
+      <p class="say">The step from <a class="xref" href="lesson5.html#6">the last page</a>, repeated. Compare the learned chances with what a giant counting table would give.</p>
       <div class="activity">
         <div class="do">Press Train, then pick a group.</div>
         <div class="row">
           <button class="primary" id="train">Train 300 steps</button>
           <button id="step1">1 step</button>
         </div>
-        <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Green dashed line: the best loss a giant counting table (38,416 boxes) could reach on our text: <b id="bestLoss"></b>.</div>
+        <svg class="chart" id="chart" viewBox="0 0 600 130" role="img" aria-label="Loss over training"></svg>
+        <div class="muted">Green dashed line: the best loss a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 groups)<b id="trainLoss">–</b></div></div>
         <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
-        <div class="top3" id="learnTop"></div>
+        <div class="top3 cmp4" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
       </div>
-      <p class="say">588 numbers reach almost the same loss as the giant table.</p>
+      <p class="say">588 numbers reach almost the same chances as the giant table. Train more and they get even closer.</p>
       <p class="say">Try “hat”: it isn't in our text, yet your model guesses a space, thanks to the rows it shares with “cat”, “sat” and “mat”.</p>
       <p class="hook">Now let it write.</p>
     </section>
 
-    <!-- 7 -->
+    <!-- 8 -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
       <p class="say">Writing works like <a class="xref" href="lesson3.html#4">Lesson 3</a>, but the chances now come from the last <b>3</b> letters.</p>
@@ -291,7 +328,7 @@
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
-    <!-- 8 -->
+    <!-- 9 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
       <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
@@ -383,7 +420,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
       <p class="hook">Time to check what you learned.</p>
     </section>
 
-    <!-- 9 -->
+    <!-- 10 -->
     <section class="part" data-title="Lesson test">
       <h2>Lesson 5 test</h2>
       <p class="say">6 questions, one per idea. Get them all right to pass.</p>
@@ -433,12 +470,12 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#6" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
+        <div class="quiz" data-page="lesson5.html#7" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
           <div class="q"><small>6. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
           <div class="options">
             <button data-why="Nothing was counted. And a counting table's row for “hat” would be empty.">It counted “hat” somewhere</button>
             <button data-right>It shares rows with “cat”, “sat” and “mat”</button>
-            <button data-why="It isn't luck: it gives a space 94%.">It's a lucky guess</button>
+            <button data-why="It isn't luck: every time you train, it gives a space a big chance.">It's a lucky guess</button>
           </div>
           <div class="feedback"></div>
         </div>
@@ -446,7 +483,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
       <p class="hook">What your model still can't do.</p>
     </section>
 
-    <!-- 10 -->
+    <!-- 11 -->
     <section class="part" data-title="Letters on their own">
       <h2>Letters on their own</h2>
       <p class="say">Each table only looks at its own letter, and the rows are just added.</p>
@@ -477,7 +514,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202610241"></script>
-<script src="../assets/course.js"></script>
+<script src="../assets/course.js?v=202610242"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
@@ -488,6 +525,7 @@ const nm = c => c === " " ? "space" : c === "." ? "full stop" : c;   // spoken n
 const fmt = (x, d = 2) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
 const GROUPS = [];                               // every 3-letter group in the text, and the letter after it
 for (let i = 0; i + 3 < TEXT.length; i++) GROUPS.push({ at: i, g: TEXT.slice(i, i + 3), next: TEXT[i + 3] });
+const pctS = p => (p < 0.01 ? (p * 100).toFixed(1) : Math.round(p * 100)) + "%";   // small chances keep one decimal
 const groupLabel = g => "“" + g.replace(/ /g, "␣") + "”";
 const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS = ["third-last", "second-last", "last"];
 
@@ -556,10 +594,10 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     document.getElementById("addWorked").innerHTML =
       `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}. Each number means:</span>` +
       `<div class="pats">${[0, 1, 2].map(t => `<span>${pat(t)} <i>(${TABLE_NAMES[t].toLowerCase()})</i></span><span>${fmt(v[t])}</span>`).join("")}</div>` +
-      `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${Math.round(ch[col] * 100)}%</b>`;
+      `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${pctS(ch[col])}</b>`;
     const shown = TEXT.slice(Math.max(0, GROUPS.find(x => x.g === g).at - 4), GROUPS.find(x => x.g === g).at + 3);
     document.getElementById("addNote").innerHTML = `<b>Green column = the right answer.</b> In our text, ${groupLabel(g)} is followed by <b>${nm(nextC)}</b> (“…${shown.replace(/ /g, "␣")}<u>${sc(nextC)}</u>”). ` +
-      `Right now your model gives it only <b>${Math.round(softmax(CHARS.map((_, k) => [0, 1, 2].reduce((a, t) => a + INIT_LESSON5[t][CHAR_TO_NUMBER[g[t]]][k], 0)))[real] * 100)}%</b>, because the scores are still random. Learning (<a class="xref" href="lesson5.html#6">Let it learn</a>) will make it big.`;
+      `Right now your model gives it only <b>${pctS(ch[real])}</b>, because the scores are still random. Learning (<a class="xref" href="lesson5.html#7">Let it learn</a>) will make it big.`;
   }
   tab.addEventListener("click", e => { const c = e.target.closest("[data-k]"); if (!c) return; col = Number(c.dataset.k); render(); });
   sel.onchange = render;
@@ -642,7 +680,66 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   render();
 })();
 
-// ---------- 6, 7, 10: one model, trained in the browser ----------
+// ---------- 6: one learning step, example by example ----------
+(function oneStep() {
+  const m = new ThreeCharModel(), N = m.examples.length, LR = 10;
+  const textBox = document.getElementById("osText"), cards = document.getElementById("osCards");
+  const btn = id => document.getElementById(id);
+  let total, noted, moved, stepNo, oldScores;
+  textBox.innerHTML = [...TEXT].map((c, i) => `<span data-i="${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
+  const rowsOf = ex => [ex.c1, ex.c2, ex.c3];
+  const chancesOf = ex => softmax(m.scores(ex.c1, ex.c2, ex.c3));
+  const lossOf = () => m.examples.reduce((a, ex) => a - Math.log(chancesOf(ex)[ex.next]), 0) / N;
+  const sign = x => (x < 0 ? "−" : "+") + Math.abs(x).toFixed(2);
+  function note(i) {   // example i writes down its gradients into the totals
+    const ex = m.examples[i], p = chancesOf(ex);
+    rowsOf(ex).forEach((r, t) => { for (let k = 0; k < VOCAB; k++) total[t][r][k] += p[k] - (k === ex.next ? 1 : 0); });
+  }
+  function startStep() {
+    total = [0, 1, 2].map(() => Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0)));
+    noted = 0; moved = false; oldScores = null;
+    note(0); noted = 1;
+  }
+  function render() {
+    const i = noted - 1, ex = m.examples[i], p = chancesOf(ex), rows = rowsOf(ex), k = ex.next, g = TEXT.slice(i, i + 3);
+    textBox.querySelectorAll("span").forEach(s => { const j = Number(s.dataset.i); s.className = j === i ? "w1" : j === i + 1 ? "w2" : j === i + 2 ? "w3" : j === i + 3 ? "wn" : ""; });
+    btn("osHead").innerHTML = `<span class="g">${[...g].map(sc).join(" ")} → ${sc(CHARS[k])}</span> Example ${i + 1} of ${N}. ` +
+      (moved ? `` : `The text says <b>${nm(CHARS[k])}</b>. Your model gives it <b>${p[k] < 0.01 ? (p[k] * 100).toFixed(1) : Math.round(p[k] * 100)}%</b>.`);
+    cards.innerHTML = [0, 1, 2].map(t => {
+      const pat = [0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ") + " → " + sc(CHARS[k]);
+      const sc0 = m.tables[t][rows[t]][k];
+      const body = moved
+        ? `<div class="sh-num">${fmt(oldScores[t])} → ${fmt(sc0)}</div><div class="os-tot">moved by ${sign(sc0 - oldScores[t])}</div>`
+        : `<div class="sh-num">${fmt(sc0)}</div><div class="os-g">this example: <span class="up">${sign(p[k] - 1)} ↑</span></div><div class="os-tot">total so far: ${sign(total[t][rows[t]][k])}</div>`;
+      return (t ? `<div class="sh-op">+</div>` : "") + `<div class="sh-card ${moved ? "moved" : ""}"><div class="sh-pat">${pat}</div>${body}<div class="sh-tab">${POS[t]} table</div></div>`;
+    }).join("");
+    const wrong = p.map((q, j) => [q, j]).filter(([, j]) => j !== k).sort((a, b) => b[0] - a[0])[0];
+    btn("osOthers").innerHTML = moved ? "" :
+      `The other 13 letters in these rows get gradient = their chance, so they go <span style="color:var(--redpen)">down ↓</span> a little. Biggest: <b>${nm(CHARS[wrong[1]])}</b> ${sign(wrong[0])}.`;
+    const done = noted === N;
+    btn("osNext").hidden = done; btn("osAll").hidden = done;
+    btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
+    btn("osResult").innerHTML = moved
+      ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Loss (all 44 examples): ${fmt(oldLoss, 3)} → <b>${fmt(lossOf(), 3)}</b>.`
+      : done ? `All 44 gradients are written down. Now move every box: new = old − 10 × (total ÷ 44).`
+      : `Step ${stepNo + 1}: ${noted} of ${N} examples written down. No box has moved yet.`;
+  }
+  let oldLoss;
+  btn("osNext").onclick = () => { note(noted); noted += 1; render(); };
+  btn("osAll").onclick = () => { while (noted < N) { note(noted); noted += 1; } render(); };
+  btn("osMove").onclick = () => {
+    const ex = m.examples[N - 1], rows = rowsOf(ex);
+    oldScores = [0, 1, 2].map(t => m.tables[t][rows[t]][ex.next]);
+    oldLoss = lossOf();
+    for (let t = 0; t < 3; t++) for (let r = 0; r < VOCAB; r++) for (let k = 0; k < VOCAB; k++) m.tables[t][r][k] -= LR * total[t][r][k] / N;
+    moved = true; stepNo += 1; render();
+  };
+  btn("osAgain").onclick = () => { startStep(); render(); };
+  addReset(textBox, () => { m.reset(); stepNo = 0; startStep(); render(); });
+  stepNo = 0; startStep(); render();
+})();
+
+// ---------- 7, 8, 11: one model, trained in the browser ----------
 const model = new ThreeCharModel();
 const lossHistory = [];
 lossHistory.push(lossNow());
@@ -658,7 +755,7 @@ const BEST = (() => {
   GROUPS.forEach(x => { const c = byGroup[x.g], n = Object.values(c).reduce((a, b) => a + b, 0); total += -Math.log(c[x.next] / n); });
   return total / GROUPS.length;
 })();
-document.getElementById("bestLoss").textContent = BEST.toFixed(3);
+document.getElementById("bestLoss").textContent = BEST.toFixed(4);
 function ensureTrained() { if (model.step === 0) { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); } }
 
 function topList(el, chances, n = 3) {
@@ -666,8 +763,8 @@ function topList(el, chances, n = 3) {
   el.innerHTML = top.map(([p, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(p * 100)}%</span>`).join("");
 }
 function chart() {
-  const svg = document.getElementById("chart"), W = 600, H = 160, L = 40, B = 20, top = 10;
-  const maxL = Math.max(4.2, ...lossHistory), maxS = 300;
+  const svg = document.getElementById("chart"), W = 600, H = 130, L = 40, B = 20, top = 10;
+  const maxL = Math.max(4.2, ...lossHistory), maxS = Math.max(300, lossHistory.length - 1);
   const x = s => L + (W - L - 10) * s / maxS, y = v => top + (H - B - top) * (1 - v / maxL);
   let h = `<line class="axis" x1="${L}" y1="${top}" x2="${L}" y2="${H - B}"/><line class="axis" x1="${L}" y1="${H - B}" x2="${W - 10}" y2="${H - B}"/>`;
   h += `<text x="6" y="${y(4) + 4}">4</text><text x="6" y="${y(0) + 4}">0</text><text x="${W - 50}" y="${H - 4}">steps</text>`;
@@ -681,22 +778,26 @@ learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}$
 function renderTrain() {
   chart();
   document.getElementById("trainSteps").textContent = model.step;
-  document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(3);
+  document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(4);
   const g = learnSel.value;
-  topList(document.getElementById("learnTop"), model.predict(g));
   const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
   const counts = {}; seenNext.forEach(c => counts[c] = (counts[c] || 0) + 1);
-  document.getElementById("learnNote").innerHTML = seenNext.length
-    ? `In the text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.` + (model.step ? "" : " Press Train first: these chances are still random.")
-    : `${groupLabel(g)} never appears in our text. A giant counting table would have an empty row here.` + (model.step ? "" : " Press Train first.");
+  const p = model.predict(g), top = p.map((q, k) => [q, k]).sort((a, b) => b[0] - a[0]).slice(0, 3);
+  const counted = k => seenNext.length ? Math.round(100 * (counts[CHARS[k]] || 0) / seenNext.length) + "%" : "—";
+  document.getElementById("learnTop").innerHTML = `<span></span><span></span><span class="hd">learned</span><span class="hd">counted</span>` +
+    top.map(([q, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span><span class="pct">${counted(k)}</span>`).join("");
+  document.getElementById("learnNote").innerHTML = (seenNext.length
+    ? `Counted = the giant table's chance: in our text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.`
+    : `${groupLabel(g)} never appears in our text, so the giant table's row is empty (—).`) + (model.step ? "" : " Press Train first: the learned chances are still random.");
+  document.getElementById("train").textContent = model.step ? "Train 300 more" : "Train 300 steps";
 }
-document.getElementById("train").onclick = () => { for (let i = 0; i < 300 && model.step < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
-document.getElementById("step1").onclick = () => { if (model.step < 300) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
+document.getElementById("train").onclick = () => { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
+document.getElementById("step1").onclick = () => { model.trainStep(); lossHistory.push(lossNow()); renderTrain(); };
 learnSel.onchange = renderTrain;
 addReset(document.getElementById("chart"), () => { model.reset(); lossHistory.length = 0; lossHistory.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
 renderTrain();
 
-// 7: write with the weighted wheel
+// 8: write with the weighted wheel
 document.getElementById("write").onclick = () => {
   ensureTrained();
   let out = "the";
@@ -705,7 +806,7 @@ document.getElementById("write").onclick = () => {
 };
 addReset(document.getElementById("written"), () => { document.getElementById("written").textContent = ""; });
 
-// 10: any 3 letters
+// 11: any 3 letters
 (function tryDemo() {
   const inp = document.getElementById("tryIn");
   function render() {
@@ -725,7 +826,8 @@ addReset(document.getElementById("written"), () => { document.getElementById("wr
   // trained on first look, so the page opens with the real answer
   const sec = inp.closest("section");
   new MutationObserver(() => { if (!sec.hidden) render(); }).observe(sec, { attributes: true, attributeFilter: ["hidden"] });
-  if (!sec.hidden) render();
+  // the pages are hidden on DOMContentLoaded, after this script runs
+  document.addEventListener("DOMContentLoaded", () => { if (!sec.hidden) render(); });
 })();
 </script>
 </body>
