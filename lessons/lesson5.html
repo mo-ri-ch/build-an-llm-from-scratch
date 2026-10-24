@@ -723,6 +723,32 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   box.addEventListener("mouseleave", () => { point = null; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.remove("pointed")); });
   addReset(box, () => { g = "mat"; mode = "count"; point = null; render(); });
   render();
+  // Show me how: walk through "mat", counting then learning
+  const card = (t, c) => box.querySelector(`.sh-card[data-t="${t}"][data-c="${c}"]`);
+  const line = n => box.querySelectorAll(".sh-line")[n];
+  const L = (t, c) => fmt(learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]]);
+  const SUM = c => [0, 1, 2].reduce((a, t) => a + learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0);
+  const set = (gg, mm, pp) => () => { g = gg; mode = mm; point = pp; render(); };
+  if (typeof addTour === "function") addTour(box, [   // (older cached copies of the shared design lack it)
+    { run: set("mat", "count", null), at: () => textBox,
+      say: "Our text. “mat” is always followed by a <b>full stop</b>. So after “mat”, your model should pick a full stop." },
+    { run: set("mat", "count", [0, "."]), at: () => card(0, "."),
+      say: "Let's fill the boxes by <b>counting</b>. This box is <code>m _ _ → .</code>: m as the third-last letter, then a full stop. Our text has it <b>1</b> time (“mat.”), so it holds 1." },
+    { run: set("mat", "count", [1, " "]), at: () => card(1, " "),
+      say: "This green box is <code>_ a _ → ␣</code>: any group with a in the middle, then a space. It counts “cat ”, “sat ”, “sat ”, so it holds <b>3</b>. None of them is “mat”." },
+    { run: set("mat", "count", null), at: () => line(0),
+      say: "Add the 3 boxes in each row, like your model does. Full stop: 1 + 1 + 1 = <b>3</b>." },
+    { run: set("mat", "count", null), at: () => line(1),
+      say: "Space: 0 + 3 + 3 = <b>6</b>." },
+    { run: set("mat", "count", null), at: () => line(1).querySelector(".sh-total"),
+      say: "Space has the bigger sum, so space wins. <b>Wrong!</b> The text says a full stop. The green boxes brought in counts from “cat” and “sat”." },
+    { run: set("mat", "count", null), at: () => box.closest(".activity").querySelector('.cnt-m[data-m="learn"]'), click: () => box.closest(".activity").querySelector('.cnt-m[data-m="learn"]'),
+      say: "Now let <b>learning</b> fill the same boxes. Press <b>learning</b>." },
+    { run: set("mat", "learn", [0, " "]), at: () => card(0, " "),
+      say: () => `<code>m _ _ → ␣</code> is now <b>${L(0, " ")}</b>. Negative: a count can never be that. And <code>m _ _ → .</code> grew to <b>${L(0, ".")}</b>.` },
+    { run: set("mat", "learn", null), at: () => line(0).querySelector(".sh-total"),
+      say: () => `Full stop: <b>${fmt(SUM("."))}</b>, space: ${fmt(SUM(" "))}. Full stop wins. Learning gets “mat” right. Try “cat” and “sat” yourself.` },
+  ], { id: "l5-count" });
 })();
 
 // ---------- 6: one learning step, example by example ----------
