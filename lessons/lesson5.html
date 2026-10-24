@@ -266,6 +266,7 @@
           <span class="muted">Group:</span>
           <button class="cnt-g on" data-g="mat">“mat”</button>
           <button class="cnt-g" data-g="cat">“cat”</button>
+          <button class="cnt-g" data-g="sat">“sat”</button>
           <span class="muted" style="margin-left:10px">Boxes filled by:</span>
           <button class="cnt-m on" data-m="count">counting</button>
           <button class="cnt-m" data-m="learn">learning</button>
@@ -704,8 +705,8 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? "chance (sum ÷ all sums)" : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
     const right = cands.indexOf(real) === win;
     note.innerHTML = (mode === "count"
-      ? (right ? `Counting picks the right letter for “${g}”, but only just: it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like “cat ” and “sat ”.`
-      : `<b>Learning gets “${g}” right.</b> ${g === "mat" ? "Look at <code>m _ _ → ␣</code>: a negative number that cancels the shared boxes' push for a space." : "Look at <code>c _ _ → .</code>: negative, so the shared boxes' push for a full stop is cancelled."}`);
+      ? (right ? `Counting picks the right letter for “${g}”, but it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like ${["cat", "sat", "mat"].filter(x => x !== g).map(x => groupLabel(x)).join(" and ")}.`
+      : `<b>Learning gets “${g}” right.</b> ${g === "mat" ? "Look at <code>m _ _ → ␣</code>: a negative number that cancels the shared boxes' push for a space." : `Look at <code>${g[0]} _ _ → .</code>: negative, so the shared boxes' push for a full stop is cancelled.`}`);
     markText();
     document.querySelectorAll(".cnt-g").forEach(b => b.classList.toggle("on", b.dataset.g === g));
     document.querySelectorAll(".cnt-m").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
