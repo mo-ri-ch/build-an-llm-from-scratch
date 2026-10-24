@@ -614,8 +614,8 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
 
 // ---------- 6, 7, 10: one model, trained in the browser ----------
 const model = new ThreeCharModel();
-const history = [];
-history.push(lossNow());
+const lossHistory = [];
+lossHistory.push(lossNow());
 function lossNow() {
   let total = 0;
   model.examples.forEach(ex => { total += -Math.log(softmax(model.scores(ex.c1, ex.c2, ex.c3))[ex.next]); });
@@ -629,7 +629,7 @@ const BEST = (() => {
   return total / GROUPS.length;
 })();
 document.getElementById("bestLoss").textContent = BEST.toFixed(3);
-function ensureTrained() { if (model.step === 0) { for (let i = 0; i < 300; i++) { model.trainStep(); history.push(lossNow()); } renderTrain(); } }
+function ensureTrained() { if (model.step === 0) { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); } }
 
 function topList(el, chances, n = 3) {
   const top = chances.map((p, k) => [p, k]).sort((a, b) => b[0] - a[0]).slice(0, n);
@@ -637,12 +637,12 @@ function topList(el, chances, n = 3) {
 }
 function chart() {
   const svg = document.getElementById("chart"), W = 600, H = 160, L = 40, B = 20, top = 10;
-  const maxL = Math.max(4.2, ...history), maxS = 300;
+  const maxL = Math.max(4.2, ...lossHistory), maxS = 300;
   const x = s => L + (W - L - 10) * s / maxS, y = v => top + (H - B - top) * (1 - v / maxL);
   let h = `<line class="axis" x1="${L}" y1="${top}" x2="${L}" y2="${H - B}"/><line class="axis" x1="${L}" y1="${H - B}" x2="${W - 10}" y2="${H - B}"/>`;
   h += `<text x="6" y="${y(4) + 4}">4</text><text x="6" y="${y(0) + 4}">0</text><text x="${W - 50}" y="${H - 4}">steps</text>`;
   h += `<line class="goal" x1="${L}" y1="${y(BEST)}" x2="${W - 10}" y2="${y(BEST)}"/>`;
-  if (history.length > 1) h += `<polyline class="line" points="${history.map((v, s) => `${x(s)},${y(v)}`).join(" ")}"/>`;
+  if (lossHistory.length > 1) h += `<polyline class="line" points="${lossHistory.map((v, s) => `${x(s)},${y(v)}`).join(" ")}"/>`;
   svg.innerHTML = h;
 }
 const learnSel = document.getElementById("learnGroup");
@@ -651,7 +651,7 @@ learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}$
 function renderTrain() {
   chart();
   document.getElementById("trainSteps").textContent = model.step;
-  document.getElementById("trainLoss").textContent = history[history.length - 1].toFixed(3);
+  document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(3);
   const g = learnSel.value;
   topList(document.getElementById("learnTop"), model.predict(g));
   const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
@@ -660,10 +660,10 @@ function renderTrain() {
     ? `In the text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.` + (model.step ? "" : " Press Train first: these chances are still random.")
     : `${groupLabel(g)} never appears in our text. A giant counting table would have an empty row here.` + (model.step ? "" : " Press Train first.");
 }
-document.getElementById("train").onclick = () => { for (let i = 0; i < 300 && model.step < 300; i++) { model.trainStep(); history.push(lossNow()); } renderTrain(); };
-document.getElementById("step1").onclick = () => { if (model.step < 300) { model.trainStep(); history.push(lossNow()); } renderTrain(); };
+document.getElementById("train").onclick = () => { for (let i = 0; i < 300 && model.step < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
+document.getElementById("step1").onclick = () => { if (model.step < 300) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
 learnSel.onchange = renderTrain;
-addReset(document.getElementById("chart"), () => { model.reset(); history.length = 0; history.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
+addReset(document.getElementById("chart"), () => { model.reset(); lossHistory.length = 0; lossHistory.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
 renderTrain();
 
 // 7: write with the weighted wheel
