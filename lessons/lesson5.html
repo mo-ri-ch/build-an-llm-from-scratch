@@ -276,9 +276,9 @@
         <div class="sh-eqs" id="cntEqs"></div>
         <div class="sh-result" id="cntNote"></div>
       </div>
-      <p class="say">Counting fails because the green boxes are <b>shared</b>: they were also counted from “cat ” and “sat ”, so they push for a space.</p>
-      <p class="say">To fix “mat”, its own boxes must beat the shared ones: <code>m _ _ → .</code> goes up to <b>4.87</b>, and <code>m _ _ → ␣</code> goes <b>negative</b>, <b>−2.16</b>. A count is never negative, so counting can't do this. Learning can.</p>
-      <p class="say">Numbers like these, used in many guesses, are called <mark>shared numbers</mark>. They must be learned.</p>
+      <p class="say">Counting goes wrong because the green boxes are <b>shared</b>. They also counted “cat ” and “sat ”, which are followed by a space. So they give space big numbers, even for “mat”.</p>
+      <p class="say">Counting fills each box once and never checks the answer. Learning checks: it guesses, sees it's wrong, fixes the boxes a little, and repeats.</p>
+      <p class="say">Only “mat” uses the m-box, so that's where learning fixes it: <code>m _ _ → .</code> goes up to <b>4.87</b>, and <code>m _ _ → ␣</code> goes down to <b>−2.16</b>. Now full stop wins. A count can never be negative, so counting can't do this.</p>
       <p class="say">Learning still reads the text many times. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
       <p class="hook">How does learning use the text? Watch one step.</p>
     </section>
