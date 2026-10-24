@@ -133,6 +133,14 @@
   .cmp th, .cmp td { padding: 4px 14px 4px 0; text-align: left; }
   .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
 
+  /* Page 5: where each count comes from */
+  .cnt-text { margin: 0 0 12px; }
+  .cnt-text .grp { background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  .cnt-text .key { background: var(--hl-yellow); font-weight: 700; text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  .cnt-text .nx { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  #cntEqs .sh-card { cursor: pointer; }
+  #cntEqs .sh-card.pointed { outline: 3px solid var(--pen); outline-offset: 1px; }
+
   /* Page 6: one learning step */
   .window-text.static span { cursor: default; }
   .window-text.static span:hover { background: none; }
@@ -258,6 +266,8 @@
           <button class="cnt-m on" data-m="count">counting</button>
           <button class="cnt-m" data-m="learn">learning</button>
         </div>
+        <div class="window-text static cnt-text" id="cntText" aria-label="Our text"></div>
+        <div class="muted" id="cntHint" style="margin:-8px 0 10px"></div>
         <div class="sh-eqs" id="cntEqs"></div>
         <div class="sh-result" id="cntNote"></div>
       </div>
@@ -654,7 +664,18 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   GROUPS.forEach(x => { const n = CHAR_TO_NUMBER[x.next]; [0, 1, 2].forEach(t => counts[t][CHAR_TO_NUMBER[x.g[t]]][n] += 1); });
   // learned boxes: a copy of the model, trained the same way as on the next page
   const learned = new ThreeCharModel(); learned.train(300);
-  let g = "mat", mode = "count";
+  let g = "mat", mode = "count", point = null;   // point = [table, next letter] of the box being pointed at
+  const textBox = document.getElementById("cntText");
+  textBox.innerHTML = [...TEXT].map((c, i) => `<span data-i="${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
+  function markText() {
+    // pointed box: every group with that letter in that position, followed by that letter. Otherwise: the group itself.
+    const hits = point ? GROUPS.filter(x => x.g[point[0]] === g[point[0]] && x.next === point[1]) : GROUPS.filter(x => x.g === g);
+    const spans = textBox.querySelectorAll("span"); spans.forEach(s => s.className = "");
+    hits.forEach(x => { for (let j = 0; j < 3; j++) spans[x.at + j].classList.add(point && j === point[0] ? "key" : "grp"); spans[x.at + 3].classList.add("nx"); });
+    document.getElementById("cntHint").innerHTML = point
+      ? `<b>${[0, 1, 2].map(j => j === point[0] ? sc(g[j]) : "_").join(" ")} → ${sc(point[1])}</b>: found <b>${hits.length}</b> time${hits.length === 1 ? "" : "s"} in our text` + (mode === "count" ? ", so the count is " + hits.length + "." : ". The learned number isn't a count.")
+      : `Our text, with ${groupLabel(g)} and the letter after it. Point at a box to see what it counts.`;
+  }
   const val = (t, c) => mode === "count" ? counts[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]] : learned.tables[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]];
   const show = v => mode === "count" ? String(v) : fmt(v);
   function render() {
@@ -666,18 +687,22 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     const win = sums[0] >= sums[1] ? 0 : 1;
     box.innerHTML = cands.map((c, i) => `<div class="sh-line"><div class="sh-name">→ ${sc(c)}<small>${nm(c)}${c === real ? ", the right answer" : ""}</small></div>` +
       [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") +
-        `<div class="sh-card ${t > 0 ? "shared" : ""}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ${sc(c)}</div><div class="sh-num" style="${val(t, c) < 0 ? "color:var(--redpen)" : ""}">${show(val(t, c))}</div><div class="sh-tab">${POS[t]} table</div></div>`).join("") +
+        `<div class="sh-card ${t > 0 ? "shared" : ""} ${point && point[0] === t && point[1] === c ? "pointed" : ""}" data-t="${t}" data-c="${c}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ${sc(c)}</div><div class="sh-num" style="${val(t, c) < 0 ? "color:var(--redpen)" : ""}">${show(val(t, c))}</div><div class="sh-tab">${POS[t]} table</div></div>`).join("") +
       `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? "chance (sum ÷ all sums)" : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
     const right = cands.indexOf(real) === win;
     note.innerHTML = (mode === "count"
       ? (right ? `Counting picks the right letter for “${g}”, but only just: it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like “cat ” and “sat ”.`
       : `<b>Learning gets “${g}” right.</b> ${g === "mat" ? "Look at <code>m _ _ → ␣</code>: a negative number that cancels the shared boxes' push for a space." : "Look at <code>c _ _ → .</code>: negative, so the shared boxes' push for a full stop is cancelled."}`);
+    markText();
     document.querySelectorAll(".cnt-g").forEach(b => b.classList.toggle("on", b.dataset.g === g));
     document.querySelectorAll(".cnt-m").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
   }
   document.querySelectorAll(".cnt-g").forEach(b => b.onclick = () => { g = b.dataset.g; render(); });
   document.querySelectorAll(".cnt-m").forEach(b => b.onclick = () => { mode = b.dataset.m; render(); });
-  addReset(box, () => { g = "mat"; mode = "count"; render(); });
+  box.addEventListener("mouseover", e => { const c = e.target.closest(".sh-card"); if (!c) return; point = [Number(c.dataset.t), c.dataset.c]; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.toggle("pointed", x === c)); });
+  box.addEventListener("click", e => { const c = e.target.closest(".sh-card"); if (!c) return; point = [Number(c.dataset.t), c.dataset.c]; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.toggle("pointed", x === c)); });
+  box.addEventListener("mouseleave", () => { point = null; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.remove("pointed")); });
+  addReset(box, () => { g = "mat"; mode = "count"; point = null; render(); });
   render();
 })();
 
