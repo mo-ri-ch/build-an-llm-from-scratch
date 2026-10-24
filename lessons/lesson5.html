@@ -35,9 +35,15 @@
   @media (max-width: 640px) { .three { gap: 8px; } .mini-grid { font-size: 0.45rem; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); } .mini-sub { font-size: 0.7rem; } .mini-row { font-size: 0.75rem; } }
 
   /* Page 3 and 5: rows added up */
-  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.74rem; margin: 8px 0; }
-  .addtab th, .addtab td { padding: 5px 4px; text-align: right; white-space: nowrap; }
-  .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 12px; }
+  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.76rem; margin: 8px 0; }
+  .addtab th, .addtab td { padding: 6px 4px; text-align: right; white-space: nowrap; }
+  .addtab .op { font-weight: 700; color: var(--ink); display: inline-block; width: 1.1em; }
+  #addTab th[data-k], #addTab td[data-k] { cursor: pointer; }
+  #addTab .pick-col { outline: 2px solid var(--pen); outline-offset: -2px; background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  #addTab .pick-col.real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .worked { font-family: var(--mono); font-size: 1rem; line-height: 1.9; margin: 14px 0 4px; padding: 10px 14px; border-left: 3px solid var(--pen); background: var(--paper); }
+  .worked .lab { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.85rem; }
+  .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 8px; }
   .addtab tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
   .addtab tr.sum td:first-child, .addtab tr.chance td:first-child { color: var(--ink); }
   .addtab tr.chance td { color: var(--pen); }
@@ -134,12 +140,13 @@
       <p class="say">To guess the next letter, your model <b>adds</b> the 3 rows together, score by score. Then softmax turns the added scores into chances, just like in <a class="xref" href="lesson4.html#3">Lesson 4</a>.</p>
       <p class="say">The tables start with <b>random</b> scores, like in Lesson 4. So for now the chances are random too.</p>
       <div class="activity">
-        <div class="do">Pick a 3-letter group. See the 3 rows, the added scores, and the chances.</div>
+        <div class="do">Pick a 3-letter group. Then click any letter's column to see its addition worked out below.</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="addGroup" class="pick"></select></label></div>
         <div class="table-scroll"><table class="addtab" id="addTab"></table></div>
+        <div class="worked" id="addWorked"></div>
         <div class="muted" id="addNote"></div>
       </div>
-      <p class="say">One column, worked out: the score for space after “cat” is <span id="addWorked"></span>.</p>
+      <p class="say">Every column is added the same way. All 14 added scores then go through softmax, so the chances add up to 100%.</p>
       <p class="hook">“cat” and “sat” use two of the same rows. Why does that matter?</p>
     </section>
 
@@ -453,32 +460,32 @@ const TABLE_NAMES = ["Table 1", "Table 2", "Table 3"], POS = ["third-last", "sec
 })();
 
 // ---------- 3: add the 3 rows (random starting scores) ----------
-function addTable(rows, labels, real, chances) {
-  let h = `<tr><th></th>${CHARS.map((c, k) => `<th class="${k === real ? "real" : ""}">${sc(c)}</th>`).join("")}</tr>`;
-  rows.forEach((row, i) => { h += `<tr><td>${labels[i]}</td>${row.map((v, k) => `<td class="${k === real ? "real" : ""}">${fmt(v)}</td>`).join("")}</tr>`; });
-  const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0));
-  h += `<tr class="sum"><td>added</td>${sum.map((v, k) => `<td class="${k === real ? "real" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
-  if (chances) h += `<tr class="chance"><td>chance</td>${chances.map((p, k) => `<td class="${k === real ? "real" : ""}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
-  return { html: h, sum };
-}
 (function addDemo() {
   const sel = document.getElementById("addGroup"), tab = document.getElementById("addTab");
   const picks = ["cat", "sat", "mat", "dog", "the", "at "];
   sel.innerHTML = picks.map(g => `<option value="${g}">${groupLabel(g)}</option>`).join("");
+  let col = CHAR_TO_NUMBER[" "];
   function render() {
-    const g = sel.value, real = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
+    const g = sel.value, nextC = GROUPS.find(x => x.g === g).next, real = CHAR_TO_NUMBER[nextC];
     const rows = [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER[g[t]]]);
-    const labels = [0, 1, 2].map(t => `${TABLE_NAMES[t]}, row ${sc(g[t])}`);
-    const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0));
-    const t = addTable(rows, labels, real, softmax(sum));
-    tab.innerHTML = t.html;
-    document.getElementById("addNote").innerHTML = `Green column: the letter that really comes next in the text (${nm(TEXT[GROUPS.find(x => x.g === g).at + 3])}).`;
+    const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0)), ch = softmax(sum);
+    const cls = k => [k === real ? "real" : "", k === col ? "pick-col" : ""].join(" ");
+    const labels = [0, 1, 2].map(t => `<span class="op">${t ? "+" : ""}</span>${TABLE_NAMES[t]}, row ${sc(g[t])}`);
+    let h = `<tr><th></th>${CHARS.map((c, k) => `<th data-k="${k}" class="${cls(k)}">${sc(c)}</th>`).join("")}</tr>`;
+    rows.forEach((row, i) => { h += `<tr><td>${labels[i]}</td>${row.map((v, k) => `<td data-k="${k}" class="${cls(k)}">${fmt(v)}</td>`).join("")}</tr>`; });
+    h += `<tr class="sum"><td><span class="op">=</span>added</td>${sum.map((v, k) => `<td data-k="${k}" class="${cls(k)}">${fmt(v)}</td>`).join("")}</tr>`;
+    h += `<tr class="chance"><td><span class="op"></span>chance</td>${ch.map((p, k) => `<td data-k="${k}" class="${cls(k)}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
+    tab.innerHTML = h;
+    const v = rows.map(r => r[col]);
+    const terms = `${fmt(v[0])} ${v[1] < 0 ? "−" : "+"} ${fmt(Math.abs(v[1]))} ${v[2] < 0 ? "−" : "+"} ${fmt(Math.abs(v[2]))}`;
+    document.getElementById("addWorked").innerHTML =
+      `<span class="lab">The score for <b>${nm(CHARS[col])}</b> after ${groupLabel(g)}:</span><br>` +
+      `${terms} = <b>${fmt(sum[col])}</b> &nbsp;→&nbsp; chance <b>${Math.round(ch[col] * 100)}%</b>`;
+    document.getElementById("addNote").innerHTML = `Green column: the letter that really comes next in the text (${nm(nextC)}). The scores are still random, so it doesn't get a big chance yet.`;
   }
-  // the worked example always uses "cat" and the space column
-  const sp = CHAR_TO_NUMBER[" "], r = [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER["cat"[t]]][sp]);
-  document.getElementById("addWorked").textContent = `${fmt(r[0])} + ${fmt(r[1])} + ${fmt(r[2])} = ${fmt(r[0] + r[1] + r[2])}`.replace(/\+ −/g, "− ");
+  tab.addEventListener("click", e => { const c = e.target.closest("[data-k]"); if (!c) return; col = Number(c.dataset.k); render(); });
   sel.onchange = render;
-  addReset(tab, () => { sel.value = "cat"; render(); });
+  addReset(tab, () => { sel.value = "cat"; col = CHAR_TO_NUMBER[" "]; render(); });
   render();
 })();
 
