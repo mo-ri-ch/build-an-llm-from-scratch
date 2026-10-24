@@ -118,9 +118,9 @@
       <p class="say">Your model will look at the last <b>3 letters</b>. Take “cat”: the third-last letter is <code>c</code>, the second-last is <code>a</code>, the last is <code>t</code>.</p>
       <p class="say">Instead of one giant table, it uses <b>3 small tables</b>, one for each of those positions. Each is 14 × 14, exactly like the table in <a class="xref" href="lesson4.html#2">Lesson 4</a>:</p>
       <ul class="stuck">
-        <li><b>Table 1</b> looks at the <b>third-last</b> letter.</li>
-        <li><b>Table 2</b> looks at the <b>second-last</b> letter.</li>
-        <li><b>Table 3</b> looks at the <b>last</b> letter.</li>
+        <li>The <b>third-last table</b> looks at the third-last letter (<code>c</code> in “cat”).</li>
+        <li>The <b>second-last table</b> looks at the second-last letter (<code>a</code>).</li>
+        <li>The <b>last table</b> looks at the last letter (<code>t</code>).</li>
       </ul>
       <div class="activity">
         <div class="do">Click any letter in the text. It becomes the next letter to guess, and the 3 letters before it light up.</div>
@@ -130,7 +130,7 @@
         <div class="three" id="three"></div>
       </div>
       <p class="say">Each letter picks <b>one row</b> in its own table. So every guess uses 3 rows: one from each table.</p>
-      <p class="say">Each table works like the one in Lesson 4: <b>one letter → a score for every possible next letter</b>. Table 3 is exactly that table (last letter → next). Tables 1 and 2 do the same, but with a letter further back: “c” in “<b>c</b>at”, two letters before the gap.</p>
+      <p class="say">Each table works like the one in Lesson 4: <b>one letter → a score for every possible next letter</b>. The last table is exactly that table (last letter → next). The other two do the same, but with a letter further back.</p>
       <p class="hook">Three rows. How do they make one guess?</p>
     </section>
 
@@ -154,12 +154,12 @@
     <!-- 4 -->
     <section class="part" data-title="Shared rows">
       <h2>Shared rows</h2>
-      <p class="say">“cat” uses row <code>a</code> of Table 2 and row <code>t</code> of Table 3. So does “sat”, and so does “mat”.</p>
-      <p class="say">So when row <code>t</code> of Table 3 learns something from “cat”, it helps “sat” and “mat” too.</p>
+      <p class="say">“cat” uses row <code>a</code> of the second-last table and row <code>t</code> of the last table. So does “sat”, and so does “mat”.</p>
+      <p class="say">So when row <code>t</code> of the last table learns something from “cat”, it helps “sat” and “mat” too.</p>
       <div class="activity">
         <div class="do">Pick a table and a row. See every 3-letter group in the text that uses it.</div>
         <div class="row" style="margin-bottom:6px">
-          <label>Table <select id="useTable" class="pick"><option value="0">1 (third-last)</option><option value="1">2 (second-last)</option><option value="2" selected>3 (last)</option></select></label>
+          <label>Table <select id="useTable" class="pick"><option value="0">third-last</option><option value="1">second-last</option><option value="2" selected>last</option></select></label>
           <label>Row <select id="useRow" class="pick"></select></label>
         </div>
         <div class="uses" id="usesText"></div>
@@ -176,7 +176,7 @@
     <!-- 5 -->
     <section class="part" data-title="Why not count them?">
       <h2>Why not count them?</h2>
-      <p class="say">Let's try. Fill each table by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>. For example, Table 3 counts which letter comes right after the last letter. Then add the 3 rows, as your model does.</p>
+      <p class="say">Let's try. Fill each table by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>. For example, the last table counts which letter comes right after the last letter. Then add the 3 rows, as your model does.</p>
       <div class="activity">
         <div class="do">Pick a group. Does adding counted rows give the right answer?</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="cntGroup" class="pick"><option>cat</option><option>mat</option></select></label></div>
@@ -208,7 +208,7 @@
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
       </div>
       <p class="say">With 588 numbers, your model gets almost the same loss as the giant table of 38,416.</p>
-      <p class="say">And try “hat”. It never appears in our text, so the giant table's row for “hat” would be empty. But your model shares row <code>a</code> of Table 2 and row <code>t</code> of Table 3 with “cat”, “sat” and “mat”, so it still guesses a space.</p>
+      <p class="say">And try “hat”. It never appears in our text, so the giant table's row for “hat” would be empty. But your model shares row <code>a</code> of the second-last table and row <code>t</code> of the last table with “cat”, “sat” and “mat”, so it still guesses a space.</p>
       <p class="hook">Now let it write.</p>
     </section>
 
@@ -262,23 +262,23 @@ print("Groups:", len(next_chars))
 
 <span class="c"># The model: 3 small tables of random scores</span>
 torch.manual_seed(42)
-table1 = torch.randn((vocab_size, vocab_size), requires_grad=True)
-table2 = torch.randn((vocab_size, vocab_size), requires_grad=True)
-table3 = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_third_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_second_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 print("Numbers in the model:", 3 * vocab_size * vocab_size)
 
 <span class="c"># Learn: the same 4 steps as Lesson 4, for all 3 tables</span>
 learning_rate = 10
 for step in range(300):
-    scores = table1[third_last] + table2[second_last] + table3[last]<span class="c">   # a) predict</span>
+    scores = table_third_last[third_last] + table_second_last[second_last] + table_last[last]<span class="c">   # a) predict</span>
     loss = F.cross_entropy(scores, next_chars)<span class="c">                        # b) measure</span>
-    table1.grad = None
-    table2.grad = None
-    table3.grad = None
+    table_third_last.grad = None
+    table_second_last.grad = None
+    table_last.grad = None
     loss.backward()<span class="c">                                                   # c) find directions</span>
-    table1.data = table1.data - learning_rate * table1.grad<span class="c">            # d) move</span>
-    table2.data = table2.data - learning_rate * table2.grad
-    table3.data = table3.data - learning_rate * table3.grad
+    table_third_last.data = table_third_last.data - learning_rate * table_third_last.grad<span class="c">            # d) move</span>
+    table_second_last.data = table_second_last.data - learning_rate * table_second_last.grad
+    table_last.data = table_last.data - learning_rate * table_last.grad
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
 
@@ -286,7 +286,7 @@ for step in range(300):
 torch.manual_seed(42)
 output = "the"
 for step in range(40):
-    scores = table1[char_to_number[output[-3]]] + table2[char_to_number[output[-2]]] + table3[char_to_number[output[-1]]]
+    scores = table_third_last[char_to_number[output[-3]]] + table_second_last[char_to_number[output[-2]]] + table_last[char_to_number[output[-1]]]
     chances = F.softmax(scores, dim=0)
     picked = torch.multinomial(chances, num_samples=1).item()
     output = output + number_to_char[picked]
@@ -325,12 +325,12 @@ the mat. the cat sat on the dog sat on the </pre></div>
       <h2>Lesson 5 test</h2>
       <p class="say">6 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
       <div class="test" data-test="5">
-        <div class="quiz" data-page="lesson5.html#2" data-topic="Three small tables" data-right="Right. In “dog”, the second-last letter is o, so Table 2 uses row o.">
-          <div class="q"><small>1. Which row?</small>For the group “dog”, which row does <b>Table 2</b> (second-last letter) use?</div>
+        <div class="quiz" data-page="lesson5.html#2" data-topic="Three small tables" data-right="Right. In “dog”, the second-last letter is o, so the second-last table uses row o.">
+          <div class="q"><small>1. Which row?</small>For the group “dog”, which row does the <b>second-last table</b> use?</div>
           <div class="options">
-            <button data-why="d is the third-last letter, so it goes to Table 1.">Row d</button>
+            <button data-why="d is the third-last letter, so it goes to the third-last table.">Row d</button>
             <button data-right>Row o</button>
-            <button data-why="g is the last letter, so it goes to Table 3.">Row g</button>
+            <button data-why="g is the last letter, so it goes to the last table.">Row g</button>
           </div>
           <div class="feedback"></div>
         </div>
@@ -343,11 +343,11 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#4" data-topic="Shared rows" data-right="Right. Both end in “at”: second-last a (Table 2) and last t (Table 3).">
+        <div class="quiz" data-page="lesson5.html#4" data-topic="Shared rows" data-right="Right. Both end in “at”: second-last a and last t.">
           <div class="q"><small>3. Shared</small>Which rows do “cat” and “mat” share?</div>
           <div class="options">
-            <button data-why="c and m are different letters, so Table 1 uses different rows for them.">Table 1 row c and Table 1 row m</button>
-            <button data-right>Table 2 row a and Table 3 row t</button>
+            <button data-why="c and m are different letters, so the third-last table uses different rows for them.">Third-last table, rows c and m</button>
+            <button data-right>Second-last table row a, and last table row t</button>
             <button data-why="They do share rows. Look at the letters they have in the same places.">None</button>
           </div>
           <div class="feedback"></div>
@@ -370,7 +370,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#6" data-topic="Let it learn" data-right="Right. “hat” shares rows a (Table 2) and t (Table 3) with cat, sat and mat, and those rows learned that a space comes next.">
+        <div class="quiz" data-page="lesson5.html#6" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
           <div class="q"><small>6. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
           <div class="options">
             <button data-why="Nothing was counted. And a counting table's row for “hat” would be empty.">It counted “hat” somewhere</button>
@@ -393,7 +393,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
         <div class="top3" id="tryTop"></div>
         <div class="muted" id="tryNote" style="margin-top:8px"></div>
       </div>
-      <p class="say">After “lat”, it guesses a full stop. Why? Row <code>l</code> of Table 1 learned from “<b>l</b>og.”, where a full stop came next. It doesn't see “lat” as one thing: each letter adds its own scores, without looking at the other two.</p>
+      <p class="say">After “lat”, it guesses a full stop. Why? Row <code>l</code> of the third-last table learned from “<b>l</b>og.”, where a full stop came next. It doesn't see “lat” as one thing: each letter adds its own scores, without looking at the other two.</p>
       <p class="neo-say">I can look at 3 letters now, and I stopped writing “sathe”! But my letters never talk to each other. Can they work together?</p>
       <div class="open-question">
         <div>This leaves a question</div>
@@ -426,7 +426,7 @@ const fmt = (x, d = 2) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
 const GROUPS = [];                               // every 3-letter group in the text, and the letter after it
 for (let i = 0; i + 3 < TEXT.length; i++) GROUPS.push({ at: i, g: TEXT.slice(i, i + 3), next: TEXT[i + 3] });
 const groupLabel = g => "“" + g.replace(/ /g, "␣") + "”";
-const TABLE_NAMES = ["Table 1", "Table 2", "Table 3"], POS = ["third-last", "second-last", "last"];
+const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS = ["third-last", "second-last", "last"];
 
 // ---------- 2: the 3-letter window ----------
 (function windowDemo() {
@@ -439,7 +439,7 @@ const TABLE_NAMES = ["Table 1", "Table 2", "Table 3"], POS = ["third-last", "sec
       cells += `<span class="lab" data-t="${t}" data-r="${r}">${sc(CHARS[r])}</span>`;
       for (let c = 0; c < VOCAB; c++) cells += `<span data-t="${t}" data-r="${r}"></span>`;
     }
-    return `<div class="mini"><div class="mini-title">${TABLE_NAMES[t]}</div><div class="mini-sub">${POS[t]} letter</div><div class="mini-grid">${cells}</div><div class="mini-row" data-row="${t}"></div></div>`;
+    return `<div class="mini"><div class="mini-title">${TABLE_NAMES[t]}</div><div class="mini-sub">looks at the ${POS[t]} letter</div><div class="mini-grid">${cells}</div><div class="mini-row" data-row="${t}"></div></div>`;
   }).join("");
   function render() {
     const g = TEXT.slice(nextAt - 3, nextAt);

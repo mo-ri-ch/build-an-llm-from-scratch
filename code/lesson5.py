@@ -28,23 +28,23 @@ print("Groups:", len(next_chars))
 
 # The model: 3 small tables of random scores
 torch.manual_seed(42)
-table1 = torch.randn((vocab_size, vocab_size), requires_grad=True)
-table2 = torch.randn((vocab_size, vocab_size), requires_grad=True)
-table3 = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_third_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_second_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table_last = torch.randn((vocab_size, vocab_size), requires_grad=True)
 print("Numbers in the model:", 3 * vocab_size * vocab_size)
 
 # Learn: the same 4 steps as Lesson 4, for all 3 tables
 learning_rate = 10
 for step in range(300):
-    scores = table1[third_last] + table2[second_last] + table3[last]   # a) predict
+    scores = table_third_last[third_last] + table_second_last[second_last] + table_last[last]   # a) predict
     loss = F.cross_entropy(scores, next_chars)                        # b) measure
-    table1.grad = None
-    table2.grad = None
-    table3.grad = None
+    table_third_last.grad = None
+    table_second_last.grad = None
+    table_last.grad = None
     loss.backward()                                                   # c) find directions
-    table1.data = table1.data - learning_rate * table1.grad            # d) move
-    table2.data = table2.data - learning_rate * table2.grad
-    table3.data = table3.data - learning_rate * table3.grad
+    table_third_last.data = table_third_last.data - learning_rate * table_third_last.grad            # d) move
+    table_second_last.data = table_second_last.data - learning_rate * table_second_last.grad
+    table_last.data = table_last.data - learning_rate * table_last.grad
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
 
@@ -52,7 +52,7 @@ for step in range(300):
 torch.manual_seed(42)
 output = "the"
 for step in range(40):
-    scores = table1[char_to_number[output[-3]]] + table2[char_to_number[output[-2]]] + table3[char_to_number[output[-1]]]
+    scores = table_third_last[char_to_number[output[-3]]] + table_second_last[char_to_number[output[-2]]] + table_last[char_to_number[output[-1]]]
     chances = F.softmax(scores, dim=0)
     picked = torch.multinomial(chances, num_samples=1).item()
     output = output + number_to_char[picked]
