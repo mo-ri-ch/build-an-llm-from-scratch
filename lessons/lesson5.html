@@ -66,6 +66,22 @@
   .k.a, .sh tr.a td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); }
   .k.b, .sh tr.b td { background: color-mix(in srgb, var(--hl-blue) 45%, transparent); }
   .k.both, .sh tr.both td { background: color-mix(in srgb, var(--hl-green) 60%, transparent); }
+  .sh-eqs { display: grid; gap: 14px; }
+  .sh-line { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+  .sh-name { width: 5.2em; flex: none; font-family: var(--mono); font-size: 1.15rem; font-weight: 700; }
+  .sh-name small, .sh-total small { display: block; font-family: var(--body, inherit); font-weight: 400; font-size: 0.75rem; color: var(--pencil); }
+  .sh-card { border: 2px solid var(--grid, #d9dfeb); border-radius: 8px; padding: 6px 10px; text-align: center; background: var(--card, #fff); min-width: 5.6em; transition: transform 0.2s; }
+  .sh-card.shared { border-color: var(--good, #1E8F4E); background: color-mix(in srgb, var(--hl-green) 40%, var(--card, #fff)); }
+  .sh-card.moved .sh-num { color: var(--pen); }
+  .sh-pat { font-family: var(--mono); font-size: 0.85rem; }
+  .sh-num { font-family: var(--mono); font-size: 1.25rem; font-weight: 700; }
+  .sh-tab { font-size: 0.7rem; color: var(--pencil); }
+  .sh-op { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
+  .sh-total { font-family: var(--mono); font-size: 1.25rem; min-width: 8em; }
+  .sh-other { padding: 6px 12px; }
+  .sh-other.on { background: var(--ink); color: var(--paper); }
+  .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+  @media (max-width: 640px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } }
   .sh-tables { display: grid; gap: 12px; }
   .sh-minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .sh-mini .sh-title { text-align: center; font-size: 0.9rem; }
@@ -87,7 +103,7 @@
   .sh tr.a td:first-child, .sh tr.b td:first-child, .sh tr.both td:first-child { color: var(--ink); }
   .sh td.chg { font-weight: 700; color: var(--pen); }
   .sh-result i { color: var(--pencil); font-style: normal; font-size: 0.85rem; }
-  .sh-result { font-family: var(--mono); font-size: 0.8rem; line-height: 1.6; margin-bottom: 12px; min-height: 1.7em; }
+  .sh-result { font-size: 0.95rem; line-height: 1.6; margin-top: 14px; margin-bottom: 12px; min-height: 1.7em; }
   .l4t { border-collapse: collapse; font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; }
   .l4t th, .l4t td { padding: 1px 3px; text-align: right; }
   .l4t th { color: var(--pencil); }
@@ -195,16 +211,17 @@
     <section class="part" data-title="Shared rows">
       <h2>Shared rows</h2>
       <p class="say">Compare “<b>c</b>at” and “<b>s</b>at”. They differ only in the third-last letter. So they use the <b>same row</b> <code>a</code> of the second-last table and the <b>same row</b> <code>t</code> of the last table. Those rows are <b>shared</b>.</p>
+      <p class="say">Look at just one guess: how likely is a <b>space</b> next? Each group adds 3 numbers. “cat” and “sat” add <b>two of the very same numbers</b>.</p>
       <div class="activity">
-        <div class="do">Pick two groups. Press “Learn from the first group” a few times, and watch the second group.</div>
-        <div class="row" style="margin-bottom:8px">
-          <label>First <select id="shA" class="pick sh-sel"></select></label>
-          <label>Second <select id="shB" class="pick sh-sel"></select></label>
-          <button class="primary" id="shLearn">Learn from the first group</button>
+        <div class="do">Press “Learn from cat” a few times. Only “cat” is learned from. Watch what happens to “sat”.</div>
+        <div class="row" style="margin-bottom:12px">
+          <button class="primary" id="shLearn">Learn from “cat”</button>
+          <span class="muted">Compare “cat” with:</span>
+          <button class="sh-other on" data-g="sat">“sat”</button>
+          <button class="sh-other" data-g="dog">“dog”</button>
         </div>
+        <div class="sh-eqs" id="shEqs"></div>
         <div class="sh-result" id="shResult"></div>
-        <div class="sh-tables" id="shTables"></div>
-        <div class="sh-legend"><span class="it"><span class="k a"></span> first group only</span><span class="it"><span class="k b"></span> second group only</span><span class="it"><span class="k both"></span> both: shared</span><span class="it">The 3 pictures are the full tables (darker = bigger; hover to read a number).</span></div>
       </div>
       <p class="say">Learning from “cat” changed its 3 rows. Two of them are also used by “sat”, so “sat” got better too, without ever being trained. That is what sharing does: <b>one row helps every group that uses it</b>. Row <code>t</code> of the last table, for example, is used by <b id="shCount"></b> of the 44 groups in our text.</p>
       <p class="say">One giant table would give each 3-letter group its own row, so learning from “cat” would teach nothing about “sat”. And it needs far more numbers:</p>
@@ -548,68 +565,42 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
 
 // ---------- 4: which groups use a row ----------
 (function sharedDemo() {
-  const selA = document.getElementById("shA"), selB = document.getElementById("shB"), box = document.getElementById("shTables"), res = document.getElementById("shResult");
-  const opts = ["cat", "sat", "mat", "dog", "hat"];
-  const label = g => groupLabel(g) + (GROUPS.some(x => x.g === g) ? "" : " (new)");
-  selA.innerHTML = opts.map(g => `<option value="${g}">${label(g)}</option>`).join("");
-  selB.innerHTML = opts.map(g => `<option value="${g}">${label(g)}</option>`).join("");
-  let tables, changed, before, steps = 0;
-  const answer = g => { const x = GROUPS.find(y => y.g === g); return x ? x.next : " "; };
-  const scoresOf = g => CHARS.map((_, k) => [0, 1, 2].reduce((a, t) => a + tables[t][CHAR_TO_NUMBER[g[t]]][k], 0));
-  const chanceOf = (g, c) => softmax(scoresOf(g))[CHAR_TO_NUMBER[c]];
-  const scoreOf = (g, c) => scoresOf(g)[CHAR_TO_NUMBER[c]];
+  const box = document.getElementById("shEqs"), res = document.getElementById("shResult");
+  const SP = CHAR_TO_NUMBER[" "];
+  let tables, other = "sat", steps = 0, start;
+  const score = (t, c) => tables[t][CHAR_TO_NUMBER[c]][SP];
+  const total = g => [0, 1, 2].reduce((a, t) => a + tables[t][CHAR_TO_NUMBER[g[t]]][SP], 0);
+  const chance = g => softmax(CHARS.map((_, k) => [0, 1, 2].reduce((a, t) => a + tables[t][CHAR_TO_NUMBER[g[t]]][k], 0)))[SP];
   const pct = p => p < 0.1 ? (p * 100).toFixed(1) + "%" : Math.round(p * 100) + "%";
-  function reset() { tables = INIT_LESSON5.map(copyTable); changed = null; before = null; steps = 0; }
+  function reset() { tables = INIT_LESSON5.map(copyTable); steps = 0; start = { cat: chance("cat"), sat: chance("sat"), dog: chance("dog") }; }
+  function card(t, g, shared, moved) {
+    return `<div class="sh-card ${shared ? "shared" : ""} ${moved ? "moved" : ""}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ␣</div><div class="sh-num">${fmt(score(t, g[t]))}</div><div class="sh-tab">${POS[t]} table</div></div>`;
+  }
+  function line(g, isTrained) {
+    const sharedWith = g === "cat" ? other : "cat";
+    return `<div class="sh-line"><div class="sh-name">“${g}”${isTrained ? `<small>learned from</small>` : `<small>never learned from</small>`}</div>` +
+      [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") + card(t, g, g[t] === sharedWith[t], steps > 0 && "cat"[t] === g[t])).join("") +
+      `<div class="sh-op">=</div><div class="sh-total"><b>${fmt(total(g))}</b><small>chance of space: ${steps ? pct(start[g]) + " → " : ""}<b>${pct(chance(g))}</b></small></div></div>`;
+  }
   function render() {
-    const A = selA.value, B = selB.value;
-    // Top: the 3 full tables, small, every number shaded (hover a square to read it). The used rows are coloured.
-    const shade = v => { const k = Math.max(-1, Math.min(1, v / 2.5)); return k >= 0 ? `color-mix(in srgb, var(--pen) ${Math.round(k * 55)}%, transparent)` : `color-mix(in srgb, var(--redpen) ${Math.round(-k * 45)}%, transparent)`; };
-    let h = `<div class="sh-minis">` + [0, 1, 2].map(t => {
-      const ra = A[t], rb = B[t];
-      let g = `<div class="sh-mini"><div class="sh-title">${TABLE_NAMES[t]}</div><div class="sh-grid">`;
-      CHARS.forEach((c, r) => {
-        const cls = c === ra && c === rb ? "both" : c === ra ? "a" : c === rb ? "b" : "";
-        g += `<span class="lab ${cls}">${sc(c)}</span>` + tables[t][r].map((v, k) => `<span class="${cls}" style="background:${shade(v)}" title="row ${sc(c)}, column ${sc(CHARS[k])}: ${fmt(v)}"></span>`).join("");
-      });
-      return g + `</div></div>`;
-    }).join("") + `</div>`;
-    // Bottom: the numbers of the rows the two groups use
-    h += `<div class="table-scroll"><table class="sh"><tr><th></th>${CHARS.map(c => `<th>${sc(c)}</th>`).join("")}</tr>`;
-    [0, 1, 2].forEach(t => {
-      const rowsHere = A[t] === B[t] ? [[A[t], "both", `${groupLabel(A)} and ${groupLabel(B)}`]] : [[A[t], "a", groupLabel(A)], [B[t], "b", groupLabel(B)]];
-      rowsHere.forEach(([c, cls, who]) => {
-        const r = CHAR_TO_NUMBER[c];
-        h += `<tr class="${cls}"><td>${POS[t]} <b>${sc(c)}</b></td>${tables[t][r].map(v => `<td class="${changed && changed[t] === r ? "chg" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
-      });
-    });
-    box.innerHTML = h + `</table></div>`;
-    const shared = [0, 1, 2].filter(t => A[t] === B[t]).map(t => `row ${sc(A[t])} of the ${TABLE_NAMES[t].toLowerCase()}`);
-    const cA = answer(A), cB = answer(B);
-    let html = shared.length ? `${groupLabel(A)} and ${groupLabel(B)} share ${shared.join(" and ")}.` : `${groupLabel(A)} and ${groupLabel(B)} share no rows.`;
-    const line = (g, c, b) => `${groupLabel(g)} → <b>${nm(c)}</b>: score ${b ? fmt(b.s) + " → " : ""}<b>${fmt(scoreOf(g, c))}</b>, chance ${b ? pct(b.p) + " → " : ""}<b>${pct(chanceOf(g, c))}</b>`;
-    if (before) {
-      html += `<br>After learning from ${groupLabel(A)} ${steps === 1 ? "once" : steps + " times"}:<br>${line(A, cA, before.a)}<br>${line(B, cB, before.b)}` +
-        (A === B ? "" : shared.length ? ` <i>(never trained, but it shares rows)</i>` : ` <i>(no change: no shared rows)</i>`);
-    } else {
-      html += `<br>${line(A, cA)}<br>${line(B, cB)}`;
-    }
-    res.innerHTML = html;
+    box.innerHTML = line("cat", true) + line(other, false);
+    document.querySelectorAll(".sh-other").forEach(b => b.classList.toggle("on", b.dataset.g === other));
+    const shared = [0, 1, 2].filter(t => "cat"[t] === other[t]);
+    res.innerHTML = shared.length
+      ? `<span class="k both"></span> Green boxes are <b>the same number</b>, used by both groups: ${shared.map(t => `${POS[t]} <b>${sc(other[t])}</b> → space`).join(" and ")}.` +
+        (steps ? ` They moved when “cat” learned, so “${other}” changed too.` : "")
+      : `“cat” and “dog” share <b>no</b> numbers.` + (steps ? ` So learning from “cat” changed nothing for “dog”.` : "");
   }
   document.getElementById("shLearn").onclick = () => {
-    // one learning step on the first group only: its 3 rows move against their gradients (learning rate 1)
-    const A = selA.value, B = selB.value, y = CHAR_TO_NUMBER[answer(A)];
-    before = before || { a: { s: scoreOf(A, answer(A)), p: chanceOf(A, answer(A)) }, b: { s: scoreOf(B, answer(B)), p: chanceOf(B, answer(B)) } };
-    steps += 1;
-    const rows = [0, 1, 2].map(t => CHAR_TO_NUMBER[A[t]]);
+    // one learning step on "cat" only: its 3 rows move against their gradients (learning rate 1)
+    const rows = [0, 1, 2].map(t => CHAR_TO_NUMBER["cat"[t]]);
     const p = softmax(CHARS.map((_, k) => rows.reduce((a, r, t) => a + tables[t][r][k], 0)));
-    rows.forEach((r, t) => { for (let k = 0; k < VOCAB; k++) tables[t][r][k] -= 1 * (p[k] - (k === y ? 1 : 0)); });
-    changed = rows;
-    render();
+    rows.forEach((r, t) => { for (let k = 0; k < VOCAB; k++) tables[t][r][k] -= 1 * (p[k] - (k === SP ? 1 : 0)); });
+    steps += 1; render();
   };
-  const fresh = () => { reset(); render(); };
-  selA.onchange = fresh; selB.onchange = fresh;
-  addReset(box, () => { selA.value = "cat"; selB.value = "sat"; fresh(); });
-  selA.value = "cat"; selB.value = "sat"; fresh();
+  document.querySelectorAll(".sh-other").forEach(b => b.onclick = () => { other = b.dataset.g; render(); });
+  addReset(box, () => { other = "sat"; reset(); render(); });
+  reset(); render();
   document.getElementById("shCount").textContent = GROUPS.filter(x => x.g[2] === "t").length;
 })();
 
