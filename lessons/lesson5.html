@@ -277,7 +277,7 @@
         <div class="sh-result" id="cntNote"></div>
       </div>
       <p class="say">Counting fails because the green boxes are <b>shared</b>: they were also counted from “cat ” and “sat ”, so they push for a space.</p>
-      <p class="say">To fix “mat”, the box <code>m _ _ → ␣</code> must push back with a <b>negative</b> number. A count is never negative. Learning finds it: <b>−2.16</b>.</p>
+      <p class="say">To fix “mat”, its own boxes must beat the shared ones: <code>m _ _ → .</code> goes up to <b>4.87</b>, and <code>m _ _ → ␣</code> goes <b>negative</b>, <b>−2.16</b>. A count is never negative, so counting can't do this. Learning can.</p>
       <p class="say">Numbers like these, used in many guesses, are called <mark>shared numbers</mark>. They must be learned.</p>
       <p class="say">Learning still reads the text many times. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
       <p class="hook">How does learning use the text? Watch one step.</p>
@@ -706,7 +706,12 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     const right = cands.indexOf(real) === win;
     note.innerHTML = (mode === "count"
       ? (right ? `Counting picks the right letter for “${g}”, but it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like ${["cat", "sat", "mat"].filter(x => x !== g).map(x => groupLabel(x)).join(" and ")}.`
-      : `<b>Learning gets “${g}” right.</b> ${g === "mat" ? "Look at <code>m _ _ → ␣</code>: a negative number that cancels the shared boxes' push for a space." : `Look at <code>${g[0]} _ _ → .</code>: negative, so the shared boxes' push for a full stop is cancelled.`}`);
+      : (() => {
+          const own = c => fmt(learned.tables[0][CHAR_TO_NUMBER[g[0]]][CHAR_TO_NUMBER[c]]);
+          return `<b>Learning gets “${g}” right.</b> ` + (real === "."
+            ? `Its own box <code>${g[0]} _ _ → .</code> is big (${own(".")}), and <code>${g[0]} _ _ → ␣</code> is negative (${own(" ")}). Together they beat the shared boxes' push for a space.`
+            : `Its own box <code>${g[0]} _ _ → .</code> is negative (${own(".")}), so the full stop drops to almost 0%.`);
+        })());
     markText();
     document.querySelectorAll(".cnt-g").forEach(b => b.classList.toggle("on", b.dataset.g === g));
     document.querySelectorAll(".cnt-m").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
