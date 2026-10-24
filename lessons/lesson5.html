@@ -732,9 +732,9 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   if (typeof addTour === "function") addTour(box, [   // (older cached copies of the shared design lack it)
     { run: set("mat", "count", null), at: () => textBox,
       say: "Our text. “mat” is always followed by a <b>full stop</b>. So after “mat”, your model should pick a full stop." },
-    { run: set("mat", "count", [0, "."]), at: () => card(0, "."),
+    { run: set("mat", "count", [0, "."]), at: () => card(0, "."), keep: () => textBox,
       say: "Let's fill the boxes by <b>counting</b>. This box is <code>m _ _ → .</code>: m as the third-last letter, then a full stop. Our text has it <b>1</b> time (“mat.”), so it holds 1." },
-    { run: set("mat", "count", [1, " "]), at: () => card(1, " "),
+    { run: set("mat", "count", [1, " "]), at: () => card(1, " "), keep: () => textBox,
       say: "This green box is <code>_ a _ → ␣</code>: any group with a in the middle, then a space. It counts “cat ”, “sat ”, “sat ”, so it holds <b>3</b>. None of them is “mat”." },
     { run: set("mat", "count", null), at: () => line(0),
       say: "Add the 3 boxes in each row, like your model does. Full stop: 1 + 1 + 1 = <b>3</b>." },
