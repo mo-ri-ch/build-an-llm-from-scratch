@@ -732,6 +732,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   const ACT = () => box.closest(".activity");
   const LEARN_BTN = () => ACT().querySelector('.cnt-m[data-m="learn"]');
   const countTotal = () => CHARS.reduce((a, c) => a + [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0), 0);
+  const OTHERS = () => CHARS.filter(c => c !== "." && c !== " ").map(c => [c, [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0)]).filter(x => x[1]);
   const pct = c => Math.round(learned.predict("mat")[CHAR_TO_NUMBER[c]] * 100) + "%";
   if (typeof addTour === "function") addTour(box, [   // (older cached copies of the shared design lack it)
     { run: set("mat", "count", null), at: () => ACT().querySelector(".do"),
@@ -747,7 +748,9 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     { run: set("mat", "count", null), at: () => line(1),
       say: "Space: 0 + 3 + 3 = <b>6</b>." },
     { run: set("mat", "count", null), at: () => line(0).querySelector(".sh-total"), keep: () => line(1).querySelector(".sh-total"),
-      say: () => `<b>Sums into chances.</b> Do the same for all 14 next letters: the sums add up to <b>${countTotal()}</b> (${CHARS.filter(c => c !== "." && c !== " ").map(c => [c, [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0)]).filter(x => x[1]).map(([c, n]) => `${nm(c)} gets ${n}`).join(", ")}: the last-table box <code>_ _ t → h</code> counts the t in “the”). Divide each sum by that: full stop 3 ÷ ${countTotal()} = <b>${Math.round(300 / countTotal())}%</b>, space 6 ÷ ${countTotal()} = <b>${Math.round(600 / countTotal())}%</b>.` },
+      say: () => `<b>Now turn the sums into chances.</b> A letter's chance is its share of all the sums. Full stop has 3, space has 6. ${OTHERS().map(([c, n]) => `One more letter gets some: <b>${nm(c)}</b> has ${n} (in “the”, t is followed by h).`).join(" ")} All together: ${["3", "6", ...OTHERS().map(x => x[1])].join(" + ")} = <b>${countTotal()}</b>.` },
+    { run: set("mat", "count", null), at: () => line(0).querySelector(".sh-total"), keep: () => line(1).querySelector(".sh-total"),
+      say: () => `Full stop: 3 out of ${countTotal()} = <b>${Math.round(300 / countTotal())}%</b>.<br>Space: 6 out of ${countTotal()} = <b>${Math.round(600 / countTotal())}%</b>.<br>${OTHERS().map(([c, n]) => `(${nm(c)} gets the other ${Math.round(100 * n / countTotal())}%.)`).join(" ")}` },
     { run: set("mat", "count", null), at: () => line(1).querySelector(".sh-total"),
       say: "Space has the bigger chance, so your model would write a space after “mat”. <b>Wrong!</b> The text says a full stop. The green boxes brought in counts from “cat” and “sat”." },
     { run: set("mat", "count", null), at: LEARN_BTN, click: LEARN_BTN,
