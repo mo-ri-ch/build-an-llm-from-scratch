@@ -74,6 +74,11 @@
   .sh td.chg { font-weight: 700; color: var(--pen); }
   .sh-result i { color: var(--pencil); font-style: normal; font-size: 0.85rem; }
   .sh-result { font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; margin-bottom: 12px; min-height: 1.7em; }
+  .l4t { border-collapse: collapse; font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; }
+  .l4t th, .l4t td { padding: 1px 3px; text-align: right; }
+  .l4t th { color: var(--pencil); }
+  .l4t td:first-child { font-weight: 700; color: var(--pencil); text-align: center; }
+  .l4t tr.hl td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); color: var(--ink); }
   .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
   .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
   .box-label { font-size: 0.85rem; color: var(--pencil); }
@@ -135,7 +140,8 @@
     <section class="part" data-title="Three small tables">
       <h2>Three small tables</h2>
       <p class="say">Your model will look at the last <b>3 letters</b>. Take “cat”: the third-last letter is <code>c</code>, the second-last is <code>a</code>, the last is <code>t</code>.</p>
-      <p class="say">Instead of one giant table, it uses <b>3 small tables</b>, one for each of those positions. Each is 14 × 14, exactly like the table in <a class="xref" href="lesson4.html#2">Lesson 4</a>:</p>
+      <p class="say">Instead of one giant table, it uses <b>3 small tables</b>, one for each of those positions. Each is 14 × 14, exactly like <span data-peek-from="l4Peek">the table in Lesson 4</span> (<a class="xref" href="lesson4.html#2">see it there</a>):</p>
+      <div hidden id="l4Peek"></div>
       <ul class="stuck">
         <li>The <b>third-last table</b> looks at the third-last letter (<code>c</code> in “cat”).</li>
         <li>The <b>second-last table</b> looks at the second-last letter (<code>a</code>).</li>
@@ -449,6 +455,15 @@ const GROUPS = [];                               // every 3-letter group in the 
 for (let i = 0; i + 3 < TEXT.length; i++) GROUPS.push({ at: i, g: TEXT.slice(i, i + 3), next: TEXT[i + 3] });
 const groupLabel = g => "“" + g.replace(/ /g, "␣") + "”";
 const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS = ["third-last", "second-last", "last"];
+
+// ---------- 2: hover "the table in Lesson 4" to see it ----------
+(function lesson4Peek() {
+  const T = CHAR_TO_NUMBER["t"];
+  let h = `<b>The Lesson 4 table</b><br><span style="font-size:0.85rem">One row for the letter it sees, one column for each possible next letter. These are its random starting scores. Row <b>t</b>: how much each letter is expected right after t.</span>`;
+  h += `<div style="overflow-x:auto"><table class="l4t"><tr><th></th>${CHARS.map(c => `<th>${sc(c)}</th>`).join("")}</tr>`;
+  INIT_LESSON4.forEach((row, r) => { h += `<tr class="${r === T ? "hl" : ""}"><td>${sc(CHARS[r])}</td>${row.map(v => `<td>${(v <= -0.05 ? "−" : "") + Math.abs(v).toFixed(1)}</td>`).join("")}</tr>`; });
+  document.getElementById("l4Peek").innerHTML = h + "</table></div>";
+})();
 
 // ---------- 2: the 3-letter window ----------
 (function windowDemo() {
