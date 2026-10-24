@@ -92,7 +92,7 @@ EXPLAIN = {
     "third_last = torch.tensor(third_last)": "Turn the list into a tensor, so PyTorch can use it.",
     "second_last = torch.tensor(second_last)": "Same for the second-last letters.",
     "last = torch.tensor(last)": "Same for the last letters.",
-    'print("Groups:", len(next_chars))': "Show how many groups (examples) we have.",
+    'print("Examples:", len(next_chars))': "Show how many examples we have: 44 windows of 3 letters, each with the letter that comes next.",
     "table_third_last = torch.randn((vocab_size, vocab_size), requires_grad=True)": "The third-last table: random scores for the third-last letter.",
     "table_second_last = torch.randn((vocab_size, vocab_size), requires_grad=True)": "The second-last table: random scores for the second-last letter.",
     "table_last = torch.randn((vocab_size, vocab_size), requires_grad=True)": "The last table: random scores for the last letter.",

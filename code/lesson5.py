@@ -10,7 +10,7 @@ for number, char in enumerate(unique_chars):
     char_to_number[char] = number
     number_to_char[number] = char
 
-# Groups: the last 3 letters, and the next one
+# Examples: the last 3 letters, and the next one
 third_last = []
 second_last = []
 last = []
@@ -24,7 +24,7 @@ third_last = torch.tensor(third_last)
 second_last = torch.tensor(second_last)
 last = torch.tensor(last)
 next_chars = torch.tensor(next_chars)
-print("Groups:", len(next_chars))
+print("Examples:", len(next_chars))
 
 # The model: 3 small tables of random scores
 torch.manual_seed(42)

@@ -318,7 +318,7 @@
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 130" role="img" aria-label="Loss over training"></svg>
         <div class="muted">Green dashed line: the best loss a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
-        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 groups)<b id="trainLoss">–</b></div></div>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
         <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
         <div class="top3 cmp4" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
@@ -360,7 +360,7 @@ for number, char in enumerate(unique_chars):
     char_to_number[char] = number
     number_to_char[number] = char
 
-<span class="c"># Groups: the last 3 letters, and the next one</span>
+<span class="c"># Examples: the last 3 letters, and the next one</span>
 third_last = []
 second_last = []
 last = []
@@ -374,7 +374,7 @@ third_last = torch.tensor(third_last)
 second_last = torch.tensor(second_last)
 last = torch.tensor(last)
 next_chars = torch.tensor(next_chars)
-print("Groups:", len(next_chars))
+print("Examples:", len(next_chars))
 
 <span class="c"># The model: 3 small tables of random scores</span>
 torch.manual_seed(42)
@@ -411,7 +411,7 @@ print(output)</code></pre>
         <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What is new in this code?">🤔</button>
         <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
         <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out" id="termOut"><span class="prompt">$ python lesson5.py</span>
-Groups: 44
+Examples: 44
 Numbers in the model: 588
 Step 0 loss: 4.082
 Step 50 loss: 0.199
