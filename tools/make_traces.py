@@ -252,7 +252,7 @@ def trace(path):
 
 if __name__ == "__main__":
     os.makedirs("assets/traces", exist_ok=True)
-    targets = sys.argv[1:] or sorted(glob.glob("code/lesson[1-4].py"))
+    targets = sys.argv[1:] or sorted(glob.glob("code/lesson[1-9].py"))
     for path in targets:
         n = re.search(r"lesson(\d+)", path).group(1)
         data = trace(path)

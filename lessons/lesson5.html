@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Looking Further Back</title>
+<meta name="description" content="Lesson 5 of Build a Tiny LLM: three small tables, each looking at one of the last three letters, add up to one guess.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://mo-ri-ch.github.io/study-notebook-design/v1/style.css">
+<style>
+  .muted { color: var(--pencil); font-size: 0.95rem; }
+  .stuck li { margin: 6px 0; }
+  select.pick, .row select { font: inherit; font-family: var(--mono); padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+
+  /* Page 2: the 3-letter window over the text */
+  .window-text { font-family: var(--mono); font-size: 1.15rem; line-height: 2.1; word-break: break-word; margin: 6px 0 14px; }
+  .window-text span { cursor: pointer; padding: 2px 1px; border-radius: 3px; }
+  .window-text span:hover { background: color-mix(in srgb, var(--hl-yellow) 40%, transparent); }
+  .window-text .w1, .window-text .w2, .window-text .w3 { background: var(--hl-yellow); color: var(--ink); }
+  .window-text .wn { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  .group-line { font-family: var(--mono); font-size: 1.6rem; margin: 6px 0 4px; }
+  .group-line .next { display: inline-block; min-width: 1.2em; border: 2px dashed var(--ink); border-radius: 4px; text-align: center; margin-left: 6px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+  .mini { text-align: center; min-width: 0; }
+  .mini-title { font-family: var(--head); font-size: 1rem; }
+  .mini-sub { color: var(--pencil); font-size: 0.85rem; margin-bottom: 6px; }
+  .mini-grid { display: grid; grid-template-columns: 1.4em repeat(14, minmax(0, 1fr)); gap: 1px; font-family: var(--mono); font-size: 0.6rem; max-width: 230px; width: 100%; margin: 0 auto; }
+  .mini-grid span { aspect-ratio: 1; background: color-mix(in srgb, var(--grid, #d9dfeb) 60%, transparent); border-radius: 1px; }
+  .mini-grid .lab { background: none; color: var(--pencil); display: grid; place-items: center; aspect-ratio: auto; }
+  .mini-grid .on { background: var(--hl-yellow); }
+  .mini-grid .lab.on { background: none; color: var(--ink); font-weight: 700; }
+  .mini-row { font-family: var(--mono); margin-top: 6px; }
+  @media (max-width: 640px) { .three { gap: 8px; } .mini-grid { font-size: 0.45rem; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); } .mini-sub { font-size: 0.7rem; } .mini-row { font-size: 0.75rem; } }
+
+  /* Page 3 and 5: rows added up */
+  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.74rem; margin: 8px 0; }
+  .addtab th, .addtab td { padding: 5px 4px; text-align: right; white-space: nowrap; }
+  .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 12px; }
+  .addtab tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+  .addtab tr.sum td:first-child, .addtab tr.chance td:first-child { color: var(--ink); }
+  .addtab tr.chance td { color: var(--pen); }
+  .addtab .real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .addtab th.real { color: var(--ink); }
+  .table-scroll { overflow-x: auto; }
+
+  /* Page 4: which groups use a row */
+  .uses { font-family: var(--mono); font-size: 1.1rem; line-height: 2.1; word-break: break-word; margin: 10px 0; }
+  .uses .use { background: var(--hl-yellow); color: var(--ink); border-radius: 3px; padding: 2px 1px; }
+  .uses .use .key { text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
+  .box-label { font-size: 0.85rem; color: var(--pencil); }
+  .box-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+  .box-num.huge { color: var(--redpen); }
+  .box-num.small { color: var(--good, #1E8F4E); }
+  @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
+
+  /* Page 6: training */
+  svg.chart { width: 100%; height: auto; display: block; margin: 8px 0; }
+  svg.chart .axis { stroke: var(--pencil); stroke-width: 1; }
+  svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
+  svg.chart .goal { stroke: var(--good, #1E8F4E); stroke-dasharray: 5 4; stroke-width: 1.5; }
+  svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 12px; }
+  .score-line { display: flex; gap: 28px; margin-top: 10px; color: var(--pencil); font-size: 0.9rem; }
+  .score-line b { display: block; font-family: var(--mono); font-size: 1.4rem; color: var(--ink); }
+  .top3 { display: grid; grid-template-columns: 4.5em 1fr 3.6em; gap: 6px 12px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin-top: 10px; }
+  .top3 .track { height: 16px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; position: relative; }
+  .top3 .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight, var(--hl-yellow)); border-right: 2px solid var(--ink); }
+  .top3 .pct { text-align: right; }
+  .cmp { margin: 6px 0 16px; font-family: var(--mono); font-size: 0.9rem; }
+  .cmp th, .cmp td { padding: 4px 14px 4px 0; text-align: left; }
+  .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
+
+  /* Page 7: writing */
+  .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
+  .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
+  .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+</style>
+</head>
+<body data-pen="orange">
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 5 of 10</span>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Looking further back</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="neo-say">I can learn my own numbers now. But I still write words like “sathe”.</p>
+      <p class="say"><a class="xref" href="lesson4.html#10">Lesson 4</a> left your model here:</p>
+      <ul class="stuck">
+        <li>It learns its numbers by itself, from random scores.</li>
+        <li>But it still sees only the <b>last letter</b>. After “sa<b>t</b>”, it only sees <code>t</code>, and after <code>t</code> comes <code>h</code> most often. So it writes “sathe”.</li>
+        <li>Counting with the last 3 letters would need a table of <b>38,416 boxes</b>, and almost all of them <a class="xref" href="lesson3.html#7">stay empty</a>.</li>
+      </ul>
+      <p class="say">So the question is: <b>can your model look at the last 3 letters without a giant table?</b></p>
+      <p class="hook">What if, instead of one giant table, it used small ones?</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="Three small tables">
+      <h2>Three small tables</h2>
+      <p class="say">Your model will look at the last <b>3 letters</b>. Take “cat”: the third-last letter is <code>c</code>, the second-last is <code>a</code>, the last is <code>t</code>.</p>
+      <p class="say">Instead of one giant table, it uses <b>3 small tables</b>, one for each of those positions. Each is 14 × 14, exactly like the table in <a class="xref" href="lesson4.html#2">Lesson 4</a>:</p>
+      <ul class="stuck">
+        <li><b>Table 1</b> looks at the <b>third-last</b> letter.</li>
+        <li><b>Table 2</b> looks at the <b>second-last</b> letter.</li>
+        <li><b>Table 3</b> looks at the <b>last</b> letter.</li>
+      </ul>
+      <div class="activity">
+        <div class="do">Click any letter in the text. It becomes the next letter to guess, and the 3 letters before it light up.</div>
+        <div class="window-text" id="winText" aria-label="Our text. Click a letter."></div>
+        <div class="group-line" id="groupLine"></div>
+        <div class="muted" id="groupNote"></div>
+        <div class="three" id="three"></div>
+      </div>
+      <p class="say">Each letter picks <b>one row</b> in its own table. So every guess uses 3 rows: one from each table.</p>
+      <p class="hook">Three rows. How do they make one guess?</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Add the rows">
+      <h2>Add the rows</h2>
+      <p class="step-label">Step a) Predict</p>
+      <p class="say">To guess the next letter, your model <b>adds</b> the 3 rows together, score by score. Then softmax turns the added scores into chances, just like in <a class="xref" href="lesson4.html#3">Lesson 4</a>.</p>
+      <p class="say">The tables start with <b>random</b> scores, like in Lesson 4. So for now the chances are random too.</p>
+      <div class="activity">
+        <div class="do">Pick a 3-letter group. See the 3 rows, the added scores, and the chances.</div>
+        <div class="row" style="margin-bottom:10px"><label>Group <select id="addGroup" class="pick"></select></label></div>
+        <div class="table-scroll"><table class="addtab" id="addTab"></table></div>
+        <div class="muted" id="addNote"></div>
+      </div>
+      <p class="say">One column, worked out: the score for space after “cat” is <span id="addWorked"></span>.</p>
+      <p class="hook">“cat” and “sat” use two of the same rows. Why does that matter?</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="Shared rows">
+      <h2>Shared rows</h2>
+      <p class="say">“cat” uses row <code>a</code> of Table 2 and row <code>t</code> of Table 3. So does “sat”, and so does “mat”.</p>
+      <p class="say">So when row <code>t</code> of Table 3 learns something from “cat”, it helps “sat” and “mat” too.</p>
+      <div class="activity">
+        <div class="do">Pick a table and a row. See every 3-letter group in the text that uses it.</div>
+        <div class="row" style="margin-bottom:6px">
+          <label>Table <select id="useTable" class="pick"><option value="0">1 (third-last)</option><option value="1">2 (second-last)</option><option value="2" selected>3 (last)</option></select></label>
+          <label>Row <select id="useRow" class="pick"></select></label>
+        </div>
+        <div class="uses" id="usesText"></div>
+        <div class="muted" id="usesNote"></div>
+      </div>
+      <p class="say">One giant table would give each 3-letter group its own row, and those rows would learn nothing from each other. Small tables let one row help many groups. And they need far fewer numbers:</p>
+      <div class="boxes">
+        <div class="box-card"><div class="box-label">One giant table (every 3-letter group × 14 next letters)</div><div class="box-num huge">38,416</div></div>
+        <div class="box-card"><div class="box-label">Three small tables (3 × 14 × 14)</div><div class="box-num small">588</div></div>
+      </div>
+      <p class="hook">Could we fill these 588 numbers by counting, like in Lesson 3?</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="Why not count them?">
+      <h2>Why not count them?</h2>
+      <p class="say">Let's try. Fill each table by counting, like in <a class="xref" href="lesson3.html#2">Lesson 3</a>. For example, Table 3 counts which letter comes right after the last letter. Then add the 3 rows, as your model does.</p>
+      <div class="activity">
+        <div class="do">Pick a group. Does adding counted rows give the right answer?</div>
+        <div class="row" style="margin-bottom:10px"><label>Group <select id="cntGroup" class="pick"><option>cat</option><option>mat</option></select></label></div>
+        <div class="table-scroll"><table class="addtab" id="cntTab"></table></div>
+        <div class="muted" id="cntNote"></div>
+      </div>
+      <p class="say">It goes wrong. A count says how often a pair appeared. But here each row is only <b>one part</b> of a guess, added to two other rows. No count can tell you how big each part should be so that the <b>sum</b> comes out right.</p>
+      <p class="say">That's what <b>learning</b> does: guess, measure the loss, and nudge all three rows together until their sum gives good chances.</p>
+      <p class="say">Numbers like these, each used in many guesses and only one part of each, are called <mark>shared numbers</mark>. They can't be filled by counting. They have to be learned.</p>
+      <p class="say">Learning still reads the whole text, many times, like in Lesson 4. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
+      <p class="hook">So let it learn, the same way as in Lesson 4.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="part" data-title="Let it learn">
+      <h2>Let it learn</h2>
+      <p class="say">The same 4 steps as <a class="xref" href="lesson4.html#7">Lesson 4</a>: a) predict, b) measure, c) find directions, d) move. Now all 3 tables move at every step.</p>
+      <div class="activity">
+        <div class="do">Press Train. Then pick a group to see what your model learned.</div>
+        <div class="row">
+          <button class="primary" id="train">Train 300 steps</button>
+          <button id="step1">1 step</button>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
+        <div class="muted">Green dashed line: the best loss a giant counting table (38,416 boxes) could reach on our text: <b id="bestLoss"></b>.</div>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 groups)<b id="trainLoss">–</b></div></div>
+        <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
+        <div class="top3" id="learnTop"></div>
+        <div class="muted" id="learnNote" style="margin-top:8px"></div>
+      </div>
+      <p class="say">With 588 numbers, your model gets almost the same loss as the giant table of 38,416.</p>
+      <p class="say">And try “hat”. It never appears in our text, so the giant table's row for “hat” would be empty. But your model shares row <code>a</code> of Table 2 and row <code>t</code> of Table 3 with “cat”, “sat” and “mat”, so it still guesses a space.</p>
+      <p class="hook">Now let it write.</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="part" data-title="Write new text">
+      <h2>Write new text</h2>
+      <p class="say">Writing works like <a class="xref" href="lesson3.html#4">Lesson 3</a>: spin the weighted wheel, add the letter, repeat. The only change: the chances now come from the last <b>3</b> letters.</p>
+      <div class="activity">
+        <div class="do">Press Write. Compare with what your model wrote in Lesson 3.</div>
+        <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
+        <div class="written-label">Looking at the last 3 letters (this lesson)</div>
+        <div class="written" id="written" aria-live="polite"></div>
+        <div class="written-label">Looking at the last letter only (Lesson 3)</div>
+        <div class="written">t on dog mat mat. sathe log the mat cat t</div>
+      </div>
+      <p class="say">No more “sathe”: after “sat”, your model sees all of “sat”, so a space comes next.</p>
+      <p class="hook">Here's all of it in Python.</p>
+    </section>
+
+    <!-- 8 -->
+    <section class="part" data-title="The code">
+      <h2>The code</h2>
+      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
+<pre><code>import torch
+import torch.nn.functional as F
+
+text = "the cat sat on the mat. the dog sat on the log."
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+<span class="c"># Groups: the last 3 letters, and the next one</span>
+third_last = []
+second_last = []
+last = []
+next_chars = []
+for i in range(len(text) - 3):
+    third_last.append(char_to_number[text[i]])
+    second_last.append(char_to_number[text[i + 1]])
+    last.append(char_to_number[text[i + 2]])
+    next_chars.append(char_to_number[text[i + 3]])
+third_last = torch.tensor(third_last)
+second_last = torch.tensor(second_last)
+last = torch.tensor(last)
+next_chars = torch.tensor(next_chars)
+print("Groups:", len(next_chars))
+
+<span class="c"># The model: 3 small tables of random scores</span>
+torch.manual_seed(42)
+table1 = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table2 = torch.randn((vocab_size, vocab_size), requires_grad=True)
+table3 = torch.randn((vocab_size, vocab_size), requires_grad=True)
+print("Numbers in the model:", 3 * vocab_size * vocab_size)
+
+<span class="c"># Learn: the same 4 steps as Lesson 4, for all 3 tables</span>
+learning_rate = 10
+for step in range(300):
+    scores = table1[third_last] + table2[second_last] + table3[last]<span class="c">   # a) predict</span>
+    loss = F.cross_entropy(scores, next_chars)<span class="c">                        # b) measure</span>
+    table1.grad = None
+    table2.grad = None
+    table3.grad = None
+    loss.backward()<span class="c">                                                   # c) find directions</span>
+    table1.data = table1.data - learning_rate * table1.grad<span class="c">            # d) move</span>
+    table2.data = table2.data - learning_rate * table2.grad
+    table3.data = table3.data - learning_rate * table3.grad
+    if step % 50 == 0:
+        print("Step", step, "loss:", round(loss.item(), 3))
+
+<span class="c"># Write 40 new letters, starting from "the"</span>
+torch.manual_seed(42)
+output = "the"
+for step in range(40):
+    scores = table1[char_to_number[output[-3]]] + table2[char_to_number[output[-2]]] + table3[char_to_number[output[-1]]]
+    chances = F.softmax(scores, dim=0)
+    picked = torch.multinomial(chances, num_samples=1).item()
+    output = output + number_to_char[picked]
+print(output)</code></pre>
+      <div class="run-area" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What is new compared with Lesson 4?">🤔</button>
+        <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
+        <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out" id="termOut"><span class="prompt">$ python lesson5.py</span>
+Groups: 44
+Numbers in the model: 588
+Step 0 loss: 4.082
+Step 50 loss: 0.199
+Step 100 loss: 0.184
+Step 150 loss: 0.179
+Step 200 loss: 0.177
+Step 250 loss: 0.175
+the mat. the cat sat on the dog sat on the </pre></div>
+      </div>
+      <div hidden id="codePeek"><b>🤔 What is new compared with Lesson 4?</b>
+        <ul style="margin:6px 0 0; padding-left:1.2em">
+          <li>Each group has 3 letters, so there are 3 lists: <code>third_last</code>, <code>second_last</code>, <code>last</code>.</li>
+          <li>3 tables instead of 1, and <code>scores</code> adds one row from each.</li>
+          <li>Every step moves all 3 tables. <code>loss.backward()</code> finds the gradients for all 588 numbers at once.</li>
+          <li><code>output[-1]</code> is the last letter written so far, <code>output[-2]</code> the second-last, <code>output[-3]</code> the third-last.</li>
+        </ul>
+      </div>
+      <p class="run-links">
+        <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson5.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
+      </p>
+      <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
+      <p class="hook">Time to check what you learned.</p>
+    </section>
+
+    <!-- 9 -->
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 5 test</h2>
+      <p class="say">6 questions, one for each idea in this lesson. Answer them all right to pass. A wrong answer tells you why, and which page to look at again.</p>
+      <div class="test" data-test="5">
+        <div class="quiz" data-page="lesson5.html#2" data-topic="Three small tables" data-right="Right. In “dog”, the second-last letter is o, so Table 2 uses row o.">
+          <div class="q"><small>1. Which row?</small>For the group “dog”, which row does <b>Table 2</b> (second-last letter) use?</div>
+          <div class="options">
+            <button data-why="d is the third-last letter, so it goes to Table 1.">Row d</button>
+            <button data-right>Row o</button>
+            <button data-why="g is the last letter, so it goes to Table 3.">Row g</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson5.html#3" data-topic="Add the rows" data-right="Right. The 3 rows are added score by score, then softmax turns the sums into chances.">
+          <div class="q"><small>2. One guess</small>How does your model turn the 3 rows into one guess?</div>
+          <div class="options">
+            <button data-why="Nothing is picked from just one table: every guess uses all three.">It uses the table with the biggest score</button>
+            <button data-right>It adds the 3 rows, then softmax gives the chances</button>
+            <button data-why="Each table gives a whole row of scores. They are added, not averaged into one number.">It averages the 3 tables into one number</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson5.html#4" data-topic="Shared rows" data-right="Right. Both end in “at”: second-last a (Table 2) and last t (Table 3).">
+          <div class="q"><small>3. Shared</small>Which rows do “cat” and “mat” share?</div>
+          <div class="options">
+            <button data-why="c and m are different letters, so Table 1 uses different rows for them.">Table 1 row c and Table 1 row m</button>
+            <button data-right>Table 2 row a and Table 3 row t</button>
+            <button data-why="They do share rows. Look at the letters they have in the same places.">None</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson5.html#4" data-topic="Shared rows" data-right="Right. 3 tables × 14 rows × 14 columns = 588.">
+          <div class="q"><small>4. Size</small>How many numbers are in the 3 small tables?</div>
+          <div class="options">
+            <button data-why="That's one table: 14 × 14. There are 3 of them.">196</button>
+            <button data-right>588</button>
+            <button data-why="That's the giant counting table for 3 letters.">38,416</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson5.html#5" data-topic="Why not count them?" data-right="Right. Each row is only one part of a sum. A count can't say how big each part should be.">
+          <div class="q"><small>5. Why learn?</small>Why can't the 3 tables be filled by counting?</div>
+          <div class="options">
+            <button data-why="Counting 588 boxes is easy. The problem is what the numbers mean.">There are too many numbers to count</button>
+            <button data-right>Each guess adds 3 rows; a count can't say how big each part should be</button>
+            <button data-why="The text is the same. The problem is that each row is only one part of a guess.">The text is too short</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+        <div class="quiz" data-page="lesson5.html#6" data-topic="Let it learn" data-right="Right. “hat” shares rows a (Table 2) and t (Table 3) with cat, sat and mat, and those rows learned that a space comes next.">
+          <div class="q"><small>6. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
+          <div class="options">
+            <button data-why="Nothing was counted. And a counting table's row for “hat” would be empty.">It counted “hat” somewhere</button>
+            <button data-right>It shares rows with “cat”, “sat” and “mat”</button>
+            <button data-why="It isn't luck: it gives a space 94%.">It's a lucky guess</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
+      </div>
+      <p class="hook">What your model still can't do.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="part" data-title="Letters on their own">
+      <h2>Letters on their own</h2>
+      <p class="say">Your model now looks at 3 letters, with only 588 numbers. But each table looks at <b>its own letter only</b>, and the 3 rows are simply added.</p>
+      <div class="activity">
+        <div class="do">Type any 3 letters from our vocabulary. Try “lat”.</div>
+        <div class="row"><input class="try-in" id="tryIn" value="lat" maxlength="3" spellcheck="false" autocomplete="off" aria-label="3 letters"></div>
+        <div class="top3" id="tryTop"></div>
+        <div class="muted" id="tryNote" style="margin-top:8px"></div>
+      </div>
+      <p class="say">After “lat”, it guesses a full stop. Why? Row <code>l</code> of Table 1 learned from “<b>l</b>og.”, where a full stop came next. It doesn't see “lat” as one thing: each letter adds its own scores, without looking at the other two.</p>
+      <p class="neo-say">I can look at 3 letters now, and I stopped writing “sathe”! But my letters never talk to each other. Can they work together?</p>
+      <div class="open-question">
+        <div>This leaves a question</div>
+        <div class="big">Each letter adds its own scores, without looking at the others. How can your model understand letters together?</div>
+        <div>Lesson 6 answers it. (Coming soon.)</div>
+      </div>
+      <p><button class="done-toggle" data-done="5">Mark lesson as done</button></p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>← Previous</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next →</button>
+  </div>
+</nav>
+
+<script src="../assets/tinylm.js?v=202610241"></script>
+<script src="../assets/course.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/codewalk.js"></script>
+<script>
+const sc = c => c === " " ? "␣" : c;            // a visible space
+const nm = c => c === " " ? "space" : c === "." ? "full stop" : c;   // spoken names
+const fmt = (x, d = 2) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
+const GROUPS = [];                               // every 3-letter group in the text, and the letter after it
+for (let i = 0; i + 3 < TEXT.length; i++) GROUPS.push({ at: i, g: TEXT.slice(i, i + 3), next: TEXT[i + 3] });
+const groupLabel = g => "“" + g.replace(/ /g, "␣") + "”";
+const TABLE_NAMES = ["Table 1", "Table 2", "Table 3"], POS = ["third-last", "second-last", "last"];
+
+// ---------- 2: the 3-letter window ----------
+(function windowDemo() {
+  const box = document.getElementById("winText"), three = document.getElementById("three");
+  let nextAt = 7;   // "the cat " -> the space after "cat"
+  box.innerHTML = [...TEXT].map((c, i) => `<span data-i="${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
+  three.innerHTML = [0, 1, 2].map(t => {
+    let cells = "";
+    for (let r = 0; r < VOCAB; r++) {
+      cells += `<span class="lab" data-t="${t}" data-r="${r}">${sc(CHARS[r])}</span>`;
+      for (let c = 0; c < VOCAB; c++) cells += `<span data-t="${t}" data-r="${r}"></span>`;
+    }
+    return `<div class="mini"><div class="mini-title">${TABLE_NAMES[t]}</div><div class="mini-sub">${POS[t]} letter</div><div class="mini-grid">${cells}</div><div class="mini-row" data-row="${t}"></div></div>`;
+  }).join("");
+  function render() {
+    const g = TEXT.slice(nextAt - 3, nextAt);
+    box.querySelectorAll("span").forEach(s => {
+      const i = Number(s.dataset.i);
+      s.className = i === nextAt - 3 ? "w1" : i === nextAt - 2 ? "w2" : i === nextAt - 1 ? "w3" : i === nextAt ? "wn" : "";
+    });
+    document.getElementById("groupLine").innerHTML = `${[...g].map(sc).join(" ")} <span class="next">?</span>`;
+    document.getElementById("groupNote").innerHTML = `The text says the next letter is <b>${nm(TEXT[nextAt])}</b>.`;
+    [0, 1, 2].forEach(t => {
+      const r = CHAR_TO_NUMBER[g[t]];
+      three.querySelectorAll(`[data-t="${t}"]`).forEach(s => s.classList.toggle("on", Number(s.dataset.r) === r));
+      three.querySelector(`[data-row="${t}"]`).innerHTML = `${nm(g[t])} → row <b>${sc(g[t])}</b>`;
+    });
+  }
+  box.addEventListener("click", e => { const s = e.target.closest("span[data-i]"); if (!s) return; nextAt = Math.max(3, Number(s.dataset.i)); render(); });
+  addReset(box, () => { nextAt = 7; render(); });
+  render();
+})();
+
+// ---------- 3: add the 3 rows (random starting scores) ----------
+function addTable(rows, labels, real, chances) {
+  let h = `<tr><th></th>${CHARS.map((c, k) => `<th class="${k === real ? "real" : ""}">${sc(c)}</th>`).join("")}</tr>`;
+  rows.forEach((row, i) => { h += `<tr><td>${labels[i]}</td>${row.map((v, k) => `<td class="${k === real ? "real" : ""}">${fmt(v)}</td>`).join("")}</tr>`; });
+  const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0));
+  h += `<tr class="sum"><td>added</td>${sum.map((v, k) => `<td class="${k === real ? "real" : ""}">${fmt(v)}</td>`).join("")}</tr>`;
+  if (chances) h += `<tr class="chance"><td>chance</td>${chances.map((p, k) => `<td class="${k === real ? "real" : ""}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
+  return { html: h, sum };
+}
+(function addDemo() {
+  const sel = document.getElementById("addGroup"), tab = document.getElementById("addTab");
+  const picks = ["cat", "sat", "mat", "dog", "the", "at "];
+  sel.innerHTML = picks.map(g => `<option value="${g}">${groupLabel(g)}</option>`).join("");
+  function render() {
+    const g = sel.value, real = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
+    const rows = [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER[g[t]]]);
+    const labels = [0, 1, 2].map(t => `${TABLE_NAMES[t]}, row ${sc(g[t])}`);
+    const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0));
+    const t = addTable(rows, labels, real, softmax(sum));
+    tab.innerHTML = t.html;
+    document.getElementById("addNote").innerHTML = `Green column: the letter that really comes next in the text (${nm(TEXT[GROUPS.find(x => x.g === g).at + 3])}).`;
+  }
+  // the worked example always uses "cat" and the space column
+  const sp = CHAR_TO_NUMBER[" "], r = [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER["cat"[t]]][sp]);
+  document.getElementById("addWorked").textContent = `${fmt(r[0])} + ${fmt(r[1])} + ${fmt(r[2])} = ${fmt(r[0] + r[1] + r[2])}`.replace(/\+ −/g, "− ");
+  sel.onchange = render;
+  addReset(tab, () => { sel.value = "cat"; render(); });
+  render();
+})();
+
+// ---------- 4: which groups use a row ----------
+(function usesDemo() {
+  const tSel = document.getElementById("useTable"), rSel = document.getElementById("useRow"), out = document.getElementById("usesText");
+  rSel.innerHTML = CHARS.map((c, k) => `<option value="${k}">${sc(c)}</option>`).join("");
+  rSel.value = CHAR_TO_NUMBER["t"];
+  function render() {
+    const t = Number(tSel.value), r = CHARS[Number(rSel.value)];
+    const hits = GROUPS.filter(x => x.g[t] === r);
+    // show each group that uses the row, with its key letter underlined
+    let html = "", i = 0;
+    while (i < TEXT.length) {
+      const h = hits.find(x => x.at === i);
+      if (h) {
+        html += `<span class="use">${[...h.g].map((c, j) => j === t ? `<span class="key">${c === " " ? "&nbsp;" : c}</span>` : (c === " " ? "&nbsp;" : c)).join("")}</span>`;
+        i += 3;
+      } else { html += TEXT[i] === " " ? "&nbsp;" : TEXT[i]; i += 1; }
+    }
+    out.innerHTML = html;
+    const names = [...new Set(hits.map(x => groupLabel(x.g)))];
+    document.getElementById("usesNote").innerHTML = hits.length
+      ? `${TABLE_NAMES[t]}, row <b>${sc(r)}</b> is used by <b>${hits.length}</b> of the 44 groups${names.length < hits.length ? " (some appear more than once)" : ""}: ${names.join(", ")}.`
+      : `No group in our text has ${nm(r)} as its ${POS[t]} letter, so this row is never used here.`;
+  }
+  tSel.onchange = render; rSel.onchange = render;
+  addReset(out, () => { tSel.value = 2; rSel.value = CHAR_TO_NUMBER["t"]; render(); });
+  render();
+})();
+
+// ---------- 5: fill the tables by counting, then add ----------
+(function countDemo() {
+  const sel = document.getElementById("cntGroup"), tab = document.getElementById("cntTab");
+  const counts = [0, 1, 2].map(() => Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0)));
+  GROUPS.forEach(x => { const n = CHAR_TO_NUMBER[x.next]; [0, 1, 2].forEach(t => counts[t][CHAR_TO_NUMBER[x.g[t]]][n] += 1); });
+  function render() {
+    const g = sel.value, nextC = GROUPS.find(x => x.g === g).next, real = CHAR_TO_NUMBER[nextC];
+    const rows = [0, 1, 2].map(t => counts[t][CHAR_TO_NUMBER[g[t]]]);
+    const sum = CHARS.map((_, k) => rows.reduce((a, r) => a + r[k], 0)), total = sum.reduce((a, b) => a + b, 0);
+    const chances = sum.map(v => v / total);
+    let h = `<tr><th></th>${CHARS.map((c, k) => `<th class="${k === real ? "real" : ""}">${sc(c)}</th>`).join("")}</tr>`;
+    rows.forEach((row, i) => { h += `<tr><td>${TABLE_NAMES[i]}, row ${sc(g[i])} (counts)</td>${row.map((v, k) => `<td class="${k === real ? "real" : ""}">${v}</td>`).join("")}</tr>`; });
+    h += `<tr class="sum"><td>added</td>${sum.map((v, k) => `<td class="${k === real ? "real" : ""}">${v}</td>`).join("")}</tr>`;
+    h += `<tr class="chance"><td>chance</td>${chances.map((p, k) => `<td class="${k === real ? "real" : ""}">${Math.round(p * 100)}%</td>`).join("")}</tr>`;
+    tab.innerHTML = h;
+    const best = chances.indexOf(Math.max(...chances));
+    document.getElementById("cntNote").innerHTML = `The text says: after “${g}” comes <b>${nm(nextC)}</b>, every time. Added counts give it only <b>${Math.round(chances[real] * 100)}%</b>` +
+      (best !== real ? `, and <b>${nm(CHARS[best])}</b> wins with ${Math.round(chances[best] * 100)}%.` : `, and still give ${CHARS.map((c, k) => k !== real && chances[k] > 0 ? `${nm(c)} ${Math.round(chances[k] * 100)}%` : "").filter(Boolean).join(" and ")}.`);
+  }
+  sel.onchange = render;
+  addReset(tab, () => { sel.value = "cat"; render(); });
+  render();
+})();
+
+// ---------- 6, 7, 10: one model, trained in the browser ----------
+const model = new ThreeCharModel();
+const history = [];
+history.push(lossNow());
+function lossNow() {
+  let total = 0;
+  model.examples.forEach(ex => { total += -Math.log(softmax(model.scores(ex.c1, ex.c2, ex.c3))[ex.next]); });
+  return total / model.examples.length;
+}
+// The best a giant counting table could do: for each group, the share of each next letter
+const BEST = (() => {
+  const byGroup = {}; GROUPS.forEach(x => { (byGroup[x.g] = byGroup[x.g] || {}); byGroup[x.g][x.next] = (byGroup[x.g][x.next] || 0) + 1; });
+  let total = 0;
+  GROUPS.forEach(x => { const c = byGroup[x.g], n = Object.values(c).reduce((a, b) => a + b, 0); total += -Math.log(c[x.next] / n); });
+  return total / GROUPS.length;
+})();
+document.getElementById("bestLoss").textContent = BEST.toFixed(3);
+function ensureTrained() { if (model.step === 0) { for (let i = 0; i < 300; i++) { model.trainStep(); history.push(lossNow()); } renderTrain(); } }
+
+function topList(el, chances, n = 3) {
+  const top = chances.map((p, k) => [p, k]).sort((a, b) => b[0] - a[0]).slice(0, n);
+  el.innerHTML = top.map(([p, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(p * 100)}%</span>`).join("");
+}
+function chart() {
+  const svg = document.getElementById("chart"), W = 600, H = 160, L = 40, B = 20, top = 10;
+  const maxL = Math.max(4.2, ...history), maxS = 300;
+  const x = s => L + (W - L - 10) * s / maxS, y = v => top + (H - B - top) * (1 - v / maxL);
+  let h = `<line class="axis" x1="${L}" y1="${top}" x2="${L}" y2="${H - B}"/><line class="axis" x1="${L}" y1="${H - B}" x2="${W - 10}" y2="${H - B}"/>`;
+  h += `<text x="6" y="${y(4) + 4}">4</text><text x="6" y="${y(0) + 4}">0</text><text x="${W - 50}" y="${H - 4}">steps</text>`;
+  h += `<line class="goal" x1="${L}" y1="${y(BEST)}" x2="${W - 10}" y2="${y(BEST)}"/>`;
+  if (history.length > 1) h += `<polyline class="line" points="${history.map((v, s) => `${x(s)},${y(v)}`).join(" ")}"/>`;
+  svg.innerHTML = h;
+}
+const learnSel = document.getElementById("learnGroup");
+const learnPicks = ["cat", "sat", "mat", "at ", "hat"];
+learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}${GROUPS.some(x => x.g === g) ? "" : " (never in the text)"}</option>`).join("");
+function renderTrain() {
+  chart();
+  document.getElementById("trainSteps").textContent = model.step;
+  document.getElementById("trainLoss").textContent = history[history.length - 1].toFixed(3);
+  const g = learnSel.value;
+  topList(document.getElementById("learnTop"), model.predict(g));
+  const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
+  const counts = {}; seenNext.forEach(c => counts[c] = (counts[c] || 0) + 1);
+  document.getElementById("learnNote").innerHTML = seenNext.length
+    ? `In the text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.` + (model.step ? "" : " Press Train first: these chances are still random.")
+    : `${groupLabel(g)} never appears in our text. A giant counting table would have an empty row here.` + (model.step ? "" : " Press Train first.");
+}
+document.getElementById("train").onclick = () => { for (let i = 0; i < 300 && model.step < 300; i++) { model.trainStep(); history.push(lossNow()); } renderTrain(); };
+document.getElementById("step1").onclick = () => { if (model.step < 300) { model.trainStep(); history.push(lossNow()); } renderTrain(); };
+learnSel.onchange = renderTrain;
+addReset(document.getElementById("chart"), () => { model.reset(); history.length = 0; history.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
+renderTrain();
+
+// 7: write with the weighted wheel
+document.getElementById("write").onclick = () => {
+  ensureTrained();
+  let out = "the";
+  for (let s = 0; s < 40; s++) out += CHARS[pickByChance(model.predict(out.slice(-3)))];
+  document.getElementById("written").textContent = out;
+};
+addReset(document.getElementById("written"), () => { document.getElementById("written").textContent = ""; });
+
+// 10: any 3 letters
+(function tryDemo() {
+  const inp = document.getElementById("tryIn");
+  function render() {
+    ensureTrained();
+    const v = inp.value.toLowerCase(), bad = [...v].find(c => CHAR_TO_NUMBER[c] === undefined);
+    const note = document.getElementById("tryNote"), top = document.getElementById("tryTop");
+    if (v.length < 3 || bad !== undefined) {
+      top.innerHTML = "";
+      note.textContent = bad !== undefined ? `“${bad}” isn't in the vocabulary. Use: ${CHARS.map(sc).join(" ")}` : "Type 3 letters.";
+      return;
+    }
+    topList(top, model.predict(v));
+    note.textContent = GROUPS.some(x => x.g === v) ? `“${v}” appears in our text.` : `“${v}” never appears in our text.`;
+  }
+  inp.oninput = render;
+  addReset(inp, () => { inp.value = "lat"; render(); });
+  // trained on first look, so the page opens with the real answer
+  const sec = inp.closest("section");
+  new MutationObserver(() => { if (!sec.hidden) render(); }).observe(sec, { attributes: true, attributeFilter: ["hidden"] });
+  if (!sec.hidden) render();
+})();
+</script>
+</body>
+</html>

@@ -49,5 +49,6 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Home page: model demo (after Lesson 5 / after the course), note on why the model is tiny, lesson path.
 - Site tools: Guide me (assets/guide.js: one glow at a time, → / ←, Shift+→ next page, activities wait for the student; steps come from each page's elements, so keep pages as a clean list of paragraphs and boxes), pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
 - Oct 24: Rishal finished Lesson 4 as a student (Lessons 1–4 reviewed). Every lesson (1–4) now ends with a lesson test.
-- **Next:** learn Lesson 5 together (shared numbers; plan + Rishal's open questions in drafts/lesson5-plan.md) → build its pages and its test.
+- Oct 24: Lesson 5 built (three small tables, shared numbers, why counting fails, learning, writing, test; last page: letters on their own → Lesson 6).
+- **Next:** Rishal goes through Lesson 5 as a student. Then Lesson 6 must answer: "How can your model understand letters together?"
 - Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).
