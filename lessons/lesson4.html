@@ -99,6 +99,7 @@
     .loss-row > span { grid-column: 1 / -1; margin-bottom: -6px; }
   }
   .sm-math-note { font-size: 0.9rem; color: var(--pencil); margin: 0 0 12px; max-width: none; }
+  @media (max-width: 640px) { .sm-math-note { margin-top: 30px; } .sm-math-note p + p { margin-top: 30px !important; } }   /* room for the 🤔 above each line */
   @media (max-width: 640px) {
     .sm, .sm.math { grid-template-columns: 3.4em 1fr 2.8em 2.8em; }
     .sm .arrow, .sm .track, .sm .hd.h-bar, .sm .hd.h-arrow, .sm .gap, .sm .others-label { display: none; }
