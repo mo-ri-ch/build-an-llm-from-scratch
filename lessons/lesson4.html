@@ -213,8 +213,15 @@
         <p style="margin:6px 0 0">2 or 10 would still work: your model would just learn bigger or smaller scores, and the chances would come out the same. e only keeps the math cleanest.</p>
       </div>
       <div hidden id="softmaxNamePeek"><b>🤔 Why is it called softmax?</b>
-        <p style="margin:6px 0 0">“Max” would pick only the biggest score and give it 100%. Row <code>t</code> starts with “.” highest (1.35), so max says: “.” 100%, everything else 0%.</p>
-        <p style="margin:6px 0 0">Softmax is a <b>soft</b> version: the biggest score gets the most chance (“.” 17.7%), but every letter keeps some. Drag one score far above the rest, and it gets close to 100%, just like max.</p>
+        <p style="margin:6px 0 0"><b>Max</b> means: pick the biggest score, give it everything. <b>Soft</b> means: not all-or-nothing.</p>
+        <p style="margin:6px 0 0">Row <code>t</code>'s three highest scores: “.” 1.35, <code>l</code> 1.31, <code>h</code> 1.07.</p>
+        <table style="border-collapse:collapse;margin:6px 0 0;font-family:var(--mono);font-size:0.8rem">
+          <tr><td style="padding:1px 10px 1px 0"></td><td style="padding:1px 8px">.</td><td style="padding:1px 8px">l</td><td style="padding:1px 8px">h</td></tr>
+          <tr><td style="padding:1px 10px 1px 0">max</td><td style="padding:1px 8px">100%</td><td style="padding:1px 8px">0%</td><td style="padding:1px 8px">0%</td></tr>
+          <tr><td style="padding:1px 10px 1px 0"><b>softmax</b></td><td style="padding:1px 8px"><b>17.7%</b></td><td style="padding:1px 8px"><b>16.9%</b></td><td style="padding:1px 8px"><b>13.3%</b></td></tr>
+        </table>
+        <p style="margin:6px 0 0">Max gives <code>l</code> nothing, though its score is almost the same as “.”. Softmax gives the biggest score the most, but shares the rest by how close each one is.</p>
+        <p style="margin:6px 0 0">Make the gaps bigger (all scores × 10) and softmax hardens towards max: “.” 58.9%, <code>l</code> 36.7%, <code>h</code> 3.4%. So softmax is a softened max.</p>
       </div>
       <p class="hook">Now your model can guess. But its scores are random, so its guesses are bad. How bad?</p>
     </section>
