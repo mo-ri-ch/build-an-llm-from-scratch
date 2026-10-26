@@ -698,6 +698,11 @@ function fillRowSelect(sel, chosen) {
       const on = filledBoxes.has(CHARS[row] + CHARS[col]);
       g.fillStyle = on ? c.green : c.empty;
       g.beginPath(); g.arc(ox + col * pitch + pitch / 2, oy + row * pitch + pitch / 2, on ? r * 1.5 : r, 0, Math.PI * 2); g.fill();
+      // the count, small, inside its green dot (only when the dot is big enough to read)
+      if (on && r * 1.5 >= 5) {
+        g.fillStyle = "#fff"; g.font = `700 ${Math.round(r * 1.5 * 1.15)}px ${c.mono}`; g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText(String(filledBoxes.get(CHARS[row] + CHARS[col])), ox + col * pitch + pitch / 2, oy + row * pitch + pitch / 2 + 0.5);
+      }
     }
   }
 
@@ -783,7 +788,12 @@ function fillRowSelect(sel, chosen) {
         if (blend > 0) { g.globalAlpha = 0.28 * blend; g.fillStyle = c.pencil; g.beginPath(); g.arc(p.px, p.py, r * 0.8, 0, Math.PI * 2); g.fill(); }
       }
       g.globalAlpha = 1; g.fillStyle = c.green;
-      for (const p of projected) if (p.n) { g.beginPath(); g.arc(p.px, p.py, flat * 0.45, 0, Math.PI * 2); g.fill(); }   // green dots keep the flat table's size
+      const gr = flat * 0.45;
+      g.textAlign = "center"; g.textBaseline = "middle"; g.font = `700 ${Math.round(gr * 1.15)}px ${c.mono}`;
+      for (const p of projected) if (p.n) {   // green dots keep the flat table's size, with their count inside
+        g.fillStyle = c.green; g.beginPath(); g.arc(p.px, p.py, gr, 0, Math.PI * 2); g.fill();
+        if (gr >= 5) { g.fillStyle = "#fff"; g.fillText(String(p.n), p.px, p.py + 0.5); }
+      }
       g.globalAlpha = 1;
       // On top of the dots: three axes from one corner, drawn as arrows. Names and small letters are painted onto the cube itself,
       // next to their edge, so they turn with the cube like everything else.
