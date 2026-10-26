@@ -202,8 +202,15 @@
         <p style="margin:6px 0 0">e<sup>score</sup> is always positive: e<sup>−2.05</sup> = 0.13. And a higher score still gives a bigger number, so the order stays the same.</p>
       </div>
       <div hidden id="whyEPeek"><b>🤔 Why e, and not 2 or 10?</b>
-        <p style="margin:6px 0 0">Any number bigger than 1 would work: 2<sup>score</sup> or 10<sup>score</sup> are also always positive and keep the order. Your model would just learn different scores.</p>
-        <p style="margin:6px 0 0">e is picked because it makes learning simplest. With e, the direction to move each score is just “chance − 1” for the right answer and “chance” for the others. You'll use that rule two pages on. With 2 or 10, an extra number would creep into it.</p>
+        <p style="margin:6px 0 0">With e, a small nudge to the score grows e<sup>score</sup> by exactly that much, as a percentage. Nudge a score up by 0.01:</p>
+        <table style="border-collapse:collapse;margin:6px 0 0;font-family:var(--mono);font-size:0.8rem">
+          <tr><td style="padding:1px 10px 1px 0">2<sup>1</sup> = 2.000</td><td style="padding:1px 10px">→ 2<sup>1.01</sup> = 2.014</td><td>0.69% bigger</td></tr>
+          <tr><td style="padding:1px 10px 1px 0"><b>e<sup>1</sup> = 2.718</b></td><td style="padding:1px 10px"><b>→ e<sup>1.01</sup> = 2.746</b></td><td><b>1.00% bigger</b></td></tr>
+          <tr><td style="padding:1px 10px 1px 0">10<sup>1</sup> = 10.00</td><td style="padding:1px 10px">→ 10<sup>1.01</sup> = 10.23</td><td>2.30% bigger</td></tr>
+        </table>
+        <p style="margin:6px 0 0">With e, nudge and growth are the same number. With 2 or 10, every nudge gets an extra 0.69 or 2.30.</p>
+        <p style="margin:6px 0 0">Learning keeps asking “if I nudge this score, how much does the chance change?”. With e there's no extra number, so the answer is the simple rule two pages on: move by “chance − 1” for the right answer, “chance” for the others.</p>
+        <p style="margin:6px 0 0">2 or 10 would still work: your model would just learn bigger or smaller scores, and the chances would come out the same. e only keeps the math cleanest.</p>
       </div>
       <div hidden id="softmaxNamePeek"><b>🤔 Why is it called softmax?</b>
         <p style="margin:6px 0 0">“Max” would pick only the biggest score and give it 100%. Row <code>t</code> starts with “.” highest (1.35), so max says: “.” 100%, everything else 0%.</p>
