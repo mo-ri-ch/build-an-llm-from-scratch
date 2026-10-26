@@ -29,7 +29,7 @@ for path in sorted(glob.glob("lessons/lesson*.html")):
         "source": [
             f"# Lesson {n}: {title}\n", "\n",
             "For each cell: **guess what it will print first**, then press ▶ and check.\n", "\n",
-            f"From [Build a Tiny LLM](https://mo-ri-ch.github.io/build-an-llm-from-scratch/lessons/lesson{n}.html).",
+            f"From [Build a Tiny LLM](https://gradlabs.in/learn/tiny-llm/lessons/lesson{n}.html).",
         ],
     }]
     for part in re.split(r"\n\n(?=#)", code):

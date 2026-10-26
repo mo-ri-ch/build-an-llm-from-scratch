@@ -3,7 +3,7 @@
 Interactive lessons that build a small language model from scratch, starting from a list of numbers.
 Every lesson ends with a question it can't answer, and the next lesson answers it.
 
-**Website:** https://mo-ri-ch.github.io/build-an-llm-from-scratch/
+**Website:** https://gradlabs.in/learn/tiny-llm/
 
 ## Before you start
 
