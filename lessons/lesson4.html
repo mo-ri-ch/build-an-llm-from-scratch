@@ -190,12 +190,15 @@
       <div class="activity">
         <div class="do">These are your model's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
         <div class="muted" style="margin-bottom:10px">You can drag 5 of the 14 scores. The other 9 letters keep their scores and are added together at the bottom.</div>
-        <p class="sm-math-note" id="smMathNote" hidden style="position:relative"><button class="doubt" type="button" data-peek-from="whyEPeek" aria-label="Why e, and not 2 or 10?">🤔</button><b>e</b> is a fixed number, about 2.718. e<sup>score</sup> is always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.</p>
+        <div class="sm-math-note" id="smMathNote" hidden>
+          <p style="position:relative;margin:0">Each score becomes e<sup>score</sup>: always positive, and a bigger score gives a much bigger result. Then each one is divided by the total, so all the chances add up to 1.<button class="doubt" type="button" data-peek-from="whyExpPeek" aria-label="Why e to the score? Why not just divide the scores?">🤔</button></p>
+          <p style="position:relative;margin:8px 0 0"><b>e</b> is a fixed number, about 2.718.<button class="doubt" type="button" data-peek-from="whyEPeek" aria-label="Why e, and not 2 or 10?">🤔</button></p>
+        </div>
         <div class="sm" id="smTable"></div>
         <p class="sm-worked" id="smWorked" hidden></p>
         <button type="button" class="math-toggle" id="smMath" aria-expanded="false">Show the math</button>
       </div>
-      <p class="say" style="position:relative">Any scores in, chances out. They always add up to 1, and raising one score takes chance away from the others.<button class="doubt" type="button" data-peek-from="whyExpPeek" aria-label="Why e to the score? Why not just divide the scores?">🤔</button></p>
+      <p class="say">Any scores in, chances out. They always add up to 1, and raising one score takes chance away from the others.</p>
       <p class="say" style="position:relative">This is <mark>softmax</mark>.<button class="doubt" type="button" data-peek-from="softmaxNamePeek" aria-label="Why is it called softmax?">🤔</button></p>
       <div hidden id="whyExpPeek"><b>🤔 Why e<sup>score</sup>? Why not just divide the scores by their total?</b>
         <p style="margin:6px 0 0">Because scores can be negative. Row <code>t</code> starts with <code>s</code> at −2.05, and all 14 scores add up to 0.95. Dividing gives −2.05 ÷ 0.95 = <b>−216%</b>. A chance can't be negative.</p>
