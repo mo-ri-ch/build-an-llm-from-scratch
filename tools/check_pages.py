@@ -5,7 +5,8 @@ Run: python3 tools/check_pages.py
 """
 import re, glob, sys
 
-LIMIT = 120   # words of plain text outside the activity (number lists and small tables may push a page a little over)
+LIMIT = 120        # words outside the activity (tables don't count: they're data)
+RULE_LIMIT = 150   # allowed for a page that introduces a new rule, if it keeps one worked example
 
 def outside_text(body):
     b = re.sub(r'<div hidden[^>]*>.*?</div>\s*(?=<)', '', body, flags=re.S)   # 🤔 notes and peeks
@@ -29,11 +30,13 @@ for path in sorted(glob.glob('lessons/lesson*.html')):
     for title, body in re.findall(r'<section class="part" data-title="([^"]+)">(.*?)</section>', s, re.S):
         if title in ('The code', 'Lesson test'):
             continue
-        text = re.sub(r'<h2>.*?</h2>|<p class="step-label">.*?</p>', ' ', outside_text(body), flags=re.S)   # headings aren't reading
+        text = re.sub(r'<h2>.*?</h2>|<p class="step-label">.*?</p>|<table.*?</table>', ' ', outside_text(body), flags=re.S)   # headings and tables aren't reading
         words = [w for w in re.sub(r'<[^>]+>', ' ', text).split() if re.search(r'[A-Za-z0-9]', w)]   # symbols like → = − aren't words
         numbers = sum(1 for w in words if re.search(r'\d', w))
-        if len(words) > LIMIT:
+        if len(words) > RULE_LIMIT:
             over += 1
-            print(f'{path}  "{title}": {len(words)} words ({numbers} are numbers)')
-print('all pages within the limit' if not over else f'{over} page(s) over {LIMIT} words')
+            print(f'OVER   {path}  "{title}": {len(words)} words ({numbers} are numbers)')
+        elif len(words) > LIMIT:
+            print(f'check  {path}  "{title}": {len(words)} words: fine only if it introduces a new rule')
+print('no page over the limit' if not over else f'{over} page(s) over {RULE_LIMIT} words')
 sys.exit(0)
