@@ -753,6 +753,26 @@ function bar(label, p, target) {
   $("ybmPlay").onclick = () => { if (timer) { stop(); render(); } else play(); };
   $("ybmBack").onclick = () => { stop(); const u = undo.pop(); if (!u) return; row = u.row; moves = u.moves; steps = u.steps; last = u.last; render(); };
   function reset() { stop(); row = INIT_LESSON4[T].slice(); moves = 0; steps = 0; last = null; undo = []; showGrad = false; render(); }
+  // Show me how
+  const Hk = CHAR_TO_NUMBER["h"], FSk = CHAR_TO_NUMBER["."];
+  const track = k => game.querySelectorAll(".track")[shown.indexOf(k)];
+  const pct1 = k => (softmax(row)[k] * 100).toFixed(1) + "%";
+  if (typeof addTour === "function") addTour(game, [
+    { run: () => reset(), at: () => game,
+      say: "<b>The goals.</b> The green dashed lines show where each chance should end up: h 50%, space 37.5%, full stop 12.5%. They're each letter's share of the 8 t-pairs (4, 3 and 1 of 8)." },
+    { run: () => { reset(); undo.push({ row: row.slice(), moves, steps, last }); row[Hk] += 0.5; moves = 1; render(); }, at: () => track(Hk), keep: () => $("gameLoss").parentElement,
+      say: () => `<b>One push.</b> h's score went up by 0.5, so its chance grew to ${pct1(Hk)}. The loss changed for all 8 pairs at once: ${$("gameLoss").textContent}.` },
+    { run: () => { showGrad = true; render(); }, at: () => game,
+      say: () => { const p = softmax(row); return `<b>The gradients</b>, next to each bar: chance − goal. h: ${pct1(Hk)} − 50% = −${(0.5 - p[Hk]).toFixed(2)}, below its goal, so ↑. A letter above its goal gets ↓.`; } },
+    { run: () => { reset(); showGrad = true; render(); }, at: () => $("ybmStep"), click: () => $("ybmStep"),
+      say: "Now let your model do it. Press <b>Take one step</b>: every score moves by its gradient at once. (We start again from the random scores.)" },
+    { at: () => $("ybmMath"), keep: () => game,
+      say: () => `<b>The math of that step.</b> Look at full stop: it is a right answer (for 1 pair), yet its gradient is +${last ? last.g[FSk].toFixed(3) : "0.052"}, so it goes <b>down</b>. It started above its goal: ${last ? (last.p[FSk] * 100).toFixed(1) : "17.7"}% against 12.5%.` },
+    { at: () => $("ybmPlay"), click: () => $("ybmPlay"),
+      say: "Press <b>▶ Play</b> and watch every bar move onto its green line." },
+    { at: () => game, keep: () => $("ybmMath"),
+      say: "Each gradient is 0 only at its goal, so each bar stops right on its line. Full stop dips to about 9% and comes back to 12.5%. That's why learning ends at exactly the shares counting gives." },
+  ], { id: "l4-youbethemodel" });
   // stop playing when the page is left
   const sec = game.closest("section");
   new MutationObserver(() => { if (sec.hidden) { stop(); render(); } }).observe(sec, { attributes: true, attributeFilter: ["hidden"] });
