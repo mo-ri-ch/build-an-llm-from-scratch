@@ -294,7 +294,8 @@
         <p style="margin:6px 0 0">It gave only 13.3%: 0.133 − 1 = <b>−0.867</b>. Far from 100%, so the score moves up a lot.</p>
       </div>
       <div class="activity">
-        <div class="do">Press “Move a little”. Every score moves by the rule above. Watch <code>h</code>'s chance grow and the loss shrink.</div>
+        <div class="do">Press “Move a little” a few times. Watch <code>h</code>'s chance grow and the loss shrink.</div>
+        <div class="muted" style="margin-bottom:10px">Each press: every score moves by its gradient → new chances → new gradients. Watch <code>h</code>'s gradient shrink: −0.867, −0.711, −0.526… The closer to 100%, the smaller the move.</div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
           <button class="primary" id="gradStep">Move a little</button>
@@ -754,11 +755,11 @@ function bar(label, p, target) {
     let html = "<tr><th></th><th>score</th><th>chance</th><th>gradient</th><th>so</th></tr>";
     shown.forEach(k => {
       const g = p[k] - (k === H ? 1 : 0);
-      html += `<tr class="${k === H ? "right" : ""}"><td>${showChar(CHARS[k])}${k === H ? " (right)" : ""}</td><td>${row[k].toFixed(2)}</td><td>${p[k].toFixed(3)}</td><td>${g >= 0 ? "+" : ""}${g.toFixed(3)}</td><td class="${g < 0 ? "up" : "down"}">${g < 0 ? "↑ up" : "↓ down"}</td></tr>`;
+      html += `<tr class="${k === H ? "right" : ""}"><td>${showChar(CHARS[k])}${k === H ? " (right)" : ""}</td><td>${row[k].toFixed(2)}</td><td>${(p[k] * 100).toFixed(1)}%</td><td>${g >= 0 ? "+" : "−"}${Math.abs(g).toFixed(3)}</td><td class="${g < 0 ? "up" : "down"}">${g < 0 ? "↑ up" : "↓ down"}</td></tr>`;
     });
     // The other 9 letters are wrong answers too: each one's gradient is its own (small) chance, so each goes down a little
     const rest = p.reduce((a, v, k) => shown.includes(k) ? a : a + v, 0);
-    html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${rest.toFixed(3)} in all</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
+    html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${(rest * 100).toFixed(1)}% in all</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
     table.innerHTML = html;
     lossOut.innerHTML = `loss = ${(-Math.log(p[H])).toFixed(2)}` + (steps ? `  (after ${steps} move${steps > 1 ? "s" : ""})` : "");
   }
