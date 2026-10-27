@@ -366,9 +366,9 @@
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">The chances after <code>t</code>. Dashed line = what counting gives.</div>
+        <div class="muted" style="margin-bottom:12px">The loss, step by step. Green dashed line: the best possible loss, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
+        <div class="muted">The chances after <code>t</code>. Green dashed marks = what counting gives.</div>
         <div class="bars" id="trainBars"></div>
-        <div class="muted">Green dashed line: the best possible loss, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
       <p class="say" style="position:relative">Too small: it creeps. Too big: it jumps past the goal and back.<button class="doubt" type="button" data-peek-from="why10Peek" aria-label="Why 10 here?">🤔</button></p>
