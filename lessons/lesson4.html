@@ -161,19 +161,18 @@
         <tr><td>Counts</td><td><b>3</b></td><td><b>1</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><b>4</b></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
         <tr><td>Random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
       </table></div>
-      <p class="say">Your model has a random score for <b>every</b> character in the vocabulary, all 14, even ones that never come after <code>t</code>. Every row is like this: 14 rows × 14 = <b>196 scores</b> in all.</p>
-      <p class="say">Scores can be any number, even negative. That makes them easy to nudge up or down.</p>
+      <p class="say">A random score for <b>every</b> letter, all 14, even ones that never come after <code>t</code>. 14 rows × 14 = <b>196 scores</b>. Scores can be any number, even negative, so they're easy to nudge up or down.</p>
       <div class="vs" style="position:relative">
         <button class="doubt" type="button" data-peek-from="effortPeek" aria-label="Isn't this more work than counting?">🤔</button>
         <div class="vs-card">
           <div class="vs-title">Counting</div>
-          <p>Read the text. Write each count in its box: <code>t → h</code> seen 4 times → <b>4</b>.</p>
-          <p class="vs-bad">Only works when every number simply means “how many times this pair appeared”.</p>
+          <p>Write each count in its box: <code>t → h</code> seen 4 times → <b>4</b>.</p>
+          <p class="vs-bad">Only works when a number means “how many times”.</p>
         </div>
         <div class="vs-card learn">
           <div class="vs-title">Learning <small>(this lesson)</small></div>
-          <p>Start with random numbers. Guess, see how wrong, fix them a little. Repeat many times.</p>
-          <p class="vs-good">Works for any numbers, even ones that can't be counted.</p>
+          <p>Start random. Guess, see how wrong, fix a little. Repeat.</p>
+          <p class="vs-good">Works even for numbers that can't be counted.</p>
         </div>
       </div>
       <div hidden id="effortPeek"><b>🤔 Isn't this more work than counting?</b>
@@ -243,8 +242,7 @@
     <section class="part" data-title="How wrong?">
       <h2>How wrong?</h2>
       <p class="step-label">Step b) Measure</p>
-      <p class="say">Your model's guesses are bad. To get better, it needs one number that says how bad. The text shows the right answers: just look at what really comes next.</p>
-      <p class="say">Take the first pair in the text, <code>t → h</code>.</p>
+      <p class="say">To get better, your model needs one number that says how bad its guesses are. The text has the right answers. Take its first pair, <code>t → h</code>:</p>
       <p class="our-text" data-pair="0"></p>
       <div class="check-line"><span>Your model guessed:</span> <code>h</code> 13.3% <small>(on the last page)</small><br><span>The text says:</span> <code>h</code> comes next</div>
       <p class="say">It gave the right answer only 13.3%. How wrong is that?</p>
@@ -256,18 +254,15 @@
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
-      <p class="say">The less chance your model gives the right answer, the bigger the <mark>loss</mark>. Give it 100% and the loss is 0.</p>
-      <p class="say" style="position:relative">The rule your model uses: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0. The rule: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
       <div hidden id="logPeek"><b>🤔 What is log?</b>
         <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
         <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
       </div>
-      <p class="say">That was just one pair. Every pair has its own right answer: in “ca<b>t </b>”, <code>t</code> is followed by a space, so there the right answer is space.</p>
-      <p class="say">Your model does this for every pair in the text: 46 pairs, but only 24 different ones. A pair that repeats uses the same box every time, so it has the same loss every time, and it counts each time it appears. With its real random scores:</p>
+      <p class="say">Every pair in the text gets its own loss: 46 pairs, 24 different ones. A repeated pair has the same loss each time, and counts each time:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
-      <p class="say">One number for how far your model's guesses are from the real text.</p>
       <p class="hook">The goal is to make the loss small. But which of the 196 scores should change, and which way?</p>
     </section>
 
@@ -368,17 +363,18 @@
         <div class="bars" id="trainBars"></div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
-      <p class="say">Too small: slow. Too big: it jumps around.</p>
-      <p class="say">This step size is the <mark>learning rate</mark>. Each step moves every score by its gradient, multiplied by this number: <b>new score = old score − learning rate × gradient</b>. On the last two pages it was 1.</p>
+      <p class="say">The step size is the <mark>learning rate</mark>: <b>new score = old score − learning rate × gradient</b> (on the last two pages it was 1). Too small: slow. Too big: it jumps around.</p>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
         <tr><td>Counting</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
         <tr><td>Learning (300 steps)</td><td>0.374</td><td>0.124</td><td>0.499</td></tr>
       </table>
-      <p class="say">The same answer. Learning works.</p>
-      <p class="say">But notice the effort: counting needed <b>one</b> pass through the text. Learning needed <b>300</b> passes to reach the same chances. For this small table, counting is quicker.</p>
-      <p class="say">So why learn? Learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. That is why it will still work in <b>Lesson 5</b>, where the numbers can't be filled by counting.</p>
+      <p class="say" style="position:relative">The same answer. Learning works.<button class="doubt" type="button" data-peek-from="whyLearnPeek" aria-label="Then why not just count?">🤔</button></p>
+      <div hidden id="whyLearnPeek"><b>🤔 Then why not just count?</b>
+        <p style="margin:6px 0 0">Here counting is quicker: <b>one</b> pass through the text, against <b>300</b> for learning.</p>
+        <p style="margin:6px 0 0">But learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. So it still works where numbers can't be counted, coming in Lesson 5.</p>
+      </div>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 

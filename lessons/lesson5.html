@@ -286,10 +286,11 @@
         <div class="sh-eqs" id="cntEqs"></div>
         <div class="sh-result" id="cntNote"></div>
       </div>
-      <p class="say">Counting goes wrong because the green boxes are <b>shared</b>. They also counted “cat ” and “sat ”, which are followed by a space. So they give space big numbers, even for “mat”.</p>
-      <p class="say">Counting fills each box once and never checks the answer. Learning checks: it guesses, sees it's wrong, fixes the boxes a little, and repeats.</p>
-      <p class="say">Only “mat” uses the m-box, so that's where learning fixes it: <code>m _ _ → .</code> goes up to <b>4.87</b>, and <code>m _ _ → ␣</code> goes down to <b>−2.16</b>. Now full stop wins. A count can never be negative, so counting can't do this.</p>
-      <p class="say">Learning still reads the text many times. What it saves is <b>boxes</b>: 588 instead of 38,416.</p>
+      <p class="say">Counting goes wrong because the green boxes are <b>shared</b>: they also counted “cat ” and “sat ”, so they give space big numbers, even for “mat”. And counting never checks the answer.</p>
+      <p class="say" style="position:relative">Learning checks, and fixes the box only “mat” uses: <code>m _ _ → .</code> goes up to <b>4.87</b>, <code>m _ _ → ␣</code> down to <b>−2.16</b>. Now full stop wins. A count can never be negative.<button class="doubt" type="button" data-peek-from="savePeek" aria-label="So what does learning save?">🤔</button></p>
+      <div hidden id="savePeek"><b>🤔 So what does learning save?</b>
+        <p style="margin:6px 0 0">Not time: it still reads the text many times. It saves <b>boxes</b>: 588 instead of 38,416.</p>
+      </div>
       <p class="hook">How does learning use the text? Watch one step.</p>
     </section>
 
