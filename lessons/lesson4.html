@@ -775,7 +775,9 @@ function bar(label, p, target) {
     if (last) {
       const line = k => `<div><b>${CHARS[k] === "." ? "full stop" : showChar(CHARS[k])}</b>: ${f2(last.old[k])} − (${f3(last.g[k])}) = <b>${f2(row[k])}</b> → chance ${(last.oldP[k] * 100).toFixed(1)}% → <b>${(p[k] * 100).toFixed(1)}%</b></div>`;
       const past = history.slice(0, -1).map((h, j) => `<div class="gm-past">Press ${j + 1}: h ${f2(h.from)} − (${f3(h.g)}) = ${f2(h.to)} → chance ${(h.p0 * 100).toFixed(1)}% → ${(h.p * 100).toFixed(1)}% · loss ${h.loss.toFixed(2)}</div>`).join("");
-      m.innerHTML = (past ? `<div class="gm-hist">${past}</div>` : "") + `<div class="gm-title">Press ${steps}: new score = old score − gradient</div>` +
+      const p0 = softmax(INIT_LESSON4[T]);
+      const start = `<div class="gm-past">Start: h ${f2(INIT_LESSON4[T][H])} → chance ${(p0[H] * 100).toFixed(1)}% · loss ${(-Math.log(p0[H])).toFixed(2)}</div>`;
+      m.innerHTML = `<div class="gm-hist">${start}${past}</div>` + `<div class="gm-title">Press ${steps}: new score = old score − gradient</div>` +
         [H, CHARS.indexOf("."), CHARS.indexOf(" ")].map(line).join("") +
         `<div class="gm-note">Every other letter works the same way. Then softmax gives the new chances, and from them the new gradients in the table.</div>`;
     }
