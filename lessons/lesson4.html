@@ -92,7 +92,7 @@
   .loss-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; font-family: var(--mono); font-size: 0.9rem; }
   .loss-strip span { border: 1px solid var(--grid); border-radius: 4px; padding: 4px 8px; background: var(--paper); white-space: nowrap; }
   .loss-strip b { color: var(--redpen); font-weight: 600; margin-left: 6px; }
-  .loss-strip .more { border: 0; background: none; color: var(--pencil); }
+  .loss-strip i { font-style: normal; color: var(--pen); font-weight: 600; }
   .loss-avg { font-family: var(--mono); margin: 12px 0 18px; }
   @media (max-width: 560px) {
     .loss-row { grid-template-columns: 1fr 4em; }
@@ -255,7 +255,7 @@
         <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
       </div>
       <p class="say">That was just one pair. Every pair has its own right answer: in “ca<b>t </b>”, <code>t</code> is followed by a space, so there the right answer is space.</p>
-      <p class="say">Your model does this for every pair in the text, all 46 of them. These are the first 8, with its real random scores:</p>
+      <p class="say">Your model does this for every pair in the text: 46 pairs, but only 24 different ones. A pair that repeats uses the same box every time, so it has the same loss every time, and it counts each time it appears. With its real random scores:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
       <p class="say">One number for how far your model's guesses are from the real text.</p>
@@ -647,10 +647,13 @@ function bar(label, p, target) {
     const p = e[CHAR_TO_NUMBER[TEXT[i + 1]]] / e.reduce((x, y) => x + y, 0);
     losses.push([TEXT[i], TEXT[i + 1], -Math.log(p)]);
   }
-  document.getElementById("lossStrip").innerHTML = losses.slice(0, 8)
-    .map(([a, b, L]) => `<span>${showChar(a)} → ${showChar(b)}<b>${L.toFixed(2)}</b></span>`).join("") + `<span class="more">… 38 more</span>`;
+  // each different pair once, in the order it first appears, with how many times it appears
+  const uniq = new Map();
+  losses.forEach(([a, b, L]) => { const k = a + b; if (uniq.has(k)) uniq.get(k).n++; else uniq.set(k, { a, b, L, n: 1 }); });
+  document.getElementById("lossStrip").innerHTML = [...uniq.values()]
+    .map(({ a, b, L, n }) => `<span>${showChar(a)} → ${showChar(b)}${n > 1 ? ` <i>×${n}</i>` : ""}<b>${L.toFixed(2)}</b></span>`).join("");
   const avg = losses.reduce((x, l) => x + l[2], 0) / losses.length;
-  document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length}: <b>${avg.toFixed(2)}</b>`;
+  document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length} pairs (a ×4 pair counts 4 times): <b>${avg.toFixed(2)}</b>`;
 })();
 
 // ---------- 5: you be the model ----------
