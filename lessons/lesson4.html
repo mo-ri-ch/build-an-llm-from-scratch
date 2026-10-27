@@ -113,6 +113,9 @@
     .game { grid-template-columns: 3.6em auto 1fr 2.2em; }
     .game .pct { display: none; }
   }
+  .grad-math { margin-top: 12px; padding: 8px 12px; border-left: 3px solid var(--pen); background: var(--paper); font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; }
+  .grad-math .gm-title { font-family: var(--body, inherit); font-weight: 700; font-size: 0.9rem; }
+  .grad-math .gm-note { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.82rem; line-height: 1.4; margin-top: 4px; }
 </style>
 </head>
 <body data-pen="orange">
@@ -284,8 +287,8 @@
       </ul>
       <p class="say">To move a score: <b>new score = old score − gradient</b>.</p>
       <ul class="rules">
-        <li><code>h</code>: 1.07 − (−0.867) = <b>1.94</b>. Taking away a negative number adds it, so <code>h</code>'s score goes <b>up</b>.</li>
-        <li>Full stop: 1.35 − 0.177 = <b>1.17</b>. A positive gradient makes the score go <b>down</b>.</li>
+        <li><code>h</code>: 1.069 − (−0.867) = <b>1.936</b>. Taking away a negative number adds it, so <code>h</code>'s score goes <b>up</b>.</li>
+        <li>Full stop: 1.354 − 0.177 = <b>1.177</b>. A positive gradient makes the score go <b>down</b>.</li>
       </ul>
       <p class="say">So the + or − tells the direction, and the distance from 0 tells how much: <code>h</code> (−0.867, far from 0) moves a lot, space (+0.074, close to 0) hardly moves.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
@@ -301,6 +304,7 @@
           <button class="primary" id="gradStep">Move a little</button>
           <span class="grad-loss" id="gradLoss"></span>
         </div>
+        <div class="grad-math" id="gradMath" hidden></div>
       </div>
       <p class="say">In code, one line finds all 196 gradients at once: <code>loss.backward()</code>. You'll see it on the code page.</p>
       <p class="hook">Your turn: fix the scores yourself, using these directions.</p>
@@ -749,7 +753,8 @@ function bar(label, p, target) {
   const T = CHAR_TO_NUMBER["t"], H = CHAR_TO_NUMBER["h"];
   const shown = ["h", ".", "l", "d", " "].map(c => CHAR_TO_NUMBER[c]);
   const table = document.getElementById("gradTable"), lossOut = document.getElementById("gradLoss");
-  let row, steps;
+  let row, steps, last = null;   // last: what the most recent press did, to show its math
+  const f2 = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(3), f3 = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(3);
   function render() {
     const p = softmax(row);
     let html = "<tr><th></th><th>score</th><th>chance</th><th>gradient</th><th>so</th></tr>";
@@ -762,13 +767,23 @@ function bar(label, p, target) {
     html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${(rest * 100).toFixed(1)}% in all</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
     table.innerHTML = html;
     lossOut.innerHTML = `loss = ${(-Math.log(p[H])).toFixed(2)}` + (steps ? `  (after ${steps} move${steps > 1 ? "s" : ""})` : "");
+    // the math of the last press: new score = old score − gradient, for h, full stop and space
+    const m = document.getElementById("gradMath");
+    m.hidden = !last;
+    if (last) {
+      const line = k => `<div><b>${CHARS[k] === "." ? "full stop" : showChar(CHARS[k])}</b>: ${f2(last.old[k])} − (${f3(last.g[k])}) = <b>${f2(row[k])}</b> → chance ${(last.oldP[k] * 100).toFixed(1)}% → <b>${(p[k] * 100).toFixed(1)}%</b></div>`;
+      m.innerHTML = `<div class="gm-title">Press ${steps}: new score = old score − gradient</div>` +
+        [H, CHARS.indexOf("."), CHARS.indexOf(" ")].map(line).join("") +
+        `<div class="gm-note">Every other letter works the same way. Then softmax gives the new chances, and from them the new gradients in the table.</div>`;
+    }
   }
   document.getElementById("gradStep").onclick = () => {
-    const p = softmax(row);
-    row = row.map((v, k) => v - 1.0 * (p[k] - (k === H ? 1 : 0)));   // score = score - learning_rate * gradient
+    const p = softmax(row), g = p.map((v, k) => v - (k === H ? 1 : 0));
+    last = { old: row.slice(), g, oldP: p };
+    row = row.map((v, k) => v - 1.0 * g[k]);   // score = score - learning_rate * gradient
     steps += 1; render();
   };
-  addReset(table, () => { row = INIT_LESSON4[T].slice(); steps = 0; render(); });
+  addReset(table, () => { row = INIT_LESSON4[T].slice(); steps = 0; last = null; render(); });
   row = INIT_LESSON4[T].slice(); steps = 0; render();
 })();
 </script>
