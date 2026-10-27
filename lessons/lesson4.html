@@ -303,6 +303,7 @@
         <div class="muted" style="margin-bottom:10px">Each press: every score moves by its gradient → new chances → new gradients. Watch <code>h</code>'s gradient shrink: −0.867, −0.711, −0.526… The closer to 100%, the smaller the move.</div>
         <table class="plain grads" id="gradTable"></table>
         <div class="row" style="margin-top:12px">
+          <button id="gradBack" hidden>◀ Back</button>
           <button class="primary" id="gradStep">Move a little</button>
           <span class="grad-loss" id="gradLoss"></span>
         </div>
@@ -755,9 +756,11 @@ function bar(label, p, target) {
   const T = CHAR_TO_NUMBER["t"], H = CHAR_TO_NUMBER["h"];
   const shown = ["h", ".", "l", "d", " "].map(c => CHAR_TO_NUMBER[c]);
   const table = document.getElementById("gradTable"), lossOut = document.getElementById("gradLoss");
-  let row, steps, last = null, history = [];   // last: what the most recent press did; history: every press so far, to show its math
+  let row, steps, last = null, history = [], rows = [];
+  // last: what the most recent press did; history: every press so far, to show its math; rows: the scores before each press, for ◀ Back
   const f2 = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(3), f3 = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(3);
   function render() {
+    document.getElementById("gradBack").hidden = !steps;   // nothing to undo before the first press
     const p = softmax(row);
     let html = "<tr><th></th><th>score</th><th>chance</th><th>gradient</th><th>so</th></tr>";
     shown.forEach(k => {
@@ -785,12 +788,20 @@ function bar(label, p, target) {
   document.getElementById("gradStep").onclick = () => {
     const p = softmax(row), g = p.map((v, k) => v - (k === H ? 1 : 0));
     last = { old: row.slice(), g, oldP: p };
+    rows.push(row.slice());
     row = row.map((v, k) => v - 1.0 * g[k]);   // score = score - learning_rate * gradient
     const np = softmax(row);
     history.push({ from: last.old[H], g: g[H], to: row[H], p0: p[H], p: np[H], loss: -Math.log(np[H]) });
     steps += 1; render();
   };
-  addReset(table, () => { row = INIT_LESSON4[T].slice(); steps = 0; last = null; history = []; render(); });
+  // ◀ Back: undo the last press, so you can compare the whole table before and after
+  document.getElementById("gradBack").onclick = () => {
+    if (!steps) return;
+    row = rows.pop(); history.pop(); steps -= 1;
+    if (steps) { const old = rows[rows.length - 1], p = softmax(old); last = { old: old.slice(), g: p.map((v, k) => v - (k === H ? 1 : 0)), oldP: p }; } else last = null;
+    render();
+  };
+  addReset(table, () => { row = INIT_LESSON4[T].slice(); steps = 0; last = null; history = []; rows = []; render(); });
   row = INIT_LESSON4[T].slice(); steps = 0; render();
 })();
 </script>
