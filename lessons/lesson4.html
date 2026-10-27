@@ -124,8 +124,6 @@
   .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
   .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
   .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
-  .doubt-mini { display: inline-block; background: none; border: 0; box-shadow: none; padding: 0 2px; font-size: 0.95rem; line-height: 1; cursor: help; vertical-align: -1px; }
-  .doubt-mini:hover, .doubt-mini:focus-visible { background: var(--note-yellow); border-radius: 50%; }
 </style>
 </head>
 <body data-pen="orange">
@@ -340,12 +338,11 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say"><b>How far should each score move?</b> So far, each score moved by exactly its gradient. It could also move 10 times as far, or a tenth. That multiplier is the <mark>learning rate</mark>:</p>
-      <p class="say"><b>new score = old score − learning rate × gradient</b>. For a gradient of −0.30:</p>
+      <p class="say"><b>One thing changes from the last page.</b> There, the loss averaged only the 8 pairs that start with <code>t</code>. Now it averages <b>all 46 pairs</b>. Row <code>t</code>'s pairs are 8 of the 46, so its gradient is <b>8/46 of chance − goal</b>. For h: 0.133 − 0.500 = −0.367 (as on the last page), × 8/46 = <b>−0.064</b>.</p>
+      <p class="say">That's a small move. So your model multiplies every gradient by a number, the <mark>learning rate</mark>: <b>new score = old score − learning rate × gradient</b>. For h:</p>
       <ul class="rules">
-        <li>learning rate 0.1: 0.1 × (−0.30) = −0.03, so <b>up 0.03</b></li>
-        <li>learning rate 1: 1 × (−0.30) = −0.30, so <b>up 0.30</b></li>
-        <li>learning rate 10: 10 × (−0.30) = −3.0, so <b>up 3.0</b></li>
+        <li>learning rate 1: 1 × (−0.064), so <b>up 0.064</b></li>
+        <li>learning rate 10: 10 × (−0.064), so <b>up 0.64</b></li>
       </ul>
       <p class="say" style="position:relative">Now your model does it all by itself: every pair, every score, 300 times.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
       <div hidden id="why300Peek"><b>🤔 Why 300?</b>
@@ -374,13 +371,8 @@
         <div class="bars" id="trainBars"></div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
         <div class="grad-math" id="trainMath" hidden></div>
-        <div hidden id="why846Peek"></div>
       </div>
-      <p class="say" style="position:relative">Too small: it creeps. Too big: it jumps past the goal and back.<button class="doubt" type="button" data-peek-from="why10Peek" aria-label="Why 10 here?">🤔</button></p>
-      <div hidden id="why10Peek"><b>🤔 Why 10 here, when it was 1 before?</b>
-        <p style="margin:6px 0 0">Now the gradients are averaged over all 46 pairs, not just the 8 that start with <code>t</code>. So row <code>t</code>'s gradients come out about 8/46 as big.</p>
-        <p style="margin:6px 0 0">A learning rate of 10 makes up for that, so each move is a useful size again.</p>
-      </div>
+      <p class="say">Too small: it creeps. Too big: it jumps past the goal and back.</p>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
@@ -838,12 +830,10 @@ function bar(label, p, target) {
     const f = (v, d = 3) => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d), sg = (v, d = 3) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d);
     const rows = ["h", " ", ".", "l"].map(c => {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
-      return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
+      return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(before[k] - want[c], d)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= ${nT}/46 × (chance − goal) <button class="doubt-mini" type="button" data-peek-from="why846Peek" aria-label="Why 8/46?">🤔</button></th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>chance<br>− goal</th><th>× ${nT}/46<br>= gradient</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
-    document.getElementById("why846Peek").innerHTML = `<b>🤔 Why ${nT}/46?</b><p style="margin:6px 0 0">The gradient is now averaged over all 46 pairs. Only the ${nT} pairs starting with <code>t</code> use row <code>t</code>; the other ${46 - nT} give 0 here.</p>` +
-      `<p style="margin:6px 0 0">For h: (${nT} × (${sg(softmax(last.before[T])[H] - 0.5)}) + ${46 - nT} × 0) ÷ 46 = <b>${sg(last.grad[T][H])}</b>.</p><p style="margin:6px 0 0">That's why the learning rate is ${lr}: it makes the move a useful size again.</p>`;
   }
   function run(n) {
     const lr = Number(lrSel.value);
