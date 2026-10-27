@@ -336,7 +336,7 @@
         <div class="muted" style="margin-top:4px">Best possible: <b>0.97</b>, when the chances match the goals exactly (the same chances counting gave).</div>
         <div class="win" id="gameWin"></div>
         <div class="row">
-          <button id="askBackward">Ask PyTorch which way</button>
+          <button id="askBackward">Show the gradients</button>
         </div>
         <div class="muted" style="margin:14px 0 6px">Or let your model do it: each step moves every score by its gradient (new = old − gradient), using all 8 pairs.</div>
         <div class="row">
@@ -347,7 +347,7 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">The arrows PyTorch shows are these <mark>gradients</mark>. Why is the goal the share? Each pair gives its own gradient (goal 1 for its right answer, 0 for the rest), and the 8 are averaged. For space (chance 0.074):</p>
+      <p class="say">These arrows are the <mark>gradients</mark>. Why is the goal the share? Each pair gives its own gradient (goal 1 for its right answer, 0 for the rest), and the 8 are averaged. For space (chance 0.074):</p>
       <ul class="rules">
         <li>the 4 pairs <code>t → h</code>: space is wrong, so 0.074 − 0 = <b>+0.074</b> each</li>
         <li>the 3 pairs <code>t → ␣</code>: space is right, so 0.074 − 1 = <b>−0.926</b> each</li>
@@ -355,6 +355,7 @@
       </ul>
       <p class="say">Average: (4 × 0.074 + 3 × (−0.926) + 0.074) ÷ 8 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, it went down.</p>
       <p class="muted-note">And that's exactly chance − share: 0.074 − 3/8 = −0.30. Averaging the 1s and 0s of the 8 pairs gives the share.</p>
+      <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same numbers. You'll see it on the code page.</p>
       <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 50%, space 37.5%, full stop 12.5%. Full stop even overshoots to about 9% and comes back.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
