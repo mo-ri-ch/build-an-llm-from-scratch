@@ -222,7 +222,7 @@
           <tr><td style="padding:1px 10px 1px 0">10<sup>1</sup> = 10.00</td><td style="padding:1px 10px">→ 10<sup>1.01</sup> = 10.23</td><td>2.30% bigger</td></tr>
         </table>
         <p style="margin:6px 0 0">With e, nudge and growth are the same number. With 2 or 10, every nudge gets an extra 0.69 or 2.30.</p>
-        <p style="margin:6px 0 0">Learning keeps asking “if I nudge this score, how much does the chance change?”. With e there's no extra number, so the answer is the simple rule two pages on: move by “chance − 1” for the right answer, “chance” for the others.</p>
+        <p style="margin:6px 0 0">Learning keeps asking “if I nudge this score, how much does the chance change?”. With e there's no extra number, so the answer is the simple rule two pages on: move each score by “chance − goal”.</p>
         <p style="margin:6px 0 0">2 or 10 would still work: your model would just learn bigger or smaller scores, and the chances would come out the same. e only keeps the math cleanest.</p>
       </div>
       <div hidden id="softmaxNamePeek"><b>🤔 Why is it called softmax?</b>
@@ -285,11 +285,12 @@
         <li><b>Every other letter's score goes down</b>, so their chances shrink. The chances always add up to 100%, so what they lose goes to <code>h</code>.</li>
       </ul>
       <p class="muted-note">Even space and full stop go down here, because for this one pair they're wrong. When all 8 pairs count together (next page), their own pairs push them back up.</p>
-      <p class="say">For each score, one number tells us which way to move it, and by how much. That number is its <mark>gradient</mark>:</p>
-      <ul class="rules" style="position:relative">
-        <button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − 1?">🤔</button>
-        <li><code>h</code> (the right answer): gradient = its chance − 1 = 0.133 − 1 = <b>−0.867</b>. <small>(13.3% is written as 0.133.)</small></li>
-        <li>Every wrong letter: gradient = its chance. Full stop (17.7%): <b>+0.177</b>. Space (7.4%): <b>+0.074</b>.</li>
+      <p class="say" style="position:relative">For each score, one number tells us which way to move it, and by how much. That number is its <mark>gradient</mark>: <b>gradient = chance − goal</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
+      <p class="say">The goal is what the chance should be. For this one pair, the right answer <code>h</code> should get everything (goal <b>1</b>), and every other letter nothing (goal <b>0</b>). <small>(13.3% is written as 0.133.)</small></p>
+      <ul class="rules">
+        <li><code>h</code>: 0.133 − 1 = <b>−0.867</b></li>
+        <li>Full stop: 0.177 − 0 = <b>+0.177</b></li>
+        <li>Space: 0.074 − 0 = <b>+0.074</b></li>
       </ul>
       <p class="say">To move a score: <b>new score = old score − gradient</b>.</p>
       <ul class="rules">
@@ -297,10 +298,9 @@
         <li>Full stop: 1.354 − 0.177 = <b>1.177</b>. A positive gradient makes the score go <b>down</b>.</li>
       </ul>
       <p class="say">So the + or − tells the direction, and the distance from 0 tells how much: <code>h</code> (−0.867, far from 0) moves a lot, space (+0.074, close to 0) hardly moves.</p>
-      <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
-        <p style="margin:6px 0 0">“1” means 100%, a sure guess. So “chance − 1” is how far the right answer is from 100%.</p>
-        <p style="margin:6px 0 0">If your model already gave <code>h</code> 100%: 1 − 1 = <b>0</b>. Nothing to fix, so the score doesn't move.</p>
-        <p style="margin:6px 0 0">It gave only 13.3%: 0.133 − 1 = <b>−0.867</b>. Far from 100%, so the score moves up a lot.</p>
+      <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
+        <p style="margin:6px 0 0">It's the gap between what your model gives and what it should give. Below the goal, the gap is negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0: nothing to fix.</p>
+        <p style="margin:6px 0 0">If your model already gave <code>h</code> 1 (100%): 1 − 1 = <b>0</b>, so the score doesn't move. It gave only 0.133: 0.133 − 1 = <b>−0.867</b>, far from the goal, so it moves up a lot.</p>
       </div>
       <div class="activity">
         <div class="do">Press “Move a little” a few times. Watch <code>h</code>'s chance grow and the loss shrink.</div>
@@ -346,14 +346,15 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">The arrows PyTorch shows are <mark>gradients</mark>, for all 8 pairs at once. Each pair gives its gradient by the last page's rule, and the 8 are averaged. For space (chance 7.4%):</p>
+      <p class="say">The arrows PyTorch shows are <mark>gradients</mark>, the same rule as the last page: <b>chance − goal</b>. With all 8 pairs, each letter's goal is its share of them: h 4/8 = 0.5, space 3/8 = 0.375, full stop 1/8 = 0.125.</p>
+      <p class="say">Why the share? Each pair gives its own gradient (goal 1 for its right answer, 0 for the rest), and the 8 are averaged. For space (chance 0.074):</p>
       <ul class="rules">
-        <li>the 4 pairs <code>t → h</code>: space is wrong, so <b>+0.074</b> each</li>
+        <li>the 4 pairs <code>t → h</code>: space is wrong, so 0.074 − 0 = <b>+0.074</b> each</li>
         <li>the 3 pairs <code>t → ␣</code>: space is right, so 0.074 − 1 = <b>−0.926</b> each</li>
-        <li>the 1 pair <code>t → .</code>: space is wrong, so <b>+0.074</b></li>
+        <li>the 1 pair <code>t → .</code>: space is wrong, so 0.074 − 0 = <b>+0.074</b></li>
       </ul>
       <p class="say">Average: (4 × 0.074 + 3 × (−0.926) + 0.074) ÷ 8 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, it went down.</p>
-      <p class="muted-note">A shortcut gives the same number: chance − goal = 0.074 − 3/8 = −0.30.</p>
+      <p class="muted-note">And that's exactly chance − share: 0.074 − 3/8 = −0.30. Averaging the 1s and 0s of the 8 pairs gives the share.</p>
       <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 50%, space 37.5%, full stop 12.5%. Full stop even overshoots to about 9% and comes back.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
@@ -511,10 +512,10 @@ Step 250 loss: 0.709
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. A wrong answer's gradient is its chance: +0.6. Positive means down, and 0.6 is far from 0, so it moves a lot.">
+        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. A wrong answer's goal is 0, so its gradient is 0.6 − 0 = +0.6. Positive means down, and 0.6 is far from 0, so it moves a lot.">
           <div class="q"><small>5. Read a gradient</small>For the pair <code>t → h</code>, your model gives “.” a chance of <b>0.6</b>. What is its gradient, and what happens to its score?</div>
           <div class="options">
-            <button data-why="“.” is a wrong answer here, so its gradient is its chance, which is positive.">−0.6, it goes up</button>
+            <button data-why="“.” is a wrong answer here, so its goal is 0 and its gradient is 0.6 − 0, which is positive.">−0.6, it goes up</button>
             <button data-right>+0.6, it goes down a lot</button>
             <button data-why="Positive means the score goes down, not up.">+0.6, it goes up</button>
           </div>
@@ -523,7 +524,7 @@ Step 250 loss: 0.709
         <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. Gradient = 0.95 − 1 = −0.05, very close to 0. Almost right, so it barely moves.">
           <div class="q"><small>6. Almost right</small>Your model already gives the right answer <b>95%</b>. How much will that answer's score move?</div>
           <div class="options">
-            <button data-why="Work out the gradient: chance − 1 = 0.95 − 1. Is that far from 0?">A lot</button>
+            <button data-why="Work out the gradient: chance − goal = 0.95 − 1. Is that far from 0?">A lot</button>
             <button data-right>Only a little</button>
             <button data-why="It's not 100% yet, so there is still a little to fix.">Not at all</button>
           </div>
@@ -840,14 +841,14 @@ function bar(label, p, target) {
   function render() {
     document.getElementById("gradBack").hidden = !steps;   // nothing to undo before the first press
     const p = softmax(row);
-    let html = "<tr><th></th><th>score</th><th>chance</th><th>gradient</th><th>so</th></tr>";
+    let html = "<tr><th></th><th>score</th><th>chance</th><th>goal</th><th>gradient</th><th>so</th></tr>";
     shown.forEach(k => {
       const g = p[k] - (k === H ? 1 : 0);
-      html += `<tr class="${k === H ? "right" : ""}"><td>${showChar(CHARS[k])}${k === H ? " (right)" : ""}</td><td>${row[k].toFixed(2)}</td><td>${(p[k] * 100).toFixed(1)}%</td><td>${g >= 0 ? "+" : "−"}${Math.abs(g).toFixed(3)}</td><td class="${g < 0 ? "up" : "down"}">${g < 0 ? "↑ up" : "↓ down"}</td></tr>`;
+      html += `<tr class="${k === H ? "right" : ""}"><td>${showChar(CHARS[k])}${k === H ? " (right)" : ""}</td><td>${row[k].toFixed(2)}</td><td>${(p[k] * 100).toFixed(1)}%</td><td>${k === H ? 1 : 0}</td><td>${g >= 0 ? "+" : "−"}${Math.abs(g).toFixed(3)}</td><td class="${g < 0 ? "up" : "down"}">${g < 0 ? "↑ up" : "↓ down"}</td></tr>`;
     });
     // The other 9 letters are wrong answers too: each one's gradient is its own (small) chance, so each goes down a little
     const rest = p.reduce((a, v, k) => shown.includes(k) ? a : a + v, 0);
-    html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${(rest * 100).toFixed(1)}% in all</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
+    html += `<tr class="others"><td>the other 9 letters</td><td></td><td>${(rest * 100).toFixed(1)}% in all</td><td>0</td><td>+ each one's chance</td><td class="down">↓ down</td></tr>`;
     table.innerHTML = html;
     lossOut.innerHTML = `loss = ${(-Math.log(p[H])).toFixed(2)}` + (steps ? `  (after ${steps} move${steps > 1 ? "s" : ""})` : "");
     // the math of the last press: new score = old score − gradient, for h, full stop and space
