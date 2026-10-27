@@ -124,6 +124,8 @@
   .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
   .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
   .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
+  .doubt-mini { display: inline-block; background: none; border: 0; box-shadow: none; padding: 0 2px; font-size: 0.95rem; line-height: 1; cursor: help; vertical-align: -1px; }
+  .doubt-mini:hover, .doubt-mini:focus-visible { background: var(--note-yellow); border-radius: 50%; }
 </style>
 </head>
 <body data-pen="orange">
@@ -372,6 +374,7 @@
         <div class="bars" id="trainBars"></div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
         <div class="grad-math" id="trainMath" hidden></div>
+        <div hidden id="why846Peek"></div>
       </div>
       <p class="say" style="position:relative">Too small: it creeps. Too big: it jumps past the goal and back.<button class="doubt" type="button" data-peek-from="why10Peek" aria-label="Why 10 here?">🤔</button></p>
       <div hidden id="why10Peek"><b>🤔 Why 10 here, when it was 1 before?</b>
@@ -837,8 +840,10 @@ function bar(label, p, target) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= ${nT}/46 × (chance − goal)</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
-      `<div class="gm-note">Why ${nT}/46? The gradient is now averaged over all 46 pairs. Only the ${nT} pairs starting with <code>t</code> use row <code>t</code>; the other ${46 - nT} give 0 here. For h: (${nT} × (${sg(softmax(last.before[T])[H] - 0.5)}) + ${46 - nT} × 0) ÷ 46 = ${sg(last.grad[T][H])}. That's why the learning rate is ${lr}: it makes the move a useful size again. Every other row moves the same way, in the same step.</div>`;
+    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= ${nT}/46 × (chance − goal) <button class="doubt-mini" type="button" data-peek-from="why846Peek" aria-label="Why 8/46?">🤔</button></th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+      `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
+    document.getElementById("why846Peek").innerHTML = `<b>🤔 Why ${nT}/46?</b><p style="margin:6px 0 0">The gradient is now averaged over all 46 pairs. Only the ${nT} pairs starting with <code>t</code> use row <code>t</code>; the other ${46 - nT} give 0 here.</p>` +
+      `<p style="margin:6px 0 0">For h: (${nT} × (${sg(softmax(last.before[T])[H] - 0.5)}) + ${46 - nT} × 0) ÷ 46 = <b>${sg(last.grad[T][H])}</b>.</p><p style="margin:6px 0 0">That's why the learning rate is ${lr}: it makes the move a useful size again.</p>`;
   }
   function run(n) {
     const lr = Number(lrSel.value);
