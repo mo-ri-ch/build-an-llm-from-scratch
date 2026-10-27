@@ -266,9 +266,10 @@
     <section class="part" data-title="Which way?">
       <h2>Which way?</h2>
       <p class="step-label">Steps c) Find directions and d) Move</p>
-      <p class="say">Take the pair <code>t → h</code> again.</p>
-      <p class="our-text" data-pair="0"></p>
-      <p class="say">Your model gave <code>h</code> only 13.3%, but the text says <code>h</code> is the right answer. To make the loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
+      <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once.</p>
+      <p class="our-text" data-after="t"></p>
+      <p class="say">To see how one score moves, start with <b>just one pair</b>: <code>t → h</code>. (The next page uses all 8.)</p>
+      <p class="say">For this pair the right answer is <code>h</code>, and your model gave it only 13.3%. To make <b>this pair's</b> loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
       <p class="say">The chances come from the scores in row <code>t</code> (softmax: a higher score gives a higher chance). So we change the scores:</p>
       <ul class="rules">
         <li><b><code>h</code>'s score goes up</b>, so <code>h</code>'s chance grows.</li>
