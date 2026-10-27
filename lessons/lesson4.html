@@ -735,13 +735,13 @@ function bar(label, p, target) {
       const H = CHAR_TO_NUMBER["h"], SP = CHAR_TO_NUMBER[" "], FS = CHAR_TO_NUMBER["."];
       const row1 = (k, name) => {
         const g = last.g[k];
-        return `<tr><td><b>${name}</b></td><td>${pc(last.p[k])}</td><td>${pc(deserved[k])}</td><td>${sg(g)}</td>` +
-          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${f3(last.old[k])} → <b>${f3(row[k])}</b></td><td><b>${pc(p[k])}</b></td></tr>`;
+        return `<tr><td><b>${name}</b></td><td>${last.p[k].toFixed(3)}</td><td>${deserved[k].toFixed(3)}</td><td>${sg(g)}</td>` +
+          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${f3(last.old[k])} → <b>${f3(row[k])}</b></td><td><b>${p[k].toFixed(3)}</b></td></tr>`;
       };
       m.innerHTML = `<div class="gm-title">Step ${steps}</div>` +
         `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
         row1(H, "h") + row1(SP, "space") + row1(FS, "full stop") + `</table></div>` +
-        `<div class="gm-note">Read a row left to right. For h: ${pc(last.p[H])} − 50% = ${sg(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${f3(last.old[H])} − (${sg(last.g[H])}) = ${f3(row[H])}. Softmax then turns the new scores into the new chances.<br>l, d and the other 9 letters have goal 0, so their gradient is just their chance, and they go down.</div>`;
+        `<div class="gm-note">Read a row left to right. For h: ${last.p[H].toFixed(3)} − 0.500 = ${sg(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${f3(last.old[H])} − (${sg(last.g[H])}) = ${f3(row[H])}. Softmax then turns the new scores into the new chances. (0.133 means 13.3%.)<br>l, d and the other 9 letters have goal 0, so their gradient is just their chance, and they go down.</div>`;
     }
   }
   function step() {   // one learning step on row t, using the average gradient of the 8 t-pairs
@@ -778,7 +778,7 @@ function bar(label, p, target) {
     { run: () => { reset(); showGrad = true; render(); }, at: () => $("ybmStep"), click: () => $("ybmStep"),
       say: "Now let your model do it. Press <b>Take one step</b>: every score moves by its gradient at once. (We start again from the random scores.)" },
     { at: () => $("ybmMath"), keep: () => game,
-      say: () => `<b>The math of that step.</b> Look at full stop: it is a right answer (for 1 pair), yet its gradient is +${last ? last.g[FSk].toFixed(3) : "0.052"}, so it goes <b>down</b>. It started above its goal: ${last ? (last.p[FSk] * 100).toFixed(1) : "17.7"}% against 12.5%.` },
+      say: () => `<b>The math of that step.</b> Look at full stop: it is a right answer (for 1 pair), yet its gradient is +${last ? last.g[FSk].toFixed(3) : "0.052"}, so it goes <b>down</b>. It started above its goal: ${last ? last.p[FSk].toFixed(3) : "0.177"} against 0.125.` },
     { at: () => $("ybmPlay"), click: () => $("ybmPlay"),
       say: "Press <b>▶ Play</b> and watch every bar move onto its green line." },
     { at: () => game, keep: () => $("ybmMath"),
