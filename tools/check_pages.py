@@ -29,7 +29,8 @@ for path in sorted(glob.glob('lessons/lesson*.html')):
     for title, body in re.findall(r'<section class="part" data-title="([^"]+)">(.*?)</section>', s, re.S):
         if title in ('The code', 'Lesson test'):
             continue
-        words = re.sub(r'<[^>]+>', ' ', outside_text(body)).split()
+        text = re.sub(r'<h2>.*?</h2>|<p class="step-label">.*?</p>', ' ', outside_text(body), flags=re.S)   # headings aren't reading
+        words = [w for w in re.sub(r'<[^>]+>', ' ', text).split() if re.search(r'[A-Za-z0-9]', w)]   # symbols like → = − aren't words
         numbers = sum(1 for w in words if re.search(r'\d', w))
         if len(words) > LIMIT:
             over += 1
