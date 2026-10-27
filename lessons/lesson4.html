@@ -320,11 +320,15 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
-      <p class="say">Now you fix the scores yourself. These are your model's real random scores for row <code>t</code>.</p>
-      <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, a full stop 1 out of 8.</p>
+      <p class="say">Now fix row <code>t</code> yourself, using <b>all 8 pairs</b> that start with <code>t</code>:</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say">The loss is now the <b>average of the 8 pairs' losses</b>. All 8 use row <code>t</code>, so every push changes all 8 at once.</p>
-      <p class="say">Same rule as the last page: <b>gradient = chance − goal</b>. With all 8 pairs, each letter's goal is its share of them: h 4/8 = 0.5, space 3/8 = 0.375, full stop 1/8 = 0.125.</p>
+      <p class="say" style="position:relative">Same rule as the last page: <b>gradient = chance − goal</b>. Each letter's goal is its share of the 8 pairs: h 4/8 = <b>0.5</b>, space 3/8 = <b>0.375</b>, full stop 1/8 = <b>0.125</b>.<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why is the goal the share?">🤔</button></p>
+      <div hidden id="sharePeek"><b>🤔 Why is the goal the share?</b>
+        <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
+        <p style="margin:6px 0 0">Your model can't please all 8, so it aims for the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
+        <p style="margin:6px 0 0">At the start, space's chance is 0.074, so its gradient is 0.074 − 0.375 = <b>−0.30</b>: up. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
+      </div>
+      <p class="say">The loss is the <b>average of the 8 pairs' losses</b>. All 8 use row <code>t</code>, so every push changes all 8.</p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
         <div class="muted" style="margin-bottom:10px">The green dashed line is each one's goal. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown). Each ↑ or ↓ moves that score by 0.5.</div>
@@ -347,16 +351,8 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">The numbers next to each bar (after “Show the gradients”) are the <mark>gradients</mark>.</p>
-      <p class="say">Where does each goal come from? Take space. Each of the 8 pairs wants something different for it:</p>
-      <ul class="rules">
-        <li>the 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure)</li>
-        <li>the other 5 pairs want space to be <b>0</b></li>
-      </ul>
-      <p class="say">Your model can't please all 8, so it aims for the average: (3 × 1 + 5 × 0) ÷ 8 = 3/8 = <b>0.375</b>. That's space's goal. The same way, h's goal is 4/8 = 0.5 and full stop's is 1/8 = 0.125.</p>
-      <p class="say">At the start, space's chance is 0.074. So its gradient is 0.074 − 0.375 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
-      <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same numbers. You'll see it on the code page.</p>
-      <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 0.5, space 0.375, full stop 0.125. Full stop even overshoots to about 0.09 and comes back.</p>
+      <p class="say">Press ▶ Play: below its goal, a letter's gradient is negative, so it goes up. Above its goal, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles on its green line, and why full stop dips to about 0.09 and comes back.</p>
+      <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same gradients. You'll see it on the code page.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
 
