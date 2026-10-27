@@ -354,9 +354,9 @@
         <li>the other 5 pairs want space to be <b>0</b></li>
       </ul>
       <p class="say">Your model can't please all 8, so it aims for the average: (3 × 1 + 5 × 0) ÷ 8 = 3/8 = <b>0.375</b>. That's space's goal. The same way, h's goal is 4/8 = 0.5 and full stop's is 1/8 = 0.125.</p>
-      <p class="say">So space's gradient: 0.074 − 0.375 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
+      <p class="say">At the start, space's chance is 0.074. So its gradient is 0.074 − 0.375 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
       <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same numbers. You'll see it on the code page.</p>
-      <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 50%, space 37.5%, full stop 12.5%. Full stop even overshoots to about 9% and comes back.</p>
+      <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 0.5, space 0.375, full stop 0.125. Full stop even overshoots to about 0.09 and comes back.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
 
