@@ -349,7 +349,7 @@
       <p class="say">Average: (4 × 0.074 + 3 × (−0.926) + 0.074) ÷ 8 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, it went down.</p>
       <p class="muted-note">A shortcut gives the same number: chance − goal = 0.074 − 3/8 = −0.30.</p>
       <p class="say">Press ▶ Play and watch: each letter's gradient is chance − goal. Below its goal, it's negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles exactly on its green line: h 50%, space 37.5%, full stop 12.5%. Full stop even overshoots to about 9% and comes back.</p>
-      <p class="hook">Doing this for all 196 scores is what your model does next, by itself.</p>
+      <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
 
     <!-- 7 -->
@@ -377,7 +377,7 @@
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
       <p class="say">Too small: slow. Too big: it jumps around.</p>
-      <p class="say">This step size is the <mark>learning rate</mark>. Each step moves every score by its gradient, multiplied by this number: <b>new score = old score − learning rate × gradient</b>.</p>
+      <p class="say">This step size is the <mark>learning rate</mark>. Each step moves every score by its gradient, multiplied by this number: <b>new score = old score − learning rate × gradient</b>. On the last two pages it was 1.</p>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
