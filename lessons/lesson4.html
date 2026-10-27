@@ -34,6 +34,7 @@
   svg.chart { width: 100%; height: auto; display: block; margin: 8px 0; }
   svg.chart .axis { stroke: var(--pencil); stroke-width: 1; }
   svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
+  svg.chart .goal { stroke: var(--good, #1E8F4E); stroke-dasharray: 5 4; stroke-width: 1.5; }
   svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 12px; }
 
   .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 14px; }
@@ -342,7 +343,12 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">Now your model does your job, 300 times.</p>
+      <p class="say" style="position:relative">Now your model does your job, 300 times.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
+      <div hidden id="why300Peek"><b>🤔 Why 300?</b>
+        <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With step size 10:</p>
+        <p style="margin:6px 0 0;font-family:var(--mono);font-size:0.85rem">step 0: 3.087 · 50: 0.746 · 100: 0.722 · <b>300: 0.708</b> · 1,000: 0.703<br>best possible: 0.701</p>
+        <p style="margin:6px 0 0">After 300, more steps barely help. A smaller step size needs more steps; a bigger one, fewer.</p>
+      </div>
       <div class="activity">
         <div class="do">Pick a step size (how big each nudge is). Press Train.</div>
         <div class="muted" style="margin-bottom:10px">One step = a) predict, b) measure, c) find directions, d) move.</div>
@@ -361,6 +367,7 @@
         <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
         <div class="muted">The chances after <code>t</code>. Dashed line = what counting gives.</div>
         <div class="bars" id="trainBars"></div>
+        <div class="muted">Green dashed line: the best possible loss, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
       <p class="say">The step size is the <mark>learning rate</mark>: <b>new score = old score − learning rate × gradient</b> (on the last two pages it was 1). Too small: slow. Too big: it jumps around.</p>
@@ -778,6 +785,10 @@ function bar(label, p, target) {
 // ---------- 6: train ----------
 (function trainer() {
   const model = new OneCharModel();
+  // the best possible loss: every pair's chance equals its counted share
+  const BEST = (() => { const c = {}; for (let i = 0; i + 1 < TEXT.length; i++) { const a = TEXT[i]; (c[a] = c[a] || {})[TEXT[i + 1]] = (c[a][TEXT[i + 1]] || 0) + 1; }
+    let L = 0; for (let i = 0; i + 1 < TEXT.length; i++) { const r = c[TEXT[i]], n = Object.values(r).reduce((x, y) => x + y, 0); L -= Math.log(r[TEXT[i + 1]] / n); } return L / (TEXT.length - 1); })();
+  document.getElementById("bestLoss4").textContent = BEST.toFixed(3);
   const T = CHAR_TO_NUMBER["t"];
   const lrSel = document.getElementById("lr");
   function chart() {
@@ -785,6 +796,9 @@ function bar(label, p, target) {
     const W = 600, H = 160, pad = 30, maxY = 3.5;
     let s = `<line class="axis" x1="${pad}" y1="${H - 20}" x2="${W}" y2="${H - 20}"/><line class="axis" x1="${pad}" y1="8" x2="${pad}" y2="${H - 20}"/>
              <text x="2" y="${H - 20 - (3 / maxY) * (H - 30)}">3</text><text x="2" y="${H - 22}">0</text><text x="${W - 60}" y="${H - 4}">steps</text>`;
+    // the best possible loss (what the counting chances give), as a dashed line
+    const by = (H - 20 - BEST / maxY * (H - 30)).toFixed(1);
+    s += `<line class="goal" x1="${pad}" y1="${by}" x2="${W}" y2="${by}"/>`;
     if (h.length > 1) {
       const pts = h.map((v, i) => `${(pad + i / 300 * (W - pad - 4)).toFixed(1)},${(H - 20 - Math.min(v, maxY) / maxY * (H - 30)).toFixed(1)}`).join(" ");
       s += `<polyline class="line" points="${pts}"/>`;
