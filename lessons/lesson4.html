@@ -309,8 +309,9 @@
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
       <p class="say">Now you fix the scores yourself. These are your model's real random scores for row <code>t</code>.</p>
-      <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, “.” 1 out of 8.</p>
+      <p class="say">This time, use <b>all 8 pairs</b> that start with <code>t</code>, not just <code>t → h</code>. So the goal is: h half the time, space 3 out of 8, a full stop 1 out of 8.</p>
       <p class="our-text" data-after="t"></p>
+      <p class="say">The loss is now the <b>average of the 8 pairs' losses</b>. All 8 use row <code>t</code>, so every push changes all 8 at once.</p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
         <div class="muted" style="margin-bottom:10px">The green dashed line is each one's goal. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown).</div>
@@ -319,15 +320,20 @@
           <div>Loss for the 8 t-pairs<b id="gameLoss">–</b></div>
           <div>Moves<b id="gameMoves">0</b></div>
         </div>
+        <div class="muted" style="margin-top:4px">Best possible: <b>0.97</b>, when the chances match the goals exactly (the same chances counting gave).</div>
         <div class="win" id="gameWin"></div>
         <div class="row">
           <button id="askBackward">Ask PyTorch which way</button>
         </div>
       </div>
-      <p class="say" style="position:relative">The arrows PyTorch shows are <mark>gradients</mark>.<button class="doubt" type="button" data-peek-from="negPeek" aria-label="Why does space go up here?">🤔</button></p>
-      <div hidden id="negPeek"><b>🤔 Why does space go up here? On the last page it went down.</b>
-        <p style="margin:6px 0 0">Here all 8 pairs count, so each gradient is: its chance − its goal. For space: about 0.07 − 0.375 = negative, so space goes <b>up</b>. On the last page, with only the pair <code>t → h</code>, space was a wrong answer, so it went down.</p>
-      </div>
+      <p class="say">The arrows PyTorch shows are <mark>gradients</mark>, for all 8 pairs at once. Each pair gives its gradient by the last page's rule, and the 8 are averaged. For space (chance 7.4%):</p>
+      <ul class="rules">
+        <li>the 4 pairs <code>t → h</code>: space is wrong, so <b>+0.074</b> each</li>
+        <li>the 3 pairs <code>t → ␣</code>: space is right, so 0.074 − 1 = <b>−0.926</b> each</li>
+        <li>the 1 pair <code>t → .</code>: space is wrong, so <b>+0.074</b></li>
+      </ul>
+      <p class="say">Average: (4 × 0.074 + 3 × (−0.926) + 0.074) ÷ 8 = <b>−0.30</b>. Negative, so space goes <b>up</b>. On the last page, with only <code>t → h</code>, it went down.</p>
+      <p class="muted-note">A shortcut gives the same number: chance − goal = 0.074 − 3/8 = −0.30.</p>
       <p class="hook">Doing this by hand for 196 scores would take forever. Let your model do it.</p>
     </section>
 
