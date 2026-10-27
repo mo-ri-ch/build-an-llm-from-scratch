@@ -35,6 +35,7 @@
   svg.chart .axis { stroke: var(--pencil); stroke-width: 1; }
   svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
   svg.chart .goal { stroke: var(--good, #1E8F4E); stroke-dasharray: 5 4; stroke-width: 1.5; }
+  svg.chart .goal-label { fill: var(--good, #1E8F4E); }
   svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 12px; }
 
   .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 14px; }
@@ -366,10 +367,11 @@
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 160" role="img" aria-label="Loss over training"></svg>
-        <div class="muted" style="margin-bottom:12px">The loss, step by step. Green dashed line: the best possible loss, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
+        <div class="muted" style="margin-bottom:12px">Each point is the loss for all 46 pairs after that many steps. Lower is better. It drops fast, then flattens onto the green line: the best possible, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
         <div class="muted">The chances after <code>t</code>. Green dashed marks = what counting gives.</div>
         <div class="bars" id="trainBars"></div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
+        <div class="grad-math" id="trainMath" hidden></div>
       </div>
       <p class="say" style="position:relative">Too small: it creeps. Too big: it jumps past the goal and back.<button class="doubt" type="button" data-peek-from="why10Peek" aria-label="Why 10 here?">🤔</button></p>
       <div hidden id="why10Peek"><b>🤔 Why 10 here, when it was 1 before?</b>
@@ -798,12 +800,14 @@ function bar(label, p, target) {
   const lrSel = document.getElementById("lr");
   function chart() {
     const h = model.lossHistory.concat(model.step ? [model.loss()] : []);
-    const W = 600, H = 160, pad = 30, maxY = 3.5;
+    const W = 600, H = 160, pad = 34, maxY = 3.5;
     let s = `<line class="axis" x1="${pad}" y1="${H - 20}" x2="${W}" y2="${H - 20}"/><line class="axis" x1="${pad}" y1="8" x2="${pad}" y2="${H - 20}"/>
-             <text x="2" y="${H - 20 - (3 / maxY) * (H - 30)}">3</text><text x="2" y="${H - 22}">0</text><text x="${W - 60}" y="${H - 4}">steps</text>`;
+             <text x="12" y="${H - 20 - (3 / maxY) * (H - 30) + 4}">3</text><text x="12" y="${H - 22}">0</text>
+             <text x="10" y="${(H - 20) / 2}" transform="rotate(-90 10 ${(H - 20) / 2})" text-anchor="middle">loss</text>
+             <text x="${pad}" y="${H - 4}">0</text><text x="${W - 4}" y="${H - 4}" text-anchor="end">300 steps</text>`;
     // the best possible loss (what the counting chances give), as a dashed line
     const by = (H - 20 - BEST / maxY * (H - 30)).toFixed(1);
-    s += `<line class="goal" x1="${pad}" y1="${by}" x2="${W}" y2="${by}"/>`;
+    s += `<line class="goal" x1="${pad}" y1="${by}" x2="${W}" y2="${by}"/><text class="goal-label" x="${W - 4}" y="${by - 5}" text-anchor="end">best possible ${BEST.toFixed(3)}</text>`;
     if (h.length > 1) {
       const pts = h.map((v, i) => `${(pad + i / 300 * (W - pad - 4)).toFixed(1)},${(H - 20 - Math.min(v, maxY) / maxY * (H - 30)).toFixed(1)}`).join(" ");
       s += `<polyline class="line" points="${pts}"/>`;
@@ -819,15 +823,31 @@ function bar(label, p, target) {
     document.getElementById("trainLoss").textContent = model.loss().toFixed(4);
     chart();
   }
+  // the math of the latest step, for row t
+  let last = null;
+  const nT = [...TEXT].slice(0, -1).filter(c => c === "t").length;   // 8 pairs start with t
+  function showMath() {
+    const m = document.getElementById("trainMath"); m.hidden = !last;
+    if (!last) return;
+    const lr = last.lr, before = softmax(last.before[T]), after = model.probabilities(T);
+    const want = { " ": 3 / 8, ".": 1 / 8, "h": 4 / 8, "l": 0, "d": 0 };
+    const f = (v, d = 3) => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d), sg = (v, d = 3) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d);
+    const rows = ["h", " ", ".", "l"].map(c => {
+      const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
+      return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
+    }).join("");
+    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= ${nT}/46 × (chance − goal)</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+      `<div class="gm-note">The gradient is now averaged over all 46 pairs, and only ${nT} of them start with <code>t</code>, so it's ${nT}/46 of chance − goal. The learning rate (${lr}) makes up for that. Every other row moves the same way, in the same step.</div>`;
+  }
   function run(n) {
     const lr = Number(lrSel.value);
-    for (let i = 0; i < n && model.step < 300; i++) model.trainStep(lr);
-    render();
+    for (let i = 0; i < n && model.step < 300; i++) { const r = model.trainStep(lr); last = { before: r.before, grad: r.grad.map(x => x.slice()), lr }; }
+    render(); showMath();
   }
   document.getElementById("train").onclick = () => { model.reset(); run(300); };
   document.getElementById("step1").onclick = () => run(1);
-  lrSel.onchange = () => { model.reset(); render(); };
-  addReset(lrSel, () => { lrSel.value = "10"; model.reset(); render(); });
+  lrSel.onchange = () => { model.reset(); last = null; render(); showMath(); };
+  addReset(lrSel, () => { lrSel.value = "10"; model.reset(); last = null; render(); showMath(); });
   render();
 })();
 
