@@ -68,7 +68,7 @@ EXPLAIN = {
     "current_chars = torch.tensor(current_chars)": "Turn the list into a tensor, so PyTorch can use it.",
     "next_chars = torch.tensor(next_chars)": "Same for the right answers.",
     "weights = torch.randn((vocab_size, vocab_size), requires_grad=True)": "The model: a 14 × 14 table of random scores, mostly between −2 and 2, around 0 (like 1.07 for t → h). requires_grad=True asks PyTorch to work out gradients for these scores later.",
-    "learning_rate = 10": "How big a step to take each time we fix the scores.",
+    "learning_rate = 10": "The learning rate: each score moves 10 × its gradient per step.",
     "for step in range(300):": "Train 300 times: predict, measure, find directions, move.",
     "scores = weights[current_chars]": "a) Predict: pick the row of scores for every 'this character'.",
     "loss = F.cross_entropy(scores, next_chars)": "b) Measure, all in one call: for every example, softmax its scores into chances, take the right answer's chance, −log it, then average them all. One number: how wrong. Smaller is better.",

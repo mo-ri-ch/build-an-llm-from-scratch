@@ -345,15 +345,17 @@
       <h2>Let it learn</h2>
       <p class="say" style="position:relative">Now your model does your job, 300 times.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
       <div hidden id="why300Peek"><b>🤔 Why 300?</b>
-        <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With step size 10:</p>
+        <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With learning rate 10:</p>
         <p style="margin:6px 0 0;font-family:var(--mono);font-size:0.85rem">step 0: 3.087 · 50: 0.746 · 100: 0.722 · <b>300: 0.708</b> · 1,000: 0.703<br>best possible: 0.701</p>
-        <p style="margin:6px 0 0">After 300, more steps barely help. A smaller step size needs more steps; a bigger one, fewer.</p>
+        <p style="margin:6px 0 0">After 300, more steps barely help. A smaller learning rate needs more steps; a bigger one, fewer.</p>
       </div>
+      <p class="say"><b>How far should each score move?</b> On the last two pages, each score moved by exactly its gradient: a gradient of −0.30 moved it up 0.30. Your model can also move 10 times as far, or a tenth. That multiplier is the <mark>learning rate</mark>:</p>
+      <p class="say"><b>new score = old score − learning rate × gradient</b>. For a gradient of −0.30: learning rate 0.1 → up 0.03 · 1 → up 0.30 · 10 → up 3.0.</p>
       <div class="activity">
-        <div class="do">Pick a step size (how big each nudge is). Press Train.</div>
+        <div class="do">Pick a learning rate. Press Train.</div>
         <div class="muted" style="margin-bottom:10px">One step = a) predict, b) measure, c) find directions, d) move.</div>
         <div class="row">
-          <label>Step size
+          <label>Learning rate
             <select id="lr" style="font:inherit;font-family:var(--mono);padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
               <option value="0.1">0.1 (tiny)</option>
               <option value="1">1</option>
@@ -370,7 +372,11 @@
         <div class="muted">Green dashed line: the best possible loss, <b id="bestLoss4"></b> (the loss of the counting chances).</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
       </div>
-      <p class="say">The step size is the <mark>learning rate</mark>: <b>new score = old score − learning rate × gradient</b> (on the last two pages it was 1). Too small: slow. Too big: it jumps around.</p>
+      <p class="say" style="position:relative">Too small: it creeps. Too big: it jumps past the goal and back.<button class="doubt" type="button" data-peek-from="why10Peek" aria-label="Why 10 here?">🤔</button></p>
+      <div hidden id="why10Peek"><b>🤔 Why 10 here, when it was 1 before?</b>
+        <p style="margin:6px 0 0">Now the gradients are averaged over all 46 pairs, not just the 8 that start with <code>t</code>. So row <code>t</code>'s gradients come out about 8/46 as big.</p>
+        <p style="margin:6px 0 0">A learning rate of 10 makes up for that, so each move is a useful size again.</p>
+      </div>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
