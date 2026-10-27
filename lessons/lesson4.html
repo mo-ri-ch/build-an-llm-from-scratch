@@ -736,14 +736,16 @@ function bar(label, p, target) {
     if (last) {
       const H = CHAR_TO_NUMBER["h"], SP = CHAR_TO_NUMBER[" "], FS = CHAR_TO_NUMBER["."];
       const row1 = (k, name) => {
-        const g = last.g[k];
-        return `<tr><td><b>${name}</b></td><td>${last.p[k].toFixed(3)}</td><td>${(deserved[k] || 0).toFixed(3)}</td><td>${sg(g)}</td>` +
-          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${f3(last.old[k])} → <b>${f3(row[k])}</b></td><td><b>${p[k].toFixed(3)}</b></td></tr>`;
+        const g = last.g[k], d = Math.abs(g) < 0.01 ? 4 : 3;   // tiny gradients get a 4th decimal, so each row's sums still add up
+        const fx = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d), sx = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d);
+        return `<tr><td><b>${name}</b></td><td>${last.p[k].toFixed(d)}</td><td>${(deserved[k] || 0).toFixed(d)}</td><td>${sx(g)}</td>` +
+          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${fx(last.old[k])} → <b>${fx(row[k])}</b></td><td><b>${p[k].toFixed(d)}</b></td></tr>`;
       };
+      const hdg = Math.abs(last.g[H]) < 0.01 ? 4 : 3, hd = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(hdg), hs = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(hdg);
       m.innerHTML = `<div class="gm-title">Step ${steps}</div>` +
         `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
         row1(H, "h") + row1(SP, "space") + row1(FS, "full stop") + row1(CHARS.indexOf("l"), "l") + row1(CHARS.indexOf("d"), "d") + `</table></div>` +
-        `<div class="gm-note">Read a row left to right. For h: ${last.p[H].toFixed(3)} − 0.500 = ${sg(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${f3(last.old[H])} − (${sg(last.g[H])}) = ${f3(row[H])}. Softmax then turns the new scores into the new chances. (0.133 means 13.3%.)<br>l and d never come after t, so their goal is 0: their gradient is just their chance, and they go down. The other 9 letters work the same way.</div>`;
+        `<div class="gm-note">Read a row left to right. For h: ${hd(last.p[H])} − ${(0.5).toFixed(hdg)} = ${hs(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${hd(last.old[H])} − (${hs(last.g[H])}) = ${hd(row[H])}. Softmax then turns the new scores into the new chances. (0.133 means 13.3%.)<br>l and d never come after t, so their goal is 0: their gradient is just their chance, and they go down. The other 9 letters work the same way.</div>`;
     }
   }
   function step() {   // one learning step on row t, using the average gradient of the 8 t-pairs
