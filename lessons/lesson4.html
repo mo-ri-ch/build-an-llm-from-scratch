@@ -338,7 +338,11 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say"><b>One thing changes from the last page.</b> There, the loss averaged only the 8 pairs that start with <code>t</code>. Now it averages <b>all 46 pairs</b>. Row <code>t</code>'s pairs are 8 of the 46, so its gradient is <b>8/46 of chance − goal</b>. For h: 0.133 − 0.500 = −0.367 (as on the last page), × 8/46 = <b>−0.064</b>.</p>
+      <p class="say" style="position:relative"><b>One thing changes from the last page:</b> the average now covers <b>all 46 pairs</b>, not just the 8 that start with <code>t</code>. The other 38 pairs don't use row <code>t</code>, so each adds a <b>0</b>, and zeros make an average smaller (the average of 4 and 0 is 2). So row <code>t</code>'s gradients shrink: for h, from −0.367 to <b>−0.064</b>.<button class="doubt" type="button" data-peek-from="zerosPeek" aria-label="Show the exact math">🤔</button></p>
+      <div hidden id="zerosPeek"><b>🤔 The exact math</b>
+        <p style="margin:6px 0 0">The 8 pairs that start with <code>t</code> give h's gradient −0.367 on average (as on the last page). The other 38 give 0.</p>
+        <p style="margin:6px 0 0">(8 × (−0.367) + 38 × 0) ÷ 46 = <b>−0.064</b>. In short: 8/46 of chance − goal.</p>
+      </div>
       <p class="say">That's a small move. So your model multiplies every gradient by a number, the <mark>learning rate</mark>: <b>new score = old score − learning rate × gradient</b>. For h:</p>
       <ul class="rules">
         <li>learning rate 1: 1 × (−0.064), so <b>up 0.064</b></li>
@@ -830,9 +834,9 @@ function bar(label, p, target) {
     const f = (v, d = 3) => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d), sg = (v, d = 3) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d);
     const rows = ["h", " ", ".", "l"].map(c => {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
-      return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(before[k] - want[c], d)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
+      return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>chance<br>− goal</th><th>× ${nT}/46<br>= gradient</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>(watered down)</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
