@@ -277,27 +277,15 @@
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once.</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say">To see how one score moves, start with <b>just one pair</b>: <code>t → h</code>. (The next page uses all 8.)</p>
-      <p class="say">For this pair the right answer is <code>h</code>, and your model gave it only 13.3%. To make <b>this pair's</b> loss smaller, <code>h</code> needs a <b>bigger chance</b>.</p>
-      <p class="say">The chances come from the scores in row <code>t</code> (softmax: a higher score gives a higher chance). So we change the scores:</p>
-      <ul class="rules">
-        <li><b><code>h</code>'s score goes up</b>, so <code>h</code>'s chance grows.</li>
-        <li><b>Every other letter's score goes down</b>, so their chances shrink. The chances always add up to 100%, so what they lose goes to <code>h</code>.</li>
-      </ul>
-      <p class="muted-note">Even space and full stop go down here, because for this one pair they're wrong. When all 8 pairs count together (next page), their own pairs push them back up.</p>
-      <p class="say" style="position:relative">For each score, one number tells us which way to move it, and by how much. That number is its <mark>gradient</mark>: <b>gradient = chance − goal</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
-      <p class="say">The goal is what the chance should be. For this one pair, the right answer <code>h</code> should get everything (goal <b>1</b>), and every other letter nothing (goal <b>0</b>). <small>(13.3% is written as 0.133.)</small></p>
+      <p class="say">Start with <b>just one pair</b>, <code>t → h</code>. Your model gave <code>h</code> only 0.133 (13.3%). To shrink this pair's loss, <code>h</code> needs a bigger chance. (The next page uses all 8.)</p>
+      <p class="say" style="position:relative">The rule: <b>gradient = chance − goal</b>. For this one pair, <code>h</code>'s goal is <b>1</b> and every other letter's is <b>0</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
       <ul class="rules">
         <li><code>h</code>: 0.133 − 1 = <b>−0.867</b></li>
         <li>Full stop: 0.177 − 0 = <b>+0.177</b></li>
         <li>Space: 0.074 − 0 = <b>+0.074</b></li>
       </ul>
-      <p class="say">To move a score: <b>new score = old score − gradient</b>.</p>
-      <ul class="rules">
-        <li><code>h</code>: 1.069 − (−0.867) = <b>1.936</b>. Taking away a negative number adds it, so <code>h</code>'s score goes <b>up</b>.</li>
-        <li>Full stop: 1.354 − 0.177 = <b>1.177</b>. A positive gradient makes the score go <b>down</b>.</li>
-      </ul>
-      <p class="say">So the + or − tells the direction, and the distance from 0 tells how much: <code>h</code> (−0.867, far from 0) moves a lot, space (+0.074, close to 0) hardly moves.</p>
+      <p class="say">The move: <b>new score = old score − gradient</b>. Negative goes up, positive goes down, and the further from 0, the bigger the move: <code>h</code> 1.069 → <b>1.936</b>, full stop 1.354 → <b>1.177</b>.</p>
+      <p class="muted-note">Space and full stop go down here only because this pair says <code>h</code>. On the next page, their own pairs push them up.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
         <p style="margin:6px 0 0">It's the gap between what your model gives and what it should give. Below the goal, the gap is negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0: nothing to fix.</p>
         <p style="margin:6px 0 0">If your model already gave <code>h</code> 1 (100%): 1 − 1 = <b>0</b>, so the score doesn't move. It gave only 0.133: 0.133 − 1 = <b>−0.867</b>, far from the goal, so it moves up a lot.</p>
@@ -313,7 +301,7 @@
         </div>
         <div class="grad-math" id="gradMath" hidden></div>
       </div>
-      <p class="say">For the whole text, one line in code finds all 196 gradients at once: <code>loss.backward()</code>. You'll see it on the code page.</p>
+      <p class="muted-note">For the whole text, one line in code finds all 196 gradients at once: <code>loss.backward()</code>. You'll see it on the code page.</p>
       <p class="hook">Your turn: fix the scores yourself, using these directions.</p>
     </section>
 
