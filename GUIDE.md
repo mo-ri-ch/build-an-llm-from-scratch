@@ -52,3 +52,4 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Oct 24: Lesson 5 built (three small tables, shared numbers, why counting fails, learning, writing, test; last page: letters on their own → Lesson 6).
 - **Next:** Rishal goes through Lesson 5 as a student. Then Lesson 6 must answer: "How can your model understand letters together?"
 - Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).
+- Rishal's aim for both courses: understand everything, with an eagle-eye view of what is happening. Activities show every step's math live (step / ◀ Back / ▶ Play), never just a result (see the shared GUIDELINES.md).
