@@ -116,6 +116,12 @@
   .grad-math { margin-top: 12px; padding: 8px 12px; border-left: 3px solid var(--pen); background: var(--paper); font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; }
   .grad-math .gm-title { font-family: var(--body, inherit); font-weight: 700; font-size: 0.9rem; }
   .grad-math .gm-note { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.82rem; line-height: 1.4; margin-top: 4px; }
+  .ybm-tab { overflow-x: auto; }
+  .ybm-tab table { border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin: 4px 0; }
+  .ybm-tab th { font-family: var(--body, inherit); font-weight: 600; font-size: 0.72rem; color: var(--pencil); text-align: left; padding: 2px 10px 4px 0; line-height: 1.2; vertical-align: bottom; }
+  .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
+  .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
+  .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
 </style>
 </head>
 <body data-pen="orange">
@@ -727,10 +733,15 @@ function bar(label, p, target) {
     const m = $("ybmMath"); m.hidden = !last;
     if (last) {
       const H = CHAR_TO_NUMBER["h"], SP = CHAR_TO_NUMBER[" "], FS = CHAR_TO_NUMBER["."];
-      const line = (k, name) => `<div><b>${name}</b>: ${pc(last.p[k])} − goal ${pc(deserved[k])} = ${sg(last.g[k])} → score ${f3(last.old[k])} → <b>${f3(row[k])}</b> → chance <b>${pc(p[k])}</b></div>`;
-      m.innerHTML = `<div class="gm-title">Step ${steps}: gradient = chance − goal, new score = old − gradient</div>` +
-        line(H, "h") + line(SP, "space") + line(FS, "full stop") +
-        `<div class="gm-note">l, d and the other 9 letters: goal 0, so their gradient is just their chance, and they go down.</div>`;
+      const row1 = (k, name) => {
+        const g = last.g[k];
+        return `<tr><td><b>${name}</b></td><td>${pc(last.p[k])}</td><td>${pc(deserved[k])}</td><td>${sg(g)}</td>` +
+          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${f3(last.old[k])} → <b>${f3(row[k])}</b></td><td><b>${pc(p[k])}</b></td></tr>`;
+      };
+      m.innerHTML = `<div class="gm-title">Step ${steps}</div>` +
+        `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
+        row1(H, "h") + row1(SP, "space") + row1(FS, "full stop") + `</table></div>` +
+        `<div class="gm-note">Read a row left to right. For h: ${pc(last.p[H])} − 50% = ${sg(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${f3(last.old[H])} − (${sg(last.g[H])}) = ${f3(row[H])}. Softmax then turns the new scores into the new chances.<br>l, d and the other 9 letters have goal 0, so their gradient is just their chance, and they go down.</div>`;
     }
   }
   function step() {   // one learning step on row t, using the average gradient of the 8 t-pairs
