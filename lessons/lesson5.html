@@ -639,6 +639,27 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   sel.onchange = render;
   addReset(tab, () => { sel.value = "cat"; col = CHAR_TO_NUMBER[" "]; render(); });
   render();
+  // Show me how: the 3 rows of "cat", one column, the sum, the chance
+  const SPk = CHAR_TO_NUMBER[" "];
+  const startCat = () => { sel.value = "cat"; col = SPk; render(); };
+  const rowsCat = () => [0, 1, 2].map(t => INIT_LESSON5[t][CHAR_TO_NUMBER["cat"[t]]]);
+  const trs = () => tab.querySelectorAll("tr");
+  if (typeof addTour === "function") addTour(tab, [
+    { run: startCat, at: () => sel.closest(".row"),
+      say: "<b>What's this for?</b> Your model has 3 rows for a group. How do they make one guess? Take the group “cat”." },
+    { run: startCat, at: () => tab,
+      say: "These are its 3 rows: the third-last table's row <b>c</b>, the second-last table's row <b>a</b>, and the last table's row <b>t</b>. Each row has a score for every one of the 14 next letters." },
+    { run: startCat, at: () => document.getElementById("addWorked"), keep: () => tab,
+      say: () => { const r = rowsCat(); return `Look at one column: space. The 3 scores are ${fmt(r[0][SPk])} (<code>c _ _ → ␣</code>), ${fmt(r[1][SPk])} (<code>_ a _ → ␣</code>) and ${fmt(r[2][SPk])} (<code>_ _ t → ␣</code>).`; } },
+    { run: startCat, at: () => trs()[4],
+      say: () => { const r = rowsCat(); const sum = r[0][SPk] + r[1][SPk] + r[2][SPk]; return `<b>Add them:</b> ${fmt(r[0][SPk])} + (${fmt(r[1][SPk])}) + ${fmt(r[2][SPk])} = <b>${fmt(sum)}</b>. Every column is added the same way.`; } },
+    { run: startCat, at: () => trs()[5],
+      say: () => { const r = rowsCat(); const p = softmax(CHARS.map((_, k) => r[0][k] + r[1][k] + r[2][k])); return `<b>Softmax</b> turns the 14 sums into chances, like your model did with one row. Space gets only <b>${pctS(p[SPk])}</b>: the scores are still random.`; } },
+    { run: startCat, at: () => tab, click: () => tab,
+      say: "Your turn: <b>click any column</b> to see its sum worked out below." },
+    { at: () => document.getElementById("addNote"),
+      say: "The green column is the right answer from our text. Learning will push its 3 scores up until it wins." },
+  ], { id: "l5-addrows" });
 })();
 
 // ---------- 4: which groups use a row ----------
@@ -679,6 +700,23 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   document.querySelectorAll(".sh-other").forEach(b => b.onclick = () => { other = b.dataset.g; render(); });
   addReset(box, () => { other = "sat"; reset(); render(); });
   reset(); render();
+  // Show me how: learning from "cat" moves the boxes "sat" shares; "dog" shares none
+  const ACT = () => box.closest(".activity"), LEARN = () => document.getElementById("shLearn");
+  const otherBtn = g => ACT().querySelector(`.sh-other[data-g="${g}"]`);
+  if (typeof addTour === "function") addTour(box, [
+    { run: () => { other = "sat"; reset(); render(); }, at: () => box,
+      say: "“cat” and “sat” each add 3 boxes. The green ones are the <b>same boxes</b>: <code>_ a _ → ␣</code> and <code>_ _ t → ␣</code>. Only the first box differs." },
+    { at: LEARN, click: LEARN,
+      say: "Press <b>Learn from “cat”</b>: one learning push that uses only the example “cat”." },
+    { at: () => box,
+      say: () => `“cat”'s 3 boxes went up. “sat” was never used, yet its green boxes moved too: its chance of space rose from ${pct(start.sat)} to <b>${pct(chance("sat"))}</b>. Press it a few more times and watch both climb.` },
+    { at: () => otherBtn("dog"), click: () => otherBtn("dog"),
+      say: "Now compare with a group that shares nothing. Press <b>“dog”</b>." },
+    { at: () => box,
+      say: () => `“dog” shares no boxes with “cat”, so learning from “cat” didn't change it: still <b>${pct(chance("dog"))}</b>.` },
+    { at: () => document.querySelector("#shResult").closest("section").querySelector(".boxes"),
+      say: "That's what shared rows buy: one example helps every group that uses its rows. A giant table gives each group its own row, so nothing is shared, and it needs 38,416 boxes instead of 588." },
+  ], { id: "l5-shared" });
 })();
 
 // ---------- 5: fill the tables by counting, then add ----------
