@@ -280,12 +280,12 @@
       <ul class="rules" style="position:relative">
         <button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − 1?">🤔</button>
         <li><code>h</code> (the right answer): gradient = its chance − 1 = 0.133 − 1 = <b>−0.867</b>. <small>(13.3% is written as 0.133.)</small></li>
-        <li>Every wrong letter: gradient = its chance. For “.”: <b>+0.177</b>.</li>
+        <li>Every wrong letter: gradient = its chance. Full stop (17.7%): <b>+0.177</b>. Space (7.4%): <b>+0.074</b>.</li>
       </ul>
       <p class="say">To move a score: <b>new score = old score − gradient</b>.</p>
       <ul class="rules">
         <li><code>h</code>: 1.07 − (−0.867) = <b>1.94</b>. Taking away a negative number adds it, so <code>h</code>'s score goes <b>up</b>.</li>
-        <li>“.”: 1.35 − 0.177 = <b>1.17</b>. A positive gradient makes the score go <b>down</b>.</li>
+        <li>Full stop: 1.35 − 0.177 = <b>1.17</b>. A positive gradient makes the score go <b>down</b>.</li>
       </ul>
       <p class="say">So the + or − tells the direction, and the distance from 0 tells how much: <code>h</code> (−0.867, far from 0) moves a lot, space (+0.074, close to 0) hardly moves.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − 1” for the right answer?</b>
