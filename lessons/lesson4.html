@@ -55,6 +55,9 @@
   .cmp.all14 td:first-child, .cmp.all14 th:first-child { white-space: normal; min-width: 6.5em; padding-right: 10px; }
   .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
   .rules { margin: 4px 0 14px; padding-left: 1.2em; }
+  .near { position: relative; display: inline-block; }   /* a 🤔 right beside the line it explains */
+  @media (min-width: 761px) { .near .doubt { top: -4px; right: -46px; } }
+  @media (max-width: 760px) { .near .doubt { position: static; display: inline-grid; vertical-align: middle; margin-left: 8px; } }
   .rules li { margin: 4px 0; }
   .grads { font-family: var(--mono); font-size: 0.9rem; }
   .grads th, .grads td { padding: 4px 14px 4px 0; text-align: left; }
@@ -345,7 +348,7 @@
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
       <p class="say">On the last page, you trained <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
-      <p class="say" style="position:relative">1) Every pair (all 46) pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br>Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
+      <p class="say" style="position:relative">1) Every pair (all 46) pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
       <p class="say">One new thing: how far to move. The gradient is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
