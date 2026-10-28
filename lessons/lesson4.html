@@ -274,8 +274,8 @@
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once. Start with <b>just one pair</b>, <code>t → h</code>. Your model gave <code>h</code> only 0.133 (13.3%). (The next page uses all 8.)</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b>. For this pair, <code>h</code>'s goal is 1 and every other letter's is 0. For <code>h</code>: 0.133 − 1 = <b>−0.867</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
-      <p class="say">Then move: <b class="eqbox">new score = old score − gradient</b>. For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up. A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
+      <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b>. For this pair, <code>h</code>'s goal is 1 and every other letter's is 0.<br>For <code>h</code>: 0.133 − 1 = <b>−0.867</b><button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
+      <p class="say">Then move: <b class="eqbox">new score = old score − gradient</b><br>For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up.<br>A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
       <p class="muted-note">Every other letter goes down, even space and full stop, because this pair says <code>h</code>. On the next page, their own pairs push them up.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
         <p style="margin:6px 0 0">It's the gap between what your model gives and what it should give. Below the goal, the gap is negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0: nothing to fix.</p>
