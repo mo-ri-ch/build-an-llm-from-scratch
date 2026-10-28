@@ -344,15 +344,15 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule as the last page, using each row's own pairs. Row <code>h</code> is always followed by e, so all its pairs say e.</p>
-      <p class="say">One new thing: how far to move. Your model multiplies each gradient by a number, the <mark>learning rate</mark>:</p>
+      <p class="say">On the last page, you trained <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
+      <p class="say" style="position:relative">1) Every pair pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br>Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
+      <p class="say">One new thing: how far to move. The gradient is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
         <li>h in row <code>t</code> starts with gradient −0.367</li>
         <li>learning rate 1: h goes <b>up 0.367</b></li>
         <li>learning rate 10: h goes <b>up 3.67</b></li>
       </ul>
-      <p class="say" style="position:relative">That's <b>one step</b>: every row moves once. Your model repeats it <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
       <div hidden id="why300Peek"><b>🤔 Why 300?</b>
         <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With learning rate 1:</p>
         <p style="margin:6px 0 0;font-family:var(--mono);font-size:0.85rem">step 0: 3.086 · 50: 0.743 · 100: 0.721 · <b>300: 0.708</b> · 1,000: 0.703<br>best possible: 0.701</p>
@@ -455,7 +455,7 @@ Step 250 loss: 0.709
       <div hidden id="loopPeek"><b>🤔 What does each line in the training loop do?</b>
         <ul style="margin:6px 0 0; padding-left:1.2em">
           <li><code>weights[current_chars]</code>: copies the row of each of the 46 characters.</li>
-          <li><code>F.cross_entropy</code>: softmax, pick the right answer's chance, −log, average.</li>
+          <li><code>F.cross_entropy</code>: softmax, pick the right answer's chance, −log, average. The average is built into the loss, so <code>loss.backward()</code> gives averaged gradients.</li>
           <li><code>weights.grad = None</code>: clears old gradients. PyTorch adds new ones on top.</li>
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
