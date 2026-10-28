@@ -345,11 +345,11 @@
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
       <p class="say">On the last page, you trained <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
-      <p class="say" style="position:relative">1) Every pair pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br>Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
+      <p class="say" style="position:relative">1) Every pair (all 46) pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br>Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
       <p class="say">One new thing: how far to move. The gradient is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
-        <li>h in row <code>t</code> starts with gradient −0.367</li>
+        <li>h in row <code>t</code> starts with gradient −0.367 (the average from the last page)</li>
         <li>learning rate 1: h goes <b>up 0.367</b></li>
         <li>learning rate 10: h goes <b>up 3.67</b></li>
       </ul>
@@ -386,7 +386,7 @@
         <tr><td>Counting</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
         <tr><td>Learning (300 steps)</td><td>0.372</td><td>0.122</td><td>0.497</td></tr>
       </table>
-      <p class="say" style="position:relative">The same answer. Learning works.<button class="doubt" type="button" data-peek-from="whyLearnPeek" aria-label="Then why not just count?">🤔</button></p>
+      <p class="say" style="position:relative">The same answer, and your model never saw counting's answer. Learning works.<button class="doubt" type="button" data-peek-from="whyLearnPeek" aria-label="Then why not just count?">🤔</button></p>
       <div hidden id="whyLearnPeek"><b>🤔 Then why not just count?</b>
         <p style="margin:6px 0 0">Here counting is quicker: <b>one</b> pass through the text, against <b>300</b> for learning.</p>
         <p style="margin:6px 0 0">But learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. So it still works where numbers can't be counted, coming in Lesson 5.</p>
