@@ -306,7 +306,7 @@
         <li>4 pairs <code>t → h</code>: 0.133 − 1 = <b>−0.867</b> (up)</li>
         <li>4 other pairs: 0.133 − 0 = <b>+0.133</b> (down)</li>
       </ul>
-      <p class="say" style="position:relative">Averaged: (4 × −0.867 + 4 × 0.133) ÷ 8 = <b>−0.367</b> = 0.133 − <b>4/8</b>. 4/8 is the share of pairs wanting h: its goal, <b>0.5</b>. Nothing was counted. (Space 3/8, full stop 1/8.)<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why does the average land on the share?">🤔</button></p>
+      <p class="say" style="position:relative">Averaged: (4 × −0.867 + 4 × 0.133) ÷ 8 = <b>−0.367</b> = 0.133 − <b>4/8</b>. 4/8 is the share of pairs wanting h: counting's answer, <b>0.5</b>. The model never sees it; the pairs give it. (Space 3/8, full stop 1/8.)<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why does the average land on the share?">🤔</button></p>
       <div hidden id="sharePeek"><b>🤔 Why does the average land on the share?</b>
         <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
         <p style="margin:6px 0 0">Your model can't please all 8, so the pushes balance where the chance is the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
@@ -316,13 +316,13 @@
       <p class="say">The loss is the <b>average of the 8 pairs' losses</b>.</p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
-        <div class="muted" style="margin-bottom:10px">The green dashed line is where the pushes balance. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown). Each ↑ or ↓ moves that score by 0.5.</div>
+        <div class="muted" style="margin-bottom:10px">The green dashed line is counting's answer, only to check against. <code>l</code> and <code>d</code> never come after <code>t</code>, so counting gives them 0 (the same for the 9 letters not shown). Each ↑ or ↓ moves that score by 0.5.</div>
         <div class="game" id="game"></div>
         <div class="score-line">
           <div>Loss for the 8 t-pairs<b id="gameLoss">–</b></div>
           <div>Moves<b id="gameMoves">0</b></div>
         </div>
-        <div class="muted" style="margin-top:4px">Best possible: <b>0.97</b>, when the chances match the goals exactly (the same chances counting gave).</div>
+        <div class="muted" style="margin-top:4px">Best possible: <b>0.97</b>, when every chance matches counting's answer.</div>
         <div class="win" id="gameWin"></div>
         <div class="row">
           <button id="askBackward">Show the gradients</button>
@@ -336,7 +336,7 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">Press ▶ Play: below its goal, the gradient is negative, so the score goes up. Above it, down. At the goal, 0: it stops on its green line.</p>
+      <p class="say">Press ▶ Play: below counting's answer the gradient is negative: score up. Above it, down. At it, 0: it stops on the green line.</p>
       <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same gradients. You'll see it on the code page.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
@@ -344,7 +344,7 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b class="eqbox">gradient = chance − goal</b> Each row has its own goals, from its own pairs. Row <code>h</code> is always followed by e, so e's goal is 1.</p>
+      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b class="eqbox">gradient = chance − goal</b>, averaged over each row's own pairs. Row <code>h</code> is always followed by e, so all its pairs say e.</p>
       <p class="say">One new thing: how far to move. Your model multiplies each gradient by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
@@ -379,7 +379,7 @@
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 46 pairs)<b id="trainLoss">3.0865</b></div></div>
         <div class="grad-math" id="trainMath" hidden></div>
       </div>
-      <p class="say">Too small: it creeps. Too big: it jumps past the goal and back.</p>
+      <p class="say">Too small: it creeps. Too big: it jumps past where it should settle, and back.</p>
       <p class="our-text" data-after="t"></p>
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
@@ -736,13 +736,13 @@ function bar(label, p, target, frac) {
         const g = last.g[k], d = Math.abs(g) < 0.01 ? 4 : 3;   // tiny gradients get a 4th decimal, so each row's sums still add up
         const fx = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(d), sx = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d);
         return `<tr><td><b>${name}</b></td><td>${last.p[k].toFixed(d)}</td><td>${(deserved[k] || 0).toFixed(d)}</td><td>${sx(g)}</td>` +
-          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below goal ↑" : "above goal ↓"}</td><td>${fx(last.old[k])} → <b>${fx(row[k])}</b></td><td><b>${p[k].toFixed(d)}</b></td></tr>`;
+          `<td class="${g < 0 ? "up" : "down"}">${g < 0 ? "below ↑" : "above ↓"}</td><td>${fx(last.old[k])} → <b>${fx(row[k])}</b></td><td><b>${p[k].toFixed(d)}</b></td></tr>`;
       };
       const hdg = Math.abs(last.g[H]) < 0.01 ? 4 : 3, hd = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(hdg), hs = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(hdg);
       m.innerHTML = `<div class="gm-title">Step ${steps}</div>` +
-        `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
+        `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
         row1(H, "h") + row1(SP, "space") + row1(FS, "full stop") + row1(CHARS.indexOf("l"), "l") + row1(CHARS.indexOf("d"), "d") + `</table></div>` +
-        `<div class="gm-note">Read a row left to right. For h: ${hd(last.p[H])} − ${(0.5).toFixed(hdg)} = ${hs(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${hd(last.old[H])} − (${hs(last.g[H])}) = ${hd(row[H])}. Softmax then turns the new scores into the new chances. (A chance of ${hd(last.p[H])} means ${(last.p[H] * 100).toFixed(hdg - 2)}%.)<br>l and d never come after t, so their goal is 0: their gradient is just their chance, and they go down. The other 9 letters work the same way.</div>`;
+        `<div class="gm-note">Read a row left to right. For h: ${hd(last.p[H])} − ${(0.5).toFixed(hdg)} = ${hs(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${hd(last.old[H])} − (${hs(last.g[H])}) = ${hd(row[H])}. Softmax then turns the new scores into the new chances. (A chance of ${hd(last.p[H])} means ${(last.p[H] * 100).toFixed(hdg - 2)}%.)<br>l and d never come after t, so counting gives them 0: their gradient is just their chance, and they go down. The other 9 letters work the same way.</div>`;
     }
   }
   function step() {   // one learning step on row t, using the average gradient of the 8 t-pairs
@@ -770,19 +770,19 @@ function bar(label, p, target, frac) {
   const track = k => game.querySelectorAll(".track")[shown.indexOf(k)];
   if (typeof addTour === "function") addTour(game, [
     { run: () => reset(), at: () => game,
-      say: "<b>The goals.</b> The green dashed lines show where each chance should end up: h 50%, space 37.5%, full stop 12.5%. They're each letter's share of the 8 t-pairs (4, 3 and 1 of 8)." },
+      say: "<b>Counting's answer.</b> The green dashed lines are what counting gives, only to check against: h 50%, space 37.5%, full stop 12.5%. They're each letter's share of the 8 t-pairs (4, 3 and 1 of 8)." },
     { run: () => { reset(); undo.push({ row: row.slice(), moves, steps, last }); row[Hk] += 0.5; moves = 1; render(); }, at: () => track(Hk), keep: () => $("gameLoss").parentElement,
       say: () => `<b>One push.</b> h's score went up by 0.5, so its chance grew from 0.133 to ${softmax(row)[Hk].toFixed(3)}. The loss changed for all 8 pairs at once: ${$("gameLoss").textContent}.` },
     { run: () => { showGrad = true; render(); }, at: () => game,
-      say: () => { const p = softmax(row); return `<b>The gradients</b>, next to each bar: chance − goal. h: ${p[Hk].toFixed(3)} − 0.500 = −${(0.5 - p[Hk]).toFixed(3)}, below its goal, so ↑. A letter above its goal gets ↓.`; } },
+      say: () => { const p = softmax(row); return `<b>The gradients</b>, next to each bar: the average of the pairs' pushes, which works out as chance − counting's answer. h: ${p[Hk].toFixed(3)} − 0.500 = −${(0.5 - p[Hk]).toFixed(3)}, below counting's answer, so ↑. A letter above it gets ↓.`; } },
     { run: () => { reset(); showGrad = true; render(); }, at: () => $("ybmStep"), click: () => $("ybmStep"),
       say: "Now let your model do it. Press <b>Take one step</b>: every score moves by its gradient at once. (We start again from the random scores.)" },
     { at: () => $("ybmMath"), keep: () => game,
-      say: () => `<b>The math of that step.</b> Look at full stop: it is a right answer (for 1 pair), yet its gradient is +${last ? last.g[FSk].toFixed(3) : "0.052"}, so it goes <b>down</b>. It started above its goal: ${last ? last.p[FSk].toFixed(3) : "0.177"} against 0.125.` },
+      say: () => `<b>The math of that step.</b> Look at full stop: it is a right answer (for 1 pair), yet its gradient is +${last ? last.g[FSk].toFixed(3) : "0.052"}, so it goes <b>down</b>. It started above counting's answer: ${last ? last.p[FSk].toFixed(3) : "0.177"} against 0.125.` },
     { at: () => $("ybmPlay"), click: () => $("ybmPlay"),
       say: "Press <b>▶ Play</b> and watch every bar move onto its green line." },
     { at: () => game, keep: () => $("ybmMath"),
-      say: "Each gradient is 0 only at its goal, so each bar stops right on its line. Full stop dips to about 9% and comes back to 12.5%. That's why learning ends at exactly the shares counting gives." },
+      say: "Each gradient is 0 only when the pairs' pushes cancel, so each bar stops right on its line. Full stop dips to about 9% and comes back to 12.5%. That's why learning ends at exactly the shares counting gives." },
   ], { id: "l4-youbethemodel" });
   // stop playing when the page is left
   const sec = game.closest("section");
@@ -840,7 +840,7 @@ function bar(label, p, target, frac) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(last.afterW[k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${last.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${last.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
