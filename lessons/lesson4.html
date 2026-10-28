@@ -310,7 +310,7 @@
       <div hidden id="sharePeek"><b>🤔 Why does the average land on the share?</b>
         <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
         <p style="margin:6px 0 0">Your model can't please all 8, so the pushes balance where the chance is the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
-        <p style="margin:6px 0 0">Your model never knows 3 or 8. It only goes through the pairs in the text, and each one pushes its own way.</p>
+        <p style="margin:6px 0 0">Your model never counts how many pairs want each letter. It only goes through the pairs in the text, and each one pushes its own way.</p>
         <p style="margin:6px 0 0">At the start, space's chance is 0.074, so its gradient is 0.074 − 0.375 = <b>−0.30</b>: up. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
       </div>
       <p class="say">The loss is the <b>average of the 8 pairs' losses</b>.</p>
@@ -840,7 +840,7 @@ function bar(label, p, target, frac) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(last.afterW[k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${last.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${last.step}${last.step === model.step ? "" : ` (the first of ${model.step})`}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
