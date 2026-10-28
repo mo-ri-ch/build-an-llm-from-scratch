@@ -299,19 +299,24 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
-      <p class="say">Now fix row <code>t</code> yourself, using <b>all 8 pairs</b> that start with <code>t</code>:</p>
+      <p class="say">Now fix row <code>t</code> yourself, using <b>all 8 pairs</b> starting with <code>t</code>:</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say" style="position:relative">Same rule as the last page: <b>gradient = chance − goal</b>. Each letter's goal is its share of the 8 pairs: h 4/8 = <b>0.5</b>, space 3/8 = <b>0.375</b>, full stop 1/8 = <b>0.125</b>.<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why is the goal the share?">🤔</button></p>
-      <div hidden id="sharePeek"><b>🤔 Why is the goal the share?</b>
+      <p class="say">Each pair has its own goal, from the text: 1 for its right letter, 0 for the rest. For h, at chance 0.133:</p>
+      <ul class="rules">
+        <li>4 pairs <code>t → h</code>: 0.133 − 1 = <b>−0.867</b> (up)</li>
+        <li>4 other pairs: 0.133 − 0 = <b>+0.133</b> (down)</li>
+      </ul>
+      <p class="say" style="position:relative">Averaged: (4 × −0.867 + 4 × 0.133) ÷ 8 = <b>−0.367</b>, which is chance − <b>0.5</b>. Nothing was counted: the pairs gave the 0.5. (Space: 3/8, full stop: 1/8.)<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why does the average land on the share?">🤔</button></p>
+      <div hidden id="sharePeek"><b>🤔 Why does the average land on the share?</b>
         <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
-        <p style="margin:6px 0 0">Your model can't please all 8, so it aims for the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
-        <p style="margin:6px 0 0">Your model never counts. Each pair only knows its own right answer (1 or 0). The average of those lands on the share by itself.</p>
+        <p style="margin:6px 0 0">Your model can't please all 8, so the pushes balance where the chance is the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
+        <p style="margin:6px 0 0">Your model never knows 3 or 8. It only goes through the pairs in the text, and each one pushes its own way.</p>
         <p style="margin:6px 0 0">At the start, space's chance is 0.074, so its gradient is 0.074 − 0.375 = <b>−0.30</b>: up. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
       </div>
-      <p class="say">The loss is the <b>average of the 8 pairs' losses</b>. All 8 use row <code>t</code>, so every push changes all 8.</p>
+      <p class="say">The loss is the <b>average of the 8 pairs' losses</b>.</p>
       <div class="activity">
         <div class="do">Push scores up or down. Get the loss under 1.2.</div>
-        <div class="muted" style="margin-bottom:10px">The green dashed line is each one's goal. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown). Each ↑ or ↓ moves that score by 0.5.</div>
+        <div class="muted" style="margin-bottom:10px">The green dashed line is where the pushes balance. <code>l</code> and <code>d</code> never come after <code>t</code>, so their goal is 0 (the same for the 9 letters not shown). Each ↑ or ↓ moves that score by 0.5.</div>
         <div class="game" id="game"></div>
         <div class="score-line">
           <div>Loss for the 8 t-pairs<b id="gameLoss">–</b></div>
@@ -331,7 +336,7 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">Press ▶ Play: below its goal, a letter's gradient is negative, so it goes up. Above its goal, positive, so it goes down. At the goal it's 0, so it stops. That's why every bar settles on its green line, and why full stop dips to about 0.09 and comes back.</p>
+      <p class="say">Press ▶ Play: below its goal, the gradient is negative, so the score goes up. Above it, down. At the goal it is 0, so it stops on its green line.</p>
       <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same gradients. You'll see it on the code page.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
