@@ -345,8 +345,8 @@
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
       <p class="say">On the last page, you trained <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
-      <p class="say" style="position:relative">1) Every pair (all 46) pushes each score: chance − goal.<br>2) The pushes are <b>averaged</b>: that is the gradient.<br>3) Every score moves by its gradient.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
-      <p class="say">One new thing: how far to move. The gradient is multiplied by a number, the <mark>learning rate</mark>:</p>
+      <p class="say" style="position:relative">1) Every pair (all 46) finds its own gradient: chance − goal.<br>2) The gradients are <b>averaged</b>: one number per score.<br>3) Every score moves by that average.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
+      <p class="say">One new thing: how far to move. That average is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
         <li>h in row <code>t</code> starts with gradient −0.367 (the average from the last page)</li>
