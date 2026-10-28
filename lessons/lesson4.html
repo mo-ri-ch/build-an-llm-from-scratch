@@ -305,6 +305,7 @@
       <div hidden id="sharePeek"><b>🤔 Why is the goal the share?</b>
         <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
         <p style="margin:6px 0 0">Your model can't please all 8, so it aims for the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
+        <p style="margin:6px 0 0">Your model never counts. Each pair only knows its own right answer (1 or 0). The average of those lands on the share by itself.</p>
         <p style="margin:6px 0 0">At the start, space's chance is 0.074, so its gradient is 0.074 − 0.375 = <b>−0.30</b>: up. On the last page, with only <code>t → h</code>, its goal was 0, so it went down.</p>
       </div>
       <p class="say">The loss is the <b>average of the 8 pairs' losses</b>. All 8 use row <code>t</code>, so every push changes all 8.</p>
