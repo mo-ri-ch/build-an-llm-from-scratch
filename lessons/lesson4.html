@@ -839,13 +839,12 @@ function bar(label, p, target, frac) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(last.afterW[k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${last.step}${last.step === model.step ? "" : ` (the first of ${model.step})`}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average over pairs</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${last.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average over pairs</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
     const lr = Number(lrSel.value);
-    for (let i = 0; i < n && model.step < 300; i++) { const r = model.trainStep(lr, true); last = { before: r.before, grad: r.grad.map(x => x.slice()), lr, step: model.step, afterW: model.weights[T].slice(), afterP: model.probabilities(T).slice() }; if (model.step === 1) first = last; }
-    if (n > 1 && first) last = first;   // after Train, show step 1: the moves are big there
+    for (let i = 0; i < n && model.step < 300; i++) { const r = model.trainStep(lr, true); last = { before: r.before, grad: r.grad.map(x => x.slice()), lr, step: model.step, afterW: model.weights[T].slice(), afterP: model.probabilities(T).slice() }; }
     render(); showMath();
   }
   document.getElementById("train").onclick = () => { model.reset(); run(300); };
