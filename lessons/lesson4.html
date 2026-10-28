@@ -344,8 +344,8 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">On the last page, you trained <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
-      <p class="say" style="position:relative">1) Every pair (all 46) finds its own gradient: chance − goal.<br>2) The gradients are <b>averaged</b>: one number per score.<br>3) Every score moves by that average.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
+      <p class="say">Last page: <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
+      <p class="say" style="position:relative">a) <b>Predict:</b> every pair (all 46) gets its chances.<br>b) <b>Measure:</b> the loss averages the 46 pairs' losses.<br>c) <b>Find directions:</b> every pair finds its own gradient (chance − goal). They are <b>averaged</b>: one number per score.<br>d) <b>Move</b> every score by that average.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
       <p class="say">One new thing: how far to move. That average is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
@@ -360,7 +360,6 @@
       </div>
       <div class="activity">
         <div class="do">Pick a learning rate. Press Train.</div>
-        <div class="muted" style="margin-bottom:10px">One step = a) predict, b) measure, c) find directions, d) move.</div>
         <div class="row">
           <label>Learning rate
             <select id="lr" style="font:inherit;font-family:var(--mono);padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
@@ -740,7 +739,7 @@ function bar(label, p, target, frac) {
       };
       const hdg = Math.abs(last.g[H]) < 0.01 ? 4 : 3, hd = v => (v < 0 ? "−" : "") + Math.abs(v).toFixed(hdg), hs = v => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(hdg);
       m.innerHTML = `<div class="gm-title">Step ${steps}</div>` +
-        `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
+        `<div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average over pairs</th><th></th><th>score<br>= old − gradient</th><th>chance<br>after</th></tr>` +
         row1(H, "h") + row1(SP, "space") + row1(FS, "full stop") + row1(CHARS.indexOf("l"), "l") + row1(CHARS.indexOf("d"), "d") + `</table></div>` +
         `<div class="gm-note">Read a row left to right. For h: ${hd(last.p[H])} − ${(0.5).toFixed(hdg)} = ${hs(last.g[H])}. ${last.g[H] < 0 ? "Negative, so its score goes up" : "Positive, so its score goes down"}: ${hd(last.old[H])} − (${hs(last.g[H])}) = ${hd(row[H])}. Softmax then turns the new scores into the new chances. (A chance of ${hd(last.p[H])} means ${(last.p[H] * 100).toFixed(hdg - 2)}%.)<br>l and d never come after t, so counting gives them 0: their gradient is just their chance, and they go down. The other 9 letters work the same way.</div>`;
     }
@@ -840,7 +839,7 @@ function bar(label, p, target, frac) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(last.afterW[k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${last.step}${last.step === model.step ? "" : ` (the first of ${model.step})`}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average of pushes</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${last.step}${last.step === model.step ? "" : ` (the first of ${model.step})`}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>counting's<br>answer</th><th>gradient<br>= average over pairs</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
