@@ -76,10 +76,13 @@ class OneCharModel {
   }
 
   // One full training step: predict, measure, find directions, move
-  trainStep(learningRate = 10) {
+  // perRow: average each row over its own pairs (gradient = chance − goal),
+  // instead of over all 46 pairs like PyTorch's cross_entropy (which shrinks row r by timesUsed[r]/46)
+  trainStep(learningRate = 10, perRow = false) {
     const lossBefore = this.loss();
     const before = copyTable(this.weights);
     this.grad = this.gradients();
+    if (perRow) this.grad = this.grad.map((g, r) => this.timesUsed[r] ? g.map(x => x * this.n / this.timesUsed[r]) : g);
     for (let r = 0; r < VOCAB; r++)
       for (let c = 0; c < VOCAB; c++)
         this.weights[r][c] -= learningRate * this.grad[r][c];

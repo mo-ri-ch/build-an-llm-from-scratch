@@ -338,23 +338,19 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b>gradient = chance − goal</b>, then move.</p>
-      <p class="say" style="position:relative"><b>One change:</b> each row gets only its <b>share</b>. Row <code>t</code> is used by 8 of the 46 pairs, so its gradients are multiplied by <b>8/46</b>. For h: −0.367 × 8/46 = <b>−0.064</b>.<button class="doubt" type="button" data-peek-from="sharePeek46" aria-label="Why only a share?">🤔</button></p>
-      <div hidden id="sharePeek46"><b>🤔 Why only a share?</b>
-        <p style="margin:6px 0 0">Your model now looks at the whole text at once: all 46 pairs. Only 8 of them start with <code>t</code>, so row <code>t</code> gets 8/46 of the say.</p>
-        <p style="margin:6px 0 0">A row used by more pairs gets a bigger share. That's fair: its mistakes happen more often.</p>
-      </div>
-      <p class="say">−0.064 is a tiny move. So your model multiplies it by a number, the <mark>learning rate</mark>:</p>
+      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b>gradient = chance − goal</b>. Each row's goals are the shares of its own pairs. Row <code>o</code>: n 2/4, g 2/4.</p>
+      <p class="say">One new thing: how far to move. Your model multiplies each gradient by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b>new score = old score − learning rate × gradient</b></li>
-        <li>learning rate 1: h goes <b>up 0.064</b></li>
-        <li>learning rate 10: h goes <b>up 0.64</b></li>
+        <li>h in row <code>t</code> starts with gradient −0.367</li>
+        <li>learning rate 1: h goes <b>up 0.367</b></li>
+        <li>learning rate 10: h goes <b>up 3.67</b></li>
       </ul>
       <p class="say" style="position:relative">That's <b>one step</b>: every row moves once. Your model repeats it <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></p>
       <div hidden id="why300Peek"><b>🤔 Why 300?</b>
-        <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With learning rate 10:</p>
-        <p style="margin:6px 0 0;font-family:var(--mono);font-size:0.85rem">step 0: 3.087 · 50: 0.746 · 100: 0.722 · <b>300: 0.708</b> · 1,000: 0.703<br>best possible: 0.701</p>
-        <p style="margin:6px 0 0">After 300, more steps barely help. A smaller learning rate needs more steps; a bigger one, fewer.</p>
+        <p style="margin:6px 0 0">Nothing special: it's enough steps for the loss to settle. With learning rate 1:</p>
+        <p style="margin:6px 0 0;font-family:var(--mono);font-size:0.85rem">step 0: 3.086 · 50: 0.743 · 100: 0.721 · <b>300: 0.708</b> · 1,000: 0.703<br>best possible: 0.701</p>
+        <p style="margin:6px 0 0">After 300, more steps barely help. A smaller learning rate needs more steps.</p>
       </div>
       <div class="activity">
         <div class="do">Pick a learning rate. Press Train.</div>
@@ -363,9 +359,8 @@
           <label>Learning rate
             <select id="lr" style="font:inherit;font-family:var(--mono);padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
               <option value="0.1">0.1 (tiny)</option>
-              <option value="1">1</option>
-              <option value="10" selected>10</option>
-              <option value="100">100 (huge)</option>
+              <option value="1" selected>1</option>
+              <option value="10">10 (big)</option>
             </select>
           </label>
           <button class="primary" id="train">Train 300 steps</button>
@@ -383,7 +378,7 @@
       <table class="plain cmp">
         <tr><th>after t</th><th>space</th><th>.</th><th>h</th></tr>
         <tr><td>Counting</td><td>0.375</td><td>0.125</td><td>0.500</td></tr>
-        <tr><td>Learning (300 steps)</td><td>0.374</td><td>0.124</td><td>0.499</td></tr>
+        <tr><td>Learning (300 steps)</td><td>0.372</td><td>0.122</td><td>0.497</td></tr>
       </table>
       <p class="say" style="position:relative">The same answer. Learning works.<button class="doubt" type="button" data-peek-from="whyLearnPeek" aria-label="Then why not just count?">🤔</button></p>
       <div hidden id="whyLearnPeek"><b>🤔 Then why not just count?</b>
@@ -459,6 +454,7 @@ Step 250 loss: 0.709
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
         </ul>
+        <p style="margin:6px 0 0"><b>Why learning rate 10, not 1?</b> <code>cross_entropy</code> averages over all 46 pairs, not each row's own pairs. So row <code>t</code>'s gradients come out × 8/46 (8 of the 46 pairs), row space's × 11/46. Smaller steps, same end. The bigger learning rate makes up for it.</p>
       </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson4.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
@@ -572,7 +568,7 @@ Step 250 loss: 0.709
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202610151417"></script>
+<script src="../assets/tinylm.js?v=202610281215"></script>
 <script src="../assets/course.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
@@ -838,18 +834,18 @@ function bar(label, p, target) {
       const k = CHAR_TO_NUMBER[c], g = last.grad[T][k], d = Math.abs(g) < 0.01 ? 4 : 3;
       return `<tr><td><b>${c === " " ? "space" : c === "." ? "full stop" : c}</b></td><td>${before[k].toFixed(d)}</td><td>${want[c].toFixed(3)}</td><td>${sg(g, d)}</td><td>${f(last.before[T][k], d)} − ${lr} × (${sg(g, d)}) = <b>${f(model.weights[T][k], d)}</b></td><td><b>${after[k].toFixed(d)}</b></td></tr>`;
     }).join("");
-    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= (chance − goal) × 8/46</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
+    m.innerHTML = `<div class="gm-title">Step ${model.step}, row <code>t</code></div><div class="ybm-tab"><table><tr><th></th><th>chance<br>before</th><th>goal</th><th>gradient<br>= chance − goal</th><th>score<br>= old − ${lr} × gradient</th><th>chance<br>after</th></tr>${rows}</table></div>` +
       `<div class="gm-note">Every other row moves the same way, in the same step.</div>`;
   }
   function run(n) {
     const lr = Number(lrSel.value);
-    for (let i = 0; i < n && model.step < 300; i++) { const r = model.trainStep(lr); last = { before: r.before, grad: r.grad.map(x => x.slice()), lr }; }
+    for (let i = 0; i < n && model.step < 300; i++) { const r = model.trainStep(lr, true); last = { before: r.before, grad: r.grad.map(x => x.slice()), lr }; }
     render(); showMath();
   }
   document.getElementById("train").onclick = () => { model.reset(); run(300); };
   document.getElementById("step1").onclick = () => run(1);
   lrSel.onchange = () => { model.reset(); last = null; render(); showMath(); };
-  addReset(lrSel, () => { lrSel.value = "10"; model.reset(); last = null; render(); showMath(); });
+  addReset(lrSel, () => { lrSel.value = "1"; model.reset(); last = null; render(); showMath(); });
   render();
 })();
 
