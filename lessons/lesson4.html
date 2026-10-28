@@ -256,7 +256,7 @@
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
-      <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0. The rule: <code style="white-space:nowrap">loss = −log(chance)</code><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0. The rule: <b class="eqbox">loss = −log(chance)</b><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
       <div hidden id="logPeek"><b>🤔 What is log?</b>
         <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
@@ -274,8 +274,8 @@
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once. Start with <b>just one pair</b>, <code>t → h</code>. Your model gave <code>h</code> only 0.133 (13.3%). (The next page uses all 8.)</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say" style="position:relative">The rule: <b>gradient = chance − goal</b>. For this pair, <code>h</code>'s goal is 1 and every other letter's is 0. For <code>h</code>: 0.133 − 1 = <b>−0.867</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
-      <p class="say">Then move: <b>new score = old score − gradient</b>. For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up. A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
+      <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b>. For this pair, <code>h</code>'s goal is 1 and every other letter's is 0. For <code>h</code>: 0.133 − 1 = <b>−0.867</b>.<button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
+      <p class="say">Then move: <b class="eqbox">new score = old score − gradient</b>. For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up. A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
       <p class="muted-note">Every other letter goes down, even space and full stop, because this pair says <code>h</code>. On the next page, their own pairs push them up.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
         <p style="margin:6px 0 0">It's the gap between what your model gives and what it should give. Below the goal, the gap is negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0: nothing to fix.</p>
@@ -299,14 +299,14 @@
     <!-- 6 -->
     <section class="part" data-title="You be the model">
       <h2>You be the model</h2>
-      <p class="say">Now fix row <code>t</code> yourself, using <b>all 8 pairs</b> starting with <code>t</code>:</p>
+      <p class="say">Now fix row <code>t</code> using <b>all 8 pairs</b> starting with <code>t</code>:</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say">Each pair has its own goal, from the text: 1 for its right letter, 0 for the rest. For h, at chance 0.133:</p>
+      <p class="say">Each pair's goal comes from the text: 1 for its right letter, 0 for the rest. For h, at chance 0.133:</p>
       <ul class="rules">
         <li>4 pairs <code>t → h</code>: 0.133 − 1 = <b>−0.867</b> (up)</li>
         <li>4 other pairs: 0.133 − 0 = <b>+0.133</b> (down)</li>
       </ul>
-      <p class="say" style="position:relative">Averaged: (4 × −0.867 + 4 × 0.133) ÷ 8 = <b>−0.367</b>, which is chance − <b>0.5</b>. Nothing was counted: the pairs gave the 0.5. (Space: 3/8, full stop: 1/8.)<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why does the average land on the share?">🤔</button></p>
+      <p class="say" style="position:relative">Averaged: (4 × −0.867 + 4 × 0.133) ÷ 8 = <b>−0.367</b> = 0.133 − <b>4/8</b>. 4/8 is the share of pairs wanting h: its goal, <b>0.5</b>. Nothing was counted. (Space 3/8, full stop 1/8.)<button class="doubt" type="button" data-peek-from="sharePeek" aria-label="Why does the average land on the share?">🤔</button></p>
       <div hidden id="sharePeek"><b>🤔 Why does the average land on the share?</b>
         <p style="margin:6px 0 0">Take space. The 3 pairs <code>t → ␣</code> want space to be <b>1</b> (sure). The other 5 pairs want it to be <b>0</b>.</p>
         <p style="margin:6px 0 0">Your model can't please all 8, so the pushes balance where the chance is the average: (3 × 1 + 5 × 0) ÷ 8 = <b>0.375</b>.</p>
@@ -336,7 +336,7 @@
         </div>
         <div class="grad-math" id="ybmMath" hidden></div>
       </div>
-      <p class="say">Press ▶ Play: below its goal, the gradient is negative, so the score goes up. Above it, down. At the goal it is 0, so it stops on its green line.</p>
+      <p class="say">Press ▶ Play: below its goal, the gradient is negative, so the score goes up. Above it, down. At the goal, 0: it stops on its green line.</p>
       <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same gradients. You'll see it on the code page.</p>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
@@ -344,10 +344,10 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b>gradient = chance − goal</b>. Each row has its own goals, from its own pairs. Row <code>h</code> is always followed by e, so e's goal is 1.</p>
+      <p class="say">On the last page, you trained <b>one row</b> (row <code>t</code>). Now your model trains <b>all 14 rows at the same time</b>, with the same rule: <b class="eqbox">gradient = chance − goal</b> Each row has its own goals, from its own pairs. Row <code>h</code> is always followed by e, so e's goal is 1.</p>
       <p class="say">One new thing: how far to move. Your model multiplies each gradient by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
-        <li><b>new score = old score − learning rate × gradient</b></li>
+        <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
         <li>h in row <code>t</code> starts with gradient −0.367</li>
         <li>learning rate 1: h goes <b>up 0.367</b></li>
         <li>learning rate 10: h goes <b>up 3.67</b></li>
