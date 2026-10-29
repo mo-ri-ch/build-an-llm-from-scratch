@@ -124,6 +124,13 @@
   .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
   .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
   .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
+  .pq { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--rule, #ccc); }
+  .pq-q { margin-bottom: 6px; }
+  .pq-in { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pq-in input { font: inherit; font-family: var(--mono); width: 8em; padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+  .pq-fb { margin-top: 6px; font-size: 0.92rem; }
+  .pq.ok .pq-fb { color: var(--good, #1E8F4E); } .pq.bad .pq-fb { color: var(--redpen); }
+  .pq.ok input { border-color: var(--good, #1E8F4E); }
 </style>
 </head>
 <body data-pen="orange">
@@ -265,6 +272,25 @@
       <p class="say">Every pair in the text gets its own loss: 46 pairs, 24 different ones. A repeated pair has the same loss each time, and counts each time:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 1">
+      <h2>✏️ Practice 1</h2>
+      <p class="say">New numbers, same ideas. Fractions like 1/2 are fine, and the <code>ln</code> button on a calculator gives the log.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="2" data-tol="0.02" data-hint="Work out each loss: loss = −log(chance), then divide B's by A's." data-work="A: −ln(1/2) = 0.693. B: −ln(1/4) = 1.386. 1.386 ÷ 0.693 = 2. Halving the chance doubles the loss.">
+          <div class="pq-q">Pair A gives the right letter a chance of <b>1/2</b>. Pair B gives it <b>1/4</b>. How many times bigger is B's loss than A's?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.693" data-tol="0.01" data-hint="The loss is the average of the pairs' losses. Find each one, add them up and divide by 4." data-work="(0 + 0.693 + 0.693 + 1.386) ÷ 4 = 0.693.">
+          <div class="pq-q">Four pairs give the right letter chances <b>1, 1/2, 1/2</b> and <b>1/4</b>. What is the loss for the four together?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">The goal is to make the loss small. But which of the 196 scores should change, and which way?</p>
     </section>
 
@@ -338,18 +364,52 @@
       </div>
       <p class="say">Press ▶ Play: below counting's answer the gradient is negative: score up. Above it, down. At it, 0: it stops on the green line.</p>
       <p class="muted-note">In code, PyTorch's <code>loss.backward()</code> finds the same gradients. You'll see it on the code page.</p>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 2">
+      <h2>✏️ Practice 2</h2>
+      <p class="say">Row <code>x</code> has 4 pairs. Three are followed by <code>p</code> and one by <code>q</code>. Only p and q exist. Their scores start equal, so each chance is 1/2.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="-0.25" data-tol="0.01" data-hint="Each pair gives chance − goal. For p, three pairs have goal 1 and one pair has goal 0. Add the four, then divide by 4." data-work="(3 × (0.5 − 1) + 1 × (0.5 − 0)) ÷ 4 = (−1.5 + 0.5) ÷ 4 = −0.25.">
+          <div class="pq-q">What is <code>p</code>'s gradient, averaged over the 4 pairs?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="new score = old score − learning rate × gradient." data-work="2 × 0.25 = 0.5.">
+          <div class="pq-q">With learning rate 2, by how much does <code>p</code>'s score go <b>up</b>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="3/4" data-tol="0.01" data-hint="Gradient = chance − (share of pairs wanting p). Set it to 0." data-work="The pushes cancel when chance = the share of pairs wanting p: 3 of 4 = 0.75.">
+          <div class="pq-q">At what chance for <code>p</code> does its gradient become 0? (Think: what do the pairs' pushes need to do?)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="-2/3" data-tol="0.01" data-hint="The chances are equal. gradient = chance − goal, and b's goal is 1." data-work="1/3 − 1 = −2/3.">
+          <div class="pq-q">New problem: 3 letters a, b, c, all with score 0. The right answer is <b>b</b>. What is b's gradient?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.91" data-tol="0.01" data-hint="chance = e^score ÷ sum of e^scores. e² = 7.39, e⁻¹ = 0.37." data-work="7.39 ÷ (7.39 + 0.37 + 0.37) = 0.91. From 1/3 to 0.91 in one step.">
+          <div class="pq-q">Learning rate 3, one step. What is b's new chance? (a and c each go to −1, b to 2.)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">That was one row (14 scores) and 8 pairs. Next: all 14 rows, 196 scores and all 46 pairs at once.</p>
     </section>
 
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">Last page: <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
+      <p class="say">So far: <b>one row</b>. Now your model trains <b>all 14 rows at once</b>. One step:</p>
       <p class="say" style="position:relative">a) <b>Predict:</b> every pair (all 46) gets its chances.<br>b) <b>Measure:</b> the loss averages the 46 pairs' losses.<br>c) <b>Find directions:</b> every pair finds its own gradient (chance − goal). They are <b>averaged</b>: one number per score.<br>d) <b>Move</b> every score by that average.<br><span class="near">Then it repeats, <b>300 times</b>.<button class="doubt" type="button" data-peek-from="why300Peek" aria-label="Why 300?">🤔</button></span></p>
       <p class="say">One new thing: how far to move. That average is multiplied by a number, the <mark>learning rate</mark>:</p>
       <ul class="rules">
         <li><b class="eqbox">new score = old score − learning rate × gradient</b></li>
-        <li>h in row <code>t</code> starts with gradient −0.367 (the average from the last page)</li>
+        <li>h in row <code>t</code> starts with gradient −0.367 (the average we found for row <code>t</code>)</li>
         <li>learning rate 1: h goes <b>up 0.367</b></li>
         <li>learning rate 10: h goes <b>up 3.67</b></li>
       </ul>
@@ -422,6 +482,25 @@
         <div class="score-line"><div>Steps<b id="avgSteps">0</b></div><div>Loss (all 46 pairs)<b id="avgLoss">3.0865</b></div></div>
       </div>
       <p class="say">Averaging over all 46 with learning rate 10 gets there, the same place. Learning rate 1 with it is too slow.</p>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 3">
+      <h2>✏️ Practice 3</h2>
+      <p class="say">Row <code>x</code> again, but now the text has <b>20 pairs</b> in all, and the average is over all 20.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="-0.05" data-tol="0.005" data-hint="Last time (own 4 pairs) it was −0.25. Now the same pushes are divided by 20 instead of 4." data-work="−0.25 × 4/20 = −0.05.">
+          <div class="pq-q">What is <code>p</code>'s gradient now? (Its 4 pairs are 4 of the 20.)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="10" data-tol="0.1" data-hint="new score = old score − learning rate × gradient. Solve learning rate × 0.05 = 0.5." data-work="0.5 ÷ 0.05 = 10.">
+          <div class="pq-q">To move <code>p</code>'s score by the same <b>0.5</b> as before, what learning rate is needed?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Now the code makes sense.</p>
     </section>
 
@@ -491,7 +570,7 @@ Step 250 loss: 0.709
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
         </ul>
-        <p style="margin:6px 0 0"><b>Why learning rate 10?</b> <code>cross_entropy</code> averages over all 46 pairs (the last page), so gradients are smaller and the learning rate is bigger.</p>
+        <p style="margin:6px 0 0"><b>Why learning rate 10?</b> <code>cross_entropy</code> averages over all 46 pairs so gradients are smaller and the learning rate is bigger.</p>
       </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson4.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
@@ -541,7 +620,7 @@ Step 250 loss: 0.709
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. A wrong answer's goal is 0, so its gradient is 0.6 − 0 = +0.6. Positive means down, and 0.6 is far from 0, so it moves a lot.">
+        <div class="quiz" data-page="lesson4.html#6" data-topic="Which way?" data-right="Right. A wrong answer's goal is 0, so its gradient is 0.6 − 0 = +0.6. Positive means down, and 0.6 is far from 0, so it moves a lot.">
           <div class="q"><small>5. Read a gradient</small>For the pair <code>t → h</code>, your model gives “.” a chance of <b>0.6</b>. What is its gradient, and what happens to its score?</div>
           <div class="options">
             <button data-why="“.” is a wrong answer here, so its goal is 0 and its gradient is 0.6 − 0, which is positive.">−0.6, it goes up</button>
@@ -550,7 +629,7 @@ Step 250 loss: 0.709
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson4.html#5" data-topic="Which way?" data-right="Right. Gradient = 0.95 − 1 = −0.05, very close to 0. Almost right, so it barely moves.">
+        <div class="quiz" data-page="lesson4.html#6" data-topic="Which way?" data-right="Right. Gradient = 0.95 − 1 = −0.05, very close to 0. Almost right, so it barely moves.">
           <div class="q"><small>6. Almost right</small>Your model already gives the right answer <b>95%</b>. How much will that answer's score move?</div>
           <div class="options">
             <button data-why="Work out the gradient: chance − goal = 0.95 − 1. Is that far from 0?">A lot</button>
@@ -559,7 +638,7 @@ Step 250 loss: 0.709
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson4.html#7" data-topic="Let it learn" data-right="Right. New score = old score − learning rate × gradient = 2.0 − 10 × 0.3 = 2.0 − 3.0 = −1.0.">
+        <div class="quiz" data-page="lesson4.html#9" data-topic="Let it learn" data-right="Right. New score = old score − learning rate × gradient = 2.0 − 10 × 0.3 = 2.0 − 3.0 = −1.0.">
           <div class="q"><small>7. Work it out</small>A score is <b>2.0</b>, its gradient is <b>+0.3</b>, and the learning rate is <b>10</b>. What is the new score?</div>
           <div class="options">
             <button data-why="You forgot the learning rate: the gradient is multiplied by 10 first.">1.7</button>
@@ -568,7 +647,7 @@ Step 250 loss: 0.709
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson4.html#7" data-topic="Let it learn" data-right="Right. Learning took 300 passes, counting took 1. We learn because Lesson 5's numbers can't be filled by counting.">
+        <div class="quiz" data-page="lesson4.html#9" data-topic="Let it learn" data-right="Right. Learning took 300 passes, counting took 1. We learn because Lesson 5's numbers can't be filled by counting.">
           <div class="q"><small>8. Spot the mistake</small>A friend says: <i>“Learning is better than counting because it's faster.”</i> What's wrong?</div>
           <div class="options">
             <button data-why="Compare the effort: counting needed 1 pass through the text, learning needed 300.">Nothing, that's right</button>
@@ -906,6 +985,25 @@ function bar(label, p, target, frac) {
   how.onchange = reset; lrS.onchange = reset;
   addReset($("avgAct"), () => { how.value = "own"; lrS.value = "1"; reset(); });
   render();
+})();
+
+// ---------- practice pages: type a number, press Check ----------
+(function practice() {
+  const num = t => { t = t.trim().replace(/[−–]/g, "-").replace(/,/g, "."); const m = t.match(/^(-?[\d.]+)\s*\/\s*([\d.]+)$/); return m ? Number(m[1]) / Number(m[2]) : Number(t); };
+  const ans = q => num(q.dataset.ans);
+  document.querySelectorAll(".pq").forEach(q => {
+    const inp = q.querySelector("input"), btn = q.querySelector(".pq-check"), fb = q.querySelector(".pq-fb");
+    const check = () => {
+      const v = num(inp.value);
+      if (!isFinite(v) || !inp.value.trim()) return;
+      if (Math.abs(v - ans(q)) <= Number(q.dataset.tol)) { q.className = "pq ok"; fb.innerHTML = "✓ " + q.dataset.work; }
+      else { q.className = "pq bad"; fb.innerHTML = "Not yet. " + q.dataset.hint + ' <button type="button" class="pq-show">Show working</button>'; fb.querySelector(".pq-show").onclick = () => { fb.innerHTML = q.dataset.work; }; }
+    };
+    inp.oninput = () => { btn.hidden = !inp.value.trim(); q.className = "pq"; fb.textContent = ""; };
+    inp.onkeydown = e => { if (e.key === "Enter") check(); };
+    btn.onclick = check;
+  });
+  document.querySelectorAll(".pq").forEach((q, i, all) => { if (q === q.closest(".activity").querySelector(".pq")) addReset(q, () => q.closest(".activity").querySelectorAll(".pq").forEach(x => { x.className = "pq"; x.querySelector("input").value = ""; x.querySelector(".pq-check").hidden = true; x.querySelector(".pq-fb").textContent = ""; })); });
 })();
 
 // ---------- Which way? One pair (t → h): gradients, then one small step ----------
