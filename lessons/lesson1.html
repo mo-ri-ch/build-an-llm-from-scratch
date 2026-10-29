@@ -32,7 +32,7 @@
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
       <p class="neo-say">Hi, I'm your model. You're going to build me! I want to write stories. But I only understand numbers. Lots and lots of them.</p>
-      <p class="say">A model is just numbers. Millions of them, even billions.</p>
+      <p class="say">A model is just numbers. <span data-peek="Even billions, in the biggest models. Each one is a number the model learned.">Millions of them.</span></p>
       <p class="say">We need to do math on all of them at once.</p>
 
       <div class="activity">
@@ -86,19 +86,66 @@ print(numbers + 5)</code></pre>
         </div>
         <div class="feedback"></div>
       </div>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 1.1">
+      <h2>✏️ Practice 1.1</h2>
+      <p class="say">New numbers, same ideas. Remember: positions start at 0.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="1" data-tol="0.1" data-hint="Count positions from 0: the first number is at 0." data-work="2 is at 0, 8 is at 1, 5 is at 2. So 1.">
+          <div class="pq-q"><code>numbers = torch.tensor([2, 8, 5])</code>. At which position is the <b>8</b>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="16" data-tol="0.1" data-hint="Take out the number at position 1, then the one at position 2, and add them." data-work="numbers[1] is 6, numbers[2] is 10. 6 + 10 = 16.">
+          <div class="pq-q"><code>numbers = torch.tensor([4, 6, 10])</code>. What is <code>numbers[1] + numbers[2]</code>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="50" data-tol="0.1" data-hint="The math changes every number: first × 2, then − 10. Then look at position 2." data-work="Position 2 is 30. 30 × 2 = 60, 60 − 10 = 50.">
+          <div class="pq-q"><code>numbers = torch.tensor([10, 20, 30])</code>. After <code>numbers * 2 - 10</code>, what is the number at position 2?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">A model needs more than one line of numbers. Let's make a table.</p>
     </section>
 
     <!-- 4 -->
     <section class="part" data-title="Tables of numbers">
       <h2>Tables of numbers</h2>
-      <p class="say">A tensor can also be a table. Rows and columns.</p>
+      <p class="say">A tensor can also be a table. Rows and columns. <span data-peek="Coming in Lesson 3: your whole model will be a 14 × 14 table like this one.">Like this one.</span></p>
       <div class="activity">
         <div class="do">Click a number, or click a row name.</div>
         <div class="grid2d" id="grid" style="grid-template-columns: 4.5em repeat(3, 3.4em)"></div>
         <div class="out" id="gridOut"><span class="c"># click something</span></div>
       </div>
-      <p class="note">Coming in Lesson 3: your whole model will be a 14 × 14 table like this one.</p>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 1.2">
+      <h2>✏️ Practice 1.2</h2>
+      <p class="say">A table needs two positions: first the row, then the column. Both start at 0.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="12" data-tol="0.1" data-hint="Row 2 is the third row: [10, 12]. Then take the number at column 1." data-work="Row 2 is [10, 12]. Column 1 of it is 12.">
+          <div class="pq-q"><code>table = torch.tensor([[2, 4], [6, 8], [10, 12]])</code>. What is <code>table[2, 1]</code>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="1" data-tol="0.1" data-hint="Find the row that holds 8. Rows start at 0 too." data-work="The rows are [2, 4], [6, 8], [10, 12]. 8 is in the second one, row 1.">
+          <div class="pq-q">In the same table, the <b>8</b> is at <code>table[?, 1]</code>. What is the <b>?</b></div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="196" data-tol="0.5" data-hint="Every row has 14 numbers. How many rows are there?" data-work="14 × 14 = 196.">
+          <div class="pq-q">A table with <b>14 rows</b> and <b>14 columns</b> holds how many numbers?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -167,7 +214,7 @@ tensor(6)</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson1.html#4" data-topic="Tables of numbers" data-right="Right. Row 2 is [7, 8, 9], and column 0 of it is 7.">
+        <div class="quiz" data-page="lesson1.html#5" data-topic="Tables of numbers" data-right="Right. Row 2 is [7, 8, 9], and column 0 of it is 7.">
           <div class="q"><small>3. Table</small>What is <code>table[2, 0]</code>?<pre class="q-code"><code>table = torch.tensor([[1, 2, 3],
                       [4, 5, 6],
                       [7, 8, 9]])</code></pre></div>
@@ -187,7 +234,7 @@ tensor(6)</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson1.html#4" data-topic="Tables of numbers" data-right="Right. 14 rows × 14 columns: one row and one column for each character.">
+        <div class="quiz" data-page="lesson1.html#5" data-topic="Tables of numbers" data-right="Right. 14 rows × 14 columns: one row and one column for each character.">
           <div class="q"><small>5. Connect</small>In Lessons 3 and 4, your whole model is one tensor. What shape is it?</div>
           <div class="options">
             <button data-why="It's a table: a row for each character, and a column for each character.">A row of 14 numbers</button>
@@ -225,6 +272,7 @@ tensor(6)</pre></div>
 </nav>
 
 <script src="../assets/course.js"></script>
+<script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>

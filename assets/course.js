@@ -3,7 +3,7 @@
 // which reads the settings below.
 
 const COURSE_LESSONS = [
-  { n: 1, step: "numbers", title: "Tensors", file: "lesson1.html", ready: true, test: 6,
+  { n: 1, step: "numbers", title: "Tensors", file: "lesson1.html", ready: true, test: 8,
     summary: "A box that holds numbers and does math on all of them at once.",
     leaves: "An LLM reads text, but tensors hold only numbers. How do we turn text into numbers?" },
   { n: 2, step: "text to numbers", title: "Text into numbers", file: "lesson2.html", ready: true, test: 5,
