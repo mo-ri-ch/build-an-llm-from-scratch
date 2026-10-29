@@ -680,7 +680,7 @@ function bar(label, p, target, frac) {
   document.getElementById("lossStrip").innerHTML = [...uniq.values()]
     .map(({ a, b, L, n }) => `<span>${showChar(a)} → ${showChar(b)}${n > 1 ? ` <i>×${n}</i>` : ""}<b>${L.toFixed(2)}</b></span>`).join("");
   const avg = losses.reduce((x, l) => x + l[2], 0) / losses.length;
-  document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length} pairs (a ×4 pair counts 4 times): <b>${avg.toFixed(2)}</b>`;
+  document.getElementById("lossAvg").innerHTML = `Average of all ${losses.length} pairs: <b>${avg.toFixed(2)}</b>`;
 })();
 
 // ---------- 5: you be the model ----------
