@@ -187,8 +187,45 @@
           <button id="roll40">Spin 40 times</button>
         </div>
       </div>
-      <p class="say">Real LLMs write exactly like this: one piece at a time.</p>
-      <p class="note">See words like “sathe”? The model only looks at 1 character, so it can't tell it already finished “sat”.</p>
+      <p class="say" style="position:relative">Your model writes one character at a time.<button class="doubt" type="button" data-peek-from="satheDoubt" aria-label="Why does it write “sathe”?">🤔</button></p>
+      <div hidden id="satheDoubt"><b>🤔 Why does it write “sathe”?</b>
+        <p style="margin:6px 0 0">The model only looks at 1 character, so it can't tell it already finished “sat”. After t, “h” is likely, so it writes “sathe”.</p>
+        <p style="margin:6px 0 0">Real LLMs write exactly like this too: one piece at a time.</p>
+      </div>
+      <p class="hook">Try it on new text.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice">
+      <h2>✏️ Practice</h2>
+      <p class="say">New text, same ideas. A pair is two characters side by side.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="5" data-tol="0.1" data-hint="A pair is two characters side by side. Slide along the text: ab, ba, …" data-work="ab, ba, ab, ba, ac: 5 pairs. A text of 6 characters has 5 pairs.">
+          <div class="pq-q">How many pairs does <code>"ababac"</code> have?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="2" data-tol="0.1" data-hint="Slide along two characters at a time and count the “ab”s." data-work="ab, ba, ab, ba, ac: “ab” appears 2 times.">
+          <div class="pq-q">In <code>"ababac"</code>, how many times does the pair <b>a → b</b> appear?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="2/3" data-tol="0.01" data-hint="Count what follows a: b twice, c once. Divide b's count by the row's total." data-work="Row a: b 2, c 1, total 3. b: 2 ÷ 3 = 2/3.">
+          <div class="pq-q">After <b>a</b>, what is the chance that <b>b</b> comes next? (a fraction like 1/2 is fine)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="The row total is 8. Add up the counts that are not h." data-work="Not h: 3 + 1 = 4 out of 8 = 0.5.">
+          <div class="pq-q">After <b>t</b> in our text, the counts are h 4, space 3 and “.” 1. What is the chance that the next character is <b>not</b> h?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="10" data-tol="1" data-hint="First find c's chance, then take that share of 100 spins." data-work="Total 10, so c has 1/10. 1/10 of 100 spins = about 10.">
+          <div class="pq-q">A row has counts <b>a 6, b 3, c 1</b>. You spin the wheel 100 times. About how many times do you expect <b>c</b>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -295,7 +332,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson3.html#7" data-topic="Why not count more?" data-right="Right. After “sat”, it sees only “t”, and after t, h is likely, so it writes “sathe”.">
+        <div class="quiz" data-page="lesson3.html#8" data-topic="Why not count more?" data-right="Right. After “sat”, it sees only “t”, and after t, h is likely, so it writes “sathe”.">
           <div class="q"><small>5. Why “sathe”</small>Why does your model write words like “sathe”?</div>
           <div class="options">
             <button data-why="More text wouldn't fix it. The problem is how much it looks at.">It doesn't have enough text</button>
@@ -304,7 +341,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson3.html#7" data-topic="Why not count more?" data-right="Right. 14 × 14 = 196 rows, each with 14 next letters: 2,744 boxes, and almost all stay empty.">
+        <div class="quiz" data-page="lesson3.html#8" data-topic="Why not count more?" data-right="Right. 14 × 14 = 196 rows, each with 14 next letters: 2,744 boxes, and almost all stay empty.">
           <div class="q"><small>6. The explosion</small>Looking back 2 letters, how many boxes does the counting table need?</div>
           <div class="options">
             <button data-why="The table multiplies: every pair of letters needs its own row.">28: 14 + 14</button>
@@ -351,9 +388,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
     <!-- 8 -->
     <section class="part" data-title="What now?">
       <h2>What now?</h2>
-      <p class="say">Counting needs a box for every combination, and almost all of them stay empty.</p>
       <p class="say">There's a smarter kind of model that can look further back with far fewer boxes. You'll build it in <b>Lesson 5</b>.</p>
-      <p class="note"><b>The catch:</b> the smarter model's numbers can't be found by counting. So first, your model needs a way to find numbers <b>without counting</b>. That's coming in Lesson 4.</p>
     
       <p class="neo-say">I wrote something! <span class="neo-writing">t on dog mat mat. sathe log the mat cat t</span> Hmm… “sathe”? I only look at the last letter.</p>
       <div class="open-question">
@@ -376,6 +411,7 @@ t on dog mat mat. sathe log the mat cat t</pre></div>
 
 <script src="../assets/tinylm.js?v=202610151417"></script>
 <script src="../assets/course.js"></script>
+<script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
@@ -580,8 +616,8 @@ function fillRowSelect(sel, chosen) {
 
   function setBusy(on, many) {
     busy = on;
-    roll1.disabled = on;
-    roll40.disabled = on && !many;
+    roll1.hidden = on;
+    roll40.hidden = on && !many;
     roll40.textContent = on && many ? "Stop" : "Spin 40 times";
   }
   roll1.onclick = async () => { if (busy) return; setBusy(true); await spin(false); setBusy(false); };

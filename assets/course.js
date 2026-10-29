@@ -9,7 +9,7 @@ const COURSE_LESSONS = [
   { n: 2, step: "text to numbers", title: "Text into numbers", file: "lesson2.html", ready: true, test: 6,
     summary: "Give every character a number. Turn text into numbers and back.",
     leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
-  { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true, test: 6,
+  { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true, test: 7,
     summary: "Count which character follows which, then generate text.",
     leaves: "Counting can't look further back, and the smarter model's numbers can't be counted. How can your model find numbers without counting?" },
   { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true, test: 13,
