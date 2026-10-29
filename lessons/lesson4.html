@@ -256,7 +256,7 @@
         <div class="track" style="height:14px"><div class="fill" id="lossFill" style="background:var(--redpen)"></div></div>
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
-      <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0. The rule: <b class="eqbox">loss = −log(chance)</b><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0.<br>The rule: <b class="eqbox">loss = −log(chance)</b><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
       <div hidden id="logPeek"><b>🤔 What is log?</b>
         <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
@@ -274,7 +274,7 @@
       <p class="step-label">Steps c) Find directions and d) Move</p>
       <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once. Start with <b>just one pair</b>, <code>t → h</code>. Your model gave <code>h</code> only 0.133 (13.3%). (The next page uses all 8.)</p>
       <p class="our-text" data-after="t"></p>
-      <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b>. For this pair, <code>h</code>'s goal is 1 and every other letter's is 0.<br>For <code>h</code>: 0.133 − 1 = <b>−0.867</b><button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
+      <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b><br>For this pair, <code>h</code>'s goal is 1 and every other letter's is 0.<br>For <code>h</code>: 0.133 − 1 = <b>−0.867</b><button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
       <p class="say">Then move: <b class="eqbox">new score = old score − gradient</b><br>For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up.<br>A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
       <p class="muted-note">Every other letter goes down, even space and full stop, because this pair says <code>h</code>. On the next page, their own pairs push them up.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
