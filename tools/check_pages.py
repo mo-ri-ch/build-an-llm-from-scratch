@@ -38,11 +38,11 @@ for path in sorted(glob.glob('lessons/lesson*.html')):
             print(f'OVER   {path}  "{title}": {len(words)} words ({numbers} are numbers)')
         elif len(words) > LIMIT:
             print(f'check  {path}  "{title}": {len(words)} words: fine only if it introduces a new rule')
-print('no page over the limit' if not over else f'{over} page(s) over {RULE_LIMIT} words')
-sys.exit(0)
-
 # every lesson needs practice pages: problems that apply the ideas (not recall), after each group of 2-3 idea pages
 for path in sorted(glob.glob('lessons/lesson*.html')):
     s = open(path).read()
     if '✏️ Practice' not in s:
         print(f'NOTE   {path}: no "✏️ Practice" page yet')
+
+print('no page over the limit' if not over else f'{over} page(s) over {RULE_LIMIT} words')
+sys.exit(0)
