@@ -271,7 +271,7 @@
       <h2>Why not count them?</h2>
       <p class="say">Can we fill the boxes by counting how often each letter comes next? Try “mat”: in our text it is always followed by a full stop.</p>
       <div class="activity">
-        <div class="do">Which next letter wins? Try counting, then learning.</div>
+        <div class="do">Which next letter wins? Try counting, then learning (how learning works: next page).</div>
         <div class="row" style="margin-bottom:12px">
           <span class="muted">Group:</span>
           <button class="cnt-g on" data-g="mat">“mat”</button>
@@ -298,9 +298,9 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">For each example, your model guesses. Then it writes down a <span data-peek="A push is the gradient from the last lesson, with its sign flipped: gradient −0.97 means push up 0.97. Same number, plainer direction.">push</span> for each box it used: <b>up</b> for the right answer's boxes, <b>down</b> for the others.</p>
+      <p class="say">One step, the same four as in the last lesson:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses.<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move</b> every box by the average of its gradients.</p>
       <div class="activity">
-        <div class="do">Press “Next example”. Watch the pushes add up. After all 44, move the boxes.</div>
+        <div class="do">Press “Next example”. Watch the gradients add up. After all 44, move the boxes.</div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
         <div class="os-head" id="osHead"></div>
         <div class="os-push" id="osPush"></div>
@@ -313,7 +313,7 @@
         </div>
         <div class="sh-result" id="osResult"></div>
       </div>
-      <p class="say">The boxes don't move after each example. The pushes are <b>added up</b> first, so pushes in opposite directions cancel out. Then every box moves once, by<br><b>10 × (its total push ÷ 44)</b><br>10 is the learning rate: how big each move is.</p>
+      <p class="say">The boxes don't move after each example. The gradients are <b>added up</b> first, so opposite ones cancel out. Dividing by 44 gives the average. Then every box moves once, by<br><b class="eqbox">new = old − 10 × (total gradient ÷ 44)</b><br>10 is the learning rate: how big each move is.</p>
       <p class="hook">That was one step. Now repeat it 300 times.</p>
     </section>
 
@@ -328,7 +328,7 @@
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 130" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Green dashed line: the best loss a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
+        <div class="muted">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). Green dashed line: the best loss a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
         <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
         <div class="top3 cmp4" id="learnTop"></div>
@@ -450,7 +450,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
     <!-- 10 -->
     <section class="part" data-title="Lesson test">
       <h2>Lesson 5 test</h2>
-      <p class="say">6 questions, one per idea. Get them all right to pass.</p>
+      <p class="say">7 questions, one per idea. Get them all right to pass.</p>
       <div class="test" data-test="5">
         <div class="quiz" data-page="lesson5.html#2" data-topic="Three small tables" data-right="Right. In “dog”, the second-last letter is o, so the second-last table uses row o.">
           <div class="q"><small>1. Which row?</small>For the group “dog”, which row does the <b>second-last table</b> use?</div>
@@ -497,8 +497,17 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
+        <div class="quiz" data-page="lesson5.html#6" data-topic="One learning step" data-right="Right. Every example finds its gradient for the box, the gradients are added up and divided by 44 (the average), and the box moves once: new = old − 10 × average.">
+          <div class="q"><small>6. One step</small>A shared box gets a gradient from each of the 44 examples. How does it move in one step?</div>
+          <div class="options">
+            <button data-why="The boxes don't move after each example. The gradients are collected first.">After every example, by that example's gradient</button>
+            <button data-right>Once, by the average of its 44 gradients × the learning rate</button>
+            <button data-why="Opposite gradients cancel out. The box moves by the average of all of them, not just one.">By the single biggest gradient</button>
+          </div>
+          <div class="feedback"></div>
+        </div>
         <div class="quiz" data-page="lesson5.html#7" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
-          <div class="q"><small>6. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
+          <div class="q"><small>7. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
           <div class="options">
             <button data-why="Nothing was counted. And a counting table's row for “hat” would be empty.">It counted “hat” somewhere</button>
             <button data-right>It shares rows with “cat”, “sat” and “mat”</button>
@@ -707,7 +716,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     { run: () => { other = "sat"; reset(); render(); }, at: () => box,
       say: "“cat” and “sat” each add 3 boxes. The green ones are the <b>same boxes</b>: <code>_ a _ → ␣</code> and <code>_ _ t → ␣</code>. Only the first box differs." },
     { at: LEARN, click: LEARN,
-      say: "Press <b>Learn from “cat”</b>: one learning push that uses only the example “cat”." },
+      say: "Press <b>Learn from “cat”</b>: one learning step that uses only the example “cat”." },
     { at: () => box,
       say: () => `“cat”'s 3 boxes went up. “sat” was never used, yet its green boxes moved too: its chance of space rose from ${pct(start.sat)} to <b>${pct(chance("sat"))}</b>. Press it a few more times and watch both climb.` },
     { at: () => otherBtn("dog"), click: () => otherBtn("dog"),
@@ -830,22 +839,23 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   const m = new ThreeCharModel(), N = m.examples.length, LR = 10, SP = CHAR_TO_NUMBER[" "];
   const W = { t: 2, r: CHAR_TO_NUMBER["t"], k: SP };            // the shared box we watch: _ _ t → ␣ (last table)
   const textBox = document.getElementById("osText"), btn = id => document.getElementById(id);
-  let push, noted, moved, stepNo = 0, chips, before;
+  let grad, noted, moved, stepNo = 0, chips, before;
   textBox.innerHTML = [...TEXT].map((c, i) => `<span data-i="${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
   const rowsOf = ex => [ex.c1, ex.c2, ex.c3];
   const chancesOf = ex => softmax(m.scores(ex.c1, ex.c2, ex.c3));
   const groupOf = i => TEXT.slice(i, i + 3);
   const P = x => (x < 0.01 && x > 0 ? (x * 100).toFixed(1) : Math.round(x * 100)) + "%";
-  const arrow = x => x >= 0 ? `<span class="up">up ${x.toFixed(2)} ↑</span>` : `<span class="down">down ${(-x).toFixed(2)} ↓</span>`;
+  const sgn = x => (x < 0 ? "−" : "+") + Math.abs(x).toFixed(2);
+  const arrow = x => x < 0 ? `<span class="up">${sgn(x)}, so up ↑</span>` : `<span class="down">${sgn(x)}, so down ↓</span>`;   // gradient: negative = up
   const WATCH = ["the", "cat", "mat"];                          // groups whose progress we show after moving
   const chanceRight = g => { const ex = m.examples[TEXT.indexOf(g)]; return chancesOf(ex)[ex.next]; };
-  function note(i) {   // example i writes down its pushes: right answer up by (1 − chance), every other letter down by its chance
+  function note(i) {   // example i finds its gradients: chance − goal (goal 1 for the right answer, 0 for the rest)
     const ex = m.examples[i], p = chancesOf(ex);
-    rowsOf(ex).forEach((r, t) => { for (let k = 0; k < VOCAB; k++) push[t][r][k] += (k === ex.next ? 1 : 0) - p[k]; });
-    if (ex.c3 === W.r) chips.push({ i, v: (W.k === ex.next ? 1 : 0) - p[W.k] });
+    rowsOf(ex).forEach((r, t) => { for (let k = 0; k < VOCAB; k++) grad[t][r][k] += p[k] - (k === ex.next ? 1 : 0); });
+    if (ex.c3 === W.r) chips.push({ i, v: p[W.k] - (W.k === ex.next ? 1 : 0) });
   }
   function startStep() {
-    push = [0, 1, 2].map(() => Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0)));
+    grad = [0, 1, 2].map(() => Array.from({ length: VOCAB }, () => new Array(VOCAB).fill(0)));
     chips = []; moved = false; before = { box: m.tables[W.t][W.r][W.k], ch: WATCH.map(chanceRight) };
     note(0); noted = 1;
   }
@@ -856,26 +866,26 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osHead").innerHTML = `<span class="g">${[...g].map(sc).join(" ")} → ${sc(CHARS[k])}</span> Example ${i + 1} of ${N}`;
     const boxes = [0, 1, 2].map(t => `<code>${[0, 1, 2].map(j => j === t ? sc(g[j]) : "_").join(" ")} → ${sc(CHARS[k])}</code>`).join(", ");
     btn("osPush").innerHTML = moved ? `` :
-      `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}. It should be 100%. So its 3 boxes (${boxes}) each get a push ${arrow(1 - p[k])}.<br>` +
-      `<span class="muted">The other 13 letters' boxes in these rows get small pushes down, each by its chance.</span>`;
+      `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}. It should be 100%, so its goal is 1. Its 3 boxes (${boxes}) each get the gradient ${p[k].toFixed(3)} − 1 = ${arrow(p[k] - 1)}.<br>` +
+      `<span class="muted">The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.</span>`;
     btn("osPush").hidden = moved;
-    const tot = push[W.t][W.r][W.k];
-    btn("osWatch").innerHTML = `<div class="title">Watching one shared box: <b><code>_ _ t → ␣</code></b> (last table). Every example ending in t writes its push here:</div>` +
-      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v >= 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${c.v >= 0 ? "↑" : "↓"}${Math.abs(c.v).toFixed(2)}</span>`).join("") : `<span class="muted">nothing yet</span>`}</div>` +
-      `<div class="tot">Total push${moved ? "" : " so far"}: ${tot >= 0 ? "↑" : "↓"} ${Math.abs(tot).toFixed(2)}` +
-      (moved ? ` → it moved by 10 × ${Math.abs(tot).toFixed(2)} ÷ 44 = ${(LR * Math.abs(tot) / N).toFixed(2)}: <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
+    const tot = grad[W.t][W.r][W.k];
+    btn("osWatch").innerHTML = `<div class="title">Watching one shared box: <b><code>_ _ t → ␣</code></b> (last table). Every example ending in t writes its gradient here:</div>` +
+      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${sgn(c.v)} ${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">nothing yet</span>`}</div>` +
+      `<div class="tot">Total gradient${moved ? "" : " so far"}: ${sgn(tot)} ${tot < 0 ? "↑" : "↓"}` +
+      (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
     btn("osNext").hidden = done; btn("osAll").hidden = done;
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
     btn("osResult").innerHTML = moved
       ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Did the guesses get better?<table class="os-prog">${WATCH.map((w, j) => { const ex = m.examples[TEXT.indexOf(w)]; return `<tr><td>“${w}” → ${nm(CHARS[ex.next])}</td><td>${P(before.ch[j])} → <b>${P(chanceRight(w))}</b></td></tr>`; }).join("")}</table>`
-      : done ? `All 44 pushes are written down. Now move every box once.`
-      : `Step ${stepNo + 1}: ${noted} of ${N} examples written down. No box has moved yet.`;
+      : done ? `All 44 gradients are found. Now move every box once.`
+      : `Step ${stepNo + 1}: ${noted} of ${N} examples done. No box has moved yet.`;
   }
   btn("osNext").onclick = () => { note(noted); noted += 1; render(); };
   btn("osAll").onclick = () => { while (noted < N) { note(noted); noted += 1; } render(); };
   btn("osMove").onclick = () => {
-    for (let t = 0; t < 3; t++) for (let r = 0; r < VOCAB; r++) for (let k = 0; k < VOCAB; k++) m.tables[t][r][k] += LR * push[t][r][k] / N;
+    for (let t = 0; t < 3; t++) for (let r = 0; r < VOCAB; r++) for (let k = 0; k < VOCAB; k++) m.tables[t][r][k] -= LR * grad[t][r][k] / N;
     moved = true; stepNo += 1; render();
   };
   btn("osAgain").onclick = () => { startStep(); render(); };
@@ -890,19 +900,19 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     { run: () => { if (stepNo) reset(); goTo(1); }, at: () => textBox,
       say: "<b>What's this for?</b> This is how the text teaches your model. A window of 3 letters slides along our text. Each position is one example. The first: “the”, followed by a space." },
     { run: () => { if (stepNo) reset(); goTo(1); }, at: () => btn("osPush"), keep: () => textBox,
-      say: () => { const ex = m.examples[0], p = chancesOf(ex); return `Your model gave space only <b>${P(p[ex.next])}</b> after “the”. It should be 100%. The gap, 1 − ${(p[ex.next]).toFixed(3)} = <b>${(1 - p[ex.next]).toFixed(3)}</b>, is the push up for space's 3 boxes. The bigger the mistake, the bigger the push.`; } },
+      say: () => { const ex = m.examples[0], p = chancesOf(ex); return `Your model gave space only <b>${P(p[ex.next])}</b> after “the”. Its goal is 1. The gradient is chance − goal = ${(p[ex.next]).toFixed(3)} − 1 = <b>${(p[ex.next] - 1).toFixed(3)}</b> for each of space's 3 boxes. Negative: up. The bigger the mistake, the bigger the number.`; } },
     { run: () => { if (stepNo) reset(); goTo(1); }, at: () => btn("osWatch"),
-      say: "Now watch one box: <code>_ _ t → ␣</code>. It's shared: every example that ends in t uses it. Each one writes its push here." },
+      say: "Now watch one box: <code>_ _ t → ␣</code>. It's shared: every example that ends in t uses it. Each one writes its gradient here." },
     { run: () => { if (stepNo) reset(); goTo(iOf("cat") + 1); }, at: () => btn("osWatch"), keep: () => textBox,
-      say: () => `Example ${iOf("cat") + 1}, “cat”, is followed by a space, so it pushes this box <b>up</b> ${chips[chips.length - 1].v.toFixed(2)}.` },
+      say: () => `Example ${iOf("cat") + 1}, “cat”, is followed by a space, so its gradient for this box is <b>${sgn(chips[chips.length - 1].v)}</b>: up.` },
     { run: () => { if (stepNo) reset(); goTo(iOf("mat") + 1); }, at: () => btn("osWatch"), keep: () => textBox,
-      say: () => `Example ${iOf("mat") + 1}, “mat”, is followed by a full stop, not a space. So it pushes this box <b>down</b>, by its chance of space: ${Math.abs(chips[chips.length - 1].v).toFixed(2)}. Opposite directions: they will partly cancel.` },
+      say: () => `Example ${iOf("mat") + 1}, “mat”, is followed by a full stop, not a space. Its goal for space is 0, so the gradient is chance − 0 = <b>${sgn(chips[chips.length - 1].v)}</b>: down. Opposite directions: they will partly cancel.` },
     { run: () => { if (stepNo) reset(); goTo(N); }, at: () => btn("osWatch"),
-      say: () => `All 44 examples are written down. This box's pushes add up to <b>↑ ${push[W.t][W.r][W.k].toFixed(2)}</b>. Still, nothing has moved yet.` },
+      say: () => `All 44 examples are written down. This box's gradients add up to <b>${sgn(grad[W.t][W.r][W.k])}</b> (up). Still, nothing has moved yet.` },
     { run: () => { if (stepNo) reset(); goTo(N); }, at: () => btn("osMove"), click: () => btn("osMove"),
-      say: "Now move every box once, by its total push." },
+      say: "Now move every box once, by its average gradient × 10." },
     { at: () => btn("osResult"), keep: () => btn("osWatch"),
-      say: () => `Every box moved once. This box: ${fmt(before.box)} → <b>${fmt(m.tables[W.t][W.r][W.k])}</b> (10 × ${push[W.t][W.r][W.k].toFixed(2)} ÷ 44). And the guesses got better, see the list. That was <b>one learning step</b>. The next page repeats it 300 times.` },
+      say: () => `Every box moved once. This box: ${fmt(before.box)} → <b>${fmt(m.tables[W.t][W.r][W.k])}</b> (old − 10 × (${sgn(grad[W.t][W.r][W.k])}) ÷ 44). And the guesses got better, see the list. That was <b>one learning step</b>. The next page repeats it 300 times.` },
   ], { id: "l5-onestep" });
 })();
 
