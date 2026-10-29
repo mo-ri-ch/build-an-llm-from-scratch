@@ -744,14 +744,14 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   function render() {
     const real = GROUPS.find(x => x.g === g).next, cands = [".", " "];
     const sums = cands.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0));
-    let chances;
-    if (mode === "count") { const all = CHARS.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0)), tot = all.reduce((a, b) => a + b, 0); chances = cands.map(c => all[CHAR_TO_NUMBER[c]] / tot); }
+    let chances, all = [], tot = 0;
+    if (mode === "count") { all = CHARS.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0)); tot = all.reduce((a, b) => a + b, 0); chances = cands.map(c => all[CHAR_TO_NUMBER[c]] / tot); }
     else { const p = learned.predict(g); chances = cands.map(c => p[CHAR_TO_NUMBER[c]]); }
     const win = sums[0] >= sums[1] ? 0 : 1;
     box.innerHTML = cands.map((c, i) => `<div class="sh-line"><div class="sh-name">→ ${sc(c)}<small>${nm(c)}${c === real ? ", the right answer" : ""}</small></div>` +
       [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") +
         `<div class="sh-card ${t > 0 ? "shared" : ""} ${point && point[0] === t && point[1] === c ? "pointed" : ""}" data-t="${t}" data-c="${c}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ${sc(c)}</div><div class="sh-num" style="${val(t, c) < 0 ? "color:var(--redpen)" : ""}">${show(val(t, c))}</div><div class="sh-tab">${POS[t]} table</div></div>`).join("") +
-      `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? "chance (sum ÷ all sums)" : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
+      `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? `<span data-peek="${(`<b>${show(sums[i])} ÷ ${tot}</b> = ${chances[i].toFixed(3)} ≈ <b>${Math.round(chances[i] * 100)}%</b><br>This letter's sum, divided by the sums of all ${CHARS.length} next letters added up. Those sums: ` + CHARS.filter(c => all[CHAR_TO_NUMBER[c]]).map(c => `${showChar(c)} ${all[CHAR_TO_NUMBER[c]]}`).join(" + ") + ` = ${tot}`).replace(/"/g, "&quot;")}">chance (sum ÷ all sums)</span>` : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
     const right = cands.indexOf(real) === win;
     note.innerHTML = (mode === "count"
       ? (right ? `Counting picks the right letter for “${g}”, but it still gives a full stop ${Math.round(chances[0] * 100)}%, though the text always has a space. ` : `<b>Counting gets “${g}” wrong:</b> a space wins, but the text says a full stop. `) + `Green boxes are shared with other groups, like ${["cat", "sat", "mat"].filter(x => x !== g).map(x => groupLabel(x)).join(" and ")}.`
