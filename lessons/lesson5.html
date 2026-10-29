@@ -263,6 +263,35 @@
         <div class="box-card"><div class="box-label">One giant table (every 3-letter group × 14 next letters)</div><div class="box-num huge">38,416</div></div>
         <div class="box-card"><div class="box-label">Three small tables (3 × 14 × 14)</div><div class="box-num small">588</div></div>
       </div>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 1">
+      <h2>✏️ Practice 1</h2>
+      <p class="say">New numbers, same ideas. The 14 characters become 10, and softmax means <code>e</code> to the power of each score, divided by the sum.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="300" data-tol="0.5" data-hint="Each table has one row per letter and one column per next letter." data-work="3 × 10 × 10 = 300.">
+          <div class="pq-q">A text has only 10 characters, and the model looks at the last 3. How many numbers do the <b>three small tables</b> need?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="10000" data-tol="0.5" data-hint="One row for every 3-letter group, one column for every next letter." data-work="10 × 10 × 10 groups × 10 next letters = 10,000.">
+          <div class="pq-q">How many numbers would a <b>giant table</b> need for the same text?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.73" data-tol="0.01" data-hint="Add each letter's three scores first. Then chance = e<sup>score</sup> ÷ (sum of both e<sup>score</sup>)." data-work="x: 1 + 0 + 1 = 2. y: 0 + 2 − 1 = 1. e² ÷ (e² + e¹) = 7.39 ÷ 10.11 = 0.73.">
+          <div class="pq-q">Only 2 letters can come next, <b>x</b> and <b>y</b>. The three rows give x the scores 1, 0, 1 and y the scores 0, 2, −1. After adding the rows, what is x's chance?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="4" data-tol="0.1" data-hint="A group improves if it uses at least one row that “cat” used. Compare letter by position." data-work="cot (c, t), bat (a, t), car (c, a) and sat (a, t) each share a row. dog shares none. So 4.">
+          <div class="pq-q">You train only on “cat”. Of “cot”, “bat”, “dog”, “car” and “sat”, how many improve without being trained?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Could we fill these 588 numbers just by counting?</p>
     </section>
 
@@ -335,6 +364,35 @@
       </div>
       <p class="say">588 numbers reach almost the same chances as the giant table. Train more and they get even closer.</p>
       <p class="say">Try “hat”: it isn't in our text, yet your model guesses a space, thanks to the rows it shares with “cat”, “sat” and “mat”.</p>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice 2">
+      <h2>✏️ Practice 2</h2>
+      <p class="say">One box, used by several examples. The gradients are added up, divided by the number of examples, and the box moves by learning rate × that average.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="-0.125" data-tol="0.005" data-hint="Add the four gradients, then divide by 4." data-work="(0.5 + 0.5 − 0.5 − 1.0) ÷ 4 = −0.5 ÷ 4 = −0.125.">
+          <div class="pq-q">One box is used by 4 examples, with gradients <b>+0.5, +0.5, −0.5</b> and <b>−1.0</b>. What is the average gradient?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="1.25" data-tol="0.01" data-hint="new = old − 10 × average gradient. The average is negative." data-work="10 × 0.125 = 1.25, up.">
+          <div class="pq-q">Learning rate 10. How far does that box move? (Up is positive.)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0" data-tol="0.001" data-hint="The gradients are added up before anything moves." data-work="+0.4 − 0.4 = 0. They cancel, so the box doesn't move.">
+          <div class="pq-q">Two examples use the same box, with gradients <b>+0.4</b> and <b>−0.4</b>. How far does the box move?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.75" data-tol="0.01" data-hint="Add the 11 gradients, divide by all 44, then multiply by the learning rate." data-work="−3.3 ÷ 44 = −0.075. 10 × 0.075 = 0.75, up.">
+          <div class="pq-q">The text has <b>44 examples</b>. A box is used by 11 of them, each with gradient <b>−0.3</b>. Learning rate 10. How far does it move (up is positive)?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Now let it write.</p>
     </section>
 
@@ -487,7 +545,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#5" data-topic="Why not count them?" data-right="Right. Each row is only one part of a sum. A count can't say how big each part should be.">
+        <div class="quiz" data-page="lesson5.html#6" data-topic="Why not count them?" data-right="Right. Each row is only one part of a sum. A count can't say how big each part should be.">
           <div class="q"><small>5. Why learn?</small>Why can't the 3 tables be filled by counting?</div>
           <div class="options">
             <button data-why="Counting 588 boxes is easy. The problem is what the numbers mean.">There are too many numbers to count</button>
@@ -496,7 +554,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#6" data-topic="One learning step" data-right="Right. Every example finds its gradient for the box, the gradients are added up and divided by 44 (the average), and the box moves once: new = old − 10 × average.">
+        <div class="quiz" data-page="lesson5.html#7" data-topic="One learning step" data-right="Right. Every example finds its gradient for the box, the gradients are added up and divided by 44 (the average), and the box moves once: new = old − 10 × average.">
           <div class="q"><small>6. One step</small>A shared box gets a gradient from each of the 44 examples. How does it move in one step?</div>
           <div class="options">
             <button data-why="The boxes don't move after each example. The gradients are collected first.">After every example, by that example's gradient</button>
@@ -505,7 +563,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#7" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
+        <div class="quiz" data-page="lesson5.html#8" data-topic="Let it learn" data-right="Right. “hat” shares row a (second-last table) and row t (last table) with cat, sat and mat, and those rows learned that a space comes next.">
           <div class="q"><small>7. Never seen</small>“hat” never appears in our text, yet your model guesses a space after it. Why?</div>
           <div class="options">
             <button data-why="Nothing was counted. And a counting table's row for “hat” would be empty.">It counted “hat” somewhere</button>
@@ -550,6 +608,7 @@ the mat. the cat sat on the dog sat on the </pre></div>
 
 <script src="../assets/tinylm.js?v=202610241"></script>
 <script src="../assets/course.js?v=202610242"></script>
+<script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>

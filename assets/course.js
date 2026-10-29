@@ -15,7 +15,7 @@ const COURSE_LESSONS = [
   { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true, test: 13,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
     leaves: "Your model can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },
-  { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: true, test: 10,
+  { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: true, test: 12,
     summary: "Three small tables, one per letter, add up to one guess.",
     leaves: "Each letter adds its own scores, without looking at the others. How can your model understand letters together?" },
   { n: 6, step: "meaning", title: "Embeddings", file: "lesson6.html", ready: false,
