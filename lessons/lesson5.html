@@ -298,7 +298,7 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">One step, the same four as in the last lesson:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses.<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move</b> every box by the average of its gradients.</p>
+      <p class="say">One step has four parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses (next page).<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move:</b> the gradients are added up, so opposite ones cancel. Dividing by 44 gives the average. Every box then moves once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. The boxes don't move after each example.</p>
       <div class="activity">
         <div class="do">Press “Next example”. Watch the gradients add up. After all 44, move the boxes.</div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
@@ -313,8 +313,7 @@
         </div>
         <div class="sh-result" id="osResult"></div>
       </div>
-      <p class="say">The boxes don't move after each example. The gradients are <b>added up</b> first, so opposite ones cancel out. Dividing by 44 gives the average. Then every box moves once, by<br><b class="eqbox">new = old − 10 × (total gradient ÷ 44)</b><br>10 is the learning rate: how big each move is.</p>
-      <p class="hook">That was one step. Now repeat it 300 times.</p>
+      <p class="hook">That was one step. Next: repeat it 300 times.</p>
     </section>
 
     <!-- 7 -->
