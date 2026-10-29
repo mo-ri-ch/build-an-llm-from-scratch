@@ -56,9 +56,8 @@
         <div class="tiles" id="vocabTiles"></div>
         <div class="out" id="vocabOut"></div>
       </div>
-      <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows.</p>
+      <p class="say">This list is the <mark>vocabulary</mark>. It's every character the model knows, like <span data-peek="Your model will learn from this same sentence in every lesson, so these 14 characters will come back.">these 14</span>.</p>
       <p class="note">The blank tile is the space. It's a character too.</p>
-      <p class="say">Your model will learn from this same sentence in every lesson, so these 14 characters will come back.</p>
       <p class="hook">Each character has a number now. Let's turn whole words into numbers.</p>
     </section>
 
@@ -78,8 +77,11 @@
       </div>
       <p class="say"><b>Encode:</b> text → numbers. <b>Decode:</b> numbers → text.</p>
 
-      <div class="quiz" data-right="Right. There's no “p” in our text, so “help” can't be encoded.">
-        <div class="q">Guess first, then try both in the box above. Which one crashes?</div>
+      <div hidden id="vocabPeek"><b>🤔 What if a character isn't in the vocabulary?</b>
+        <p style="margin:6px 0 0">There is no number for it, so <code>encode</code> gives an error (like “help”: no p). A model can only use characters in its vocabulary, so the text must have every character we need.</p>
+      </div>
+      <div class="quiz" style="position:relative" data-right="Right. There's no “p” in our text, so “help” can't be encoded.">
+        <div class="q">Guess first, then try both in the box above. Which one crashes?<button class="doubt" type="button" data-peek-from="vocabPeek" aria-label="What if a character isn't in the vocabulary?">🤔</button></div>
         <div class="options">
           <button data-why="All of h, o, l, d are in our text. Try typing it.">hold</button>
           <button data-right>help</button>
@@ -87,7 +89,35 @@
         </div>
         <div class="feedback"></div>
       </div>
-      <p class="note">A model can only use characters in its vocabulary. So we make sure our text has every character we need.</p>
+      <p class="hook">Try it on new text.</p>
+    </section>
+
+    <section class="part" data-title="✏️ Practice">
+      <h2>✏️ Practice</h2>
+      <p class="say">New text, same ideas. Numbers start at 0.</p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="5" data-tol="0.1" data-hint="List each character once: a repeat is not a new character." data-work="b, a, n, the space and d: 5.">
+          <div class="pq-q">How many different characters are in <code>"banana band"</code>? The space counts.</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="9" data-tol="0.1" data-hint="Numbers start at 0, with the space." data-work="␣ 0, . 1, a 2, c 3, d 4, e 5, g 6, h 7, l 8, m 9.">
+          <div class="pq-q">In our vocabulary, what number does <b>m</b> get? (The characters are sorted: ␣ . a c d e g h l m n o s t.)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="27" data-tol="0.1" data-hint="Encode each letter first: s, a, t. Then add." data-work="s = 12, a = 2, t = 13. 12 + 2 + 13 = 27.">
+          <div class="pq-q">What is the sum of the numbers in <code>encode("sat")</code>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="2" data-tol="0.1" data-hint="Find the different characters first. The space and “.” sort before the letters." data-work="The different characters, sorted: ␣ . g o t. So ␣ is 0, “.” is 1 and g is 2.">
+          <div class="pq-q">A new text is <code>"to go."</code>. Its characters are sorted the same way. What number does <b>g</b> get?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -227,6 +257,7 @@ tensor([13,  7,  5,  0,  3,  2, 13,  0, 12,  2, 13,  0, 11, 10,  0, 13,  7,  5,
 </nav>
 
 <script src="../assets/course.js"></script>
+<script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>

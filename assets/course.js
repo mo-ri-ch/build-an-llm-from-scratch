@@ -6,7 +6,7 @@ const COURSE_LESSONS = [
   { n: 1, step: "numbers", title: "Tensors", file: "lesson1.html", ready: true, test: 8,
     summary: "A box that holds numbers and does math on all of them at once.",
     leaves: "An LLM reads text, but tensors hold only numbers. How do we turn text into numbers?" },
-  { n: 2, step: "text to numbers", title: "Text into numbers", file: "lesson2.html", ready: true, test: 5,
+  { n: 2, step: "text to numbers", title: "Text into numbers", file: "lesson2.html", ready: true, test: 6,
     summary: "Give every character a number. Turn text into numbers and back.",
     leaves: "An LLM's whole job is guessing the next character. Now that text is numbers, how do we make our first guess?" },
   { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true, test: 6,
