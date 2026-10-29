@@ -390,10 +390,42 @@
         <p style="margin:6px 0 0">Here counting is quicker: <b>one</b> pass through the text, against <b>300</b> for learning.</p>
         <p style="margin:6px 0 0">But learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. So it still works where numbers can't be counted, coming in Lesson 5.</p>
       </div>
-      <p class="hook">Here's all of it in Python.</p>
+      <p class="hook">The real code averages a little differently.</p>
     </section>
 
     <!-- 8 -->
+    <section class="part" data-title="Averaging all 46">
+      <h2>Averaging all 46</h2>
+      <p class="say">So far, row <code>t</code> averaged over <b>its own 8 pairs</b>. The usual way averages <b>every</b> row over <b>all 46 pairs</b>, the same average the loss already uses.</p>
+      <p class="say">Row <code>t</code> has 8 of the 46 pairs, so its gradient shrinks by 8/46: h's <b>−0.367</b> becomes −0.367 × 8/46 = <b>−0.064</b>.</p>
+      <p class="say">Smaller gradients, so steps are smaller. The fix is a bigger learning rate: the code uses <b>10</b>. Try both ways.</p>
+      <div class="activity" id="avgAct">
+        <div class="do">Pick how to average and the learning rate. Press Train.</div>
+        <div class="row">
+          <label>Average over
+            <select id="avgHow" style="font:inherit;padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
+              <option value="own" selected>its own pairs</option>
+              <option value="all">all 46 pairs</option>
+            </select>
+          </label>
+          <label>Learning rate
+            <select id="avgLr" style="font:inherit;font-family:var(--mono);padding:4px 8px;border:2px solid var(--ink);border-radius:var(--radius);background:var(--paper);color:var(--ink)">
+              <option value="1" selected>1</option>
+              <option value="10">10</option>
+            </select>
+          </label>
+          <button class="primary" id="avgTrain">Train 300 steps</button>
+        </div>
+        <div class="muted">First step, gradient of h in row <code>t</code>: <b id="avgG1">–</b></div>
+        <div class="muted" style="margin-top:8px">The chances after <code>t</code>. Green dashed marks = what counting gives.</div>
+        <div class="bars" id="avgBars"></div>
+        <div class="score-line"><div>Steps<b id="avgSteps">0</b></div><div>Loss (all 46 pairs)<b id="avgLoss">3.0865</b></div></div>
+      </div>
+      <p class="say">Averaging over all 46 with learning rate 10 gets there, the same place. Learning rate 1 with it is too slow.</p>
+      <p class="hook">Now the code makes sense.</p>
+    </section>
+
+    <!-- 9 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
       <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
@@ -459,7 +491,7 @@ Step 250 loss: 0.709
           <li><code>loss.backward()</code>: fills <code>weights.grad</code> with a gradient for every score.</li>
           <li><code>weights.data - learning_rate * weights.grad</code>: the minus flips the sign, so negative goes up.</li>
         </ul>
-        <p style="margin:6px 0 0"><b>Why learning rate 10, not 1?</b> <code>cross_entropy</code> averages over all 46 pairs, not each row's own pairs. So row <code>t</code>'s gradients come out × 8/46 (8 of the 46 pairs), row space's × 11/46. Smaller steps, same end. The bigger learning rate makes up for it.</p>
+        <p style="margin:6px 0 0"><b>Why learning rate 10?</b> <code>cross_entropy</code> averages over all 46 pairs (the last page), so gradients are smaller and the learning rate is bigger.</p>
       </div>
       <p class="run-links">
         <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson4.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
@@ -851,6 +883,28 @@ function bar(label, p, target, frac) {
   document.getElementById("step1").onclick = () => run(1);
   lrSel.onchange = () => { model.reset(); last = first = null; render(); showMath(); };
   addReset(lrSel, () => { lrSel.value = "1"; model.reset(); last = first = null; render(); showMath(); });
+  render();
+})();
+
+
+// ---------- 7b: averaging over all 46 ----------
+(function avgAll() {
+  const model = new OneCharModel(), T = CHAR_TO_NUMBER["t"], H = CHAR_TO_NUMBER["h"], $ = id => document.getElementById(id);
+  const how = $("avgHow"), lrS = $("avgLr"); let g1 = null;
+  function render() {
+    const p = model.probabilities(T), want = { " ": 3 / 8, ".": 1 / 8, "h": 4 / 8, "l": 0 };
+    $("avgBars").innerHTML = Object.keys(want).map(c => bar(c === "." ? "full stop" : showChar(c), p[CHAR_TO_NUMBER[c]], want[c] || undefined, true)).join("");
+    $("avgSteps").textContent = model.step; $("avgLoss").textContent = model.loss().toFixed(4);
+    $("avgG1").textContent = g1 === null ? "–" : (g1 < 0 ? "−" : "+") + Math.abs(g1).toFixed(3);
+  }
+  function reset() { model.reset(); g1 = null; render(); }
+  $("avgTrain").onclick = () => {
+    model.reset(); g1 = null;
+    for (let i = 0; i < 300; i++) { const r = model.trainStep(Number(lrS.value), how.value === "own"); if (i === 0) g1 = r.grad[T][H]; }
+    render();
+  };
+  how.onchange = reset; lrS.onchange = reset;
+  addReset($("avgAct"), () => { how.value = "own"; lrS.value = "1"; reset(); });
   render();
 })();
 

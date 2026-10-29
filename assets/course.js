@@ -12,7 +12,7 @@ const COURSE_LESSONS = [
   { n: 3, step: "first guess", title: "Counting what comes next", file: "lesson3.html", ready: true, test: 6,
     summary: "Count which character follows which, then generate text.",
     leaves: "Counting can't look further back, and the smarter model's numbers can't be counted. How can your model find numbers without counting?" },
-  { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true, test: 9,
+  { n: 4, step: "learning", title: "Let the model learn", file: "lesson4.html", ready: true, test: 10,
     summary: "Start random. Predict, measure, find directions, move. Repeat.",
     leaves: "Your model can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },
   { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: true, test: 10,
