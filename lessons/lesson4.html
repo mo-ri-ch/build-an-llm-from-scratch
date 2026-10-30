@@ -362,31 +362,31 @@
 
     <section class="part" data-nonum data-title="✏️ Practice 4.2">
       <h2>✏️ Practice 4.2</h2>
-      <p class="say">Row <code>x</code> has 4 pairs. Three are followed by <code>p</code> and one by <code>q</code>. Only p and q exist. Their scores start equal, so each chance is 1/2.</p>
+      <p class="say">Row <code>x</code> has 4 pairs: <code>x → p</code>, <code>x → p</code>, <code>x → p</code> and <code>x → q</code>. Only p and q exist, and their scores start equal, so each chance is 1/2.<br>Remember: <b class="eqbox">gradient = chance − goal</b></p>
       <div class="activity">
         <div class="do">Work each one out. Type the answer, press Check.</div>
-        <div class="pq" data-ans="-0.25" data-tol="0.01" data-hint="Each pair gives chance − goal. For p, three pairs have goal 1 and one pair has goal 0. Add the four, then divide by 4." data-work="(3 × (0.5 − 1) + 1 × (0.5 − 0)) ÷ 4 = (−1.5 + 0.5) ÷ 4 = −0.25.">
-          <div class="pq-q">What is <code>p</code>'s gradient, averaged over the 4 pairs?</div>
+        <div class="pq" data-ans="-0.5" data-tol="0.01" data-hint="gradient = chance − goal = 1/2 − 1." data-work="1/2 − 1 = −0.5.">
+          <div class="pq-q">For a pair <code>x → p</code>, p's goal is 1. What is <code>p</code>'s gradient for that pair?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="new score = old score − learning rate × gradient." data-work="2 × 0.25 = 0.5.">
-          <div class="pq-q">With learning rate 2, by how much does <code>p</code>'s score go <b>up</b>?</div>
+        <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="gradient = chance − goal = 1/2 − 0." data-work="1/2 − 0 = +0.5.">
+          <div class="pq-q">For the pair <code>x → q</code>, p's goal is 0. What is <code>p</code>'s gradient for that pair?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="3/4" data-tol="0.01" data-hint="Gradient = chance − (share of pairs wanting p). Set it to 0." data-work="The pushes cancel when chance = the share of pairs wanting p: 3 of 4 = 0.75.">
-          <div class="pq-q">At what chance for <code>p</code> does its gradient become 0? (Think: what do the pairs' pushes need to do?)</div>
+        <div class="pq" data-ans="-0.25" data-tol="0.01" data-hint="Add the four: three of −0.5 and one of +0.5. Then divide by 4." data-work="(−0.5 − 0.5 − 0.5 + 0.5) ÷ 4 = −1.0 ÷ 4 = −0.25.">
+          <div class="pq-q">Average the four pairs' gradients for <code>p</code>. What do you get?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="-2/3" data-tol="0.01" data-hint="The chances are equal. gradient = chance − goal, and b's goal is 1." data-work="1/3 − 1 = −2/3.">
-          <div class="pq-q">New problem: 3 letters a, b, c, all with score 0. The right answer is <b>b</b>. What is b's gradient?</div>
+        <div class="pq" data-ans="3/4" data-tol="0.01" data-hint="Its pairs push p up 3 times out of 4. The average is 0 when the chance equals that share." data-work="The pushes cancel when chance = the share of pairs wanting p: 3 of 4 = 0.75.">
+          <div class="pq-q">At what chance for <code>p</code> does its average gradient become 0?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="0.91" data-tol="0.01" data-hint="chance = e^score ÷ sum of e^scores. e² = 7.39, e⁻¹ = 0.37." data-work="7.39 ÷ (7.39 + 0.37 + 0.37) = 0.91. From 1/3 to 0.91 in one step.">
-          <div class="pq-q">Learning rate 3, one step. What is b's new chance? (a and c each go to −1, b to 2.)</div>
+        <div class="pq" data-ans="-2/3" data-tol="0.01" data-hint="gradient = chance − goal, and b's goal is 1." data-work="1/3 − 1 = −2/3.">
+          <div class="pq-q">New problem: 3 letters a, b, c, all with score 0, so each chance is 1/3. The right answer is <b>b</b>. What is b's gradient?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
@@ -443,6 +443,35 @@
         <p style="margin:6px 0 0">Here counting is quicker: <b>one</b> pass through the text, against <b>300</b> for learning.</p>
         <p style="margin:6px 0 0">But learning never asks “how many times did this pair appear?”. It only asks “should this score go up or down?”. So it still works where numbers can't be counted, coming in Lesson 5.</p>
       </div>
+      <p class="hook">Try it on new numbers.</p>
+    </section>
+
+    <section class="part" data-nonum data-title="✏️ Practice 4.3">
+      <h2>✏️ Practice 4.3</h2>
+      <p class="say">The move rule: <b class="eqbox">new score = old score − learning rate × gradient</b></p>
+      <div class="activity">
+        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="Put the numbers in: new score = old score − 2 × (−0.25). How much was added to the old score?" data-work="−2 × (−0.25) = +0.5. A negative gradient moves the score up.">
+          <div class="pq-q">Row <code>x</code> from the last practice: <code>p</code>'s gradient is −0.25. With learning rate 2, by how much does <code>p</code>'s score go <b>up</b>?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="2" data-tol="0.01" data-hint="new score = 0 − 3 × (−2/3)." data-work="0 − 3 × (−2/3) = 2.">
+          <div class="pq-q">Three letters a, b, c start with score 0. The right answer is b, and the gradients are a +1/3, b −2/3, c +1/3. With learning rate 3, what is b's new score?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="-1" data-tol="0.01" data-hint="new score = 0 − 3 × (1/3)." data-work="0 − 3 × (1/3) = −1.">
+          <div class="pq-q">Same problem: what is a's new score? (c's is the same.)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="0.91" data-tol="0.01" data-hint="chance = e^score ÷ the sum of all three e^scores." data-work="7.39 ÷ (7.39 + 0.37 + 0.37) = 0.91. From 1/3 to 0.91 in one step.">
+          <div class="pq-q">The new scores are a −1, b 2, c −1. What is b's new chance? (<code>e²</code> = 7.39, <code>e⁻¹</code> = 0.37)</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
       <p class="hook">The real code averages a little differently.</p>
     </section>
 
@@ -478,9 +507,9 @@
       <p class="hook">Try it on new numbers.</p>
     </section>
 
-    <section class="part" data-nonum data-title="✏️ Practice 4.3">
-      <h2>✏️ Practice 4.3</h2>
-      <p class="say">Row <code>x</code> again, but now the text has <b>20 pairs</b> in all, and the average is over all 20.</p>
+    <section class="part" data-nonum data-title="✏️ Practice 4.4">
+      <h2>✏️ Practice 4.4</h2>
+      <p class="say">Row <code>x</code> again: 4 pairs, with 3 followed by <code>p</code>. But now the text has <b>20 pairs</b> in all, and the average is over all 20.</p>
       <div class="activity">
         <div class="do">Work each one out. Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.05" data-tol="0.005" data-hint="Last time (own 4 pairs) it was −0.25. Now the same pushes are divided by 20 instead of 4." data-work="−0.25 × 4/20 = −0.05.">
