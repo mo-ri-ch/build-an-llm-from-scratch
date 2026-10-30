@@ -272,7 +272,7 @@
       <h2>✏️ Practice 4.1</h2>
       <p class="say">New numbers, same ideas.<br>Remember: <b class="eqbox">loss = −log(chance)</b> (the <code>ln</code> button on a calculator)<br>The loss of several pairs is the <b>average</b> of their losses.</p>
       <div class="activity">
-        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="2" data-tol="0.02" data-hint="Work out each loss: loss = −log(chance), then divide B's by A's." data-work="A: −ln(1/2) = 0.693. B: −ln(1/4) = 1.386. 1.386 ÷ 0.693 = 2. Halving the chance doubles the loss.">
           <div class="pq-q">Pair A gives the right letter a chance of <b>1/2</b>. Pair B gives it <b>1/4</b>. How many times bigger is B's loss than A's?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
@@ -364,7 +364,7 @@
       <h2>✏️ Practice 4.2</h2>
       <p class="say">Row <code>x</code> has 4 pairs: <code>x → p</code>, <code>x → p</code>, <code>x → p</code> and <code>x → q</code>. Only p and q exist, and their scores start equal, so each chance is 1/2.<br>Remember: <b class="eqbox">gradient = chance − goal</b> (goal: 1 for the right letter, 0 for the others)<br>A row's gradient is the <b>average</b> of its pairs' gradients: add them up, divide by the number of pairs.</p>
       <div class="activity">
-        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.5" data-tol="0.01" data-hint="gradient = chance − goal = 1/2 − 1." data-work="1/2 − 1 = −0.5.">
           <div class="pq-q">For a pair <code>x → p</code>, p's goal is 1. What is <code>p</code>'s gradient for that pair?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
@@ -450,7 +450,7 @@
       <h2>✏️ Practice 4.3</h2>
       <p class="say">Remember: <b class="eqbox">new score = old score − learning rate × gradient</b><br><b class="eqbox">gradient = chance − goal</b><br><b class="eqbox">chance = e<sup>score</sup> ÷ (sum of all e<sup>score</sup>)</b></p>
       <div class="activity">
-        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="0.5" data-tol="0.01" data-hint="Put the numbers in: new score = old score − 2 × (−0.25). How much was added to the old score?" data-work="−2 × (−0.25) = +0.5. A negative gradient moves the score up.">
           <div class="pq-q">Row <code>x</code> from the last practice: <code>p</code>'s gradient is −0.25. With learning rate 2, by how much does <code>p</code>'s score go <b>up</b>?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
@@ -511,7 +511,7 @@
       <h2>✏️ Practice 4.4</h2>
       <p class="say">Row <code>x</code> again: 4 pairs, with 3 followed by <code>p</code>. But now the text has <b>20 pairs</b> in all, and the average is over all 20.<br>Remember: <b class="eqbox">gradient = sum of the pairs' gradients ÷ all 20 pairs</b><br><b class="eqbox">new score = old score − learning rate × gradient</b></p>
       <div class="activity">
-        <div class="do">Work each one out. Type the answer, press Check.</div>
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.05" data-tol="0.005" data-hint="Last time (own 4 pairs) it was −0.25. Now the same pushes are divided by 20 instead of 4." data-work="−0.25 × 4/20 = −0.05.">
           <div class="pq-q">What is <code>p</code>'s gradient now? (Its 4 pairs are 4 of the 20.)</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
