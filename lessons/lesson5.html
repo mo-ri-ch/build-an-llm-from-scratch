@@ -268,7 +268,7 @@
 
     <section class="part" data-nonum data-title="✏️ Practice 5.1">
       <h2>✏️ Practice 5.1</h2>
-      <p class="say">New numbers, same ideas. The 14 characters become 10, and softmax means <code>e</code> to the power of each score, divided by the sum.</p>
+      <p class="say">New numbers, same ideas.<br>Remember: a table holds rows × columns numbers.<br>A group uses one row from each table, picked by the letter at that position.<br><b class="eqbox">chance = e<sup>score</sup> ÷ (sum of all e<sup>score</sup>)</b></p>
       <div class="activity">
         <div class="do">Work each one out. Type the answer, press Check.</div>
         <div class="pq" data-ans="300" data-tol="0.5" data-hint="Each table has one row per letter and one column per next letter." data-work="3 × 10 × 10 = 300.">
@@ -369,7 +369,7 @@
 
     <section class="part" data-nonum data-title="✏️ Practice 5.2">
       <h2>✏️ Practice 5.2</h2>
-      <p class="say">One box, used by several examples. The gradients are added up, divided by the number of examples, and the box moves by learning rate × that average.</p>
+      <p class="say">One box, used by several examples.<br>Remember: <b class="eqbox">average gradient = sum of gradients ÷ number of examples</b><br><b class="eqbox">new = old − learning rate × average gradient</b></p>
       <div class="activity">
         <div class="do">Work each one out. Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.125" data-tol="0.005" data-hint="Add the four gradients, then divide by 4." data-work="(0.5 + 0.5 − 0.5 − 1.0) ÷ 4 = −0.5 ÷ 4 = −0.125.">
