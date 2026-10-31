@@ -124,12 +124,6 @@
   .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
   .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
   .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
-  .incode { margin: 14px 0 8px; padding: 8px 14px 4px; border-left: 4px solid var(--pen, #3b5bdb); background: color-mix(in srgb, var(--pen, #3b5bdb) 5%, transparent); border-radius: 0 var(--radius, 8px) var(--radius, 8px) 0; }
-  .incode-label { font-family: var(--head); font-size: 1.05rem; color: var(--pencil); }
-  .incode pre { margin: 6px 0; }
-  .incode .run-area { margin: 0 0 8px; }
-  .incode-setup { margin: 6px 0; font-size: 0.9rem; color: var(--pencil); }
-  .incode-setup summary { cursor: pointer; }
 </style>
 </head>
 <body data-pen="orange">
@@ -170,6 +164,28 @@
         <tr><td>Random <mark>scores</mark></td><td>0.48</td><td>1.35</td><td>−0.16</td><td>−0.42</td><td>0.94</td><td>−0.18</td><td>0.19</td><td>1.07</td><td>1.31</td><td>0.46</td><td>0.26</td><td>−0.76</td><td>−2.05</td><td>−1.53</td></tr>
       </table></div>
       <p class="say">A score for <b>every</b> letter, even ones that never follow <code>t</code>: 14 rows × 14 = <b>196 scores</b>. Any number, even negative, so easy to nudge.</p>
+      <div class="cl"><details class="cl-setup"><summary>Setup from earlier lessons: imports, vocabulary (20 lines)</summary><pre><code>import torch
+import torch.nn.functional as F
+
+text = "the cat sat on the mat. the dog sat on the log."
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+# Pairs: this character, and the next one
+current_chars = []
+next_chars = []
+for i in range(len(text) - 1):
+    current_chars.append(char_to_number[text[i]])
+    next_chars.append(char_to_number[text[i + 1]])
+current_chars = torch.tensor(current_chars)
+next_chars = torch.tensor(next_chars)</code></pre></details><pre><code>torch.manual_seed(42)                     # same random numbers every time
+weights = torch.randn((vocab_size, vocab_size), requires_grad=True)
+print(weights.shape)</code></pre><div class="cl-meta"><span class="cl-note"><code>weights</code> is the table of 196 random scores. <code>requires_grad=True</code> lets PyTorch find gradients for it later.</span><div class="cl-out">prints: torch.Size([14, 14])</div></div></div>
       <div class="vs" style="position:relative">
         <button class="doubt" type="button" data-peek-from="effortPeek" aria-label="Isn't this more work than counting?">🤔</button>
         <div class="vs-card">
@@ -195,34 +211,6 @@
         <li><span class="k">c)</span><span><b>Find</b> which way to change each score</span></li>
         <li><span class="k">d)</span><span><b>Move</b> each score a little</span></li>
       </ol>
-      <div class="incode">
-        <div class="incode-label">💻 In code</div>
-        <details class="incode-setup"><summary>Setup from earlier lessons: imports, vocabulary, pairs (20 lines)</summary><pre><code>import torch
-import torch.nn.functional as F
-
-text = "the cat sat on the mat. the dog sat on the log."
-unique_chars = sorted(set(text))
-vocab_size = len(unique_chars)
-char_to_number = {}
-number_to_char = {}
-for number, char in enumerate(unique_chars):
-    char_to_number[char] = number
-    number_to_char[number] = char
-
-# Pairs: this character, and the next one
-current_chars = []
-next_chars = []
-for i in range(len(text) - 1):
-    current_chars.append(char_to_number[text[i]])
-    next_chars.append(char_to_number[text[i + 1]])
-current_chars = torch.tensor(current_chars)
-next_chars = torch.tensor(next_chars)</code></pre></details>
-<pre><code># Random scores: 14 rows x 14 columns
-torch.manual_seed(42)
-weights = torch.randn((vocab_size, vocab_size), requires_grad=True)
-print(weights.shape)</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">torch.Size([14, 14])</pre></div></div>
-      </div>
       <p class="hook">To predict, your model needs chances, not scores. How do scores become chances?</p>
     </section>
 
@@ -231,6 +219,10 @@ print(weights.shape)</code></pre>
       <h2>Scores into chances</h2>
       <p class="step-label">Step a) Predict</p>
       <p class="say">To guess, your model needs chances that add up to 1, like the rows of the counting table.</p>
+      <div class="cl"><pre><code>chances = F.softmax(weights, dim=1)   # every row: scores into chances</code></pre><div class="cl-meta"><span class="cl-note"><code>dim=1</code>: each row on its own, so each row adds up to 1.</span></div></div>
+      <div class="cl"><pre><code>t = char_to_number['t']
+h = char_to_number['h']
+print(round(chances[t][h].item(), 3))  # the chance of h after t</code></pre><div class="cl-meta"><span class="cl-note">The chance your model gave h after t.</span><div class="cl-out">prints: 0.133</div></div></div>
       <p class="our-text" data-after="t"></p>
       <div class="activity">
         <div class="do">These are your model's random scores for row <code>t</code>. Drag <b>h</b> up. Watch the others shrink.</div>
@@ -271,14 +263,6 @@ print(weights.shape)</code></pre>
         <p style="margin:6px 0 0">Max gives <code>l</code> nothing, though its score is almost the same as “.”. Softmax gives the biggest score the most, but shares the rest by how close each one is.</p>
         <p style="margin:6px 0 0">Make the gaps bigger (all scores × 10) and softmax hardens towards max: “.” 58.9%, <code>l</code> 36.7%, <code>h</code> 3.4%. So softmax is a softened max.</p>
       </div>
-      <div class="incode">
-        <div class="incode-label">💻 In code</div>
-<pre><code>chances = F.softmax(weights, dim=1)        # every row: scores into chances
-t = char_to_number['t']
-h = char_to_number['h']
-print(round(chances[t][h].item(), 3))     # the chance of h after t</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">0.133</pre></div></div>
-      </div>
       <p class="hook">Now your model can guess. But its scores are random, so its guesses are bad. How bad?</p>
     </section>
 
@@ -299,23 +283,26 @@ print(round(chances[t][h].item(), 3))     # the chance of h after t</code></pre>
         <div class="loss-ends"><span>0 = perfect</span><span>very wrong</span></div>
       </div>
       <p class="say" style="position:relative">The less chance for the right answer, the bigger the <mark>loss</mark>. 100% gives 0.<br>The rule: <b class="eqbox">loss = −log(chance)</b><button class="doubt" type="button" data-peek-from="logPeek" aria-label="What is log?">🤔</button></p>
+      <div class="cl"><pre><code>print(round(-torch.log(chances[t][h]).item(), 3))</code></pre><div class="cl-meta"><span class="cl-note"><code>torch.log</code> is the log. The minus in front makes it −log.</span><div class="cl-out">prints: 2.018</div></div></div>
       <div hidden id="logPeek"><b>🤔 What is log?</b>
         <p style="margin:6px 0 0">You don't need the math. −log just turns a chance into a “how wrong” number:</p>
         <p style="margin:6px 0 0"><span style="white-space:nowrap">100% → 0 (perfect)</span>, <span style="white-space:nowrap">90% → 0.11</span>, <span style="white-space:nowrap">50% → 0.69</span>, <span style="white-space:nowrap">13.3% → 2.02</span>, <span style="white-space:nowrap">1% → 4.61</span>.</p>
         <p style="margin:6px 0 0">The smaller the chance, the bigger the number.</p>
       </div>
       <p class="say">Every pair in the text gets its own loss: 46 pairs, 24 different ones. A repeated pair has the same loss each time, and counts each time:</p>
+      <div class="cl"><pre><code>current_chars = []
+next_chars = []
+for i in range(len(text) - 1):
+    current_chars.append(char_to_number[text[i]])
+    next_chars.append(char_to_number[text[i + 1]])
+current_chars = torch.tensor(current_chars)
+next_chars = torch.tensor(next_chars)
+print(len(current_chars))</code></pre><div class="cl-meta"><span class="cl-note">Two lists: each character, and the character after it. Together they are the pairs.</span><div class="cl-out">prints: 46</div></div></div>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
-      <div class="incode">
-        <div class="incode-label">💻 In code</div>
-<pre><code>print(round(-torch.log(chances[t][h]).item(), 3))   # loss for t -&gt; h: -log(chance)
-scores = weights[current_chars]                    # the row for each of the 46 pairs
-loss = F.cross_entropy(scores, next_chars)         # softmax, -log, average: all 46 pairs
-print(round(loss.item(), 3))</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">2.018
-3.086</pre></div></div>
-      </div>
+      <div class="cl"><pre><code>scores = weights[current_chars]              # one row of scores for each pair
+loss = F.cross_entropy(scores, next_chars)   # softmax, -log, then the average
+print(round(loss.item(), 3))</code></pre><div class="cl-meta"><span class="cl-note"><code>F.cross_entropy</code> does the chances, the −log and the average over all 46 pairs for you.</span><div class="cl-out">prints: 3.086</div></div></div>
       <p class="hook">Try it on new numbers.</p>
     </section>
 
@@ -345,7 +332,12 @@ print(round(loss.item(), 3))</code></pre>
       <p class="say">After <code>t</code>, our text has <b>h</b> 4 times, <b>space</b> 3 times and a <b>full stop</b> once. Start with <b>just one pair</b>, <code>t → h</code>. Your model gave <code>h</code> only 0.133 (13.3%). (The next page uses all 8.)</p>
       <p class="our-text" data-after="t"></p>
       <p class="say" style="position:relative">The rule: <b class="eqbox">gradient = chance − goal</b><br>For this pair, <code>h</code>'s goal is 1 and every other letter's is 0.<br>For <code>h</code>: 0.133 − 1 = <b>−0.867</b><button class="doubt" type="button" data-peek-from="whyPeek" aria-label="Why chance − goal?">🤔</button></p>
+      <div class="cl"><pre><code>one_loss = F.cross_entropy(weights[[t]], torch.tensor([h]))   # just the pair t -&gt; h
+one_loss.backward()                                            # find the gradients
+print(round(weights.grad[t][h].item(), 3))</code></pre><div class="cl-meta"><span class="cl-note"><code>backward()</code> finds the gradient of every score. For h it is chance − goal.</span><div class="cl-out">prints: -0.867</div></div></div>
       <p class="say">Then move:<br><b class="eqbox">new score = old score − gradient</b><br>For <code>h</code>: 1.069 − (−0.867) = <b>1.936</b>, up.<br>A negative gradient moves a score up, a positive one down, and the further from 0, the bigger the move.</p>
+      <div class="cl"><pre><code>new_weights = weights.data - weights.grad     # new score = old score - gradient
+print(round(new_weights[t][h].item(), 3))</code></pre><div class="cl-meta"><span class="cl-note">A new table, old − gradient. We keep the old table for now.</span><div class="cl-out">prints: 1.936</div></div></div>
       <p class="muted-note">Every other letter goes down, even space and full stop, because this pair says <code>h</code>. On the next page, their own pairs push them up.</p>
       <div hidden id="whyPeek"><b>🤔 Why “chance − goal”?</b>
         <p style="margin:6px 0 0">It's the gap between what your model gives and what it should give. Below the goal, the gap is negative, so the score goes up. Above it, positive, so it goes down. At the goal it's 0: nothing to fix.</p>
@@ -361,14 +353,6 @@ print(round(loss.item(), 3))</code></pre>
           <span class="grad-loss" id="gradLoss"></span>
         </div>
         <div class="grad-math" id="gradMath" hidden></div>
-      </div>
-      <p class="muted-note">In code, <code>loss.backward()</code> finds all 196 gradients at once.</p>
-      <div class="incode">
-        <div class="incode-label">💻 In code</div>
-<pre><code>one_loss = F.cross_entropy(weights[[t]], torch.tensor([h]))   # just the pair t -&gt; h
-one_loss.backward()                                            # find the gradients
-print(round(weights.grad[t][h].item(), 3))                     # h's gradient: chance - goal</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">-0.867</pre></div></div>
       </div>
       <p class="hook">Your turn: fix the scores yourself, using these directions.</p>
     </section>
@@ -538,7 +522,20 @@ print(round(weights.grad[t][h].item(), 3))                     # h's gradient: c
       <h2>Averaging all 46</h2>
       <p class="say">So far, row <code>t</code> averaged over <b>its own 8 pairs</b>. The usual way averages <b>every</b> row over <b>all 46 pairs</b>, the same average the loss already uses.</p>
       <p class="say">Row <code>t</code> has 8 of the 46 pairs, so its gradient shrinks by 8/46: h's <b>−0.367</b> becomes −0.367 × 8/46 = <b>−0.064</b>.</p>
+      <div class="cl"><pre><code>weights.grad = None                          # clear old gradients
+loss = F.cross_entropy(weights[current_chars], next_chars)
+loss.backward()
+print(round(weights.grad[t][h].item(), 3))</code></pre><div class="cl-meta"><span class="cl-note">Same <code>backward()</code>, but over all 46 pairs. The result is the page's −0.064.</span><div class="cl-out">prints: -0.064</div></div></div>
       <p class="say">Smaller gradients, so steps are smaller. The fix is a bigger learning rate: the code uses <b>10</b>. Try both ways.</p>
+      <div class="cl"><pre><code>learning_rate = 10
+for step in range(300):
+    scores = weights[current_chars]  # a) predict
+    loss = F.cross_entropy(scores, next_chars)  # b) measure
+    weights.grad = None
+    loss.backward()  # c) find directions
+    weights.data = weights.data - learning_rate * weights.grad  # d) move
+print(round(loss.item(), 3))
+print(round(F.softmax(weights, dim=1)[t][h].item(), 3))</code></pre><div class="cl-meta"><span class="cl-note">Steps a) to d), repeated 300 times. The chance of h after t ends near counting's 0.5.</span><div class="cl-out">prints: 0.708 · 0.499</div></div></div>
       <div class="activity" id="avgAct">
         <div class="do">Pick how to average and the learning rate. Press Train.</div>
         <div class="row">
@@ -562,28 +559,6 @@ print(round(weights.grad[t][h].item(), 3))                     # h's gradient: c
         <div class="score-line"><div>Steps<b id="avgSteps">0</b></div><div>Loss (all 46 pairs)<b id="avgLoss">3.0865</b></div></div>
       </div>
       <p class="say">Averaging over all 46 with learning rate 10 gets there, the same place. Learning rate 1 with it is too slow.</p>
-      <div class="incode">
-        <div class="incode-label">💻 In code</div>
-<pre><code>weights.grad = None                          # clear the old gradients
-scores = weights[current_chars]
-loss = F.cross_entropy(scores, next_chars)   # all 46 pairs, averaged
-loss.backward()
-print(round(weights.grad[t][h].item(), 3))   # row t's average (-0.367) x 8/46</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">-0.064</pre></div></div>
-      </div>
-      <div class="incode">
-<pre><code>learning_rate = 10
-for step in range(300):
-    scores = weights[current_chars]                              # a) predict
-    loss = F.cross_entropy(scores, next_chars)                   # b) measure
-    weights.grad = None
-    loss.backward()                                              # c) find directions
-    weights.data = weights.data - learning_rate * weights.grad   # d) move
-print(round(loss.item(), 3))
-print(round(F.softmax(weights, dim=1)[t][h].item(), 3))          # chance of h after t, now</code></pre>
-        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">0.708
-0.499</pre></div></div>
-      </div>
       <p class="hook">Try it on new numbers.</p>
     </section>
 
@@ -789,6 +764,7 @@ Step 250 loss: 0.709
 <script src="../assets/tinylm.js?v=202610281215"></script>
 <script src="../assets/course.js"></script>
 <script src="../assets/practice.js?v=2"></script>
+<script src="../assets/code.js?v=1"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
