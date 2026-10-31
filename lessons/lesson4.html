@@ -124,6 +124,12 @@
   .ybm-tab td { padding: 3px 10px 3px 0; white-space: nowrap; border-top: 1px solid var(--grid); }
   .ybm-tab td.up { color: var(--good, #1E8F4E); font-family: var(--body, inherit); font-size: 0.78rem; }
   .ybm-tab td.down { color: var(--redpen); font-family: var(--body, inherit); font-size: 0.78rem; }
+  .incode { margin: 14px 0 8px; padding: 8px 14px 4px; border-left: 4px solid var(--pen, #3b5bdb); background: color-mix(in srgb, var(--pen, #3b5bdb) 5%, transparent); border-radius: 0 var(--radius, 8px) var(--radius, 8px) 0; }
+  .incode-label { font-family: var(--head); font-size: 1.05rem; color: var(--pencil); }
+  .incode pre { margin: 6px 0; }
+  .incode .run-area { margin: 0 0 8px; }
+  .incode-setup { margin: 6px 0; font-size: 0.9rem; color: var(--pencil); }
+  .incode-setup summary { cursor: pointer; }
 </style>
 </head>
 <body data-pen="orange">
@@ -189,6 +195,34 @@
         <li><span class="k">c)</span><span><b>Find</b> which way to change each score</span></li>
         <li><span class="k">d)</span><span><b>Move</b> each score a little</span></li>
       </ol>
+      <div class="incode">
+        <div class="incode-label">💻 In code</div>
+        <details class="incode-setup"><summary>Setup from earlier lessons: imports, vocabulary, pairs (20 lines)</summary><pre><code>import torch
+import torch.nn.functional as F
+
+text = "the cat sat on the mat. the dog sat on the log."
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+# Pairs: this character, and the next one
+current_chars = []
+next_chars = []
+for i in range(len(text) - 1):
+    current_chars.append(char_to_number[text[i]])
+    next_chars.append(char_to_number[text[i + 1]])
+current_chars = torch.tensor(current_chars)
+next_chars = torch.tensor(next_chars)</code></pre></details>
+<pre><code># Random scores: 14 rows x 14 columns
+torch.manual_seed(42)
+weights = torch.randn((vocab_size, vocab_size), requires_grad=True)
+print(weights.shape)</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">torch.Size([14, 14])</pre></div></div>
+      </div>
       <p class="hook">To predict, your model needs chances, not scores. How do scores become chances?</p>
     </section>
 
@@ -237,6 +271,14 @@
         <p style="margin:6px 0 0">Max gives <code>l</code> nothing, though its score is almost the same as “.”. Softmax gives the biggest score the most, but shares the rest by how close each one is.</p>
         <p style="margin:6px 0 0">Make the gaps bigger (all scores × 10) and softmax hardens towards max: “.” 58.9%, <code>l</code> 36.7%, <code>h</code> 3.4%. So softmax is a softened max.</p>
       </div>
+      <div class="incode">
+        <div class="incode-label">💻 In code</div>
+<pre><code>chances = F.softmax(weights, dim=1)        # every row: scores into chances
+t = char_to_number['t']
+h = char_to_number['h']
+print(round(chances[t][h].item(), 3))     # the chance of h after t</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">0.133</pre></div></div>
+      </div>
       <p class="hook">Now your model can guess. But its scores are random, so its guesses are bad. How bad?</p>
     </section>
 
@@ -265,6 +307,15 @@
       <p class="say">Every pair in the text gets its own loss: 46 pairs, 24 different ones. A repeated pair has the same loss each time, and counts each time:</p>
       <div class="loss-strip" id="lossStrip"></div>
       <p class="loss-avg" id="lossAvg"></p>
+      <div class="incode">
+        <div class="incode-label">💻 In code</div>
+<pre><code>print(round(-torch.log(chances[t][h]).item(), 3))   # loss for t -&gt; h: -log(chance)
+scores = weights[current_chars]                    # the row for each of the 46 pairs
+loss = F.cross_entropy(scores, next_chars)         # softmax, -log, average: all 46 pairs
+print(round(loss.item(), 3))</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">2.018
+3.086</pre></div></div>
+      </div>
       <p class="hook">Try it on new numbers.</p>
     </section>
 
@@ -312,6 +363,13 @@
         <div class="grad-math" id="gradMath" hidden></div>
       </div>
       <p class="muted-note">In code, <code>loss.backward()</code> finds all 196 gradients at once.</p>
+      <div class="incode">
+        <div class="incode-label">💻 In code</div>
+<pre><code>one_loss = F.cross_entropy(weights[[t]], torch.tensor([h]))   # just the pair t -&gt; h
+one_loss.backward()                                            # find the gradients
+print(round(weights.grad[t][h].item(), 3))                     # h's gradient: chance - goal</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">-0.867</pre></div></div>
+      </div>
       <p class="hook">Your turn: fix the scores yourself, using these directions.</p>
     </section>
 
@@ -504,6 +562,28 @@
         <div class="score-line"><div>Steps<b id="avgSteps">0</b></div><div>Loss (all 46 pairs)<b id="avgLoss">3.0865</b></div></div>
       </div>
       <p class="say">Averaging over all 46 with learning rate 10 gets there, the same place. Learning rate 1 with it is too slow.</p>
+      <div class="incode">
+        <div class="incode-label">💻 In code</div>
+<pre><code>weights.grad = None                          # clear the old gradients
+scores = weights[current_chars]
+loss = F.cross_entropy(scores, next_chars)   # all 46 pairs, averaged
+loss.backward()
+print(round(weights.grad[t][h].item(), 3))   # row t's average (-0.367) x 8/46</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">-0.064</pre></div></div>
+      </div>
+      <div class="incode">
+<pre><code>learning_rate = 10
+for step in range(300):
+    scores = weights[current_chars]                              # a) predict
+    loss = F.cross_entropy(scores, next_chars)                   # b) measure
+    weights.grad = None
+    loss.backward()                                              # c) find directions
+    weights.data = weights.data - learning_rate * weights.grad   # d) move
+print(round(loss.item(), 3))
+print(round(F.softmax(weights, dim=1)[t][h].item(), 3))          # chance of h after t, now</code></pre>
+        <div class="run-area" style="position:relative"><button class="run-code" type="button" aria-expanded="false">▶ Run</button><div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out">0.708
+0.499</pre></div></div>
+      </div>
       <p class="hook">Try it on new numbers.</p>
     </section>
 
@@ -529,7 +609,7 @@
     <!-- 9 -->
     <section class="part" data-title="The code">
       <h2>The code</h2>
-      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
+      <p class="say">All the pieces together. Guess what each <code>print</code> shows, then press <b>▶ Run</b>.</p>
 <pre><code>import torch
 import torch.nn.functional as F
 
