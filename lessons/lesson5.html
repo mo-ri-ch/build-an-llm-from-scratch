@@ -940,7 +940,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
       (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
-    btn("osNext").hidden = done || noted >= 5; btn("osAll").hidden = done;   // after a few examples, one button does the rest
+    btn("osNext").hidden = done; btn("osAll").hidden = done;
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
     btn("osResult").innerHTML = moved
       ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Did the guesses get better?<table class="os-prog">${WATCH.map((w, j) => { const ex = m.examples[TEXT.indexOf(w)]; return `<tr><td>“${w}” → ${nm(CHARS[ex.next])}</td><td>${P(before.ch[j])} → <b>${P(chanceRight(w))}</b></td></tr>`; }).join("")}</table>`
