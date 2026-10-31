@@ -329,7 +329,7 @@
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
       <p class="say">One step has four parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses (next page).<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move:</b> the gradients are added up, so opposite ones cancel. Dividing by 44 gives the average. Every box then moves once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. The boxes don't move after each example.</p>
       <div class="activity">
-        <div class="do">Press “Next example”. Watch the gradients add up. After all 44, move the boxes.</div>
+        <div class="do">Press “Next example” a few times. Then “Do all 44”. Then move the boxes.</div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
         <div class="os-head" id="osHead"></div>
         <div class="os-push" id="osPush"></div>
@@ -921,19 +921,21 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   function render() {
     const i = noted - 1, ex = m.examples[i], p = chancesOf(ex), k = ex.next, g = groupOf(i);
     textBox.querySelectorAll("span").forEach(s => { const j = Number(s.dataset.i); s.className = j === i ? "w1" : j === i + 1 ? "w2" : j === i + 2 ? "w3" : j === i + 3 ? "wn" : ""; });
-    btn("osHead").innerHTML = `<span class="g">${[...g].map(sc).join(" ")} → ${sc(CHARS[k])}</span> Example ${i + 1} of ${N}`;
+    btn("osHead").innerHTML = `Example ${i + 1} of ${N}: after <span class="g">${[...g].map(sc).join(" ")}</span> comes <span class="g">${sc(CHARS[k])}</span>`;
     const boxes = [0, 1, 2].map(t => `<code>${[0, 1, 2].map(j => j === t ? sc(g[j]) : "_").join(" ")} → ${sc(CHARS[k])}</code>`).join(", ");
     btn("osPush").innerHTML = moved ? `` :
-      `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}. It should be 100%, so its goal is 1. Its 3 boxes (${boxes}) each get the gradient ${p[k].toFixed(3)} − 1 = ${arrow(p[k] - 1)}.<br>` +
-      `<span class="muted">The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.</span>`;
+      `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}.<br>` +
+      `The right answer should get 100%, so its goal is 1.<br>` +
+      `gradient = chance − goal = ${p[k].toFixed(3)} − 1 = ${arrow(p[k] - 1)}<br>` +
+      `<span data-peek="The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.">Each of its 3 boxes</span> (${boxes}) gets this gradient.`;
     btn("osPush").hidden = moved;
     const tot = grad[W.t][W.r][W.k];
-    btn("osWatch").innerHTML = `<div class="title">Watching one shared box: <b><code>_ _ t → ␣</code></b> (last table). Every example ending in t writes its gradient here:</div>` +
+    btn("osWatch").innerHTML = `<div class="title">Follow one box, <b><code>_ _ t → ␣</code></b> in the last table. Every example ending in t adds its gradient to it:</div>` +
       `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${sgn(c.v)} ${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">nothing yet</span>`}</div>` +
-      `<div class="tot">Total gradient${moved ? "" : " so far"}: ${sgn(tot)} ${tot < 0 ? "↑" : "↓"}` +
+      `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${sgn(tot)} ${tot < 0 ? "↑" : "↓"}</b>` +
       (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
-    btn("osNext").hidden = done; btn("osAll").hidden = done;
+    btn("osNext").hidden = done || noted >= 5; btn("osAll").hidden = done;   // after a few examples, one button does the rest
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
     btn("osResult").innerHTML = moved
       ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Did the guesses get better?<table class="os-prog">${WATCH.map((w, j) => { const ex = m.examples[TEXT.indexOf(w)]; return `<tr><td>“${w}” → ${nm(CHARS[ex.next])}</td><td>${P(before.ch[j])} → <b>${P(chanceRight(w))}</b></td></tr>`; }).join("")}</table>`
