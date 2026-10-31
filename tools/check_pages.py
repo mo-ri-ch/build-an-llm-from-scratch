@@ -12,8 +12,7 @@ def outside_text(body):
     b = re.sub(r'<div hidden[^>]*>.*?</div>\s*(?=<)', '', body, flags=re.S)   # 🤔 notes and peeks
     out, k = '', 0
     while True:   # drop each activity box, nested divs included
-        js = [x for x in (b.find('<div class="activity"', k), b.find('<div class="incode"', k)) if x >= 0]
-        j = min(js) if js else -1
+        j = b.find('<div class="activity"', k)
         if j < 0:
             return out + b[k:]
         out += b[k:j]
