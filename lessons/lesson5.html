@@ -155,6 +155,8 @@
   .os-push .up { color: var(--good, #1E8F4E); font-weight: 700; white-space: nowrap; }
   .os-push .down { color: var(--redpen); font-weight: 700; white-space: nowrap; }
   .os-watch { margin-top: 12px; padding: 8px 12px; border: 2px dashed var(--good, #1E8F4E); border-radius: 8px; font-size: 0.92rem; }
+  #osResult:empty { display: none; }
+  .os-remember { font-size: 0.92rem; margin: 0 0 8px; line-height: 1.9; }
   .os-watch .title { font-size: 0.85rem; color: var(--pencil); margin-bottom: 4px; }
   .os-watch .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; font-family: var(--mono); font-size: 0.8rem; min-height: 1.6em; }
   .os-watch .chip { padding: 1px 6px; border-radius: 10px; background: var(--card, #fff); border: 1px solid var(--grid, #d9dfeb); }
@@ -331,7 +333,8 @@
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
       <p class="say">One step has four parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses (next page).<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move:</b> the gradients are added up, so opposite ones cancel. Dividing by 44 gives the average. Every box then moves once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. The boxes don't move after each example.</p>
       <div class="activity">
-        <div class="do">Press “Next example” a few times. Then “Do all 44”. Then move the boxes.</div>
+        <div class="do">Step through, then move the boxes.</div>
+        <div class="os-remember">Remember: <b class="eqbox">gradient = chance − goal</b> <b class="eqbox">new = old − 10 × (sum ÷ 44)</b></div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
         <div class="os-head" id="osHead"></div>
         <div class="os-push" id="osPush"></div>
@@ -928,11 +931,11 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osPush").innerHTML = moved ? `` :
       `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}.<br>` +
       `Its goal is 1, so gradient = chance − goal = ${p[k].toFixed(3)} − 1 = ${arrow(p[k] - 1)}<br>` +
-      `<span data-peek="The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.">Each of its 3 boxes</span> (${boxes}) gets this gradient.`;
+      `<span data-peek="The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.">Its 3 boxes</span> (${boxes}) each get it.`;
     btn("osPush").hidden = moved;
     const tot = grad[W.t][W.r][W.k];
-    btn("osWatch").innerHTML = `<div class="title">Follow one box, <b><code>_ _ t → ␣</code></b>: every example ending in t adds to it.</div>` +
-      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${sgn(c.v)} ${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
+    btn("osWatch").innerHTML = `<div class="title">Follow one box: <b>space after t</b> (last table, row t). Every example ending in t adds to it.</div>` +
+      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">${groupOf(c.i).replace(/ /g, "␣")} ${sgn(c.v)}${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
       `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
       (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
@@ -940,7 +943,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
     btn("osResult").innerHTML = moved
       ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Did the guesses get better?<table class="os-prog">${WATCH.map((w, j) => { const ex = m.examples[TEXT.indexOf(w)]; return `<tr><td>“${w}” → ${nm(CHARS[ex.next])}</td><td>${P(before.ch[j])} → <b>${P(chanceRight(w))}</b></td></tr>`; }).join("")}</table>`
-      : done ? `All 44 gradients are found. Now move every box once.`
+      : done ? ``
       : ``;
   }
   btn("osNext").onclick = () => { note(noted); noted += 1; render(); };
