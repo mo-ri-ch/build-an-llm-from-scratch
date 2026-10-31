@@ -933,8 +933,8 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osPush").hidden = moved;
     const tot = grad[W.t][W.r][W.k];
     btn("osWatch").innerHTML = `<div class="title">Follow one box, <b><code>_ _ t → ␣</code></b> in the last table. Every example ending in t adds its gradient to it:</div>` +
-      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${sgn(c.v)} ${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">nothing yet</span>`}</div>` +
-      `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${sgn(tot)} ${tot < 0 ? "↑" : "↓"}</b>` +
+      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">“${groupOf(c.i).replace(/ /g, "␣")}” ${sgn(c.v)} ${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
+      `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
       (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
     btn("osNext").hidden = done || noted >= 5; btn("osAll").hidden = done;   // after a few examples, one button does the rest
