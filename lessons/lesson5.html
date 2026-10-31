@@ -281,8 +281,10 @@
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="0.73" data-tol="0.01" data-hint="Add each letter's three scores first. Then chance = e<sup>score</sup> ÷ (sum of both e<sup>score</sup>)." data-work="x: 1 + 0 + 1 = 2. y: 0 + 2 − 1 = 1. e² ÷ (e² + e¹) = 7.39 ÷ 10.11 = 0.73.">
-          <div class="pq-q">Only 2 letters can come next, <b>x</b> and <b>y</b>. The three rows give x the scores 1, 0, 1 and y the scores 0, 2, −1. After adding the rows, what is x's chance?</div>
+        <div class="pq" data-ans="0.73" data-tol="0.01" data-hint="Add each letter's three scores first. Then chance = e<sup>score</sup> ÷ (sum of both e<sup>score</sup>)." data-work="Add down each column. x: 1 + 0 + 1 = 2. y: 0 + 2 − 1 = 1. Then e² ÷ (e² + e¹) = 7.39 ÷ 10.11 = 0.73.">
+          <div class="pq-q">Only 2 letters can come next, <b>x</b> and <b>y</b>. The three tables give these rows of scores:
+          <table class="plain" style="margin:8px 0;text-align:center"><tr><th></th><th>x</th><th>y</th></tr><tr><td>third-last row</td><td>1</td><td>0</td></tr><tr><td>second-last row</td><td>0</td><td>2</td></tr><tr><td>last row</td><td>1</td><td>−1</td></tr><tr><td><b>add the rows</b></td><td><b>?</b></td><td><b>?</b></td></tr></table>
+          After adding the rows, what is x's chance?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
