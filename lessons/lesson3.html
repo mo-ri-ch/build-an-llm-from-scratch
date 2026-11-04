@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("notebook-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <link rel="stylesheet" href="https://mo-ri-ch.github.io/study-notebook-design/v1/style.css">
 <style>
   .strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0 12px; }
@@ -91,7 +92,7 @@
   .cube-frame:active { cursor: grabbing; }
   .cube { position: absolute; pointer-events: none; }
   .cube-tip { position: absolute; pointer-events: none; padding: 4px 8px; font-family: var(--mono); font-size: 0.85rem; white-space: nowrap;
-    background: var(--note-yellow); color: var(--on-hl, #1A2440); border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 4px; }
+    background: var(--note-yellow); color: var(--ink, #1A2440); border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 4px; }
   .cube-hint { text-align: center; color: var(--pencil); font-size: 0.85rem; margin: 6px 0 0; }
   .dots-none { font-size: 0.95rem; color: var(--pencil); margin: 4px 0; }
   .dots-count { font-size: 0.95rem; margin: 14px 0 0; }
