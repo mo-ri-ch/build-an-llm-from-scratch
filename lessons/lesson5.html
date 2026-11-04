@@ -333,7 +333,7 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">One step has three parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>c) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. While we go through the examples, the boxes stay where they are.</p>
+      <p class="say">One step has three parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>c) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − <span data-peek="10 is the learning rate: how big each move is.">10</span> × average gradient</b><br>While we go through the examples, the boxes stay where they are.</p>
       <div class="activity">
         <div class="do">Step through, then move the boxes.</div>
         <div class="os-remember">Remember: <b class="eqbox">gradient = chance − goal</b> <b class="eqbox">new = old − 10 × (sum ÷ 44)</b></div>
@@ -936,7 +936,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osHead").innerHTML = `Example ${i + 1} of ${N}: after <span class="g">${[...g].map(sc).join(" ")}</span> comes <span class="g">${sc(CHARS[k])}</span>`;
     const boxes = [0, 1, 2].map(t => `<code>${[0, 1, 2].map(j => j === t ? sc(g[j]) : "_").join(" ")} → ${sc(CHARS[k])}</code>`).join(", ");
     btn("osPush").innerHTML = moved ? `` :
-      `Your model gave <b>${nm(CHARS[k])}</b> ${P(p[k])}.<br>` +
+      `<span data-peek="The numbers start random, so early guesses are poor. Learning fixes that.">Your model</span> gave <b>${nm(CHARS[k])}</b> ${P(p[k])}.<br>` +
       `Its goal is 1, so gradient = chance − goal = ${p[k].toFixed(3)} − 1 = ${arrow(p[k] - 1)}<br>` +
       `<span data-peek="The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.">Its 3 boxes</span> (${boxes}) each get it.`;
     btn("osPush").hidden = moved;
