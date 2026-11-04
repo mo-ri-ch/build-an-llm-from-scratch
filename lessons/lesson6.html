@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embeddings</title>
+<meta name="description" content="Lesson 6 of Build a Tiny LLM: give every letter a short list of numbers, shared by every position.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("notebook-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="https://mo-ri-ch.github.io/study-notebook-design/v1/style.css">
+<style>
+  .muted { color: var(--pencil); font-size: 0.95rem; }
+  .stuck li { margin: 6px 0; }
+  select.pick { max-width: 16em; }
+  select.pick, .row select { font: inherit; font-family: var(--mono); padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+
+  /* Page 2: the 3-letter window over the text */
+  .window-text { font-family: var(--mono); font-size: 1.15rem; line-height: 2.1; word-break: break-word; margin: 6px 0 14px; }
+  .window-text span { cursor: pointer; padding: 2px 1px; border-radius: 3px; }
+  .window-text span:hover { background: color-mix(in srgb, var(--hl-yellow) 40%, transparent); }
+  .window-text .w1, .window-text .w2, .window-text .w3 { background: var(--hl-yellow); color: var(--ink); }
+  .window-text .wn { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  .group-line { font-family: var(--mono); font-size: 1.6rem; margin: 6px 0 4px; }
+  .group-line .next { display: inline-block; min-width: 1.2em; border: 2px dashed var(--ink); border-radius: 4px; text-align: center; margin-left: 6px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+  .mini { text-align: center; min-width: 0; }
+  .mini-title { font-family: var(--head); font-size: 1rem; }
+  .mini-sub { color: var(--pencil); font-size: 0.85rem; margin-bottom: 6px; }
+  .mini-grid { display: grid; grid-template-columns: 1.4em repeat(14, minmax(0, 1fr)); gap: 1px; font-family: var(--mono); font-size: 0.6rem; max-width: 230px; width: 100%; margin: 0 auto; }
+  .mini-grid span { aspect-ratio: 1; background: color-mix(in srgb, var(--grid, #d9dfeb) 60%, transparent); border-radius: 1px; }
+  .mini-grid .lab { background: none; color: var(--pencil); display: grid; place-items: center; aspect-ratio: auto; }
+  .mini-grid .on { background: var(--hl-yellow); }
+  .mini-grid .lab.on { background: none; color: var(--ink); font-weight: 700; }
+  .mini-row { font-family: var(--mono); margin-top: 6px; }
+  @media (max-width: 640px) { .three { gap: 8px; } .mini-grid { font-size: 0.45rem; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); } .mini-sub { font-size: 0.7rem; } .mini-row { font-size: 0.75rem; } }
+
+  /* Page 3 and 5: rows added up */
+  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.76rem; margin: 8px 0; display: block; max-width: 100%; overflow-x: auto; }
+  .addtab th, .addtab td { padding: 6px 4px; text-align: right; white-space: nowrap; }
+  .addtab .op { font-weight: 700; color: var(--ink); display: inline-block; width: 1.1em; }
+  #addTab th[data-k], #addTab td[data-k] { cursor: pointer; }
+  #addTab .pick-col { outline: 2px solid var(--pen); outline-offset: -2px; background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  #addTab .pick-col.real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .worked { font-family: var(--mono); font-size: 1rem; line-height: 1.9; margin: 14px 0 4px; padding: 10px 14px; border-left: 3px solid var(--pen); background: var(--paper); }
+  .worked .pats { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 2px 18px; margin: 6px 0 8px; font-size: 0.95rem; }
+  .worked .pats i { font-family: var(--body, inherit); font-style: normal; color: var(--pencil); font-size: 0.8rem; }
+  .worked .lab { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.85rem; }
+  .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 8px; }
+  .addtab tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+  .addtab tr.sum td:first-child, .addtab tr.chance td:first-child { color: var(--ink); }
+  .addtab tr.chance td { color: var(--pen); }
+  .addtab .real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .addtab th.real { color: var(--ink); }
+  .table-scroll { overflow-x: auto; }
+
+  /* Page 4: which groups use a row */
+  .uses { font-family: var(--mono); font-size: 1.1rem; line-height: 2.1; word-break: break-word; margin: 10px 0; }
+  .uses .use { background: var(--hl-yellow); color: var(--ink); border-radius: 3px; padding: 2px 1px; }
+  .uses .use .key { text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  select.sh-sel { width: 8.5em; }
+  .sh-legend .it { display: inline-flex; align-items: center; gap: 5px; margin-right: 6px; }
+  @media (max-width: 640px) { .sh-mini .sh-title { font-size: 0.75rem; white-space: nowrap; } .sh-minis { gap: 8px; } }
+  .sh-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 0.78rem; color: var(--pencil); margin: 8px 0 0; }
+  .sh-legend .k { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--grid); }
+  .k.a, .sh tr.a td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); }
+  .k.b, .sh tr.b td { background: color-mix(in srgb, var(--hl-blue) 45%, transparent); }
+  .k.both, .sh tr.both td { background: color-mix(in srgb, var(--hl-green) 60%, transparent); }
+  .sh-eqs { display: grid; gap: 14px; }
+  .sh-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .sh-name { width: 5.2em; flex: none; font-family: var(--mono); font-size: 1.15rem; font-weight: 700; }
+  .sh-name small, .sh-total small { display: block; font-family: var(--body, inherit); font-weight: 400; font-size: 0.75rem; color: var(--pencil); }
+  .sh-card { border: 2px solid var(--grid, #d9dfeb); border-radius: 8px; padding: 6px 10px; text-align: center; background: var(--card, #fff); min-width: 5.6em; transition: transform 0.2s; }
+  .sh-card.shared { border-color: var(--good, #1E8F4E); background: color-mix(in srgb, var(--hl-green) 40%, var(--card, #fff)); }
+  .sh-card.moved .sh-num { color: var(--pen); }
+  .sh-pat { font-family: var(--mono); font-size: 0.85rem; }
+  .sh-num { font-family: var(--mono); font-size: 1.25rem; font-weight: 700; }
+  .sh-tab { font-size: 0.7rem; color: var(--pencil); }
+  .sh-op { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
+  .sh-total { font-family: var(--mono); font-size: 1.25rem; min-width: 8em; }
+  .sh-other, .cnt-g, .cnt-m { padding: 6px 12px; }
+  .cnt-x { padding: 3px 9px; font-family: var(--mono, monospace); }
+  .sh-other.on, .cnt-g.on, .cnt-m.on, .cnt-x.on { background: var(--ink); color: var(--paper); }
+  .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+  @media (max-width: 1180px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } .sh-total { min-width: 0; flex: 1 1 8em; } }
+  .sh-tables { display: grid; gap: 12px; }
+  .sh-minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .sh-mini .sh-title { text-align: center; font-size: 0.9rem; }
+  .sh-grid { display: grid; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); gap: 1px; max-width: 190px; margin: 0 auto; font-family: var(--mono); font-size: 0.55rem; }
+  .sh-grid span { height: 8px; border-radius: 1px; outline: 1px solid color-mix(in srgb, var(--grid, #d9dfeb) 50%, transparent); }
+  .sh-grid .lab { outline: none; color: var(--pencil); line-height: 8px; text-align: center; }
+  .sh-grid span.a:not(.lab) { outline: 2px solid var(--hl-yellow); }
+  .sh-grid span.b:not(.lab) { outline: 2px solid var(--hl-blue); }
+  .sh-grid span.both:not(.lab) { outline: 2px solid var(--good, #1E8F4E); }
+  .sh-grid .lab.a, .sh-grid .lab.b, .sh-grid .lab.both { color: var(--ink); font-weight: 700; }
+  .sh .who { color: var(--pencil); font-weight: 400; }
+  .sh td:first-child { text-align: left !important; font-family: var(--body, inherit); font-size: 0.75rem; }
+  .sh-title { font-family: var(--head); font-size: 1rem; margin-bottom: 2px; }
+  .sh-title small { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.8rem; }
+  .sh { border-collapse: collapse; font-family: var(--mono); font-size: 0.66rem; }
+  .sh th, .sh td { padding: 1px 4px; text-align: right; white-space: nowrap; }
+  .sh th { color: var(--pencil); font-weight: 600; }
+  .sh td:first-child { color: var(--pencil); text-align: center; font-weight: 700; padding-right: 6px; }
+  .sh tr.a td:first-child, .sh tr.b td:first-child, .sh tr.both td:first-child { color: var(--ink); }
+  .sh td.chg { font-weight: 700; color: var(--pen); }
+  .sh-result i { color: var(--pencil); font-style: normal; font-size: 0.85rem; }
+  .sh-result { font-size: 0.95rem; line-height: 1.6; margin-top: 14px; margin-bottom: 12px; min-height: 1.7em; }
+  .l4t { border-collapse: collapse; font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; }
+  .l4t th, .l4t td { padding: 1px 3px; text-align: right; }
+  .l4t th { color: var(--pencil); }
+  .l4t td:first-child { font-weight: 700; color: var(--pencil); text-align: center; }
+  .l4t tr.hl td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); color: var(--ink); }
+  .l4t.pk th, .l4t.pk td { padding: 1px 2px; }
+  .l4t td.hc, .l4t th.hc { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .l4t tr.hl td.hc { background: var(--hl-yellow); outline: 2px solid var(--pen); outline-offset: -2px; font-weight: 700; }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
+  .box-label { font-size: 0.85rem; color: var(--pencil); }
+  .box-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+  .box-num.huge { color: var(--redpen); }
+  .box-num.small { color: var(--good, #1E8F4E); }
+  @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
+
+  /* Page 6: training */
+  .score-line { display: flex; gap: 28px; margin-top: 10px; color: var(--pencil); font-size: 0.9rem; }
+  .score-line b { display: block; font-family: var(--mono); font-size: 1.4rem; color: var(--ink); }
+  .top3 { display: grid; grid-template-columns: 4.5em 1fr 3.6em; gap: 6px 12px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin-top: 10px; }
+  .top3 .track { height: 16px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; position: relative; }
+  .top3 .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight, var(--hl-yellow)); border-right: 2px solid var(--ink); }
+  .top3 .pct { text-align: right; }
+  .cmp { margin: 6px 0 16px; font-family: var(--mono); font-size: 0.9rem; }
+  .cmp th, .cmp td { padding: 4px 14px 4px 0; text-align: left; }
+  .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
+
+  /* Page 5: where each count comes from */
+  .cnt-text { margin: 0 0 12px; }
+  .cnt-text .grp { background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  .cnt-text .key { background: var(--hl-yellow); font-weight: 700; text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  .cnt-text .nx { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  #cntEqs .sh-card { cursor: pointer; }
+  #cntEqs .sh-card.pointed { outline: 3px solid var(--pen); outline-offset: 1px; }
+
+  /* Page 6: one learning step */
+  .window-text.static span { cursor: default; }
+  .window-text.static span:hover { background: none; }
+  .window-text.static .w1, .window-text.static .w2, .window-text.static .w3 { background: var(--hl-yellow); }
+  .os-head { font-size: 0.95rem; margin: 0 0 10px; }
+  .os-head .g { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; margin-right: 8px; }
+  .os-push { font-size: 0.98rem; line-height: 1.55; padding: 8px 12px; background: var(--paper); border-left: 3px solid var(--pen); border-radius: 4px; }
+  .os-push code, .os-watch code { font-size: 0.85em; white-space: nowrap; }
+  .os-push .up { color: var(--good, #1E8F4E); font-weight: 700; white-space: nowrap; }
+  .os-push .down { color: var(--redpen); font-weight: 700; white-space: nowrap; }
+  .os-watch { margin-top: 12px; padding: 8px 12px; border: 2px dashed var(--good, #1E8F4E); border-radius: 8px; font-size: 0.92rem; }
+  #osResult:empty { display: none; }
+  .os-remember { font-size: 0.92rem; margin: 0 0 8px; line-height: 1.9; }
+  .os-watch .title { font-size: 0.85rem; color: var(--pencil); margin-bottom: 4px; }
+  .os-watch .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; font-family: var(--mono); font-size: 0.8rem; min-height: 1.6em; }
+  .os-watch .chip { padding: 1px 6px; border-radius: 10px; background: var(--card, #fff); border: 1px solid var(--grid, #d9dfeb); }
+  .os-watch .chip.up { color: var(--good, #1E8F4E); }
+  .os-watch .chip.down { color: var(--redpen); }
+  .os-watch .chip.now { outline: 2px solid var(--pen); }
+  .os-watch .tot { margin-top: 6px; font-family: var(--mono); font-size: 0.85rem; }
+  .os-prog { border-collapse: collapse; font-size: 0.9rem; margin-top: 6px; }
+  .os-prog td { padding: 2px 12px 2px 0; }
+  .os-prog td:last-child { font-family: var(--mono); }
+  .top3.cmp4 { grid-template-columns: 6.2em 1fr 5.6em 4.8em; }
+  .top3 .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); text-align: right; }
+
+  /* Page 8: writing */
+  .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
+  .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
+  .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+
+  /* Lesson 6 */
+  .emb { border-collapse: collapse; font-family: var(--mono); font-size: 0.95rem; margin: 6px 0 10px; }
+  .emb th, .emb td { padding: 3px 14px 3px 0; text-align: right; white-space: nowrap; }
+  .emb th { color: var(--pencil); font-weight: 400; font-size: 0.8rem; font-family: var(--body, inherit); }
+  .emb td:first-child, .emb th:first-child { text-align: left; font-weight: 700; }
+  .emb td.pos { text-align: left; font-family: var(--body, inherit); font-size: 0.8rem; color: var(--pencil); padding-right: 0; }
+  .emb tr.p0 td:not(.pos), .emb tr.p1 td:not(.pos), .emb tr.p2 td:not(.pos) { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); color: var(--ink); }
+  .emb tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+  .emb .mul { color: var(--pencil); }
+  .six { font-family: var(--mono); font-size: 1.05rem; margin: 4px 0 10px; }
+  .six b { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); padding: 1px 6px; border-radius: 4px; font-weight: 400; color: var(--ink); }
+  svg.map { width: 100%; max-width: 420px; height: auto; display: block; margin: 8px 0; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  svg.map text { font-family: var(--mono); font-size: 13px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+  svg.map .ax { stroke: var(--grid); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  svg.map .dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  svg.map .tick { fill: var(--pencil); font-size: 10px; }
+
+</style>
+</head>
+<body data-pen="orange">
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 6 of 10</span>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Embeddings</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="neo-say">No more “sathe”. But I learn the letter “a” three times.</p>
+      <p class="say">Right now your model:</p>
+      <ul class="stuck">
+        <li>has <b>588 numbers</b>: three tables, each with a row for every letter.</li>
+        <li>keeps a separate row for “a” in each table, so it learns “a” <b>three times</b>.</li>
+        <li>gives “a” no description of its own, only scores for the next letter.</li>
+      </ul>
+      <p class="say"><b>Could every letter have one description, used in every position?</b></p>
+      <p class="hook">What would a description of a letter look like?</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="A letter as numbers">
+      <h2>A letter as numbers</h2>
+      <p class="say">Give every letter <b>2 numbers</b>: its <b>description</b>. All 14 letters share <b>one table</b>, with one row each. This is called an <b>embedding</b>.</p>
+      <p class="say">The numbers start <b>random</b>, like every number your model starts with.</p>
+      <div class="activity">
+        <div class="do">Pick a group. Its 3 letters pick 3 rows from the one table.</div>
+        <div class="row" style="margin-bottom:10px"><label>Group <select id="embGroup" class="pick"></select></label></div>
+        <table class="emb" id="embTab"></table>
+        <div class="muted">Your model reads the 3 letters as <b>6 numbers</b>:</div>
+        <div class="six" id="embSix"></div>
+      </div>
+      <p class="say">“a” has the <b>same 2 numbers</b> in “cat”, “sat” and “mat”, wherever it sits. One row to learn, not three.</p>
+      <p class="hook">6 numbers. How do they become a guess?</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Numbers to a guess">
+      <h2>Numbers to a guess</h2>
+      <p class="say">Each next letter has <b>6 weights</b>, one for each of the 6 numbers. Its score: <b>multiply each number by its weight, then add</b>.</p>
+      <p class="say">The weights are 6 × 14 = <b>84 numbers</b> (<span data-peek-from="wPeek">hover to see them</span>), random at the start too.</p>
+      <div hidden id="wPeek"></div>
+      <div class="activity">
+        <div class="do">Pick a group and a next letter. Watch its score being built.</div>
+        <div class="row" style="margin-bottom:10px"><label>Group <select id="mulGroup" class="pick"></select></label><label>Next letter <select id="mulNext" class="pick"></select></label></div>
+        <table class="emb" id="mulTab"></table>
+        <div class="sh-result" id="mulNote"></div>
+        <div class="muted">Your model does this for all 14 next letters. Softmax turns the 14 scores into chances.</div>
+        <div class="top3" id="mulTop"></div>
+      </div>
+      <p class="say">Your model now has <b>28 + 84 = 112 numbers</b>, instead of 588.</p>
+      <p class="hook">Can numbers this few still learn? Learning has to reach the letters too.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="Learning reaches the letters">
+      <h2>Learning reaches the letters</h2>
+      <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
+      <p class="say">The new part: a score was built from the 6 numbers, so its push goes <b>back to them</b>. A letter's description moves because it helped make the guess.</p>
+      <div class="activity">
+        <div class="do">Pick an example. See how the 6 numbers of its 3 letters would move.</div>
+        <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
+        <div class="muted" id="bkHead"></div>
+        <table class="emb" id="bkTab"></table>
+        <div class="muted">Only a demo: one example, one step, learning rate 1 (10 is too big for these numbers). A real step averages all 44 examples.</div>
+      </div>
+      <p class="say">The push on each of the 6 numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
+      <p class="hook">Repeat the step 300 times. What do the letters become?</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="Let it learn">
+      <h2>Let it learn</h2>
+      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the descriptions move.</p>
+      <div class="activity">
+        <div class="do">Press Train. Watch the letters move and the loss fall.</div>
+        <div class="row"><button class="primary" id="train">Train 300 steps</button></div>
+        <svg class="map" id="map" viewBox="-5 -5 10 10" role="img" aria-label="The 14 letters as points on a map"></svg>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
+        <div class="muted" id="mapNote" style="margin-top:8px"></div>
+      </div>
+      <p class="say">112 numbers reach a loss of about <b>0.178</b>. The 588 numbers of three tables reached 0.174. <b>5 times fewer numbers, almost the same result.</b></p>
+      <p class="hook">Try it as a guess.</p>
+    </section>
+
+    <!-- last -->
+    <section class="part" data-nonum data-title="Coming next">
+      <h2>Coming next</h2>
+      <p class="say">More pages are on the way.</p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>← Previous</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next →</button>
+  </div>
+</nav>
+
+<script src="../assets/tinylm.js?v=202611051"></script>
+<script src="../assets/course.js?v=202610242"></script>
+<script src="../assets/practice.js?v=2"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
+<script>
+const sc = c => c === " " ? "␣" : c;
+const nm = c => c === " " ? "space" : c === "." ? "full stop" : c;
+const fmt = (x, d = 2) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
+const GROUPS = [];
+for (let i = 0; i + 3 < TEXT.length; i++) GROUPS.push({ at: i, g: TEXT.slice(i, i + 3), next: TEXT[i + 3] });
+const groupLabel = g => "“" + g.replace(/ /g, "␣") + "”";
+const POS = ["third-last", "second-last", "last"];
+const PICKS = ["cat", "sat", "mat", "dog", "the", "at "];
+const fillPicks = sel => { sel.innerHTML = PICKS.map(g => `<option value="${g}">${groupLabel(g)}</option>`).join(""); };
+const fresh = () => { const m = new EmbeddingModel(); return m; };   // starting numbers
+const start = fresh();
+
+// ---------- 2: the one table ----------
+(function embDemo() {
+  const sel = document.getElementById("embGroup"); fillPicks(sel);
+  function render() {
+    const g = sel.value, rows = [...g].map(c => CHAR_TO_NUMBER[c]);
+    let h = `<tr><th>letter</th><th>number 1</th><th>number 2</th><th></th></tr>`;
+    CHARS.forEach((c, r) => {
+      const p = rows.indexOf(r);
+      h += `<tr class="${p >= 0 ? "p" + p : ""}"><td>${sc(c)}</td><td>${fmt(start.letters[r][0])}</td><td>${fmt(start.letters[r][1])}</td><td class="pos">${p >= 0 ? "← " + POS[p] + " letter" : ""}</td></tr>`;
+    });
+    document.getElementById("embTab").innerHTML = h;
+    document.getElementById("embSix").innerHTML = [...g].map(c => `<b>${start.letters[CHAR_TO_NUMBER[c]].map(v => fmt(v)).join("  ")}</b>`).join("  ");
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();
+})();
+
+// ---------- 3: multiply and add ----------
+(function mulDemo() {
+  const gs = document.getElementById("mulGroup"), ns = document.getElementById("mulNext"); fillPicks(gs);
+  ns.innerHTML = CHARS.map((c, k) => `<option value="${k}">${nm(c)}</option>`).join("");
+  const realNext = g => CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
+  gs.value = "cat"; ns.value = realNext("cat");
+  function render() {
+    const g = gs.value, k = Number(ns.value), x = start.inputs([...g].map(c => CHAR_TO_NUMBER[c]));
+    // hover list of all weights, this next letter's column marked
+    let w = `<b>The 84 weights</b> (random at the start)<br><span style="font-size:0.85rem">One column per next letter. Column <b>${sc(CHARS[k])}</b> is marked: the 6 weights used on this page.</span><div style="overflow-x:auto"><table class="l4t pk"><tr><th></th>${CHARS.map((c, i) => `<th class="${i === k ? "hc" : ""}">${sc(c)}</th>`).join("")}</tr>`;
+    start.weights.forEach((row, j) => { w += `<tr><td>${["1st", "2nd", "3rd", "4th", "5th", "6th"][j]}</td>${row.map((v, i) => `<td class="${i === k ? "hc" : ""}">${fmt(v, 1)}</td>`).join("")}</tr>`; });
+    document.getElementById("wPeek").innerHTML = w + "</table></div>";
+    let h = `<tr><th>from</th><th>number</th><th></th><th>weight</th><th></th><th>product</th></tr>`;
+    let sum = 0;
+    x.forEach((v, j) => { const wt = start.weights[j][k], pr = v * wt; sum += pr; h += `<tr><td>${sc(g[Math.floor(j / 2)])}, number ${j % 2 + 1}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(pr)}</td></tr>`; });
+    h += `<tr class="sum"><td>added</td><td></td><td></td><td></td><td></td><td>${fmt(sum)}</td></tr>`;
+    document.getElementById("mulTab").innerHTML = h;
+    const p = softmax(start.scores([...g].map(c => CHAR_TO_NUMBER[c])));
+    document.getElementById("mulNote").innerHTML = `Score for ${groupLabel(g)} → <b>${nm(CHARS[k])}</b>: <b>${fmt(sum)}</b>. After softmax with the 13 other scores, its chance is <b>${(p[k] * 100).toFixed(1)}%</b>.`;
+    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3);
+    document.getElementById("mulTop").innerHTML = top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("");
+  }
+  gs.onchange = () => { ns.value = realNext(gs.value); render(); };
+  ns.onchange = render;
+  addReset(gs, () => { gs.value = "cat"; ns.value = realNext("cat"); render(); });
+  render();
+})();
+
+// ---------- 4: the push goes back to the 6 numbers (one example) ----------
+(function backDemo() {
+  const sel = document.getElementById("bkGroup");
+  sel.innerHTML = PICKS.map(g => `<option value="${g}">${groupLabel(g)} → ${nm(GROUPS.find(x => x.g === g).next)}</option>`).join("");
+  function render() {
+    const g = sel.value, c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
+    const x = start.inputs(c), p = softmax(start.scores(c));
+    const push = p.map((q, k) => q - (k === goal ? 1 : 0));
+    document.getElementById("bkHead").innerHTML = `Chance of <b>${nm(CHARS[goal])}</b>: ${(p[goal] * 100).toFixed(1)}%. Its score's push: chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b> (the other 13 letters get pushes too).`;
+    let h = `<tr><th>from</th><th>number</th><th>push</th><th>number − push</th></tr>`;
+    x.forEach((v, j) => { const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0); h += `<tr><td>${sc(g[Math.floor(j / 2)])}, number ${j % 2 + 1}</td><td>${fmt(v)}</td><td>${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`; });
+    document.getElementById("bkTab").innerHTML = h;
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();
+})();
+
+// ---------- 5: train, and watch the map ----------
+const model = fresh();
+(function trainDemo() {
+  const svg = document.getElementById("map"), btn = document.getElementById("train");
+  const r = v => Math.max(-4.6, Math.min(4.6, v));
+  function draw() {
+    let h = `<line class="ax" x1="-5" y1="0" x2="5" y2="0"/><line class="ax" x1="0" y1="-5" x2="0" y2="5"/>`;
+    model.letters.forEach((l, i) => { h += `<circle class="dot" cx="${r(l[0])}" cy="${-r(l[1])}" r="0.42"/><text x="${r(l[0])}" y="${-r(l[1])}" style="font-size:0.5px;stroke:none">${sc(CHARS[i])}</text>`; });
+    svg.innerHTML = h;
+    document.getElementById("trainSteps").textContent = model.step;
+    document.getElementById("trainLoss").textContent = model.loss().toFixed(4);
+    document.getElementById("mapNote").innerHTML = model.step ? "Nobody told the letters where to go. Each moved to where the guesses got better." : "<b>Press Train: the positions are still random.</b>";
+    btn.textContent = model.step ? "Train 300 more" : "Train 300 steps";
+  }
+  btn.onclick = () => { model.train(300); draw(); };
+  addReset(btn, () => { model.reset(); draw(); });
+  draw();
+})();
+</script>
+</body>
+</html>
