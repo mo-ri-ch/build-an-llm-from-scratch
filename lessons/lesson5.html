@@ -333,7 +333,7 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step: 44 checks, one move</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">One step has three parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>c) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − <span data-peek="10 is the learning rate: how big each move is.">10</span> × average gradient</b><br>While we go through the examples, the boxes stay where they are.</p>
+      <p class="say">One step has four parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses (next page).<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>d) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − <span data-peek="10 is the learning rate: how big each move is.">10</span> × average gradient</b><br>While we go through the examples, the boxes stay where they are.</p>
       <div class="activity">
         <div class="do">Step through, then move the boxes.</div>
         <div class="os-remember">Remember: <b class="eqbox">gradient = chance − goal</b> <b class="eqbox">new = old − 10 × (sum ÷ 44)</b></div>
@@ -366,8 +366,8 @@
           <button id="step1">1 step</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 600 130" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). Green dashed line: the best loss a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
-        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
+        <div class="muted">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). Green dashed line: <span data-peek="Not 0: after “at␣” our text has both s and o, so even a giant table can't be sure there.">the best loss</span> a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div><div>Above the giant table<b id="trainGap">–</b></div></div>
         <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
         <div class="top3 cmp4" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
@@ -555,20 +555,20 @@ the mat. the cat sat on the dog sat on the </pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#6" data-topic="Why not count them?" data-right="Right. Each row is only one part of a sum. A count can't say how big each part should be.">
+        <div class="quiz" data-page="lesson5.html#6" data-topic="Why not count them?" data-right="Right. A shared box also counts other groups, so it pushes the wrong letter. And a count never checks the guess: learning does.">
           <div class="q"><small>5. Why learn?</small>Why can't the 3 tables be filled by counting?</div>
           <div class="options">
             <button data-why="Counting 588 boxes is easy. The problem is what the numbers mean.">There are too many numbers to count</button>
-            <button data-right>Each guess adds 3 rows; a count can't say how big each part should be</button>
-            <button data-why="The text is the same. The problem is that each row is only one part of a guess.">The text is too short</button>
+            <button data-right>Shared boxes mix in other groups' counts, and a count never checks the guess</button>
+            <button data-why="The text is the same. The problem is that shared boxes count other groups too.">The text is too short</button>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson5.html#7" data-topic="One learning step" data-right="Right. Every example finds its gradient for the box, the gradients are added up and divided by 44 (the average), and the box moves once: new = old − 10 × average.">
-          <div class="q"><small>6. One step</small>A shared box gets a gradient from each of the 44 examples. How does it move in one step?</div>
+        <div class="quiz" data-page="lesson5.html#7" data-topic="One learning step" data-right="Right. Every example that uses the box gives it a gradient, the gradients are added up and divided by 44 (the average), and the box moves once: new = old − 10 × average.">
+          <div class="q"><small>6. One step</small>A box is used by some of the 44 examples, and each one gives it a gradient. How does it move in one step?</div>
           <div class="options">
             <button data-why="The boxes don't move after each example. The gradients are collected first.">After every example, by that example's gradient</button>
-            <button data-right>Once, by the average of its 44 gradients × the learning rate</button>
+            <button data-right>Once: its gradients are added up, divided by 44, and multiplied by the learning rate</button>
             <button data-why="Opposite gradients cancel out. The box moves by the average of all of them, not just one.">By the single biggest gradient</button>
           </div>
           <div class="feedback"></div>
@@ -1041,6 +1041,8 @@ function renderTrain() {
   chart();
   document.getElementById("trainSteps").textContent = model.step;
   document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(4);
+  document.getElementById("trainGap").textContent = "+" + (lossHistory[lossHistory.length - 1] - BEST).toFixed(4);
+  document.getElementById("learnTop").style.opacity = model.step ? "" : "0.45";
   const g = learnSel.value;
   const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
   const counts = {}; seenNext.forEach(c => counts[c] = (counts[c] || 0) + 1);
@@ -1050,7 +1052,7 @@ function renderTrain() {
     top.map(([q, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span><span class="pct">${counted(k)}</span>`).join("");
   document.getElementById("learnNote").innerHTML = (seenNext.length
     ? `Counted = the giant table's chance: in our text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.`
-    : `${groupLabel(g)} never appears in our text, so the giant table's row is empty (—).`) + (model.step ? "" : " Press Train first: the learned chances are still random.");
+    : `${groupLabel(g)} never appears in our text, so the giant table's row is empty (—).`) + (model.step ? "" : " <b>Press Train first: these learned chances are still random.</b>");
   document.getElementById("train").textContent = model.step ? "Train 300 more" : "Train 300 steps";
 }
 document.getElementById("train").onclick = () => { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
