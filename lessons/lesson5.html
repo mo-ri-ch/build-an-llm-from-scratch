@@ -331,7 +331,7 @@
 
     <!-- 6 -->
     <section class="part" data-title="One learning step">
-      <h2>One learning step</h2>
+      <h2>One learning step: 44 checks, one move</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
       <p class="say">One step has three parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>c) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − <span data-peek="10 is the learning rate: how big each move is.">10</span> × average gradient</b><br>While we go through the examples, the boxes stay where they are.</p>
       <div class="activity">
