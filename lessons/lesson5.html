@@ -945,7 +945,7 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">${groupOf(c.i).replace(/ /g, "␣")} ${sgn(c.v)}${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
       (!moved && ex.c3 !== W.r ? `<div class="muted" style="margin-top:4px">“${g.replace(/ /g, "␣")}” ends in ${sc(CHARS[ex.c3])}, so it doesn't use this box.</div>` : "") +
       `<div class="tot">Sum of these gradients${moved || noted === N ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
-      (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box's score is still ${fmt(m.tables[W.t][W.r][W.k])}: it moves once, after the last example.`) + `</div>`;
+      (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. Box score now: <b>${fmt(m.tables[W.t][W.r][W.k])}</b> (it moves once, after the last example).`) + `</div>`;
     const done = noted === N;
     btn("osNext").hidden = done; btn("osAll").hidden = done; btn("osBack").hidden = noted <= 1 || moved;
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
