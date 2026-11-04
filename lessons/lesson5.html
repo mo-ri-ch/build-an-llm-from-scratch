@@ -37,7 +37,7 @@
   @media (max-width: 640px) { .three { gap: 8px; } .mini-grid { font-size: 0.45rem; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); } .mini-sub { font-size: 0.7rem; } .mini-row { font-size: 0.75rem; } }
 
   /* Page 3 and 5: rows added up */
-  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.76rem; margin: 8px 0; }
+  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.76rem; margin: 8px 0; display: block; max-width: 100%; overflow-x: auto; }
   .addtab th, .addtab td { padding: 6px 4px; text-align: right; white-space: nowrap; }
   .addtab .op { font-weight: 700; color: var(--ink); display: inline-block; width: 1.1em; }
   #addTab th[data-k], #addTab td[data-k] { cursor: pointer; }
@@ -68,7 +68,7 @@
   .k.b, .sh tr.b td { background: color-mix(in srgb, var(--hl-blue) 45%, transparent); }
   .k.both, .sh tr.both td { background: color-mix(in srgb, var(--hl-green) 60%, transparent); }
   .sh-eqs { display: grid; gap: 14px; }
-  .sh-line { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+  .sh-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .sh-name { width: 5.2em; flex: none; font-family: var(--mono); font-size: 1.15rem; font-weight: 700; }
   .sh-name small, .sh-total small { display: block; font-family: var(--body, inherit); font-weight: 400; font-size: 0.75rem; color: var(--pencil); }
   .sh-card { border: 2px solid var(--grid, #d9dfeb); border-radius: 8px; padding: 6px 10px; text-align: center; background: var(--card, #fff); min-width: 5.6em; transition: transform 0.2s; }
@@ -83,7 +83,7 @@
   .cnt-x { padding: 3px 9px; font-family: var(--mono, monospace); }
   .sh-other.on, .cnt-g.on, .cnt-m.on, .cnt-x.on { background: var(--ink); color: var(--paper); }
   .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
-  @media (max-width: 640px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } }
+  @media (max-width: 1180px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } .sh-total { min-width: 0; flex: 1 1 8em; } }
   .sh-tables { display: grid; gap: 12px; }
   .sh-minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .sh-mini .sh-title { text-align: center; font-size: 0.9rem; }
@@ -588,7 +588,8 @@ the mat. the cat sat on the dog sat on the </pre></div>
         <div class="do">Type any 3 letters from our vocabulary. Try “lat”.</div>
         <div class="row"><input class="try-in" id="tryIn" value="lat" maxlength="3" spellcheck="false" autocomplete="off" aria-label="3 letters"></div>
         <div class="top3" id="tryTop"></div>
-        <div class="muted" id="tryNote" style="margin-top:8px"></div>
+        <div class="muted" id="tryParts" style="margin-top:8px"></div>
+        <div class="muted" id="tryNote" style="margin-top:4px"></div>
       </div>
       <p class="say">After “lat” it guesses a full stop: row <code>l</code> of the third-last table learned from “<b>l</b>og.”. It never sees “lat” as a whole.</p>
       <p class="neo-say">I stopped writing “sathe”! But my letters never work together.</p>
@@ -1053,13 +1054,16 @@ addReset(document.getElementById("written"), () => { document.getElementById("wr
   function render() {
     ensureTrained();
     const v = inp.value.toLowerCase(), bad = [...v].find(c => CHAR_TO_NUMBER[c] === undefined);
-    const note = document.getElementById("tryNote"), top = document.getElementById("tryTop");
+    const note = document.getElementById("tryNote"), top = document.getElementById("tryTop"), parts = document.getElementById("tryParts");
     if (v.length < 3 || bad !== undefined) {
-      top.innerHTML = "";
+      top.innerHTML = ""; parts.innerHTML = "";
       note.textContent = bad !== undefined ? `“${bad}” isn't in the vocabulary. Use: ${CHARS.map(sc).join(" ")}` : "Type 3 letters.";
       return;
     }
-    topList(top, model.predict(v));
+    const p = model.predict(v), best = p.indexOf(Math.max(...p));
+    topList(top, p);
+    const sc3 = [0, 1, 2].map(t => model.tables[t][CHAR_TO_NUMBER[v[t]]][best]);
+    parts.innerHTML = `Scores for <b>${nm(CHARS[best])}</b>: ` + [...v].map((c, t) => `<code>${sc(c)}</code> ${fmt(sc3[t])}`).join(" + ") + ` = <b>${fmt(sc3[0] + sc3[1] + sc3[2])}</b>`;
     note.textContent = GROUPS.some(x => x.g === v) ? `“${v}” appears in our text.` : `“${v}” never appears in our text.`;
   }
   inp.oninput = render;
