@@ -338,6 +338,7 @@
         <div class="do">Step through, then move the boxes.</div>
         <div class="os-remember">Remember: <b class="eqbox">gradient = chance − goal</b> <b class="eqbox">new = old − 10 × (sum ÷ 44)</b></div>
         <div class="window-text static" id="osText" aria-label="Our text, with the current window"></div>
+        <div id="osBody">
         <div class="row" style="margin:0 0 12px">
           <button id="osBack" hidden>← Previous example</button>
           <button class="primary" id="osNext">Next example →</button>
@@ -349,6 +350,7 @@
         <div class="os-push" id="osPush"></div>
         <div class="os-watch" id="osWatch"></div>
         <div class="sh-result" id="osResult"></div>
+        </div>
       </div>
       <p class="hook">That was one step. Next: repeat it 300 times.</p>
     </section>
@@ -966,6 +968,16 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   window.__oneStep = () => ({ m, stepNo, noted, moved });   // for automated checks
   addReset(textBox, reset);
   reset();
+  // Keep the box one size: reserve the height of the tallest state (any example, or after the move).
+  const body = btn("osBody"); let fitted = -1;
+  function fit() {
+    if (!body.offsetWidth || stepNo || noted !== 1 || moved) return;   // hidden page, or the reader has started
+    body.style.minHeight = "0"; let h = 0;
+    for (let n = 1; n <= N; n++) { goTo(n); h = Math.max(h, body.offsetHeight); }
+    btn("osMove").click(); h = Math.max(h, body.offsetHeight);
+    reset(); body.style.minHeight = h + "px"; fitted = body.offsetWidth;
+  }
+  if (window.ResizeObserver) new ResizeObserver(() => { if (body.offsetWidth !== fitted) fit(); }).observe(body);
   // Show me how
   const ACT = () => textBox.closest(".activity");
   const iOf = g => TEXT.indexOf(g);
