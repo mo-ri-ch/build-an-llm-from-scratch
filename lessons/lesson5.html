@@ -122,11 +122,6 @@
   @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
 
   /* Page 6: training */
-  svg.chart { width: 100%; height: auto; display: block; margin: 8px 0; }
-  svg.chart .axis { stroke: var(--pencil); stroke-width: 1; }
-  svg.chart .line { fill: none; stroke: var(--pen); stroke-width: 2.5; }
-  svg.chart .goal { stroke: var(--good, #1E8F4E); stroke-dasharray: 5 4; stroke-width: 1.5; }
-  svg.chart text { fill: var(--pencil); font-family: var(--mono); font-size: 12px; }
   .score-line { display: flex; gap: 28px; margin-top: 10px; color: var(--pencil); font-size: 0.9rem; }
   .score-line b { display: block; font-family: var(--mono); font-size: 1.4rem; color: var(--ink); }
   .top3 { display: grid; grid-template-columns: 4.5em 1fr 3.6em; gap: 6px 12px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin-top: 10px; }
@@ -363,12 +358,10 @@
         <div class="do">Press Train, then pick a group.</div>
         <div class="row">
           <button class="primary" id="train">Train 300 steps</button>
-          <button id="step1">1 step</button>
         </div>
-        <svg class="chart" id="chart" viewBox="0 0 600 130" role="img" aria-label="Loss over training"></svg>
-        <div class="muted">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). Green dashed line: <span data-peek="Not 0: after “at␣” our text has both s and o, so even a giant table can't be sure there.">the best loss</span> a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
         <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div><div>Above the giant table<b id="trainGap">–</b></div></div>
-        <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label></div>
+        <div class="muted" style="margin-top:8px">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). <span data-peek="Not 0: after “at␣” our text has both s and o, so even a giant table can't be sure there.">The best</span> a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
+        <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label><button id="tryHat" hidden>Now try “hat”: not in our text</button></div>
         <div class="top3 cmp4" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
       </div>
@@ -1024,25 +1017,15 @@ function topList(el, chances, n = 3) {
   const top = chances.map((p, k) => [p, k]).sort((a, b) => b[0] - a[0]).slice(0, n);
   el.innerHTML = top.map(([p, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(p * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(p * 100)}%</span>`).join("");
 }
-function chart() {
-  const svg = document.getElementById("chart"), W = 600, H = 130, L = 40, B = 20, top = 10;
-  const maxL = Math.max(4.2, ...lossHistory), maxS = Math.max(300, lossHistory.length - 1);
-  const x = s => L + (W - L - 10) * s / maxS, y = v => top + (H - B - top) * (1 - v / maxL);
-  let h = `<line class="axis" x1="${L}" y1="${top}" x2="${L}" y2="${H - B}"/><line class="axis" x1="${L}" y1="${H - B}" x2="${W - 10}" y2="${H - B}"/>`;
-  h += `<text x="6" y="${y(4) + 4}">4</text><text x="6" y="${y(0) + 4}">0</text><text x="${W - 50}" y="${H - 4}">steps</text>`;
-  h += `<line class="goal" x1="${L}" y1="${y(BEST)}" x2="${W - 10}" y2="${y(BEST)}"/>`;
-  if (lossHistory.length > 1) h += `<polyline class="line" points="${lossHistory.map((v, s) => `${x(s)},${y(v)}`).join(" ")}"/>`;
-  svg.innerHTML = h;
-}
 const learnSel = document.getElementById("learnGroup");
 const learnPicks = ["cat", "sat", "mat", "at ", "hat"];
 learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}${GROUPS.some(x => x.g === g) ? "" : " (never in the text)"}</option>`).join("");
 function renderTrain() {
-  chart();
   document.getElementById("trainSteps").textContent = model.step;
   document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(4);
   document.getElementById("trainGap").textContent = "+" + (lossHistory[lossHistory.length - 1] - BEST).toFixed(4);
   document.getElementById("learnTop").style.opacity = model.step ? "" : "0.45";
+  document.getElementById("tryHat").hidden = !model.step || learnSel.value === "hat";
   const g = learnSel.value;
   const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
   const counts = {}; seenNext.forEach(c => counts[c] = (counts[c] || 0) + 1);
@@ -1056,9 +1039,9 @@ function renderTrain() {
   document.getElementById("train").textContent = model.step ? "Train 300 more" : "Train 300 steps";
 }
 document.getElementById("train").onclick = () => { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
-document.getElementById("step1").onclick = () => { model.trainStep(); lossHistory.push(lossNow()); renderTrain(); };
+document.getElementById("tryHat").onclick = () => { learnSel.value = "hat"; renderTrain(); };
 learnSel.onchange = renderTrain;
-addReset(document.getElementById("chart"), () => { model.reset(); lossHistory.length = 0; lossHistory.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
+addReset(document.getElementById("trainLoss"), () => { model.reset(); lossHistory.length = 0; lossHistory.push(lossNow()); learnSel.value = "cat"; renderTrain(); });
 renderTrain();
 
 // 8: write with the weighted wheel
