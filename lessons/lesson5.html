@@ -333,7 +333,7 @@
     <section class="part" data-title="One learning step">
       <h2>One learning step</h2>
       <p class="say">A 3-letter window slides along our text. Each window is an example: the 3 letters, and the letter that comes next.</p>
-      <p class="say">One step has four parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Measure:</b> the loss averages the 44 examples' losses (next page).<br>c) <b>Find directions:</b> every example finds a gradient (chance − goal) for each box it used.<br>d) <b>Move:</b> the gradients are added up, so opposite ones cancel. Dividing by 44 gives the average. Every box then moves once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. The boxes don't move after each example.</p>
+      <p class="say">One step has three parts:<br>a) <b>Predict:</b> every example gets its chances.<br>b) <b>Find directions:</b> every example finds a gradient (chance − goal) for every box in the 3 rows it used: the right letter's box goes up, the other 13 go down.<br>c) <b>Move:</b> add up each box's gradients (opposite ones cancel), divide by 44 for the average, then move every box once, by<br><b class="eqbox">new = old − 10 × average gradient</b><br>10 is the learning rate. While we go through the examples, the boxes stay where they are.</p>
       <div class="activity">
         <div class="do">Step through, then move the boxes.</div>
         <div class="os-remember">Remember: <b class="eqbox">gradient = chance − goal</b> <b class="eqbox">new = old − 10 × (sum ÷ 44)</b></div>
@@ -342,6 +342,7 @@
         <div class="os-push" id="osPush"></div>
         <div class="os-watch" id="osWatch"></div>
         <div class="row" style="margin-top:12px">
+          <button id="osBack" hidden>← Previous example</button>
           <button class="primary" id="osNext">Next example →</button>
           <button id="osAll">Do all 44</button>
           <button class="primary" id="osMove" hidden>Move the boxes</button>
@@ -943,16 +944,17 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     btn("osWatch").innerHTML = `<div class="title">Follow one box: <b>space after t</b> (last table, row t). Every example ending in t adds to it.</div>` +
       `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">${groupOf(c.i).replace(/ /g, "␣")} ${sgn(c.v)}${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
       (!moved && ex.c3 !== W.r ? `<div class="muted" style="margin-top:4px">“${g.replace(/ /g, "␣")}” ends in ${sc(CHARS[ex.c3])}, so it doesn't use this box.</div>` : "") +
-      `<div class="tot">Sum of these gradients${moved ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
+      `<div class="tot">Sum of these gradients${moved || noted === N ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
       (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. The box hasn't moved yet (${fmt(m.tables[W.t][W.r][W.k])}).`) + `</div>`;
     const done = noted === N;
-    btn("osNext").hidden = done; btn("osAll").hidden = done;
+    btn("osNext").hidden = done; btn("osAll").hidden = done; btn("osBack").hidden = noted <= 1 || moved;
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
     btn("osResult").innerHTML = moved
       ? `<b>Step ${stepNo} done.</b> All 588 boxes moved once. Did the guesses get better?<table class="os-prog">${WATCH.map((w, j) => { const ex = m.examples[TEXT.indexOf(w)]; return `<tr><td>“${w}” → ${nm(CHARS[ex.next])}</td><td>${P(before.ch[j])} → <b>${P(chanceRight(w))}</b></td></tr>`; }).join("")}</table>`
       : done ? ``
       : ``;
   }
+  btn("osBack").onclick = () => goTo(noted - 1);
   btn("osNext").onclick = () => { note(noted); noted += 1; render(); };
   btn("osAll").onclick = () => { while (noted < N) { note(noted); noted += 1; } render(); };
   btn("osMove").onclick = () => {
