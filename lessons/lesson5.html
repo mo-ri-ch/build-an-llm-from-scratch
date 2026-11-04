@@ -163,7 +163,7 @@
   .os-prog { border-collapse: collapse; font-size: 0.9rem; margin-top: 6px; }
   .os-prog td { padding: 2px 12px 2px 0; }
   .os-prog td:last-child { font-family: var(--mono); }
-  .top3.cmp4 { grid-template-columns: 6.2em 1fr 3.6em 4.4em; }
+  .top3.cmp4 { grid-template-columns: 6.2em 1fr 5.6em 4.8em; }
   .top3 .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); text-align: right; }
 
   /* Page 8: writing */
@@ -353,14 +353,14 @@
     <!-- 7 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The step from the last page, repeated. Compare the learned chances with what a giant counting table would give.</p>
+      <p class="say">The step from the last page, repeated. Does your model end up agreeing with our text?</p>
       <div class="activity">
-        <div class="do">Press Train, then pick a group.</div>
+        <div class="do">Press Train. Watch your model's chances move toward what our text says.</div>
         <div class="row">
           <button class="primary" id="train">Train 300 steps</button>
         </div>
-        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div><div>Above the giant table<b id="trainGap">–</b></div></div>
-        <div class="muted" style="margin-top:8px">Loss: how wrong the guesses are, averaged over the 44 examples (0 = perfect). <span data-peek="Not 0: after “at␣” our text has both s and o, so even a giant table can't be sure there.">The best</span> a giant counting table can reach on our text: <b id="bestLoss"></b>.</div>
+        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
+        <div class="muted" style="margin-top:8px">Loss: how wrong the guesses are, averaged over the 44 examples. Lower is better.</div>
         <div class="row" style="margin-top:16px"><label>Chances after <select id="learnGroup" class="pick"></select></label><button id="tryHat" hidden>Now try “hat”: not in our text</button></div>
         <div class="top3 cmp4" id="learnTop"></div>
         <div class="muted" id="learnNote" style="margin-top:8px"></div>
@@ -1003,14 +1003,6 @@ function lossNow() {
   model.examples.forEach(ex => { total += -Math.log(softmax(model.scores(ex.c1, ex.c2, ex.c3))[ex.next]); });
   return total / model.examples.length;
 }
-// The best a giant counting table could do: for each group, the share of each next letter
-const BEST = (() => {
-  const byGroup = {}; GROUPS.forEach(x => { (byGroup[x.g] = byGroup[x.g] || {}); byGroup[x.g][x.next] = (byGroup[x.g][x.next] || 0) + 1; });
-  let total = 0;
-  GROUPS.forEach(x => { const c = byGroup[x.g], n = Object.values(c).reduce((a, b) => a + b, 0); total += -Math.log(c[x.next] / n); });
-  return total / GROUPS.length;
-})();
-document.getElementById("bestLoss").textContent = BEST.toFixed(4);
 function ensureTrained() { if (model.step === 0) { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); } }
 
 function topList(el, chances, n = 3) {
@@ -1019,23 +1011,24 @@ function topList(el, chances, n = 3) {
 }
 const learnSel = document.getElementById("learnGroup");
 const learnPicks = ["cat", "sat", "mat", "at ", "hat"];
-learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}${GROUPS.some(x => x.g === g) ? "" : " (never in the text)"}</option>`).join("");
+learnSel.innerHTML = learnPicks.map(g => `<option value="${g}">${groupLabel(g)}${GROUPS.some(x => x.g === g) ? "" : " (not in text)"}</option>`).join("");
 function renderTrain() {
   document.getElementById("trainSteps").textContent = model.step;
   document.getElementById("trainLoss").textContent = lossHistory[lossHistory.length - 1].toFixed(4);
-  document.getElementById("trainGap").textContent = "+" + (lossHistory[lossHistory.length - 1] - BEST).toFixed(4);
-  document.getElementById("learnTop").style.opacity = model.step ? "" : "0.45";
   document.getElementById("tryHat").hidden = !model.step || learnSel.value === "hat";
   const g = learnSel.value;
   const seenNext = GROUPS.filter(x => x.g === g).map(x => x.next);
   const counts = {}; seenNext.forEach(c => counts[c] = (counts[c] || 0) + 1);
-  const p = model.predict(g), top = p.map((q, k) => [q, k]).sort((a, b) => b[0] - a[0]).slice(0, 3);
-  const counted = k => seenNext.length ? Math.round(100 * (counts[CHARS[k]] || 0) / seenNext.length) + "%" : "—";
-  document.getElementById("learnTop").innerHTML = `<span></span><span></span><span class="hd">learned</span><span class="hd">counted</span>` +
-    top.map(([q, k]) => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span><span class="pct">${counted(k)}</span>`).join("");
+  const p = model.predict(g);
+  // rows: what our text says comes next, then the model's own favourites, up to 3
+  const rows = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).map(c => CHAR_TO_NUMBER[c]);
+  p.map((q, k) => [q, k]).sort((a, b) => b[0] - a[0]).forEach(([q, k]) => { if (rows.length < 3 && !rows.includes(k)) rows.push(k); });
+  const said = k => seenNext.length ? Math.round(100 * (counts[CHARS[k]] || 0) / seenNext.length) + "%" : "—";
+  document.getElementById("learnTop").innerHTML = `<span></span><span></span><span class="hd">your model</span><span class="hd">our text</span>` +
+    rows.slice(0, 3).map(k => `<span>${nm(CHARS[k])}</span><span class="track"><span class="fill" style="width:${(p[k] * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(p[k] * 100)}%</span><span class="pct">${said(k)}</span>`).join("");
   document.getElementById("learnNote").innerHTML = (seenNext.length
-    ? `Counted = the giant table's chance: in our text, after ${groupLabel(g)}: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.`
-    : `${groupLabel(g)} never appears in our text, so the giant table's row is empty (—).`) + (model.step ? "" : " <b>Press Train first: these learned chances are still random.</b>");
+    ? `After ${groupLabel(g)}, our text has: ${Object.entries(counts).map(([c, n]) => `${nm(c)} ${n} of ${seenNext.length}`).join(", ")}.`
+    : `${groupLabel(g)} never appears in our text, so our text has no answer (—).`) + (model.step ? "" : " <b>Press Train: your model's numbers are still random.</b>");
   document.getElementById("train").textContent = model.step ? "Train 300 more" : "Train 300 steps";
 }
 document.getElementById("train").onclick = () => { for (let i = 0; i < 300; i++) { model.trainStep(); lossHistory.push(lossNow()); } renderTrain(); };
