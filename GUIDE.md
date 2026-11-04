@@ -50,7 +50,7 @@ These are the rules agreed while building Lessons 1–4. Follow all of them for 
 - Site tools: Guide me (assets/guide.js: one glow at a time, → / ←, Shift+→ next page, activities wait for the student; steps come from each page's elements, so keep pages as a clean list of paragraphs and boxes), pen and sticky notes, Step through, Python-word cards, page list, cross-lesson arrows.
 - Oct 24: Rishal finished Lesson 4 as a student (Lessons 1–4 reviewed). Every lesson (1–4) now ends with a lesson test.
 - Oct 24: Lesson 5 built (three small tables, shared numbers, why counting fails, learning, writing, test; last page: letters on their own → Lesson 6).
-- **Next:** Rishal goes through Lesson 5 as a student. Then Lesson 6 must answer: "How can letters affect each other?"
+- **Next:** Rishal goes through Lesson 5 as a student. Then Lesson 6 must answer: "Could every letter have one description that works in every position?"
 - Later: Lessons 6–10; Lesson 9 introduces VS Code and the terminal; option of loading real GPT-2 weights in Lesson 10 (not decided).
 - Rishal's aim for both courses: understand everything, with an eagle-eye view of what is happening. Activities show every step's math live (step / ◀ Back / ▶ Play), never just a result (see the shared GUIDELINES.md).
 - Before publishing any page edit, run `python3 tools/check_pages.py` (words outside the activity, limit about 120). Fix or justify anything it flags.
