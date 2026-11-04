@@ -79,7 +79,8 @@
   .sh-op { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
   .sh-total { font-family: var(--mono); font-size: 1.25rem; min-width: 8em; }
   .sh-other, .cnt-g, .cnt-m { padding: 6px 12px; }
-  .sh-other.on, .cnt-g.on, .cnt-m.on { background: var(--ink); color: var(--paper); }
+  .cnt-x { padding: 3px 9px; font-family: var(--mono, monospace); }
+  .sh-other.on, .cnt-g.on, .cnt-m.on, .cnt-x.on { background: var(--ink); color: var(--paper); }
   .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
   @media (max-width: 640px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } }
   .sh-tables { display: grid; gap: 12px; }
@@ -314,6 +315,7 @@
           <button class="cnt-m on" data-m="count">counting</button>
           <button class="cnt-m" data-m="learn">learning</button>
         </div>
+        <div class="row" style="margin:-2px 0 12px"><span class="muted">Also show next letter:</span><span id="cntXs" class="row" style="gap:4px"></span></div>
         <div class="window-text static cnt-text" id="cntText" aria-label="Our text"></div>
         <div class="muted" id="cntHint" style="margin:-8px 0 10px"></div>
         <div class="sh-eqs" id="cntEqs"></div>
@@ -799,7 +801,9 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   GROUPS.forEach(x => { const n = CHAR_TO_NUMBER[x.next]; [0, 1, 2].forEach(t => counts[t][CHAR_TO_NUMBER[x.g[t]]][n] += 1); });
   // learned boxes: a copy of the model, trained the same way as on the next page
   const learned = new ThreeCharModel(); learned.train(300);
-  let g = "mat", mode = "count", point = null;   // point = [table, next letter] of the box being pointed at
+  let g = "mat", mode = "count", point = null, extra = null;   // point = [table, next letter] of the box being pointed at
+  const xs = document.getElementById("cntXs");
+  xs.innerHTML = CHARS.filter(c => c !== "." && c !== " ").map(c => `<button class="cnt-x" data-c="${c}" aria-label="Also show ${c}">${c}</button>`).join("");
   const textBox = document.getElementById("cntText");
   textBox.innerHTML = [...TEXT].map((c, i) => `<span data-i="${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
   function markText() {
@@ -814,13 +818,13 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
   const val = (t, c) => mode === "count" ? counts[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]] : learned.tables[t][CHAR_TO_NUMBER[g[t]]][CHAR_TO_NUMBER[c]];
   const show = v => mode === "count" ? String(v) : fmt(v);
   function render() {
-    const real = GROUPS.find(x => x.g === g).next, cands = [".", " "];
+    const real = GROUPS.find(x => x.g === g).next, cands = [".", " ", ...(extra ? [extra] : [])];
     const sums = cands.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0));
     let chances, all = [], tot = 0;
     if (mode === "count") { all = CHARS.map(c => [0, 1, 2].reduce((a, t) => a + val(t, c), 0)); tot = all.reduce((a, b) => a + b, 0); chances = cands.map(c => all[CHAR_TO_NUMBER[c]] / tot); }
     else { const p = learned.predict(g); chances = cands.map(c => p[CHAR_TO_NUMBER[c]]); }
-    const win = sums[0] >= sums[1] ? 0 : 1;
-    box.innerHTML = cands.map((c, i) => `<div class="sh-line"><div class="sh-name">→ ${sc(c)}<small>${nm(c)}${c === real ? ", the right answer" : ""}</small></div>` +
+    const win = sums.indexOf(Math.max(...sums));
+    box.innerHTML = cands.map((c, i) => `<div class="sh-line"><div class="sh-name">→ ${sc(c)}<small>${nm(c) === c ? "" : nm(c)}${c === real ? (nm(c) === c ? "" : ", ") + "the right answer" : ""}</small></div>` +
       [0, 1, 2].map(t => (t ? `<div class="sh-op">+</div>` : "") +
         `<div class="sh-card ${t > 0 ? "shared" : ""} ${point && point[0] === t && point[1] === c ? "pointed" : ""}" data-t="${t}" data-c="${c}"><div class="sh-pat">${[0, 1, 2].map(j => j === t ? `<b>${sc(g[j])}</b>` : "_").join(" ")} → ${sc(c)}</div><div class="sh-num" style="${val(t, c) < 0 ? "color:var(--redpen)" : ""}">${show(val(t, c))}</div><div class="sh-tab">${POS[t]} table</div></div>`).join("") +
       `<div class="sh-op">=</div><div class="sh-total"><b>${show(sums[i])}</b><small>${mode === "count" ? `<span data-peek="${(`<b>${show(sums[i])} ÷ ${tot}</b> = ${chances[i].toFixed(3)} ≈ <b>${Math.round(chances[i] * 100)}%</b><br>This letter's sum, divided by the sums of all ${CHARS.length} next letters added up. Those sums: ` + CHARS.filter(c => all[CHAR_TO_NUMBER[c]]).map(c => `${showChar(c)} ${all[CHAR_TO_NUMBER[c]]}`).join(" + ") + ` = ${tot}`).replace(/"/g, "&quot;")}">chance (sum ÷ all sums)</span>` : "chance"}: <b>${Math.round(chances[i] * 100)}%</b>${i === win ? " ← wins" : ""}</small></div></div>`).join("");
@@ -836,20 +840,22 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
     markText();
     document.querySelectorAll(".cnt-g").forEach(b => b.classList.toggle("on", b.dataset.g === g));
     document.querySelectorAll(".cnt-m").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
+    xs.querySelectorAll(".cnt-x").forEach(b => b.classList.toggle("on", b.dataset.c === extra));
   }
   document.querySelectorAll(".cnt-g").forEach(b => b.onclick = () => { g = b.dataset.g; render(); });
   document.querySelectorAll(".cnt-m").forEach(b => b.onclick = () => { mode = b.dataset.m; render(); });
+  xs.querySelectorAll(".cnt-x").forEach(b => b.onclick = () => { extra = extra === b.dataset.c ? null : b.dataset.c; point = null; render(); });
   box.addEventListener("mouseover", e => { const c = e.target.closest(".sh-card"); if (!c) return; point = [Number(c.dataset.t), c.dataset.c]; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.toggle("pointed", x === c)); });
   box.addEventListener("click", e => { const c = e.target.closest(".sh-card"); if (!c) return; point = [Number(c.dataset.t), c.dataset.c]; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.toggle("pointed", x === c)); });
   box.addEventListener("mouseleave", () => { point = null; markText(); box.querySelectorAll(".sh-card").forEach(x => x.classList.remove("pointed")); });
-  addReset(box, () => { g = "mat"; mode = "count"; point = null; render(); });
+  addReset(box, () => { g = "mat"; mode = "count"; point = null; extra = null; render(); });
   render();
   // Show me how: walk through "mat", counting then learning
   const card = (t, c) => box.querySelector(`.sh-card[data-t="${t}"][data-c="${c}"]`);
   const line = n => box.querySelectorAll(".sh-line")[n];
   const L = (t, c) => fmt(learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]]);
   const SUM = c => [0, 1, 2].reduce((a, t) => a + learned.tables[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0);
-  const set = (gg, mm, pp) => () => { g = gg; mode = mm; point = pp; render(); };
+  const set = (gg, mm, pp) => () => { g = gg; mode = mm; point = pp; extra = null; render(); };
   const ACT = () => box.closest(".activity");
   const LEARN_BTN = () => ACT().querySelector('.cnt-m[data-m="learn"]');
   const countTotal = () => CHARS.reduce((a, c) => a + [0, 1, 2].reduce((b, t) => b + counts[t][CHAR_TO_NUMBER["mat"[t]]][CHAR_TO_NUMBER[c]], 0), 0);
