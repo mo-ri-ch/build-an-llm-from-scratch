@@ -17,7 +17,7 @@ const COURSE_LESSONS = [
     leaves: "Your model can learn now, but it still sees only 1 letter. How can it look further back without the table exploding?" },
   { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: true, test: 12,
     summary: "Three small tables, one per letter, add up to one guess.",
-    leaves: "Each letter adds its own scores, without looking at the others. How can your model understand letters together?" },
+    leaves: "Each letter adds its own votes without seeing the others, so the model can't tell which letters matter together. How can letters affect each other?" },
   { n: 6, step: "meaning", title: "Embeddings", file: "lesson6.html", ready: false,
     summary: "Give each character a list of numbers that describes it.",
     leaves: "Characters still ignore each other. How can they look at each other?" },
