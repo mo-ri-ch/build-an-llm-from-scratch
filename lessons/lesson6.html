@@ -210,14 +210,14 @@
       <p class="neo-say">My three tables work. But they explode when there are more letters.</p>
       <p class="say">Right now your model has <b>588 numbers</b>: 3 tables × 14 letters × 14 next letters. With <b>1,000 letters</b> it would need <b>3 million</b>, and with all of Unicode, 67.5 billion.</p>
       <p class="say">The tables repeat the same work: each has a row for “a”, so “a” is learned <b>three times</b>.</p>
-      <p class="say"><b>Could every letter have one short description, shared by every position?</b></p>
-      <p class="hook">What would a description of a letter look like?</p>
+      <p class="say"><b>Instead of 3 big rows for “a”, could “a” have just 2 numbers, used everywhere?</b></p>
+      <p class="hook">What would 2 numbers for a letter look like?</p>
     </section>
 
     <!-- 2 -->
     <section class="part" data-title="A letter as numbers">
       <h2>A letter as numbers</h2>
-      <p class="say">Give every letter <b>2 numbers</b>: its <b>description</b>. All 14 letters share <b>one table</b>, with one row each. This is called an <b>embedding</b>.</p>
+      <p class="say">Give every letter <b>2 numbers</b>, like <code>a = [0.5, −1.2]</code>. All 14 letters share <b>one table</b>, with one row each. This table is called an <b>embedding</b>.</p>
       <p class="say">The numbers start <b>random</b>, like every number your model starts with.</p>
       <div class="activity">
         <div class="do">Pick a group. Its 3 letters pick 3 rows from the one table.</div>
@@ -282,7 +282,7 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
-      <p class="say">The new part: a score was built from the 6 numbers, so its push goes <b>back to them</b>. A letter's description moves because it helped make the guess.</p>
+      <p class="say">The new part: a score was built from the 6 numbers, so its push goes <b>back to them</b>. A letter's numbers move because they helped make the guess.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 numbers of its 3 letters would move.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
@@ -297,7 +297,7 @@
     <!-- 5 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the descriptions move.</p>
+      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the letters' numbers move.</p>
       <div class="activity">
         <div class="do">Press Train. Watch the letters move and the loss fall.</div>
         <div class="row"><button class="primary" id="train">Train 300 steps</button></div>
@@ -523,7 +523,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
     <!-- last -->
     <section class="part" data-title="Same numbers, any neighbours">
       <h2>Same numbers, any neighbours</h2>
-      <p class="say">A letter has <b>one</b> description, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
+      <p class="say">A letter has <b>one</b> set of numbers, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
       <div class="activity">
         <div class="do">Change the letters. The numbers of a letter stay the same.</div>
         <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label></div>
