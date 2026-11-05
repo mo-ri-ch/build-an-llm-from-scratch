@@ -151,7 +151,9 @@
   .os-push code, .os-watch code { font-size: 0.85em; white-space: nowrap; }
   .os-push .up { color: var(--good, #1E8F4E); font-weight: 700; white-space: nowrap; }
   .os-push .down { color: var(--redpen); font-weight: 700; white-space: nowrap; }
-  .os-watch { margin-top: 12px; padding: 8px 12px; border: 2px dashed var(--good, #1E8F4E); border-radius: 8px; font-size: 0.92rem; }
+  .os-watch { margin-top: 12px; padding: 8px 12px; background: var(--paper); border-left: 3px solid var(--good, #1E8F4E); border-radius: 4px; font-size: 0.95rem; }
+  .os-watch .score-line { margin-top: 8px; gap: 28px; }
+  .os-watch .score-line b { font-size: 1.25rem; }
   #osResult:empty { display: none; }
   .os-remember { font-size: 0.92rem; margin: 0 0 8px; line-height: 1.9; }
   .os-watch .title { font-size: 0.85rem; color: var(--pencil); margin-bottom: 4px; }
@@ -940,11 +942,12 @@ const TABLE_NAMES = ["Third-last table", "Second-last table", "Last table"], POS
       `<span data-peek="The other 13 letters' boxes in these rows get chance − 0: a small positive gradient, so down.">Its 3 boxes</span> (${boxes}) each get it.`;
     btn("osPush").hidden = moved;
     const tot = grad[W.t][W.r][W.k];
-    btn("osWatch").innerHTML = `<div class="title">Follow one box: <b>space after t</b> (last table, row t). Every example ending in t adds to it.</div>` +
-      `<div class="chips">${chips.length ? chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">${groupOf(c.i).replace(/ /g, "␣")} ${sgn(c.v)}${c.v < 0 ? "↑" : "↓"}</span>`).join("") : `<span class="muted">Waiting for an example that ends in t. The first is “cat”.</span>`}</div>` +
-      (!moved && ex.c3 !== W.r ? `<div class="muted" style="margin-top:4px">“${g.replace(/ /g, "␣")}” ends in ${sc(CHARS[ex.c3])}, so it doesn't use this box.</div>` : "") +
-      `<div class="tot">Sum of these gradients${moved || noted === N ? "" : " so far"}: <b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b>` +
-      (moved ? ` → new = old − 10 × (${sgn(tot)}) ÷ 44 = <b>${fmt(before.box)} → ${fmt(m.tables[W.t][W.r][W.k])}</b>` : `. Box score now: <b>${fmt(m.tables[W.t][W.r][W.k])}</b> (it moves once, after the last example).`) + `</div>`;
+    const soFar = !moved && noted < N, now = fmt(m.tables[W.t][W.r][W.k]);
+    btn("osWatch").innerHTML = `<div class="title">Following one box: <b>space after t</b> (last table, row t). Every example ending in t adds to it.</div>` +
+      (chips.length ? `<div class="chips">${chips.map(c => `<span class="chip ${c.v < 0 ? "up" : "down"} ${c.i === i && !moved ? "now" : ""}">${groupOf(c.i).replace(/ /g, "␣")} ${sgn(c.v)}${c.v < 0 ? "↑" : "↓"}</span>`).join("")}</div>` : "") +
+      (!moved && ex.c3 !== W.r ? `<div class="muted" style="margin-top:4px">This example doesn't use this box.</div>` : "") +
+      `<div class="score-line"><div>Sum${soFar ? " so far" : ""}<b>${chips.length ? sgn(tot) + " " + (tot < 0 ? "↑" : "↓") : "0.00"}</b></div><div>${moved ? "Box score, before → after" : "Box score now"}<b>${moved ? fmt(before.box) + " → " + now : now}</b></div></div>` +
+      `<div class="muted" style="margin-top:6px">${moved ? `new = old − 10 × (${sgn(tot)}) ÷ 44` : "It moves once, after the last example."}</div>`;
     const done = noted === N;
     btn("osNext").hidden = done; btn("osAll").hidden = done; btn("osBack").hidden = noted <= 1 || moved;
     btn("osMove").hidden = !done || moved; btn("osAgain").hidden = !moved;
