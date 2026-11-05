@@ -592,11 +592,13 @@ the mat. the cat sat on the dog sat on the </pre></div>
         <div class="muted" id="tryNote" style="margin-top:4px"></div>
       </div>
       <p class="say">After “lat” it guesses a full stop: row <code>l</code> of the third-last table learned from “<b>l</b>og.”. It never sees “lat” as a whole.</p>
-      <p class="neo-say">No more “sathe”! But each letter still votes alone.</p>
+      <p class="say">There is a bigger problem. Three tables need <b>3 × letters × letters</b> numbers:</p>
+      <table class="plain" style="margin:6px 0 14px;text-align:center"><tr><th>Different letters</th><th>Numbers in 3 tables</th></tr><tr><td>14 (our text)</td><td>588</td></tr><tr><td>100</td><td>30,000</td></tr><tr><td>1,000</td><td>3,000,000</td></tr><tr><td>150,000 (all of Unicode)</td><td>67,500,000,000</td></tr></table>
+      <p class="neo-say">No more “sathe”! But my tables explode when there are more letters.</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">Our model learns “a” three times, once in each table. Could every letter have one description that works in every position?</div>
-        <div>Lesson 6 answers it. (Coming soon.)</div>
+        <div class="big">Every letter has a row of its own in every table, so the numbers explode. Could every letter have one short description, shared by every position?</div>
+        <div>Lesson 6 answers it.</div>
       </div>
       <p><button class="done-toggle" data-done="5">Mark lesson as done</button></p>
     </section>

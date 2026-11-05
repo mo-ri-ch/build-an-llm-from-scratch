@@ -207,14 +207,10 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
-      <p class="neo-say">No more “sathe”. But I learn the letter “a” three times.</p>
-      <p class="say">Right now your model:</p>
-      <ul class="stuck">
-        <li>has <b>588 numbers</b>: three tables, each with a row for every letter.</li>
-        <li>keeps a separate row for “a” in each table, so it learns “a” <b>three times</b>.</li>
-        <li>gives “a” no description of its own, only scores for the next letter.</li>
-      </ul>
-      <p class="say"><b>Could every letter have one description, used in every position?</b></p>
+      <p class="neo-say">My three tables work. But they explode when there are more letters.</p>
+      <p class="say">Right now your model has <b>588 numbers</b>: 3 tables × 14 letters × 14 next letters. With <b>1,000 letters</b> it would need <b>3 million</b>, and with all of Unicode, 67.5 billion.</p>
+      <p class="say">The tables repeat the same work: each has a row for “a”, so “a” is learned <b>three times</b>.</p>
+      <p class="say"><b>Could every letter have one short description, shared by every position?</b></p>
       <p class="hook">What would a description of a letter look like?</p>
     </section>
 
@@ -310,6 +306,7 @@
         <div class="muted" id="mapNote" style="margin-top:8px"></div>
       </div>
       <p class="say">112 numbers reach a loss of about <b>0.178</b>. The 588 numbers of three tables reached 0.174. <b>5 times fewer numbers, almost the same result.</b></p>
+      <p class="say">With 1,000 letters it is 8,000 numbers against 3 million: they grow with the letters, not with their square.</p>
       <p class="hook">Check your numbers on paper.</p>
     </section>
 
