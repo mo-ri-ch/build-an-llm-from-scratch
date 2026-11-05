@@ -217,14 +217,14 @@
     <!-- 2 -->
     <section class="part" data-title="A letter as numbers">
       <h2>A letter as numbers</h2>
-      <p class="say">Give every letter <b>2 numbers</b>, like <code>a = [0.5, −1.2]</code>. All 14 letters share <b>one table</b>, with one row each. This table is called an <b>embedding</b>.</p>
+      <p class="say">Give every letter <b data-peek="2 is our choice. Real models use hundreds.">2 numbers</b>, like <code>a = [0.68, −1.23]</code>. All 14 letters share <b>one table</b>, with one row each. This table is called an <b>embedding</b>.</p>
       <p class="say">The numbers start <b>random</b>, like every number your model starts with.</p>
       <div class="activity">
         <div class="do">Pick a group. Its 3 letters pick 3 rows from the one table.</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="embGroup" class="pick"></select></label></div>
-        <table class="emb" id="embTab"></table>
         <div class="muted">Your model reads the 3 letters as <b>6 numbers</b>:</div>
         <div class="six" id="embSix"></div>
+        <table class="emb" id="embTab"></table>
       </div>
       <p class="say">“a” has the <b>same 2 numbers</b> in “cat”, “sat” and “mat”, wherever it sits. One row to learn, not three.</p>
       <p class="hook">6 numbers. How do they become a guess?</p>
