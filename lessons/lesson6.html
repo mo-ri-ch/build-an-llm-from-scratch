@@ -226,20 +226,20 @@
       <div class="activity">
         <div class="do">Pick a group. Its 3 letters pick 3 rows from the one table.</div>
         <div class="row" style="margin-bottom:10px"><label>Group <select id="embGroup" class="pick"></select></label></div>
-        <div class="muted">Your model reads the 3 letters as <b>6 numbers</b>:</div>
+        <div class="muted">Your model reads the 3 letters as <b>6 letter numbers</b>:</div>
         <div class="six" id="embSix"></div>
         <table class="emb" id="embTab"></table>
       </div>
       <p class="say">“a” has the <b>same 2 numbers</b> in “cat”, “sat” and “mat”, wherever it sits. One row to learn, not three.</p>
-      <p class="hook">6 numbers. How do they become a guess?</p>
+      <p class="hook">6 letter numbers. How do they become a guess?</p>
     </section>
 
     <!-- 3 -->
     <section class="part" data-title="Numbers to a guess">
       <h2>Numbers to a guess</h2>
-      <p class="say">For every letter that could come next, there are <b data-peek="A weight says how much a number counts. A big weight makes it count a lot.">6 weights</b>, one for each of the 6 numbers. To score one possible next letter, like space: <b>multiply each of the 6 numbers by that letter's weight, then add</b>.</p>
-      <p class="say">The 6 numbers come from the 3 letters you read (2 each). The possible next letters don't have numbers of their own, only weights.</p>
-      <p class="say">The weights are 6 × 14 = <b>84 numbers</b> (<span data-peek-from="wPeek">hover to see them</span>), random at the start too.</p>
+      <p class="say">For every letter that could come next, there are <b data-peek="A weight says how much a letter number counts. A big weight makes it count a lot.">6 weights</b>, one for each of the 6 letter numbers. To score one possible next letter, like space: <b>multiply each letter number by its weight, then add</b>.</p>
+      <p class="say">The 6 letter numbers come from the 3 letters you read (2 each). The possible next letters have no letter numbers, only weights.</p>
+      <p class="say">There are 6 × 14 = <b>84 weights</b> (<span data-peek-from="wPeek">hover to see them</span>), random at the start too.</p>
       <p class="say">Weights 1–2 go with the third-last letter, 3–4 with the second-last, 5–6 with the last. That is how the model knows which letter is where.</p>
       <div hidden id="wPeek"></div>
       <div class="activity">
@@ -250,18 +250,18 @@
         <div class="muted">Your model does this for all 14 next letters. Softmax turns the 14 scores into chances.</div>
         <div class="top3" id="mulTop"></div>
       </div>
-      <p class="say">Your model now has <b>28 + 84 = 112 numbers</b>, instead of 588.</p>
+      <p class="say">Your model now has <b>28 letter numbers + 84 weights = 112 numbers</b>, instead of 588.</p>
       <p class="hook">Can numbers this few still learn? Learning has to reach the letters too.</p>
     </section>
 
     <!-- practice 1 -->
     <section class="part" data-nonum data-title="✏️ Practice 6.1">
       <h2>✏️ Practice 6.1</h2>
-      <p class="say">New numbers, same ideas.<br>Remember: every letter has <b>2 numbers</b>. A group has 3 letters, so <b>6 numbers</b>. Each next letter has 6 weights.<br><b class="eqbox">score = number × weight, added up for all 6</b></p>
+      <p class="say">New numbers, same ideas.<br>Remember: every letter has <b>2 letter numbers</b>. A group has 3 letters, so <b>6 letter numbers</b>. Each next letter has 6 weights.<br><b class="eqbox">score = letter number × weight, added up for all 6</b></p>
       <div class="activity">
         <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="20" data-tol="0.5" data-hint="One row per character, 2 numbers in each row." data-work="10 × 2 = 20.">
-          <div class="pq-q">A text has only 10 characters. Each gets 2 numbers. How many numbers are in the <b>letter table</b>?</div>
+          <div class="pq-q">A text has only 10 characters. Each gets 2 letter numbers. How many letter numbers are in the <b>letter table</b>?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
@@ -275,8 +275,8 @@
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="-1.5" data-tol="0.01" data-hint="Multiply each number by the weight in the same place. Then add all 6 products." data-work="0.5 + 2 + 0 − 1 − 3 + 0 = −1.5.">
-          <div class="pq-q">A group's 6 numbers are <b>1, 2, 0, −1, 3, 1</b>. One next letter's 6 weights are <b>0.5, 1, 2, 1, −1, 0</b>. What is its score?</div>
+        <div class="pq" data-ans="-1.5" data-tol="0.01" data-hint="Multiply each letter number by the weight in the same place. Then add all 6 products." data-work="0.5 + 2 + 0 − 1 − 3 + 0 = −1.5.">
+          <div class="pq-q">A group's 6 letter numbers are <b>1, 2, 0, −1, 3, 1</b>. One next letter's 6 weights are <b>0.5, 1, 2, 1, −1, 0</b>. What is its score?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
@@ -288,22 +288,22 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
-      <p class="say">The new part: a score was built from the 6 numbers, so its push goes <b>back to them</b>. A letter's numbers move because they helped make the guess.</p>
+      <p class="say">The new part: a score was built from the 6 letter numbers, so its push goes <b>back to them</b>. The letter numbers move because they helped make the guess.</p>
       <div class="activity">
-        <div class="do">Pick an example. See how the 6 numbers of its 3 letters would move.</div>
+        <div class="do">Pick an example. See how the 6 letter numbers of its 3 letters would move.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="muted" id="bkHead"></div>
         <table class="emb" id="bkTab"></table>
         <div class="muted">Only a demo: one example, one step, learning rate 1 (10 is too big for these numbers). A real step averages all 44 examples.</div>
       </div>
-      <p class="say">The push on each of the 6 numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
+      <p class="say">The push on each of the 6 letter numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
     </section>
 
     <!-- 5 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the letters' numbers move.</p>
+      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the letter numbers move.</p>
       <div class="activity">
         <div class="do">Press Train. Watch the letters move and the loss fall.</div>
         <div class="row"><button class="primary" id="train">Train 300 steps</button></div>
@@ -319,7 +319,7 @@
     <!-- practice 2 -->
     <section class="part" data-nonum data-title="✏️ Practice 6.2">
       <h2>✏️ Practice 6.2</h2>
-      <p class="say">The push goes back.<br>Remember: <b class="eqbox">push on a score = chance − goal</b><br><b class="eqbox">push on a number = sum of (weight × push on that score)</b><br><b class="eqbox">new = old − learning rate × push</b></p>
+      <p class="say">The push goes back.<br>Remember: <b class="eqbox">push on a score = chance − goal</b><br><b class="eqbox">push on a letter number = sum of (weight × push on that score)</b><br><b class="eqbox">new = old − learning rate × push</b></p>
       <div class="activity">
         <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.75" data-tol="0.005" data-hint="push = chance − goal. The goal of the right letter is 1." data-work="0.25 − 1 = −0.75.">
@@ -328,17 +328,17 @@
           <div class="pq-fb" aria-live="polite"></div>
         </div>
         <div class="pq" data-ans="1.5" data-tol="0.01" data-hint="Multiply each weight by the push on its own score. Then add." data-work="2 × 0.5 + (−1) × (−0.5) = 1 + 0.5 = 1.5.">
-          <div class="pq-q">Only 2 letters can come next. A number has weights <b>2</b> and <b>−1</b> for them. Their scores' pushes are <b>0.5</b> and <b>−0.5</b>. What is the push on the number?</div>
+          <div class="pq-q">Only 2 letters can come next. A letter number has weights <b>2</b> and <b>−1</b> for them. Their scores' pushes are <b>0.5</b> and <b>−0.5</b>. What is the push on the letter number?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
         <div class="pq" data-ans="-1.1" data-tol="0.01" data-hint="new = old − learning rate × push." data-work="0.4 − 1 × 1.5 = −1.1.">
-          <div class="pq-q">Learning rate 1. That number is <b>0.4</b> with push <b>1.5</b>. What is its new value?</div>
+          <div class="pq-q">Learning rate 1. That letter number is <b>0.4</b> with push <b>1.5</b>. What is its new value?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
         <div class="pq" data-ans="112" data-tol="0.5" data-hint="Letter table plus weights." data-work="14 × 2 + 6 × 14 = 28 + 84 = 112.">
-          <div class="pq-q">A model has 14 letters with 2 numbers each, and 6 weights for each of 14 next letters. How many numbers does it have?</div>
+          <div class="pq-q">A model has 14 letters with 2 letter numbers each, and 6 weights for each of 14 next letters. How many numbers does it have?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
@@ -394,7 +394,7 @@ last = torch.tensor(last)
 next_chars = torch.tensor(next_chars)
 print("Examples:", len(next_chars))
 
-<span class="c"># The model: 2 numbers per letter, 6 weights per next letter</span>
+<span class="c"># The model: 2 letter numbers per letter, 6 weights per next letter</span>
 torch.manual_seed(42)
 letter_numbers = torch.randn((vocab_size, 2), requires_grad=True)
 weights = torch.randn((6, vocab_size), requires_grad=True)
@@ -403,7 +403,7 @@ print("Numbers in the model:", letter_numbers.numel() + weights.numel())
 <span class="c"># Learn: predict, measure, find directions, move</span>
 learning_rate = 1
 for step in range(300):
-    numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)<span class="c">   # a) the 6 numbers of every example</span>
+    numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)<span class="c">   # a) the 6 letter numbers of every example</span>
     scores = numbers @ weights<span class="c">                                                             # multiply by the weights, add up</span>
     loss = F.cross_entropy(scores, next_chars)<span class="c">                                       # b) measure</span>
     letter_numbers.grad = None
@@ -440,9 +440,9 @@ the mat. the cat sat on the dog sat on the</pre></div>
       </div>
       <div hidden id="codePeek"><b>🤔 What is new in this code?</b>
         <ul style="margin:6px 0 0; padding-left:1.2em">
-          <li><code>letter_numbers</code> is one table: a row of 2 numbers for every letter. <code>weights</code> is 6 rows, one number for each of the 6 inputs, for every next letter.</li>
-          <li><code>torch.cat([...], dim=1)</code> puts the 3 letters' numbers side by side: 6 numbers for each example.</li>
-          <li><code>numbers @ weights</code> multiplies each number by its weight and adds, for every next letter at once.</li>
+          <li><code>letter_numbers</code> is one table: a row of 2 letter numbers for every letter. <code>weights</code> is 6 rows, one weight for each of the 6 letter numbers, for every next letter.</li>
+          <li><code>torch.cat([...], dim=1)</code> puts the 3 letters' numbers side by side: 6 letter numbers for each example.</li>
+          <li><code>numbers @ weights</code> multiplies each letter number by its weight and adds, for every next letter at once.</li>
           <li>The learning rate is 1 this time: 10 is too big for these numbers.</li>
         </ul>
       </div>
@@ -486,16 +486,16 @@ the mat. the cat sat on the dog sat on the</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson6.html#3" data-topic="Numbers to a guess" data-right="Right. Each of the 6 numbers is multiplied by its weight, and the products are added.">
+        <div class="quiz" data-page="lesson6.html#3" data-topic="Numbers to a guess" data-right="Right. Each of the 6 letter numbers is multiplied by its weight, and the products are added.">
           <div class="q"><small>4. A score</small>How is a next letter's score made?</div>
           <div class="options">
-            <button data-why="All 6 numbers count.">It takes the biggest of the 6 numbers</button>
-            <button data-right>Multiply each of the 6 numbers by its weight, then add</button>
-            <button data-why="Without weights, every next letter would get the same score.">It adds the 6 numbers without weights</button>
+            <button data-why="All 6 letter numbers count.">It takes the biggest of the 6 letter numbers</button>
+            <button data-right>Multiply each of the 6 letter numbers by its weight, then add</button>
+            <button data-why="Without weights, every next letter would get the same score.">It adds the 6 letter numbers without weights</button>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson6.html#3" data-topic="Numbers to a guess" data-right="Right. 14 × 2 = 28 letter numbers, plus 6 × 14 = 84 weights: 112.">
+        <div class="quiz" data-page="lesson6.html#3" data-topic="Numbers to a guess" data-right="Right. 14 × 2 = 28 letter numbers, plus 6 × 14 = 84 weights: 112 numbers.">
           <div class="q"><small>5. Size</small>How many numbers does the embedding model have?</div>
           <div class="options">
             <button data-why="That is only the letter table. The weights count too.">28</button>
@@ -504,11 +504,11 @@ the mat. the cat sat on the dog sat on the</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson6.html#5" data-topic="Learning reaches the letters" data-right="Right. A score was built from the 6 numbers, so its push goes back to them, through the weights.">
+        <div class="quiz" data-page="lesson6.html#5" data-topic="Learning reaches the letters" data-right="Right. A score was built from the 6 letter numbers, so its push goes back to them, through the weights.">
           <div class="q"><small>6. Learning</small>Why do the letters' numbers move when the model learns?</div>
           <div class="options">
             <button data-why="The letter numbers help make every score, so they get pushed too.">They don't. Only the weights move</button>
-            <button data-right>The push on a score goes back to the numbers that built it</button>
+            <button data-right>The push on a score goes back to the letter numbers that built it</button>
             <button data-why="Nothing tells them where to go. The pushes decide.">Each letter moves toward the next letter</button>
           </div>
           <div class="feedback"></div>
@@ -603,9 +603,9 @@ const start = fresh();
     let w = `<b>The 84 weights</b> (random at the start)<br><span style="font-size:0.85rem">One column per next letter. Column <b>${sc(CHARS[k])}</b> is marked: the 6 weights used on this page.</span><div style="overflow-x:auto"><table class="l4t pk"><tr><th></th>${CHARS.map((c, i) => `<th class="${i === k ? "hc" : ""}">${sc(c)}</th>`).join("")}</tr>`;
     start.weights.forEach((row, j) => { w += `<tr><td>${["1st", "2nd", "3rd", "4th", "5th", "6th"][j]}</td>${row.map((v, i) => `<td class="${i === k ? "hc" : ""}">${fmt(v, 1)}</td>`).join("")}</tr>`; });
     document.getElementById("wPeek").innerHTML = w + "</table></div>";
-    let h = `<tr><th>from</th><th>number</th><th></th><th>weight</th><th></th><th>product</th></tr>`;
+    let h = `<tr><th>from</th><th>letter number</th><th></th><th>weight</th><th></th><th>product</th></tr>`;
     let sum = 0;
-    x.forEach((v, j) => { const wt = start.weights[j][k], pr = v * wt; sum += pr; h += `<tr><td>${sc(g[Math.floor(j / 2)])}, number ${j % 2 + 1}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(pr)}</td></tr>`; });
+    x.forEach((v, j) => { const wt = start.weights[j][k], pr = v * wt; sum += pr; h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(pr)}</td></tr>`; });
     h += `<tr class="sum"><td>added</td><td></td><td></td><td></td><td></td><td>${fmt(sum)}</td></tr>`;
     document.getElementById("mulTab").innerHTML = h;
     const p = softmax(start.scores([...g].map(c => CHAR_TO_NUMBER[c])));
@@ -628,8 +628,8 @@ const start = fresh();
     const x = start.inputs(c), p = softmax(start.scores(c));
     const push = p.map((q, k) => q - (k === goal ? 1 : 0));
     document.getElementById("bkHead").innerHTML = `Chance of <b>${nm(CHARS[goal])}</b>: ${(p[goal] * 100).toFixed(1)}%. Its score's push: chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b> (the other 13 letters get pushes too).`;
-    let h = `<tr><th>from</th><th>number</th><th>push</th><th>number − push</th></tr>`;
-    x.forEach((v, j) => { const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0); h += `<tr><td>${sc(g[Math.floor(j / 2)])}, number ${j % 2 + 1}</td><td>${fmt(v)}</td><td>${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`; });
+    let h = `<tr><th>from</th><th>letter number</th><th>push</th><th>new</th></tr>`;
+    x.forEach((v, j) => { const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0); h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td>${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`; });
     document.getElementById("bkTab").innerHTML = h;
   }
   sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();

@@ -26,7 +26,7 @@ last = torch.tensor(last)
 next_chars = torch.tensor(next_chars)
 print("Examples:", len(next_chars))
 
-# The model: 2 numbers per letter, 6 weights per next letter
+# The model: 2 letter numbers per letter, 6 weights per next letter
 torch.manual_seed(42)
 letter_numbers = torch.randn((vocab_size, 2), requires_grad=True)
 weights = torch.randn((6, vocab_size), requires_grad=True)
@@ -35,7 +35,7 @@ print("Numbers in the model:", letter_numbers.numel() + weights.numel())
 # Learn: predict, measure, find directions, move
 learning_rate = 1
 for step in range(300):
-    numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)   # a) the 6 numbers of every example
+    numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)   # a) the 6 letter numbers of every example
     scores = numbers @ weights                                                             # multiply by the weights, add up
     loss = F.cross_entropy(scores, next_chars)                                       # b) measure
     letter_numbers.grad = None

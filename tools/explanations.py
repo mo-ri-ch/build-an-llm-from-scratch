@@ -112,12 +112,12 @@ EXPLAIN = {
 
     # ---------- Lesson 6 ----------
     "letter_numbers = torch.randn((vocab_size, 2), requires_grad=True)": "The embedding: one table with a row of 2 random numbers for each of the 14 letters. Every position shares it.",
-    "weights = torch.randn((6, vocab_size), requires_grad=True)": "The weights: for each next letter, 6 random weights, one for each of the 6 numbers of a group.",
+    "weights = torch.randn((6, vocab_size), requires_grad=True)": "The weights: for each next letter, 6 random weights, one for each of the 6 letter numbers of a group.",
     'print("Numbers in the model:", letter_numbers.numel() + weights.numel())': "14 × 2 = 28 letter numbers, plus 6 × 14 = 84 weights: 112 numbers. Three small tables needed 588.",
     "learning_rate = 1": "The learning rate is 1 this time. 10 is too big for these numbers.",
-    "numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)": "a) Predict, step 1: for every example, look up the 2 numbers of each of its 3 letters and put them side by side: 6 numbers.",
-    "scores = numbers @ weights": "Step 2: multiply each of the 6 numbers by its weight and add them up, for all 14 next letters at once.",
+    "numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)": "a) Predict, step 1: for every example, look up the 2 letter numbers of each of its 3 letters and put them side by side: 6 letter numbers.",
+    "scores = numbers @ weights": "Step 2: multiply each of the 6 letter numbers by its weight and add them up, for all 14 next letters at once.",
     "letter_numbers.grad = None": "Clear the letter table's old gradients.",
     "letter_numbers.data = letter_numbers.data - learning_rate * letter_numbers.grad": "d) Move: change every letter number a little, against its gradient. The push reached them through the weights.",
-    "numbers = torch.cat([letter_numbers[char_to_number[output[-3]]], letter_numbers[char_to_number[output[-2]]], letter_numbers[char_to_number[output[-1]]]])": "Look up the numbers of the last 3 letters written so far and put them side by side: 6 numbers.",
+    "numbers = torch.cat([letter_numbers[char_to_number[output[-3]]], letter_numbers[char_to_number[output[-2]]], letter_numbers[char_to_number[output[-1]]]])": "Look up the letter numbers of the last 3 letters written so far and put them side by side: 6 letter numbers.",
 }
