@@ -289,14 +289,14 @@
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
       <p class="say">The new part: a score was built from the 6 letter numbers, so its push goes <b>back to them</b>. The letter numbers move because they helped make the guess.</p>
+      <p class="say">The push on each of the 6 letter numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 letter numbers of its 3 letters would move.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="muted" id="bkHead"></div>
         <table class="emb" id="bkTab"></table>
-        <div class="muted">Only a demo: one example, one step, learning rate 1 (10 is too big for these numbers). A real step averages all 44 examples.</div>
+        <div class="muted">Only a demo: one example, one step with <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44 examples.</div>
       </div>
-      <p class="say">The push on each of the 6 letter numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
     </section>
 
@@ -628,7 +628,7 @@ const start = fresh();
     const x = start.inputs(c), p = softmax(start.scores(c));
     const push = p.map((q, k) => q - (k === goal ? 1 : 0));
     document.getElementById("bkHead").innerHTML = `Chance of <b>${nm(CHARS[goal])}</b>: ${(p[goal] * 100).toFixed(1)}%. Its score's push: chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b> (the other 13 letters get pushes too).`;
-    let h = `<tr><th>from</th><th>letter number</th><th>push</th><th>new</th></tr>`;
+    let h = `<tr><th>from</th><th>letter number</th><th>push</th><th>letter number − push</th></tr>`;
     x.forEach((v, j) => { const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0); h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td>${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`; });
     document.getElementById("bkTab").innerHTML = h;
   }
