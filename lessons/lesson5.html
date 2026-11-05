@@ -172,7 +172,6 @@
   /* Page 8: writing */
   .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
   .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
-  .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
 </style>
 </head>
 <body data-pen="orange">
@@ -580,22 +579,6 @@ the mat. the cat sat on the dog sat on the </pre></div>
         </div>
       </div>
       <p class="hook">What your model still can't do.</p>
-    </section>
-
-    <!-- 11 -->
-    <section class="part" data-title="Letters on their own">
-      <h2>Letters on their own</h2>
-      <p class="say">Each table only looks at its own letter, and the rows are just added.</p>
-      <div class="activity">
-        <div class="do">Type any 3 letters from our vocabulary. Try “lat”.</div>
-        <div class="row"><input class="try-in" id="tryIn" value="lat" maxlength="3" spellcheck="false" autocomplete="off" aria-label="3 letters"></div>
-        <div class="top3" id="tryTop"></div>
-        <div class="muted" id="tryParts" style="margin-top:8px"></div>
-        <div class="muted" id="tryNote" style="margin-top:4px"></div>
-      </div>
-      <p class="say">After “lat” it guesses a full stop: row <code>l</code> of the third-last table learned from “<b>l</b>og.”. It never sees “lat” as a whole.</p>
-      <p class="neo-say">No more “sathe”! I can even guess groups I never saw.</p>
-      <p class="hook">But what if there were more letters?</p>
     </section>
 
     <!-- 12 -->
@@ -1065,33 +1048,6 @@ document.getElementById("write").onclick = () => {
   document.getElementById("written").textContent = out;
 };
 addReset(document.getElementById("written"), () => { document.getElementById("written").textContent = ""; });
-
-// 11: any 3 letters
-(function tryDemo() {
-  const inp = document.getElementById("tryIn");
-  function render() {
-    ensureTrained();
-    const v = inp.value.toLowerCase(), bad = [...v].find(c => CHAR_TO_NUMBER[c] === undefined);
-    const note = document.getElementById("tryNote"), top = document.getElementById("tryTop"), parts = document.getElementById("tryParts");
-    if (v.length < 3 || bad !== undefined) {
-      top.innerHTML = ""; parts.innerHTML = "";
-      note.textContent = bad !== undefined ? `“${bad}” isn't in the vocabulary. Use: ${CHARS.map(sc).join(" ")}` : "Type 3 letters.";
-      return;
-    }
-    const p = model.predict(v), best = p.indexOf(Math.max(...p));
-    topList(top, p);
-    const sc3 = [0, 1, 2].map(t => model.tables[t][CHAR_TO_NUMBER[v[t]]][best]);
-    parts.innerHTML = `Scores for <b>${nm(CHARS[best])}</b>: ` + [...v].map((c, t) => `<code>${sc(c)}</code> ${fmt(sc3[t])}`).join(" + ") + ` = <b>${fmt(sc3[0] + sc3[1] + sc3[2])}</b>`;
-    note.textContent = GROUPS.some(x => x.g === v) ? `“${v}” appears in our text.` : `“${v}” never appears in our text.`;
-  }
-  inp.oninput = render;
-  addReset(inp, () => { inp.value = "lat"; render(); });
-  // trained on first look, so the page opens with the real answer
-  const sec = inp.closest("section");
-  new MutationObserver(() => { if (!sec.hidden) render(); }).observe(sec, { attributes: true, attributeFilter: ["hidden"] });
-  // the pages are hidden on DOMContentLoaded, after this script runs
-  document.addEventListener("DOMContentLoaded", () => { if (!sec.hidden) render(); });
-})();
 
 // ---------- Too many numbers ----------
 (function sizeDemo() {
