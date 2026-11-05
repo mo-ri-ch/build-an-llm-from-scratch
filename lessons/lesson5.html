@@ -594,9 +594,22 @@ the mat. the cat sat on the dog sat on the </pre></div>
         <div class="muted" id="tryNote" style="margin-top:4px"></div>
       </div>
       <p class="say">After “lat” it guesses a full stop: row <code>l</code> of the third-last table learned from “<b>l</b>og.”. It never sees “lat” as a whole.</p>
-      <p class="say">There is a bigger problem. Three tables need <b>3 × letters × letters</b> numbers:</p>
-      <table class="plain" style="margin:6px 0 14px;text-align:center"><tr><th>Different letters</th><th>Numbers in 3 tables</th></tr><tr><td>14 (our text)</td><td>588</td></tr><tr><td>100</td><td>30,000</td></tr><tr><td>1,000</td><td>3,000,000</td></tr><tr><td>150,000 (all of Unicode)</td><td>67,500,000,000</td></tr></table>
-      <p class="neo-say">No more “sathe”! But my tables explode when there are more letters.</p>
+      <p class="neo-say">No more “sathe”! I can even guess groups I never saw.</p>
+      <p class="hook">But what if there were more letters?</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="part" data-title="Too many numbers">
+      <h2>Too many numbers</h2>
+      <p class="say">Three tables need <b>3 × letters × letters</b> numbers. Pick how many different letters there are.</p>
+      <div class="activity">
+        <div class="do">Pick a number of letters. Watch the numbers grow.</div>
+        <div class="row"><label>Different letters <select id="sizePick" class="pick"><option value="14">14 (our text)</option><option value="100">100</option><option value="1000">1,000</option><option value="150000">150,000 (all of Unicode)</option></select></label></div>
+        <div class="score-line"><div>Numbers in 3 tables<b id="sizeNum"></b></div></div>
+        <div class="muted" id="sizeSum" style="margin-top:6px"></div>
+      </div>
+      <p class="say">And “a” is learned <b>three times</b>, once in each table.</p>
+      <p class="neo-say">My tables explode when there are more letters!</p>
       <div class="open-question">
         <div>This leaves a question</div>
         <div class="big">Instead of 3 big rows for “a”, could “a” have just 2 numbers, used everywhere?</div>
@@ -1078,6 +1091,13 @@ addReset(document.getElementById("written"), () => { document.getElementById("wr
   new MutationObserver(() => { if (!sec.hidden) render(); }).observe(sec, { attributes: true, attributeFilter: ["hidden"] });
   // the pages are hidden on DOMContentLoaded, after this script runs
   document.addEventListener("DOMContentLoaded", () => { if (!sec.hidden) render(); });
+})();
+
+// ---------- Too many numbers ----------
+(function sizeDemo() {
+  const sel = document.getElementById("sizePick");
+  const render = () => { const v = Number(sel.value); document.getElementById("sizeNum").textContent = (3 * v * v).toLocaleString("en-US"); document.getElementById("sizeSum").textContent = `3 × ${v.toLocaleString("en-US")} × ${v.toLocaleString("en-US")}`; };
+  sel.onchange = render; addReset(sel, () => { sel.value = "14"; render(); }); render();
 })();
 </script>
 </body>
