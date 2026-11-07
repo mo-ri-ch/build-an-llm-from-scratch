@@ -295,6 +295,7 @@
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="muted" id="bkHead"></div>
         <table class="emb" id="bkTab"></table>
+        <div hidden id="bkPeeks"></div>
         <div class="muted">Only a demo: one example, one step with <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44 examples.</div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
@@ -629,8 +630,16 @@ const start = fresh();
     const push = p.map((q, k) => q - (k === goal ? 1 : 0));
     document.getElementById("bkHead").innerHTML = `Chance of <b>${nm(CHARS[goal])}</b>: ${(p[goal] * 100).toFixed(1)}%. Its score's push: chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b> (the other 13 letters get pushes too).`;
     let h = `<tr><th>from</th><th>letter number</th><th>push</th><th>letter number − push</th></tr>`;
-    x.forEach((v, j) => { const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0); h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td>${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`; });
+    let peeks = "";
+    x.forEach((v, j) => {
+      const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0);
+      h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td data-peek-from="bkP${j}" style="cursor:help;text-decoration:underline dotted">${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`;
+      let t = `<b>Where ${fmt(gx)} comes from</b><br><span style="font-size:0.85rem">For each next letter: its weight on this letter number × the push on its score. Add them all.</span><table class="l4t pk"><tr><th>next</th><th>weight</th><th></th><th>push</th><th></th><th></th></tr>`;
+      CHARS.forEach((ch, k) => { t += `<tr><td>${sc(ch)}</td><td>${fmt(start.weights[j][k])}</td><td>×</td><td>${fmt(push[k])}</td><td>=</td><td>${fmt(start.weights[j][k] * push[k])}</td></tr>`; });
+      peeks += `<div hidden id="bkP${j}">${t}<tr><td colspan="5"><b>Sum</b></td><td><b>${fmt(gx)}</b></td></tr></table></div>`;
+    });
     document.getElementById("bkTab").innerHTML = h;
+    document.getElementById("bkPeeks").innerHTML = peeks;
   }
   sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();
 })();
