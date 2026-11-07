@@ -219,7 +219,7 @@
       <h2>A letter as numbers</h2>
       <p class="say" style="position:relative">Give every letter <b data-peek="2 is our choice. Real models use hundreds.">2 numbers</b>, like <code>a = [0.68, −1.23]</code>. All 14 letters share <b>one table</b>, with one row each. This table is called an <b>embedding</b>. We call its numbers <b>embedding numbers</b>.<button class="doubt" type="button" data-peek-from="twoPeek" aria-label="How can 2 numbers replace 14 scores?">🤔</button></p>
       <div hidden id="twoPeek"><b>🤔 How can 2 numbers replace 14 scores?</b>
-        <p style="margin:6px 0 0">They don't hold the scores. They say what kind of letter this is. The next page turns them into 14 scores, using numbers shared by every letter. So the model needs far fewer numbers.</p>
+        <p style="margin:6px 0 0">They don't hold the scores. They say what kind of letter this is. The next page turns them into 14 scores, using weights shared by every letter. So the model needs far fewer numbers.</p>
         <p style="margin:6px 0 0">The price: a slightly higher loss (0.178 against 0.174).</p>
       </div>
       <p class="say">The numbers start <b>random</b>, like every number your model starts with.</p>
@@ -354,12 +354,12 @@
       <div class="activity">
         <div class="do">Press Write. Compare with the three tables of Lesson 5.</div>
         <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
-        <div class="written-label">Embeddings, 112 numbers (now)</div>
+        <div class="written-label">Embedding model, 112 numbers (now)</div>
         <div class="written" id="writtenNow" aria-live="polite"></div>
         <div class="written-label">Three tables, 588 numbers (Lesson 5)</div>
         <div class="written" id="writtenBefore"></div>
       </div>
-      <p class="say">Both mostly write pieces of our text. A rare letter can slip in, because each letter is picked by chance. Embeddings do it with 5 times fewer numbers.</p>
+      <p class="say">Both mostly write pieces of our text. A rare letter can slip in, because each letter is picked by chance. The embedding model does it with 5 times fewer numbers.</p>
       <p class="hook">Here's all of it in Python.</p>
     </section>
 
@@ -530,18 +530,18 @@ the mat. the cat sat on the dog sat on the</pre></div>
     <!-- last -->
     <section class="part" data-title="Same numbers, any neighbours">
       <h2>Same numbers, any neighbours</h2>
-      <p class="say">A letter has <b>one</b> set of numbers, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
+      <p class="say">A letter has <b>one</b> embedding, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
       <div class="activity">
-        <div class="do">Change the letters. The numbers of a letter stay the same.</div>
+        <div class="do">Change the letters. A letter's embedding stays the same.</div>
         <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label></div>
         <div class="six" id="smSix"></div>
         <div class="muted" id="smNote"></div>
       </div>
-      <p class="say">In “cat”, “a” has the same 2 numbers as in “sat” and “mat”. It never looks at the letters around it.</p>
+      <p class="say">In “cat”, “a” has the same embedding as in “sat” and “mat”. It never looks at the letters around it.</p>
       <p class="neo-say">I only need 112 numbers! But each letter still votes alone.</p>
       <div class="open-question">
         <div>This leaves a question</div>
-        <div class="big">A letter has the same numbers whoever its neighbours are. How can letters look at each other?</div>
+        <div class="big">A letter has the same embedding whoever its neighbours are. How can letters look at each other?</div>
         <div>Lesson 7 answers it. (Coming soon.)</div>
       </div>
       <p><button class="done-toggle" data-done="6">Mark lesson as done</button></p>
@@ -558,7 +558,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202611051"></script>
-<script src="../assets/course.js?v=202611061"></script>
+<script src="../assets/course.js?v=202611071"></script>
 <script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
@@ -684,7 +684,7 @@ addReset(document.getElementById("writtenNow"), () => { document.getElementById(
     const g = sels.map(s => s.value), nums = g.map(c => trained.letters[CHAR_TO_NUMBER[c]]);
     document.getElementById("smSix").innerHTML = g.map((c, i) => `<b>${nums[i].map(v => fmt(v)).join("  ")}</b>`).join("  ");
     const moved = g.map((c, i) => prev && prev[i] !== c ? POS[i] : null).filter(Boolean);
-    document.getElementById("smNote").textContent = moved.length ? `You changed the ${moved.join(" and ")} letter. Only its numbers changed.` : "The trained numbers of c, a and t.";
+    document.getElementById("smNote").textContent = moved.length ? `You changed the ${moved.join(" and ")} letter. Only its embedding changed.` : "The trained embeddings of c, a and t.";
     prev = g.slice();
   }
   sels.forEach((sel, i) => sel.onchange = render);
