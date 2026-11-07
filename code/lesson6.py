@@ -26,22 +26,22 @@ last = torch.tensor(last)
 next_chars = torch.tensor(next_chars)
 print("Examples:", len(next_chars))
 
-# The model: 2 letter numbers per letter, 6 weights per next letter
+# The model: 2 embedding numbers per letter, 6 weights per next letter
 torch.manual_seed(42)
-letter_numbers = torch.randn((vocab_size, 2), requires_grad=True)
+embedding = torch.randn((vocab_size, 2), requires_grad=True)
 weights = torch.randn((6, vocab_size), requires_grad=True)
-print("Numbers in the model:", letter_numbers.numel() + weights.numel())
+print("Numbers in the model:", embedding.numel() + weights.numel())
 
 # Learn: predict, measure, find directions, move
 learning_rate = 1
 for step in range(300):
-    numbers = torch.cat([letter_numbers[third_last], letter_numbers[second_last], letter_numbers[last]], dim=1)   # a) the 6 letter numbers of every example
-    scores = numbers @ weights                                                             # multiply by the weights, add up
-    loss = F.cross_entropy(scores, next_chars)                                       # b) measure
-    letter_numbers.grad = None
+    numbers = torch.cat([embedding[third_last], embedding[second_last], embedding[last]], dim=1)   # a) the 6 embedding numbers of every example
+    scores = numbers @ weights                                                                     # multiply by the weights, add up
+    loss = F.cross_entropy(scores, next_chars)                                                     # b) measure
+    embedding.grad = None
     weights.grad = None
-    loss.backward()                                                                  # c) find directions
-    letter_numbers.data = letter_numbers.data - learning_rate * letter_numbers.grad           # d) move
+    loss.backward()                                                                                # c) find directions
+    embedding.data = embedding.data - learning_rate * embedding.grad                               # d) move
     weights.data = weights.data - learning_rate * weights.grad
     if step % 50 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
@@ -50,7 +50,7 @@ for step in range(300):
 torch.manual_seed(42)
 output = "the"
 for step in range(40):
-    numbers = torch.cat([letter_numbers[char_to_number[output[-3]]], letter_numbers[char_to_number[output[-2]]], letter_numbers[char_to_number[output[-1]]]])
+    numbers = torch.cat([embedding[char_to_number[output[-3]]], embedding[char_to_number[output[-2]]], embedding[char_to_number[output[-1]]]])
     scores = numbers @ weights
     chances = F.softmax(scores, dim=0)
     picked = torch.multinomial(chances, num_samples=1).item()
