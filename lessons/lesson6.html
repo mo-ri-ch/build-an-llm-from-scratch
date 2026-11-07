@@ -240,7 +240,7 @@
       <p class="say">For every letter that could come next, there are <b data-peek="A weight says how much a letter number counts. A big weight makes it count a lot.">6 weights</b>, one for each of the 6 letter numbers. To score one possible next letter, like space: <b>multiply each letter number by its weight, then add</b>.</p>
       <p class="say">The 6 letter numbers come from the 3 letters you read (2 each). The possible next letters have no letter numbers, only weights.</p>
       <p class="say">There are 6 × 14 = <b>84 weights</b> (<span data-peek-from="wPeek">hover to see them</span>), random at the start too.</p>
-      <p class="say">Weights 1–2 go with the third-last letter, 3–4 with the second-last, 5–6 with the last. That is how the model knows which letter is where.</p>
+      <p class="say">Of each letter's 6 weights, the 1st and 2nd go with the third-last letter, the 3rd and 4th with the second-last, the 5th and 6th with the last. That is how the model knows which letter is where.</p>
       <div hidden id="wPeek"></div>
       <div class="activity">
         <div class="do">Pick a group and a next letter. Watch its score being built.</div>
@@ -289,7 +289,7 @@
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
       <p class="say">The new part: a score was built from the 6 letter numbers, so its push goes <b>back to them</b>. The letter numbers move because they helped make the guess.</p>
-      <p class="say">The push on each of the 6 letter numbers adds up, over every next letter, <b>weight × push on that letter's score</b>.</p>
+      <p class="say">The push on a letter number is the <b>sum</b>, over every possible next letter, of <b>its weight × the push on that next letter's score</b>.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 letter numbers of its 3 letters would move.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
@@ -350,7 +350,7 @@
     <!-- write -->
     <section class="part" data-title="Write new text">
       <h2>Write new text</h2>
-      <p class="say">Same way to write: one letter at a time, picked by chance. Now the chances come from <b>letter numbers</b>.</p>
+      <p class="say">Same way to write: one letter at a time, picked by chance. Now the chances come from <b>letter numbers and weights</b>.</p>
       <div class="activity">
         <div class="do">Press Write. Compare with the three tables of Lesson 5.</div>
         <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
@@ -473,7 +473,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           <div class="q"><small>2. Embedding</small>What is an embedding?</div>
           <div class="options">
             <button data-why="That is the counting table of Lesson 3.">A count of what comes after each letter</button>
-            <button data-right>A short list of numbers that describes a letter</button>
+            <button data-right>A short list of numbers, one row per letter</button>
             <button data-why="Chances come at the end, from softmax.">The chance of each next letter</button>
           </div>
           <div class="feedback"></div>
