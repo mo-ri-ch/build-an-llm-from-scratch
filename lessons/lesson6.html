@@ -288,8 +288,8 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
-      <p class="say">The new part: a score was built from the 6 letter numbers, so its push goes <b>back to them</b>. The letter numbers move because they helped make the guess.</p>
-      <p class="say">The push on a letter number is the <b>sum</b>, over every possible next letter, of <b>its weight × the push on that next letter's score</b>.</p>
+      <p class="say">The new part: a score was built from the <b>6 letter numbers</b> (2 for each of the 3 letters you read), so its push goes <b>back to them</b>. The letter numbers move because they helped make the guess.</p>
+      <p class="say">The push on a letter number is the <b>sum</b>, over every possible next letter, of <b>the weight that next letter gives it × the push on that next letter's score</b>.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 letter numbers of its 3 letters would move.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
@@ -313,8 +313,8 @@
         <div class="muted" id="mapNote" style="margin-top:8px"></div>
       </div>
       <p class="say">112 numbers reach a loss of about <b>0.178</b>. The 588 numbers of three tables reached 0.174. <b>5 times fewer numbers, almost the same result.</b></p>
-      <p class="say">With 1,000 letters it is 8,000 numbers against 3 million: they grow with the letters, not with their square.</p>
-      <p class="hook">Check your numbers on paper.</p>
+      <p class="say">With 1,000 letters it is 8,000 numbers against 3 million: they grow with the letters, not with letters × letters.</p>
+      <p class="hook">Work the steps out on paper.</p>
     </section>
 
     <!-- practice 2 -->
@@ -506,7 +506,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           <div class="feedback"></div>
         </div>
         <div class="quiz" data-page="lesson6.html#5" data-topic="Learning reaches the letters" data-right="Right. A score was built from the 6 letter numbers, so its push goes back to them, through the weights.">
-          <div class="q"><small>6. Learning</small>Why do the letters' numbers move when the model learns?</div>
+          <div class="q"><small>6. Learning</small>Why do the letter numbers move when the model learns?</div>
           <div class="options">
             <button data-why="The letter numbers help make every score, so they get pushed too.">They don't. Only the weights move</button>
             <button data-right>The push on a score goes back to the letter numbers that built it</button>
@@ -606,7 +606,7 @@ const start = fresh();
     document.getElementById("wPeek").innerHTML = w + "</table></div>";
     let h = `<tr><th>from</th><th>letter number</th><th></th><th>weight</th><th></th><th>product</th></tr>`;
     let sum = 0;
-    x.forEach((v, j) => { const wt = start.weights[j][k], pr = v * wt; sum += pr; h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(pr)}</td></tr>`; });
+    x.forEach((v, j) => { const wt = start.weights[j][k], pr = v * wt; sum += pr; h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"} of 2</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(pr)}</td></tr>`; });
     h += `<tr class="sum"><td>added</td><td></td><td></td><td></td><td></td><td>${fmt(sum)}</td></tr>`;
     document.getElementById("mulTab").innerHTML = h;
     const p = softmax(start.scores([...g].map(c => CHAR_TO_NUMBER[c])));
@@ -633,7 +633,7 @@ const start = fresh();
     let peeks = "";
     x.forEach((v, j) => {
       const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0);
-      h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}</td><td>${fmt(v)}</td><td data-peek-from="bkP${j}" style="cursor:help;text-decoration:underline dotted">${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`;
+      h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"} of 2</td><td>${fmt(v)}</td><td data-peek-from="bkP${j}" style="cursor:help;text-decoration:underline dotted">${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`;
       let t = `<b>Where ${fmt(gx)} comes from</b><br><span style="font-size:0.85rem">For each next letter: its weight on this letter number × the push on its score. Add them all.</span><table class="l4t pk"><tr><th>next</th><th>weight</th><th></th><th>push</th><th></th><th></th></tr>`;
       CHARS.forEach((ch, k) => { t += `<tr><td>${sc(ch)}</td><td>${fmt(start.weights[j][k])}</td><td>×</td><td>${fmt(push[k])}</td><td>=</td><td>${fmt(start.weights[j][k] * push[k])}</td></tr>`; });
       peeks += `<div hidden id="bkP${j}">${t}<tr><td colspan="5"><b>Sum</b></td><td><b>${fmt(gx)}</b></td></tr></table></div>`;
