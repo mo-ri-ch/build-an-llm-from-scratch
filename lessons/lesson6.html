@@ -654,9 +654,10 @@ const start = fresh();
     <p>Space has a chance of ${(p[goal] * 100).toFixed(0)}%, but its goal is 100%. The score's push: <span class="eq">${fmt(p[goal])} − 1 =</span> <span class="chip">${fmt(ps)}</span>, meaning go <b>up</b>.</p>`;
   $("tq3").innerHTML = `<h4>3. Multiply the two answers: that is the push on −0.04.</h4>
     <p class="eq">${fmt(w0)} × ${fmt(ps)} = <b>${fmt(pe)}</b></p>
-    <p>New value = old − push: <span class="eq">${minus(e0, pe)} =</span> <span class="chip" id="tqNew">${fmt(e1)}</span>. The score of space goes up: ${fmt(S0)} → <b>${fmt(S0 + w0 * (e1 - e0))}</b>.</p>`;
+    <p>New value = old − push: <span class="eq">${minus(e0, pe)} =</span> <span class="chip" id="tqNew">${fmt(e1)}</span></p>`;
   $("tq4").innerHTML = `<h4>4. Every number gets the same two questions.</h4>
-    <p>The weight 1.31 changes the score by only −0.04, so its push is <span class="eq">−0.04 × ${fmt(ps)} = ${fmt(pw)}</span>: it hardly moves.</p>`;
+    <p>The weight 1.31 changes the score by only −0.04, so its push is <span class="eq">−0.04 × ${fmt(ps)} = ${fmt(pw)}</span>: it hardly moves.</p>
+    <p>−0.04 is also used in the other 13 scores. Each gives it a push the same way, and the 14 are <b>added</b> before it moves (🤔 shows them).</p>`;
   $("bkAllPeek").innerHTML = `<b>🤔 −0.04 is in the other 13 scores too. What about them?</b><br>It gets a push from all 14 scores<br><span style="font-size:0.85rem">From each: its weight there × that score's push. It moves only once, so they are added.</span><div class="bk-all">${CHARS.map((ch, k) => `<div class="${k === goal ? "hot" : ""}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("")}<div class="tot">added: ${fmt(g0)}</div></div>`;
   let step = 1, added = false;
   $("tqAdd").onclick = () => {
