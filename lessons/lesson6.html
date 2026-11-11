@@ -374,7 +374,7 @@
     <!-- practice 2 -->
     <section class="part" data-nonum data-title="✏️ Practice 6.2">
       <h2>✏️ Practice 6.2</h2>
-      <p class="say">The push goes back.<br>Remember: <b class="eqbox">push on a score = chance − goal</b><br><b class="eqbox">push on an embedding number = sum of (weight × push on that score)</b><br><b class="eqbox">new = old − learning rate × push</b></p>
+      <p class="say">The push goes back.<br>Remember: <b class="eqbox">push on a score = chance − goal</b><br><b class="eqbox">push on a weight = embedding number × push on its score</b><br><b class="eqbox">push on an embedding number = sum of (weight × push on that score)</b><br><b class="eqbox">new = old − learning rate × push</b></p>
       <div class="activity">
         <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="-0.75" data-tol="0.005" data-hint="push = chance − goal. The goal of the right letter is 1." data-work="0.25 − 1 = −0.75.">
@@ -382,18 +382,18 @@
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
+        <div class="pq" data-ans="-0.2" data-tol="0.005" data-hint="The weight's push is the embedding number next to it × the score's push." data-work="0.5 × (−0.4) = −0.2.">
+          <div class="pq-q">A score has the product <b>0.5 × 2</b> (embedding number × weight). The score's push is <b>−0.4</b>. What is the push on the weight 2?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
         <div class="pq" data-ans="1.5" data-tol="0.01" data-hint="Multiply each weight by the push on its own score. Then add." data-work="2 × 0.5 + (−1) × (−0.5) = 1 + 0.5 = 1.5.">
-          <div class="pq-q">Only 2 letters can come next. An embedding number has weights <b>2</b> and <b>−1</b> for them. Their scores' pushes are <b>0.5</b> and <b>−0.5</b>. What is the push on the embedding number?</div>
+          <div class="pq-q">Only 2 letters can come next, so there are 2 scores. An embedding number is multiplied by weight <b>2</b> in one score and by <b>−1</b> in the other. The scores' pushes are <b>0.5</b> and <b>−0.5</b>. What is the push on the embedding number?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
         <div class="pq" data-ans="-1.1" data-tol="0.01" data-hint="new = old − learning rate × push." data-work="0.4 − 1 × 1.5 = −1.1.">
-          <div class="pq-q">Learning rate 1. That embedding number is <b>0.4</b> with push <b>1.5</b>. What is its new value?</div>
-          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
-          <div class="pq-fb" aria-live="polite"></div>
-        </div>
-        <div class="pq" data-ans="112" data-tol="0.5" data-hint="Embedding table plus weights." data-work="14 × 2 + 6 × 14 = 28 + 84 = 112.">
-          <div class="pq-q">A model has 14 letters with 2 embedding numbers each, and 6 weights for each of 14 next letters. How many numbers does it have?</div>
+          <div class="pq-q">Learning rate 1. That embedding number is <b>0.4</b>, and its push is <b>1.5</b>. What is its new value?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
