@@ -287,9 +287,8 @@
     <!-- 4 -->
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
-      <p class="say">Learning works as before: guess, measure, find the push, move.</p>
       <p class="say">Before, the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
-      <p class="say">A score is 6 products added, each one <b>embedding number × weight</b>. After the adding, the score gets its push (chance − goal). For “cat” → space it is <b>−0.80</b>.</p>
+      <p class="say">A score is 6 products added, each <b>embedding number × weight</b>. Then the score gets its push (chance − goal): <b>−0.80</b> for “cat” → space.</p>
       <p class="say" style="position:relative">Every number that built the score now gets <b>its own push</b>. Take the product −0.04 × 1.31:<br>
         The embedding number −0.04 gets <b>the weight × the score's push</b>: 1.31 × −0.80.<br>
         The weight 1.31 gets <b>the embedding number × the score's push</b>: −0.04 × −0.80.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button></p>
@@ -297,7 +296,7 @@
         <p style="margin:6px 0 0">Take the product −0.04 × 1.31. Raise the embedding number by 1: the product changes by 1.31, the weight. Raise the weight by 1: the product changes by −0.04, the embedding number.</p>
         <p style="margin:6px 0 0">So the number next to it says how strongly it moves the score.</p>
       </div>
-      <p class="say">The same embedding number helps build all 14 scores, one per next letter. It gets something from each, so add the 14. A weight is used in only one score. Let's see it work.</p>
+      <p class="say">The model makes 14 scores, one for each possible next letter. The embedding number −0.04 was used in all 14, so it gets a push from each: −1.05 from space, 0.02 from full stop, and so on. Added: <b>−1.33</b>. The weight 1.31 was used only for space, so its push is just 0.03. Let's see it work.</p>
       <div class="activity">
         <div class="do">Pick an example. The score table runs backwards: the push goes back into the 6 products.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
