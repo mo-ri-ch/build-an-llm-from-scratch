@@ -599,8 +599,8 @@ the mat. the cat sat on the dog sat on the</pre></div>
     </section>
 
     <!-- last -->
-    <section class="part" data-title="Same numbers, any neighbours">
-      <h2>Same numbers, any neighbours</h2>
+    <section class="part" data-title="Each letter votes alone">
+      <h2>Each letter votes alone</h2>
       <p class="say">Each letter has <b>one</b> embedding (its 2 numbers), used in every position. That is why the model needs only 112 numbers. But it also means “a” has the same 2 numbers after “c” as after “s”: <b>its neighbours never change them</b>.</p>
       <div class="activity">
         <div class="do">Each letter adds its own part to a score: its embedding × the weights for its place. Change one letter: which parts change?</div>
@@ -847,8 +847,9 @@ let three = null;
   kSel.innerHTML = CHARS.map((c, k) => `<option value="${k}">${nm(c)}</option>`).join("");
   const DEFAULT = ["c", "a", "t"], WHO = ["third-last", "second-last", "last"];
   const part = (c, pos, k) => { const e = trained.letters[CHAR_TO_NUMBER[c]]; return e[0] * trained.weights[2 * pos][k] + e[1] * trained.weights[2 * pos + 1][k]; };
-  // one fixed scale per next letter, so a bar only moves when its own number changes
-  const SCALE = CHARS.map((_, k) => { let m = 0.5; CHARS.forEach(c => [0, 1, 2].forEach(pos => m = Math.max(m, Math.abs(part(c, pos, k))))); return m * 1.08; });
+  // one scale for every bar of a score (the parts and their total), fixed per next letter,
+  // so a bar only moves when its own number changes. It fits the groups in our text; bigger values are cut at the edge.
+  const SCALE = CHARS.map((_, k) => { let m = 0.5; for (let i = 0; i + 3 <= TEXT.length; i++) { const g = TEXT.slice(i, i + 3), ps = [0, 1, 2].map(pos => part(g[pos], pos, k)); m = Math.max(m, ...ps.map(Math.abs), Math.abs(ps[0] + ps[1] + ps[2])); } return m * 1.1; });
   const rows = [0, 1, 2, 3].map(r => `<div class="who" id="smW${r}"></div><div class="bar"><span class="fill" id="smF${r}"></span></div><div class="val" id="smV${r}"></div><div class="tag" id="smT${r}"></div>`).join("");
   $("smVotes").innerHTML = rows;
   ["smW3", "smV3", "smT3"].forEach(id => $(id).classList.add("tot")); $("smF3").parentElement.classList.add("tot");
@@ -864,7 +865,7 @@ let three = null;
       const t = $("smT" + i), show = prev && !kChanged; t.textContent = show && changed[i] ? "changed" : "same as before"; t.style.visibility = show ? "" : "hidden"; t.classList.toggle("chg", !!(show && changed[i]));
       if (changed[i] && !kChanged) { const f = $("smF" + i); f.classList.remove("flash"); void f.offsetWidth; f.classList.add("flash"); }
     });
-    $("smW3").innerHTML = `score of <b>${sc(CHARS[k])}</b>`; setBar(3, tot, SCALE[k] * 2); $("smV3").textContent = fmt(tot); $("smT3").textContent = "the 3 parts added";
+    $("smW3").innerHTML = `score of <b>${nm(CHARS[k])}</b>`; setBar(3, tot, SCALE[k]); $("smV3").textContent = fmt(tot); $("smT3").textContent = "the 3 parts added";
     const which = g.map((c, i) => changed[i] ? WHO[i] : null).filter(Boolean);
     $("smNote").innerHTML = prev && !kChanged && which.length
       ? `You changed the ${which.join(" and ")} letter. Only its part changed. The other letters' parts stayed exactly the same: <b>each letter votes alone</b>, whoever its neighbours are.`
