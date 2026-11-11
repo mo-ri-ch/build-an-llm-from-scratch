@@ -17,6 +17,12 @@ const INIT_LESSON5 = [[[1.9269, 1.4873, 0.9007, -2.1055, 0.6784, -1.2345, -0.043
 const INIT_LESSON6_LETTERS = [[1.9269, 1.4873], [0.9007, -2.1055], [0.6784, -1.2345], [-0.0431, -1.6047], [-0.7521, 1.6487], [-0.3925, -1.4036], [-1.1109, 0.0915], [-2.3169, -0.2168], [-1.3847, -0.8712], [-0.2234, 1.7174], [-0.592, -0.0631], [-0.8286, 0.3309], [-1.5576, 0.9956], [-0.8798, -0.6011]];
 const INIT_LESSON6_WEIGHTS = [[1.3123, 0.6872, -1.0892, -0.3553, -0.9138, -0.6581, 0.078, 0.5258, 1.179, -0.4345, -1.3864, -1.2862, -1.4032, 0.036], [-0.0635, 0.6756, 0.3672, 0.1754, 1.3852, -0.4459, 1.4451, 0.8564, 2.2181, 0.5232, 1.1754, 0.5612, -0.4527, -0.7718], [-0.1722, 0.5238, 0.0566, 0.4263, 0.1971, -1.1441, 0.3383, 1.6992, 0.0109, -0.3387, -1.3407, -0.5854, -0.5644, 1.0563], [-1.4692, 1.4332, 0.744, -0.4816, -1.0495, 0.6039, 0.4048, -1.3543, -0.4976, 0.4747, -2.5095, 0.488, 0.7846, 0.0286], [1.7423, -1.3527, 0.2191, 0.5526, -0.1853, 0.7528, 0.4048, 0.1785, -0.3165, 0.5886, -0.8905, 0.4098, 1.9312, 1.0119], [-1.4364, -1.1299, -0.136, 1.6354, 0.6547, 0.576, 1.1415, 0.0186, -1.8058, 0.9254, -0.3753, 1.0331, -0.6867, 0.6368]];
 
+const INIT_LESSON7_EMBEDDING = [[0.2031, -0.5203, 0.5517], [-0.1184, 0.8311, 0.0858], [-0.2104, 0.4939, -0.1553], [1.0488, -1.0342, -0.7709], [0.0984, -0.4492, 0.4493], [-0.3394, 0.6896, -0.3915], [0.5381, -0.1005, -0.6008], [-0.2879, -0.5026, -0.4348], [-0.2503, 0.8392, -0.3975], [0.2811, 0.4037, -0.8617], [-0.3708, -0.2081, 0.0742], [-0.6874, -0.3683, 0.7117], [-0.5239, 0.0575, 0.7311], [0.4157, 0.2049, -0.2909]];
+const INIT_LESSON7_POSITION = [[-0.2559, 0.3808, -0.0695], [0.183, 0.4253, -0.1946], [-0.2603, -0.3995, -0.4836], [-0.1601, -0.7072, -0.1505], [-0.2739, -0.8207, -0.2316], [0.425, 0.1508, 0.5472], [-0.3922, 0.1782, 0.0016], [-0.0009, -0.0948, 0.411]];
+const INIT_LESSON7_QUERY = [[0.072, 0.7028, 0.1956], [-0.3365, -0.8701, 0.5767], [-0.4153, -0.4237, -0.6677]];
+const INIT_LESSON7_KEY = [[-0.3178, 0.1623, 0.7206], [0.4131, 0.0744, -0.5373], [-0.2914, 0.7186, -0.4652]];
+const INIT_LESSON7_VALUE = [[0.3449, 0.0337, -0.4166], [-0.5644, 0.9053, 0.4566], [-0.5969, 0.9261, 0.1815]];
+const INIT_LESSON7_OUT = [[-0.18, -0.0435, 0.8632, 0.2291, 0.7835, -0.2601, -0.0929, 0.402, 0.4526, 0.3964, 0.7204, 0.4869, -0.4915, -0.8955], [0.3073, 0.2596, 0.3062, 0.5001, -0.1391, -0.2152, -0.1819, -0.4744, 0.173, 0.2755, 0.2808, -0.5096, -0.3544, -0.1001], [-0.1513, -0.1436, 0.4279, 0.6041, 0.5136, 0.2232, 1.1405, -0.2918, -0.6728, 0.821, 0.7461, -0.0884, -0.7018, 0.7067]];
 function copyTable(t) { return t.map(row => row.slice()); }
 
 // Softmax: scores -> probabilities that add up to 1
@@ -220,3 +226,80 @@ function pickByChance(chances) {
 
 // Show a character so spaces are visible
 function showChar(c) { return c === " " ? "space" : c; }
+
+// Lesson 7: one attention step over the last 8 letters
+class AttentionModel {
+  constructor() {
+    this.W = 8; this.D = 3;
+    this.examples = [];
+    for (let i = 0; i + this.W < TEXT.length; i++) {
+      this.examples.push({ c: Array.from(TEXT.slice(i, i + this.W)).map(ch => CHAR_TO_NUMBER[ch]), next: CHAR_TO_NUMBER[TEXT[i + this.W]] });
+    }
+    this.reset();
+  }
+  reset() {
+    this.embedding = copyTable(INIT_LESSON7_EMBEDDING);   // 14 x 3
+    this.position = copyTable(INIT_LESSON7_POSITION);     // 8 x 3
+    this.query = copyTable(INIT_LESSON7_QUERY);           // 3 x 3
+    this.key = copyTable(INIT_LESSON7_KEY);               // 3 x 3
+    this.value = copyTable(INIT_LESSON7_VALUE);           // 3 x 3
+    this.out = copyTable(INIT_LESSON7_OUT);               // 3 x 14
+    this.step = 0;
+  }
+  get size() { return 14 * 3 + 8 * 3 + 9 * 3 + 3 * 14; }   // 135
+  // everything the forward pass computes, kept for the pages and for learning
+  run(c) {
+    const D = this.D, W = c.length, off = this.W - W;   // shorter windows sit at the end
+    const mv = (x, M) => Array.from({ length: M[0].length }, (_, b) => x.reduce((s, v, a) => s + v * M[a][b], 0));
+    const x = c.map((ch, i) => this.embedding[ch].map((v, d) => v + this.position[off + i][d]));
+    const last = x[W - 1], q = mv(last, this.query), k = x.map(r => mv(r, this.key)), v = x.map(r => mv(r, this.value));
+    const match = k.map(r => r.reduce((s, kv, d) => s + kv * q[d], 0) / Math.sqrt(D));
+    const att = softmax(match);
+    const mixed = Array.from({ length: D }, (_, d) => att.reduce((s, a, i) => s + a * v[i][d], 0));
+    const h = mixed.map((m, d) => m + last[d]);
+    const scores = mv(h, this.out);
+    return { x, q, k, v, match, att, mixed, h, scores, off };
+  }
+  scores(c) { return this.run(c).scores; }
+  loss() { let t = 0; for (const ex of this.examples) t += -Math.log(softmax(this.scores(ex.c))[ex.next]); return t / this.examples.length; }
+  trainStep(lr = 0.5) {
+    const D = this.D, W = this.W, n = this.examples.length, sq = Math.sqrt(D);
+    const zero = M => M.map(r => r.map(() => 0));
+    const gE = zero(this.embedding), gP = zero(this.position), gQ = zero(this.query), gK = zero(this.key), gV = zero(this.value), gO = zero(this.out);
+    let total = 0;
+    for (const ex of this.examples) {
+      const f = this.run(ex.c), p = softmax(f.scores);
+      total += -Math.log(p[ex.next]);
+      const gz = p.map((pk, k) => (pk - (k === ex.next ? 1 : 0)) / n);             // push on each score
+      const gh = Array(D).fill(0);
+      for (let b = 0; b < D; b++) for (let k = 0; k < VOCAB; k++) { gO[b][k] += f.h[b] * gz[k]; gh[b] += this.out[b][k] * gz[k]; }
+      const gx = f.x.map(() => Array(D).fill(0));
+      for (let d = 0; d < D; d++) gx[W - 1][d] += gh[d];                            // the last letter's own numbers were added back
+      const ga = f.v.map(r => r.reduce((s, vv, d) => s + vv * gh[d], 0));
+      const gv = f.att.map(a => gh.map(g => a * g));
+      const dot = f.att.reduce((s, a, i) => s + a * ga[i], 0);
+      const gs = f.att.map((a, i) => a * (ga[i] - dot));                            // through softmax
+      const gq = Array(D).fill(0);
+      for (let i = 0; i < W; i++) for (let d = 0; d < D; d++) gq[d] += gs[i] * f.k[i][d] / sq;
+      for (let i = 0; i < W; i++) {
+        const gk = f.q.map(qq => gs[i] * qq / sq);
+        for (let a = 0; a < D; a++) for (let b = 0; b < D; b++) {
+          gK[a][b] += f.x[i][a] * gk[b]; gx[i][a] += this.key[a][b] * gk[b];
+          gV[a][b] += f.x[i][a] * gv[i][b]; gx[i][a] += this.value[a][b] * gv[i][b];
+        }
+      }
+      for (let a = 0; a < D; a++) for (let b = 0; b < D; b++) { gQ[a][b] += f.x[W - 1][a] * gq[b]; gx[W - 1][a] += this.query[a][b] * gq[b]; }
+      for (let i = 0; i < W; i++) for (let d = 0; d < D; d++) { gE[ex.c[i]][d] += gx[i][d]; gP[i][d] += gx[i][d]; }
+    }
+    const move = (M, G) => M.forEach((r, i) => r.forEach((_, j) => r[j] -= lr * G[i][j]));
+    move(this.embedding, gE); move(this.position, gP); move(this.query, gQ); move(this.key, gK); move(this.value, gV); move(this.out, gO);
+    this.step += 1;
+    return total / n;
+  }
+  train(steps = 300) { let l = 0; for (let i = 0; i < steps; i++) l = this.trainStep(); return l; }
+  predict(lastLetters) {
+    const c = Array.from(lastLetters.slice(-this.W)).map(ch => CHAR_TO_NUMBER[ch]);
+    if (!c.length || c.some(v => v === undefined)) return null;
+    return softmax(this.scores(c));
+  }
+}

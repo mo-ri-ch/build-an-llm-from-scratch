@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attention</title>
+<meta name="description" content="Lesson 7 of Build a Tiny LLM: let the last letter look back and choose which letters matter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Kalam:wght@400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("notebook-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<link rel="stylesheet" href="https://mo-ri-ch.github.io/study-notebook-design/v1/style.css">
+<style>
+  .muted { color: var(--pencil); font-size: 0.95rem; }
+  .stuck li { margin: 6px 0; }
+  select.pick { max-width: 16em; }
+  select.pick, .row select { font: inherit; font-family: var(--mono); padding: 4px 8px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+
+  /* Page 2: the 3-letter window over the text */
+  .window-text { font-family: var(--mono); font-size: 1.15rem; line-height: 2.1; word-break: break-word; margin: 6px 0 14px; }
+  .window-text span { cursor: pointer; padding: 2px 1px; border-radius: 3px; }
+  .window-text span:hover { background: color-mix(in srgb, var(--hl-yellow) 40%, transparent); }
+  .window-text .w1, .window-text .w2, .window-text .w3 { background: var(--hl-yellow); color: var(--ink); }
+  .window-text .wn { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  .group-line { font-family: var(--mono); font-size: 1.6rem; margin: 6px 0 4px; }
+  .group-line .next { display: inline-block; min-width: 1.2em; border: 2px dashed var(--ink); border-radius: 4px; text-align: center; margin-left: 6px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+  .mini { text-align: center; min-width: 0; }
+  .mini-title { font-family: var(--head); font-size: 1rem; }
+  .mini-sub { color: var(--pencil); font-size: 0.85rem; margin-bottom: 6px; }
+  .mini-grid { display: grid; grid-template-columns: 1.4em repeat(14, minmax(0, 1fr)); gap: 1px; font-family: var(--mono); font-size: 0.6rem; max-width: 230px; width: 100%; margin: 0 auto; }
+  .mini-grid span { aspect-ratio: 1; background: color-mix(in srgb, var(--grid, #d9dfeb) 60%, transparent); border-radius: 1px; }
+  .mini-grid .lab { background: none; color: var(--pencil); display: grid; place-items: center; aspect-ratio: auto; }
+  .mini-grid .on { background: var(--hl-yellow); }
+  .mini-grid .lab.on { background: none; color: var(--ink); font-weight: 700; }
+  .mini-row { font-family: var(--mono); margin-top: 6px; }
+  @media (max-width: 640px) { .three { gap: 8px; } .mini-grid { font-size: 0.45rem; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); } .mini-sub { font-size: 0.7rem; } .mini-row { font-size: 0.75rem; } }
+
+  /* Page 3 and 5: rows added up */
+  .addtab { border-collapse: collapse; font-family: var(--mono); font-size: 0.76rem; margin: 8px 0; display: block; max-width: 100%; overflow-x: auto; }
+  .addtab th, .addtab td { padding: 6px 4px; text-align: right; white-space: nowrap; }
+  .addtab .op { font-weight: 700; color: var(--ink); display: inline-block; width: 1.1em; }
+  #addTab th[data-k], #addTab td[data-k] { cursor: pointer; }
+  #addTab .pick-col { outline: 2px solid var(--pen); outline-offset: -2px; background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  #addTab .pick-col.real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .worked { font-family: var(--mono); font-size: 1rem; line-height: 1.9; margin: 14px 0 4px; padding: 10px 14px; border-left: 3px solid var(--pen); background: var(--paper); }
+  .worked .pats { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 2px 18px; margin: 6px 0 8px; font-size: 0.95rem; }
+  .worked .pats i { font-family: var(--body, inherit); font-style: normal; color: var(--pencil); font-size: 0.8rem; }
+  .worked .lab { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.85rem; }
+  .addtab th:first-child, .addtab td:first-child { text-align: left; font-family: var(--body, inherit); color: var(--pencil); padding-right: 8px; }
+  .addtab tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+  .addtab tr.sum td:first-child, .addtab tr.chance td:first-child { color: var(--ink); }
+  .addtab tr.chance td { color: var(--pen); }
+  .addtab .real { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .addtab th.real { color: var(--ink); }
+  .table-scroll { overflow-x: auto; }
+
+  /* Page 4: which groups use a row */
+  .uses { font-family: var(--mono); font-size: 1.1rem; line-height: 2.1; word-break: break-word; margin: 10px 0; }
+  .uses .use { background: var(--hl-yellow); color: var(--ink); border-radius: 3px; padding: 2px 1px; }
+  .uses .use .key { text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  select.sh-sel { width: 8.5em; }
+  .sh-legend .it { display: inline-flex; align-items: center; gap: 5px; margin-right: 6px; }
+  @media (max-width: 640px) { .sh-mini .sh-title { font-size: 0.75rem; white-space: nowrap; } .sh-minis { gap: 8px; } }
+  .sh-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 0.78rem; color: var(--pencil); margin: 8px 0 0; }
+  .sh-legend .k { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--grid); }
+  .k.a, .sh tr.a td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); }
+  .k.b, .sh tr.b td { background: color-mix(in srgb, var(--hl-blue) 45%, transparent); }
+  .k.both, .sh tr.both td { background: color-mix(in srgb, var(--hl-green) 60%, transparent); }
+  .sh-eqs { display: grid; gap: 14px; }
+  .sh-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .sh-name { width: 5.2em; flex: none; font-family: var(--mono); font-size: 1.15rem; font-weight: 700; }
+  .sh-name small, .sh-total small { display: block; font-family: var(--body, inherit); font-weight: 400; font-size: 0.75rem; color: var(--pencil); }
+  .sh-card { border: 2px solid var(--grid, #d9dfeb); border-radius: 8px; padding: 6px 10px; text-align: center; background: var(--card, #fff); min-width: 5.6em; transition: transform 0.2s; }
+  .sh-card.shared { border-color: var(--good, #1E8F4E); background: color-mix(in srgb, var(--hl-green) 40%, var(--card, #fff)); }
+  .sh-card.moved .sh-num { color: var(--pen); }
+  .sh-pat { font-family: var(--mono); font-size: 0.85rem; }
+  .sh-num { font-family: var(--mono); font-size: 1.25rem; font-weight: 700; }
+  .sh-tab { font-size: 0.7rem; color: var(--pencil); }
+  .sh-op { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
+  .sh-total { font-family: var(--mono); font-size: 1.25rem; min-width: 8em; }
+  .sh-other, .cnt-g, .cnt-m { padding: 6px 12px; }
+  .cnt-x { padding: 3px 9px; font-family: var(--mono, monospace); }
+  .sh-other.on, .cnt-g.on, .cnt-m.on, .cnt-x.on { background: var(--ink); color: var(--paper); }
+  .sh-result .k { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+  @media (max-width: 1180px) { .sh-line { flex-wrap: wrap; } .sh-name { width: 100%; } .sh-card { min-width: 0; padding: 4px 6px; } .sh-num { font-size: 1rem; } .sh-total { min-width: 0; flex: 1 1 8em; } }
+  .sh-tables { display: grid; gap: 12px; }
+  .sh-minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .sh-mini .sh-title { text-align: center; font-size: 0.9rem; }
+  .sh-grid { display: grid; grid-template-columns: 1.1em repeat(14, minmax(0, 1fr)); gap: 1px; max-width: 190px; margin: 0 auto; font-family: var(--mono); font-size: 0.55rem; }
+  .sh-grid span { height: 8px; border-radius: 1px; outline: 1px solid color-mix(in srgb, var(--grid, #d9dfeb) 50%, transparent); }
+  .sh-grid .lab { outline: none; color: var(--pencil); line-height: 8px; text-align: center; }
+  .sh-grid span.a:not(.lab) { outline: 2px solid var(--hl-yellow); }
+  .sh-grid span.b:not(.lab) { outline: 2px solid var(--hl-blue); }
+  .sh-grid span.both:not(.lab) { outline: 2px solid var(--good, #1E8F4E); }
+  .sh-grid .lab.a, .sh-grid .lab.b, .sh-grid .lab.both { color: var(--ink); font-weight: 700; }
+  .sh .who { color: var(--pencil); font-weight: 400; }
+  .sh td:first-child { text-align: left !important; font-family: var(--body, inherit); font-size: 0.75rem; }
+  .sh-title { font-family: var(--head); font-size: 1rem; margin-bottom: 2px; }
+  .sh-title small { font-family: var(--body, inherit); color: var(--pencil); font-size: 0.8rem; }
+  .sh { border-collapse: collapse; font-family: var(--mono); font-size: 0.66rem; }
+  .sh th, .sh td { padding: 1px 4px; text-align: right; white-space: nowrap; }
+  .sh th { color: var(--pencil); font-weight: 600; }
+  .sh td:first-child { color: var(--pencil); text-align: center; font-weight: 700; padding-right: 6px; }
+  .sh tr.a td:first-child, .sh tr.b td:first-child, .sh tr.both td:first-child { color: var(--ink); }
+  .sh td.chg { font-weight: 700; color: var(--pen); }
+  .sh-result i { color: var(--pencil); font-style: normal; font-size: 0.85rem; }
+  .sh-result { font-size: 0.95rem; line-height: 1.6; margin-top: 14px; margin-bottom: 12px; min-height: 1.7em; }
+  .l4t { border-collapse: collapse; font-family: var(--mono); font-size: 0.6rem; margin-top: 6px; }
+  .l4t th, .l4t td { padding: 1px 3px; text-align: right; }
+  .l4t th { color: var(--pencil); }
+  .l4t td:first-child { font-weight: 700; color: var(--pencil); text-align: center; }
+  .l4t tr.hl td { background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); color: var(--ink); }
+  .l4t.pk th, .l4t.pk td { padding: 1px 2px; }
+  .l4t td.hc, .l4t th.hc { background: color-mix(in srgb, var(--hl-green) 45%, transparent); }
+  .l4t tr.hl td.hc { background: var(--hl-yellow); outline: 2px solid var(--pen); outline-offset: -2px; font-weight: 700; }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .box-card { border: 2px solid var(--ink); border-radius: var(--radius); padding: 10px 14px; background: var(--paper); }
+  .box-label { font-size: 0.85rem; color: var(--pencil); }
+  .box-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+  .box-num.huge { color: var(--redpen); }
+  .box-num.small { color: var(--good, #1E8F4E); }
+  @media (max-width: 640px) { .boxes { grid-template-columns: 1fr; } }
+
+  /* Page 6: training */
+  .score-line { display: flex; gap: 28px; margin-top: 10px; color: var(--pencil); font-size: 0.9rem; }
+  .score-line b { display: block; font-family: var(--mono); font-size: 1.4rem; color: var(--ink); }
+  .top3 { display: grid; grid-template-columns: 4.5em 1fr 3.6em; gap: 6px 12px; align-items: center; font-family: var(--mono); font-size: 0.95rem; margin-top: 10px; }
+  .top3 .track { height: 16px; background: var(--paper); border: 1px solid var(--grid); border-radius: 3px; position: relative; }
+  .top3 .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--highlight, var(--hl-yellow)); border-right: 2px solid var(--ink); }
+  .top3 .pct { text-align: right; }
+  .cmp { margin: 6px 0 16px; font-family: var(--mono); font-size: 0.9rem; }
+  .cmp th, .cmp td { padding: 4px 14px 4px 0; text-align: left; }
+  .cmp td:first-child, .cmp th:first-child { font-family: var(--body, inherit); color: var(--pencil); }
+
+  /* Page 5: where each count comes from */
+  .cnt-text { margin: 0 0 12px; }
+  .cnt-text .grp { background: color-mix(in srgb, var(--hl-yellow) 45%, transparent); }
+  .cnt-text .key { background: var(--hl-yellow); font-weight: 700; text-decoration: underline 3px var(--pen); text-underline-offset: 4px; }
+  .cnt-text .nx { outline: 2px dashed var(--ink); outline-offset: 1px; }
+  #cntEqs .sh-card { cursor: pointer; }
+  #cntEqs .sh-card.pointed { outline: 3px solid var(--pen); outline-offset: 1px; }
+
+  /* Page 6: one learning step */
+  .window-text.static span { cursor: default; }
+  .window-text.static span:hover { background: none; }
+  .window-text.static .w1, .window-text.static .w2, .window-text.static .w3 { background: var(--hl-yellow); }
+  .os-head { font-size: 0.95rem; margin: 0 0 10px; }
+  .os-head .g { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; margin-right: 8px; }
+  .os-push { font-size: 0.98rem; line-height: 1.55; padding: 8px 12px; background: var(--paper); border-left: 3px solid var(--pen); border-radius: 4px; }
+  .os-push code, .os-watch code { font-size: 0.85em; white-space: nowrap; }
+  .os-push .up { color: var(--good, #1E8F4E); font-weight: 700; white-space: nowrap; }
+  .os-push .down { color: var(--redpen); font-weight: 700; white-space: nowrap; }
+  .os-watch { margin-top: 12px; padding: 8px 12px; border: 2px dashed var(--good, #1E8F4E); border-radius: 8px; font-size: 0.92rem; }
+  #osResult:empty { display: none; }
+  .os-remember { font-size: 0.92rem; margin: 0 0 8px; line-height: 1.9; }
+  .os-watch .title { font-size: 0.85rem; color: var(--pencil); margin-bottom: 4px; }
+  .os-watch .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; font-family: var(--mono); font-size: 0.8rem; min-height: 1.6em; }
+  .os-watch .chip { padding: 1px 6px; border-radius: 10px; background: var(--card, #fff); border: 1px solid var(--grid, #d9dfeb); }
+  .os-watch .chip.up { color: var(--good, #1E8F4E); }
+  .os-watch .chip.down { color: var(--redpen); }
+  .os-watch .chip.now { outline: 2px solid var(--pen); }
+  .os-watch .tot { margin-top: 6px; font-family: var(--mono); font-size: 0.85rem; }
+  .os-prog { border-collapse: collapse; font-size: 0.9rem; margin-top: 6px; }
+  .os-prog td { padding: 2px 12px 2px 0; }
+  .os-prog td:last-child { font-family: var(--mono); }
+  .top3.cmp4 { grid-template-columns: 6.2em 1fr 5.6em 4.8em; }
+  .top3 .hd { font-family: var(--body, inherit); font-size: 0.75rem; color: var(--pencil); text-align: right; }
+
+  /* Page 8: writing */
+  .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
+  .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
+  #writtenNow, #writtenBefore { line-height: 1.9; min-height: calc(3.8em + 24px); }
+  .written .seed { color: var(--pencil); }
+  .written .slip, .slip { text-decoration: underline wavy #d6453d; text-decoration-thickness: 1.5px; text-underline-offset: 4px; background: color-mix(in srgb, #d6453d 12%, transparent); border-radius: 2px; }
+  .written .cur { display: inline-block; width: 0.55em; border-bottom: 2px solid var(--pen); animation: blink 0.8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .slips { font-size: 0.85rem; color: var(--pencil); height: 1.5em; line-height: 1.5em; margin-top: 4px; }
+  .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
+
+  /* Lesson 6 */
+  .emb { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-family: var(--mono); font-size: 0.95rem; margin: 6px 0 10px; }
+  .emb th, .emb td { padding: 3px 14px 3px 0; text-align: right; white-space: nowrap; }
+  .emb th { color: var(--pencil); font-weight: 400; font-size: 0.8rem; font-family: var(--body, inherit); }
+  .emb td:first-child, .emb th:first-child { text-align: left; font-weight: 700; }
+  .emb td.pos { text-align: left; font-family: var(--body, inherit); font-size: 0.8rem; color: var(--pencil); padding-right: 0; }
+  .emb tr.p0 td:not(.pos), .emb tr.p1 td:not(.pos), .emb tr.p2 td:not(.pos) { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); color: var(--ink); }
+  .emb tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
+  .emb .mul { color: var(--pencil); }
+  .vt { display: grid; grid-template-columns: 7.2em 1fr 3.6em 5.4em; gap: 6px 10px; align-items: center; margin: 4px 0 8px; }
+  .vt .who { font-size: 0.9rem; } .vt .who b { font-family: var(--mono); font-size: 1rem; }
+  .vt .bar { height: 18px; position: relative; background: var(--paper); border: 1px solid var(--grid); border-radius: 4px; }
+  .vt .bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1.5px solid var(--pencil); }
+  .vt .fill { position: absolute; top: 0; bottom: 0; background: var(--hl-yellow); border: 1.5px solid var(--ink); border-radius: 3px; transition: left 0.45s ease, width 0.45s ease; }
+  .vt .val { font-family: var(--mono); text-align: right; }
+  .vt .tag { font-size: 0.8rem; color: var(--pencil); }
+  .vt .tag.chg { color: var(--pen); font-weight: 700; }
+  .vt .tot { border-top: 2px solid var(--ink); padding-top: 6px; font-weight: 700; }
+  .vt .bar.tot { padding: 0; border-top: 1px solid var(--grid); margin-top: 8px; }
+  .vt .fill.flash { animation: vtFlash 0.9s ease; }
+  @keyframes vtFlash { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--pen) 35%, transparent); } }
+  @media (max-width: 560px) { .vt { grid-template-columns: 5.6em 1fr 3.2em; } .vt .tag { grid-column: 2 / -1; margin-top: -4px; } #smNote { min-height: 8.2em !important; } }
+  @media (prefers-reduced-motion: reduce) { .vt .fill { transition: none; } .vt .fill.flash { animation: none; } }
+  .six { font-family: var(--mono); font-size: 1.05rem; margin: 4px 0 10px; }
+  .six b { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); padding: 1px 6px; border-radius: 4px; font-weight: 400; color: var(--ink); }
+  .lm { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-start; margin-top: 6px; }
+  .lm-side { flex: 1 1 220px; display: grid; gap: 10px; align-content: start; }
+  .lm-side .score-line { margin: 0; }
+  svg.map { width: 100%; max-width: 380px; flex: 0 1 380px; height: auto; display: block; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  svg.map .grid { stroke: var(--grid); stroke-width: 1; opacity: 0.55; }
+  svg.map .trail { fill: none; stroke: var(--pen); stroke-width: 1.5; opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
+  svg.map .lab { font-family: var(--body, inherit); font-size: 11px; fill: var(--pencil); }
+  svg.map .dot { filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.18)); }
+  svg.lcurve { width: 100%; height: auto; display: block; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  svg.lcurve .ln { fill: none; stroke: var(--pen); stroke-width: 2; stroke-linejoin: round; }
+  svg.lcurve .ar { fill: color-mix(in srgb, var(--pen) 12%, transparent); stroke: none; }
+  svg.lcurve text { font-family: var(--body, inherit); font-size: 10px; fill: var(--pencil); }
+  svg.lcurve .ref { stroke: var(--pencil); stroke-dasharray: 3 3; stroke-width: 1; }
+  svg.map text { font-family: var(--mono); font-size: 13px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+  svg.map circle.dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; }
+  svg.map .tick { fill: var(--pencil); font-size: 10px; }
+
+    /* page 4: the 6 pairs, forward then back */
+    .fl { display: grid; grid-template-columns: auto 1fr; gap: 10px 18px; align-items: center; margin: 8px 0 4px; }
+    .fl-pairs { display: grid; gap: 4px; }
+    .fl-row { display: grid; grid-template-columns: 4.6em 4.2em 1em 4.2em 1em 3.6em 1.6em; align-items: center; font-family: var(--mono); font-size: 0.95rem; padding: 2px 4px; border-radius: 6px; transition: background 0.25s; }
+    .fl-row .lab { font-family: var(--body, inherit); font-size: 0.85rem; font-weight: 700; }
+    .fl-row .n { text-align: right; padding: 1px 4px; border-radius: 4px; transition: background 0.25s; }
+    .fl-row .op { color: var(--pencil); text-align: center; }
+    .fl-row .arr { text-align: center; color: var(--pencil); font-family: var(--body, inherit); transition: color 0.25s; }
+    .fl-row .pu { grid-column: 1 / 7; display: grid; grid-template-columns: 4.6em 4.2em 1em 4.2em; font-size: 0.78rem; color: var(--pen); min-height: 1.2em; }
+    .fl-row .pu span { text-align: right; padding-right: 4px; }
+    .fl-row .pu span:first-child { text-align: left; font-family: var(--body, inherit); }
+    .fl-row.lit { background: color-mix(in srgb, var(--hl-yellow) 55%, transparent); }
+    .fl-row.lit .arr { color: var(--ink); font-weight: 700; }
+    .fl-side { display: grid; gap: 6px; justify-items: start; }
+    .fl-box { border: 1.5px solid var(--grid); border-radius: 8px; padding: 4px 10px; font-size: 0.95rem; transition: background 0.25s, border-color 0.25s; }
+    .fl-box b { font-family: var(--mono); }
+    .fl-box.lit { background: var(--hl-yellow); border-color: var(--ink); color: var(--ink); }
+    .fl-down { color: var(--pencil); padding-left: 14px; line-height: 1; }
+    .fl-cap { min-height: 3em; margin: 6px 0 2px; }
+    .fl-hide { visibility: hidden; }
+    @media (max-width: 640px) { .fl { grid-template-columns: 1fr; } .fl-row { grid-template-columns: 3.6em 3.8em 0.9em 3.8em 0.9em 3.4em 1.3em; font-size: 0.85rem; } .fl-row .pu { grid-template-columns: 3.6em 3.8em 0.9em 3.8em; } .fl-side { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .fl-box { white-space: nowrap; font-size: 0.88rem; } .fl-down { padding: 0; } .fl-down::before { content: "→"; } .fl-down span { display: none; } }
+    .bk-all { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto) auto; gap: 3px 28px; justify-content: start; font-family: var(--mono); font-size: 0.9rem; margin: 6px 0 4px; white-space: nowrap; }
+    .bk-all .mul { color: var(--pencil); }
+    .bk-all .hot { background: var(--hl-yellow); color: var(--ink); border-radius: 4px; }
+    .bk-all .tot { grid-column: 1 / -1; grid-row: 8; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
+    @media (max-width: 560px) { .bk-all .mul { display: none; } }
+  
+  /* Lesson 7 */
+  .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
+  .win span.in { border-color: var(--ink); background: color-mix(in srgb, var(--hl-yellow) 60%, transparent); }
+  .win span.nx { border-style: dashed; border-color: var(--pen); color: var(--pen); }
+  .floor { display: grid; grid-template-columns: 9em 1fr 3.4em; gap: 6px 12px; align-items: center; margin: 10px 0; }
+  .floor .track { height: 18px; border: 1px solid var(--grid); border-radius: 4px; background: var(--paper); position: relative; overflow: hidden; }
+  .floor .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hl-yellow); border-right: 2px solid var(--ink); transition: width 0.4s ease; }
+  .floor .val { font-family: var(--mono); text-align: right; font-weight: 700; }
+  .unsure { display: flex; flex-wrap: wrap; gap: 6px; min-height: 2.2em; }
+  .unsure span { font-family: var(--mono); font-size: 0.9rem; border: 1px dashed var(--pencil); border-radius: 6px; padding: 2px 8px; }
+  .dp { font-family: var(--mono); font-size: 1.05rem; margin: 8px 0; }
+  .dp .op { color: var(--pencil); }
+  .dp .res { background: var(--hl-yellow); color: var(--ink); border-radius: 5px; padding: 0 6px; font-weight: 700; }
+  .att { display: grid; grid-template-columns: repeat(8, minmax(2.2em, 1fr)); gap: 4px; align-items: end; margin: 8px 0 4px; max-width: 520px; }
+  .att .col { display: grid; justify-items: center; gap: 3px; }
+  .att .bar { width: 70%; background: var(--hl-yellow); border: 1.5px solid var(--ink); border-radius: 3px 3px 0 0; transition: height 0.5s ease; min-height: 1px; }
+  .att .pct { font-family: var(--mono); font-size: 0.75rem; color: var(--pencil); }
+  .att .ch { font-family: var(--mono); border: 1.5px solid var(--grid); border-radius: 5px; width: 100%; text-align: center; padding: 2px 0; }
+  .att .ch.me { border-color: var(--pen); color: var(--pen); font-weight: 700; }
+  .att-wrap { height: 150px; display: flex; align-items: flex-end; margin-top: 6px; }
+  table.l7 { border-collapse: collapse; font-family: var(--mono); font-size: 0.9rem; display: block; max-width: 100%; overflow-x: auto; margin: 6px 0 8px; }
+  table.l7 th { font-family: var(--body, inherit); font-weight: 400; font-size: 0.78rem; color: var(--pencil); padding: 2px 7px 2px 0; text-align: right; }
+  table.l7 td { padding: 2px 7px 2px 0; text-align: right; white-space: nowrap; }
+  table.l7 td:first-child, table.l7 th:first-child { text-align: left; }
+  table.l7 .op { color: var(--pencil); }
+  table.l7 tr.hot td { background: color-mix(in srgb, var(--hl-yellow) 60%, transparent); }
+  table.l7 tr.me td { color: var(--pen); }
+  .l7-go { animation: l7In 0.45s ease both; }
+  @keyframes l7In { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 560px) { table.l7 .w { display: none; } table.l7 { font-size: 0.82rem; } }
+  @media (prefers-reduced-motion: reduce) { .l7-go { animation: none; } .att .bar, .floor .fill { transition: none; } }
+</style>
+</head>
+<body data-pen="orange">
+<div class="wrap">
+  <header class="topbar">
+    <a class="home" href="../">← Build a Tiny LLM</a>
+    <span class="where">Lesson 7 of 10</span>
+  </header>
+
+  <main data-paged>
+    <div class="paged-head">
+      <h1>Attention</h1>
+      <div class="progress" aria-label="Lesson parts"></div>
+    </div>
+
+    <!-- 1 -->
+    <section class="part" data-title="The problem">
+      <h2>The problem</h2>
+      <p class="neo-say">I keep writing “sat sat”. After “at␣” I can't tell if it was “cat” or “sat”.</p>
+      <p class="say">Your model reads only the last 3 letters. After “cat␣” and after “sat␣” it sees the same 3 letters, “at␣”. But the next letter is different: “cat <b>s</b>at” and “sat <b>o</b>n”.</p>
+      <p class="say">To tell them apart, it must look further back. Lesson 6's way would need 28 more weights for every extra letter, and each letter would still vote alone.</p>
+      <div class="activity">
+        <div class="do">Let the model see more letters. How good could its guesses get?</div>
+        <div class="row"><label>Letters it sees: <b id="fwN">3</b></label><input type="range" id="fwR" min="1" max="8" value="3" style="flex:1 1 200px;accent-color:var(--ink)"></div>
+        <div class="win" id="fwWin"></div>
+        <div class="floor"><span>Best possible loss</span><span class="track"><span class="fill" id="fwFill"></span></span><span class="val" id="fwV"></span></div>
+        <div class="muted" style="margin-bottom:4px">Still a coin flip, even for a perfect model:</div>
+        <div class="unsure" id="fwU"></div>
+      </div>
+      <p class="say"><b>Could the last letter look back and pick the letters that matter?</b></p>
+      <p class="hook">First, a way to compare two lists of numbers.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="part" data-title="✏️ Quick basics: the dot product">
+      <h2>✏️ Quick basics: the dot product</h2>
+      <p class="say">You already did this in Lesson 6: multiply the numbers in pairs, then add. It has a name: the <b>dot product</b>.</p>
+      <p class="say">It also tells you how alike two lists are. Big and positive: alike. Near 0: unrelated. Negative: opposite.</p>
+      <div class="activity">
+        <div class="do">Keep the first list. Pick the second list and watch the dot product.</div>
+        <div class="row" style="margin-bottom:6px"><label>Second list <select id="dpB" class="pick">
+          <option value="2,1,0">[2, 1, 0]: the same</option>
+          <option value="1,2,0">[1, 2, 0]: a bit alike</option>
+          <option value="0,0,3">[0, 0, 3]: unrelated</option>
+          <option value="-2,-1,0">[−2, −1, 0]: opposite</option>
+        </select></label></div>
+        <div class="dp" id="dpOut"></div>
+        <div class="muted" id="dpNote"></div>
+      </div>
+      <p class="hook">Now each letter gets numbers to compare.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="part" data-title="Letters in a row">
+      <h2>Letters in a row</h2>
+      <p class="say">Your model now reads the last <b>8 letters</b>. Each letter has <b>3</b> embedding numbers (2 are too few for what comes next).</p>
+      <p class="say" style="position:relative">Each of the 8 places in the row also has 3 numbers, its <b>position numbers</b>. A letter's numbers here = its embedding + its place's position numbers.<button class="doubt" type="button" data-peek-from="posPeek" aria-label="Why add the place's numbers?">🤔</button></p>
+      <div hidden id="posPeek"><b>🤔 Why add the place's numbers?</b>
+        <p style="margin:6px 0 0">The next pages compare letters only by their numbers. Without position numbers, a “t” in place 1 and a “t” in place 7 would look exactly the same, and the model couldn't tell near from far.</p>
+      </div>
+      <div class="activity">
+        <div class="do">These numbers come from a model that has already learned. You will train one yourself later. Pick 8 letters.</div>
+        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="lrW" class="pick"></select></label></div>
+        <table class="l7" id="lrTab"></table>
+      </div>
+      <p class="hook">How does the last letter choose which of these to look at?</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="part" data-title="A question and labels">
+      <h2>A question and labels</h2>
+      <p class="say">The last letter asks a <b>question</b>: 3 numbers made from its own numbers and 9 <b>query weights</b> (multiply and add, as in Lesson 6).</p>
+      <p class="say">Every letter shows a <b>label</b>: 3 numbers made the same way, with 9 <b>key weights</b>.</p>
+      <p class="say" style="position:relative">The <b>match</b> of a letter = the dot product of the question and its label, ÷ 1.73. A big match means: this letter is what the question asks about.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
+      <div hidden id="sqPeek"><b>🤔 Why divide by 1.73?</b>
+        <p style="margin:6px 0 0">1.73 is √3, because there are 3 numbers in each list. Dividing keeps the matches from growing too big while the model learns. Real models with 64 numbers divide by √64 = 8.</p>
+      </div>
+      <div class="activity">
+        <div class="do">Pick 8 letters. Which letter matches the last letter's question best?</div>
+        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="qkW" class="pick"></select></label></div>
+        <div class="dp" id="qkQ"></div>
+        <table class="l7" id="qkTab"></table>
+      </div>
+      <p class="hook">Matches are just numbers. How much should the last letter listen to each?</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="Who to listen to">
+      <h2>Who to listen to</h2>
+      <p class="say">Softmax turns the 8 matches into <b>shares that add up to 100%</b>, the way it turned scores into chances. This is the <b>attention</b>: how much the last letter listens to each letter.</p>
+      <div class="activity">
+        <div class="do">Pick 8 letters. The bars show where the last letter's attention goes.</div>
+        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="atW" class="pick"></select></label></div>
+        <div class="att-wrap"><div class="att" id="atBars" style="width:100%"></div></div>
+        <div class="muted" id="atNote" style="min-height:4.2em;margin-top:8px"></div>
+      </div>
+      <p class="say">The model learned this by itself. Nobody told it to look at “e”.</p>
+      <p class="hook">It knows where to look. What does it take from there?</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="part" data-title="Mix">
+      <h2>Mix</h2>
+      <p class="say">Every letter also offers 3 numbers, its <b>value</b>, made with 9 <b>value weights</b>. The last letter takes each value × its share, and adds them up: the <b>mix</b>.</p>
+      <p class="say">Then it adds its own numbers back, so it doesn't forget itself. These 3 numbers × 42 <b>output weights</b> give the 14 scores, and softmax gives the chances, as before.</p>
+      <div class="activity">
+        <div class="do">Pick 8 letters. See the mix, then the guess.</div>
+        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="mxW" class="pick"></select></label></div>
+        <table class="l7" id="mxTab"></table>
+        <div class="top3" id="mxTop"></div>
+      </div>
+      <p class="say">Your model has <b>135 numbers</b>: 42 embedding + 24 position + 27 query, key and value + 42 output weights.</p>
+      <p class="hook">Practise the three new steps.</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="part" data-nonum data-title="✏️ Practice 7.1">
+      <h2>✏️ Practice 7.1</h2>
+      <p class="say">Look back, weigh, mix.<br>Remember: <b class="eqbox">dot product = multiply in pairs, then add</b><br><b class="eqbox">attention shares = softmax of the matches</b><br><b class="eqbox">mix = share × value, added up</b></p>
+      <div class="activity">
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
+        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Multiply the first numbers, the second, the third. Then add the three." data-work="1×3 + 2×1 + 0×2 = 3 + 2 + 0 = 5.">
+          <div class="pq-q">A question is <b>[1, 2, 0]</b> and a label is <b>[3, 1, 2]</b>. What is their dot product?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="50" data-tol="0.5" data-hint="Two equal matches get equal shares, and the shares add up to 100%." data-work="Equal matches, so each gets 100% ÷ 2 = 50%.">
+          <div class="pq-q">Only 2 letters, and both have a match of <b>3</b>. What share (in %) does the first one get?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Multiply each value by its share, then add." data-work="0.75 × 4 + 0.25 × 8 = 3 + 2 = 5.">
+          <div class="pq-q">Shares are <b>0.75</b> and <b>0.25</b>. The two letters' values (one number each) are <b>4</b> and <b>8</b>. What is the mix?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="48" data-tol="0.5" data-hint="Each place has 3 position numbers." data-work="16 places × 3 = 48.">
+          <div class="pq-q">The model reads <b>16</b> letters instead of 8. How many position numbers does it need?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="hook">Now train it yourself.</p>
+    </section>
+  </main>
+</div>
+
+<nav class="pagebar" aria-label="Move between parts">
+  <div class="inner">
+    <button data-page-back>← Previous</button>
+    <span data-page-label></span>
+    <button class="primary" data-page-next>Next →</button>
+  </div>
+</nav>
+
+<script src="../assets/tinylm.js?v=202611111"></script>
+<script src="../assets/course.js?v=202611071"></script>
+<script src="../assets/practice.js?v=2"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/guide.js"></script>
+<script src="https://mo-ri-ch.github.io/study-notebook-design/v1/codewalk.js"></script>
+<script>
+const sc = c => c === " " ? "␣" : c;
+const nm = c => c === " " ? "space" : c === "." ? "full stop" : c;
+const fmt = (x, d = 2) => (x < 0 ? "−" : "") + Math.abs(x).toFixed(d);
+const W8 = 8;
+const WINDOWS = [];
+for (let i = 0; i + W8 < TEXT.length; i++) WINDOWS.push({ w: TEXT.slice(i, i + W8), next: TEXT[i + W8] });
+const PICKS7 = ["the cat ", "cat sat ", "the dog ", "dog sat ", "at. the ", " the mat"];
+const winLabel = w => "“" + w.replace(/ /g, "␣") + "”";
+const fillWin = sel => { sel.innerHTML = PICKS7.map(w => `<option value="${w}">${winLabel(w)} → ${nm(WINDOWS.find(x => x.w === w).next)}</option>`).join(""); };
+const codes = w => Array.from(w).map(c => CHAR_TO_NUMBER[c]);
+const fresh7 = () => new AttentionModel();
+const start = fresh7();
+const trained = fresh7(); trained.train(300);
+const v3 = a => "[" + a.map(v => fmt(v)).join(", ") + "]";
+const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.classList.add("l7-go"); };
+
+// ---------- 1: how far back? ----------
+(function farDemo() {
+  const $ = id => document.getElementById(id), R = $("fwR");
+  const floorFor = n => {           // best possible loss when the model sees the last n letters
+    const ex = [], groups = {};
+    for (let i = 0; i + n < TEXT.length; i++) { const c = TEXT.slice(i, i + n), y = TEXT[i + n]; ex.push(c); (groups[c] = groups[c] || {})[y] = (groups[c][y] || 0) + 1; }
+    let H = 0; Object.values(groups).forEach(g => { const t = Object.values(g).reduce((a, b) => a + b, 0); Object.values(g).forEach(v => H -= v * Math.log(v / t)); });
+    const unsure = Object.entries(groups).filter(([, g]) => Object.keys(g).length > 1).map(([c, g]) => `${winLabel(c)} → ${Object.keys(g).map(nm).join(" or ")}`);
+    return { loss: H / ex.length, unsure };
+  };
+  const top = floorFor(1).loss;
+  function render() {
+    const n = +R.value, f = floorFor(n), sample = "the cat sat ";
+    $("fwN").textContent = n;
+    $("fwWin").innerHTML = Array.from(sample).map((c, i) => `<span class="${i >= sample.length - 1 - n && i < sample.length - 1 ? "in" : i === sample.length - 1 ? "nx" : ""}">${sc(c)}</span>`).join("");
+    $("fwFill").style.width = (f.loss / top * 100) + "%"; $("fwV").textContent = f.loss.toFixed(3);
+    $("fwU").innerHTML = f.unsure.slice(0, 4).map(u => `<span>${u}</span>`).join("") + (f.unsure.length > 4 ? `<span>+${f.unsure.length - 4} more</span>` : "") || "<span>none</span>";
+  }
+  R.oninput = render; addReset(R, () => { R.value = 3; render(); }); render();
+})();
+
+// ---------- 2: dot product ----------
+(function dotDemo() {
+  const $ = id => document.getElementById(id), A = [2, 1, 0], sel = $("dpB");
+  const n = v => v < 0 ? "(−" + Math.abs(v) + ")" : String(v);
+  function render() {
+    const B = sel.value.split(",").map(Number), d = A.reduce((s, a, i) => s + a * B[i], 0);
+    $("dpOut").innerHTML = `[2, 1, 0] · [${B.map(v => v < 0 ? "−" + Math.abs(v) : v).join(", ")}] <span class="op">=</span> ${A.map((a, i) => `${a}×${n(B[i])}`).join(" <span class='op'>+</span> ")} <span class="op">=</span> <span class="res">${d < 0 ? "−" + Math.abs(d) : d}</span>`;
+    $("dpNote").textContent = d >= 5 ? "The biggest it gets for these lists: they point the same way." : d > 0 ? "Positive: fairly alike." : d === 0 ? "Zero: the lists have nothing in common." : "Negative: they point opposite ways.";
+    animate($("dpOut"));
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = "2,1,0"; render(); }); render();
+})();
+
+// ---------- 3: letters in a row ----------
+(function rowDemo() {
+  const sel = document.getElementById("lrW"); fillWin(sel);
+  function render() {
+    const w = sel.value, f = trained.run(codes(w));
+    let h = `<tr><th>place</th><th>letter</th><th class="w">embedding</th><th class="w"></th><th class="w">position</th><th class="w"></th><th>its numbers</th></tr>`;
+    Array.from(w).forEach((c, i) => {
+      const e = trained.embedding[CHAR_TO_NUMBER[c]], p = trained.position[i];
+      h += `<tr class="${i === 7 ? "me" : ""}"><td>${i + 1}</td><td>${sc(c)}</td><td class="w">${v3(e)}</td><td class="op w">+</td><td class="w">${v3(p)}</td><td class="op w">=</td><td>${v3(f.x[i])}</td></tr>`;
+    });
+    document.getElementById("lrTab").innerHTML = h; animate(document.getElementById("lrTab"));
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+})();
+
+// ---------- 4: question, labels, matches ----------
+(function qkDemo() {
+  const sel = document.getElementById("qkW"); fillWin(sel);
+  function render() {
+    const w = sel.value, f = trained.run(codes(w)), best = f.match.indexOf(Math.max(...f.match));
+    document.getElementById("qkQ").innerHTML = `The last letter (${sc(w[7])}) asks: question = <span class="res">${v3(f.q)}</span>`;
+    let h = `<tr><th>place</th><th>letter</th><th>label</th><th>match</th></tr>`;
+    Array.from(w).forEach((c, i) => { h += `<tr class="${i === best ? "hot" : ""}${i === 7 ? " me" : ""}"><td>${i + 1}</td><td>${sc(c)}</td><td>${v3(f.k[i])}</td><td><b>${fmt(f.match[i])}</b></td></tr>`; });
+    document.getElementById("qkTab").innerHTML = h; animate(document.getElementById("qkTab"));
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+})();
+
+// ---------- 5: attention shares ----------
+(function attDemo() {
+  const sel = document.getElementById("atW"); fillWin(sel);
+  const NOTES = {
+    "the cat ": "After “the cat␣” it listens to “e”, the end of “the”. So the last word came right after “the”: a thing, like cat or dog. Next comes “sat”.",
+    "the dog ": "Same as for “cat”: it listens to “e”, the end of “the”. A thing came after “the”, so next comes “sat”.",
+    "cat sat ": "After “cat sat␣” it listens to “t”, the end of “cat”. So the last word came after a thing: it was “sat”, and next comes “on”.",
+    "dog sat ": "It listens to “g”, the end of “dog”. So the last word was “sat”, and next comes “on”.",
+  };
+  function render() {
+    const w = sel.value, f = trained.run(codes(w));
+    document.getElementById("atBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${Math.round(f.att[i] * 100)}%</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
+    const top = f.att.indexOf(Math.max(...f.att));
+    document.getElementById("atNote").textContent = NOTES[w] || `The last letter listens most to “${sc(w[top])}” in place ${top + 1}.`;
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+})();
+
+// ---------- 6: mix and guess ----------
+(function mixDemo() {
+  const sel = document.getElementById("mxW"); fillWin(sel);
+  function render() {
+    const w = sel.value, f = trained.run(codes(w)), p = softmax(f.scores);
+    let h = `<tr><th>letter</th><th>share</th><th class="w"></th><th class="w">value</th><th class="w"></th><th>share × value</th></tr>`;
+    Array.from(w).forEach((c, i) => { if (f.att[i] < 0.01) return; h += `<tr><td>${sc(c)}</td><td>${Math.round(f.att[i] * 100)}%</td><td class="op w">×</td><td class="w">${v3(f.v[i])}</td><td class="op w">=</td><td>${v3(f.v[i].map(v => v * f.att[i]))}</td></tr>`; });
+    const small = f.att.filter(a => a < 0.01).length;
+    if (small) h += `<tr><td colspan="6" class="op" style="text-align:left;white-space:normal">(${small} letters with under 1% left out)</td></tr>`;
+    h += `<tr><td colspan="2" style="text-align:left"><b>mix</b></td><td class="w" colspan="3"></td><td><b>${v3(f.mixed)}</b></td></tr>`;
+    h += `<tr><td colspan="2" style="text-align:left">+ its own (${sc(w[7])})</td><td class="w" colspan="3"></td><td>${v3(f.x[7])}</td></tr>`;
+    h += `<tr class="hot"><td colspan="2" style="text-align:left"><b>= for the guess</b></td><td class="w" colspan="3"></td><td><b>${v3(f.h)}</b></td></tr>`;
+    document.getElementById("mxTab").innerHTML = h; animate(document.getElementById("mxTab"));
+    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3);
+    document.getElementById("mxTop").innerHTML = top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("");
+  }
+  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+})();
+</script>
+</body>
+</html>
