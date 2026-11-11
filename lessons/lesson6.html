@@ -271,7 +271,7 @@
           <div class="pq-fb" aria-live="polite"></div>
         </div>
         <div class="pq" data-ans="80" data-tol="0.5" data-hint="Add the embedding table and the weights." data-work="20 + 60 = 80, against 300.">
-          <div class="pq-q">So how many numbers does this model have in all? (Three small tables, as in Lesson 5, would need 300.)</div>
+          <div class="pq-q">So how many numbers does this model have in all? (Three small tables would need 300.)</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
@@ -288,8 +288,8 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move.</p>
-      <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
-      <p class="say">On page 3, a score was 6 products added, each one <b>embedding number × weight</b>. After the adding, the score gets its push (chance − goal). For “cat” → space it is <b>−0.80</b>.</p>
+      <p class="say">Before, the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
+      <p class="say">A score is 6 products added, each one <b>embedding number × weight</b>. After the adding, the score gets its push (chance − goal). For “cat” → space it is <b>−0.80</b>.</p>
       <p class="say" style="position:relative">Every number that built the score now gets <b>its own push</b>. Take the product −0.04 × 1.31:<br>
         The embedding number −0.04 gets <b>the weight × the score's push</b>: 1.31 × −0.80.<br>
         The weight 1.31 gets <b>the embedding number × the score's push</b>: −0.04 × −0.80.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button></p>
@@ -299,9 +299,9 @@
       </div>
       <p class="say">The same embedding number helps build all 14 scores, one per next letter. It gets something from each, so add the 14. A weight is used in only one score. Let's see it work.</p>
       <div class="activity">
-        <div class="do">Pick an example. The table from page 3 runs backwards: the push goes back into the 6 products.</div>
+        <div class="do">Pick an example. The score table runs backwards: the push goes back into the 6 products.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
-        <div class="muted"><b>1.</b> Build the score, as on page 3.</div>
+        <div class="muted"><b>1.</b> Build the score, as before.</div>
         <table class="emb" id="bkFwd"></table>
         <div class="muted" id="bkHead"></div>
         <table class="emb" id="bkTab" style="margin-top:6px"></table>
@@ -363,11 +363,11 @@
       <h2>Write new text</h2>
       <p class="say">Same way to write: one letter at a time, picked by chance. Now the chances come from <b>embedding numbers and weights</b>.</p>
       <div class="activity">
-        <div class="do">Press Write. Compare with the three tables of Lesson 5.</div>
+        <div class="do">Press Write. Compare with the three tables.</div>
         <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
         <div class="written-label">Embedding model, 112 numbers (now)</div>
         <div class="written" id="writtenNow" aria-live="polite"></div>
-        <div class="written-label">Three tables, 588 numbers (Lesson 5)</div>
+        <div class="written-label">Three tables, 588 numbers (before)</div>
         <div class="written" id="writtenBefore"></div>
       </div>
       <p class="say">Both mostly write pieces of our text. A rare letter can slip in, because each letter is picked by chance. The embedding model does it with 5 times fewer numbers.</p>
@@ -472,7 +472,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
       <p class="say">7 questions, one per idea. Get them all right to pass.</p>
       <div class="test" data-test="6">
         <div class="quiz" data-page="lesson6.html#1" data-topic="The problem" data-right="Right. Each of the 3 tables has its own row for “a”, so “a” is learned in all 3.">
-          <div class="q"><small>1. Learned</small>In Lesson 5's three tables, how many times does your model learn the letter “a”?</div>
+          <div class="q"><small>1. Learned</small>With three tables, how many times does your model learn the letter “a”?</div>
           <div class="options">
             <button data-why="Each table has its own row for “a”: that is the problem.">Once</button>
             <button data-right>Three times, once per table</button>
@@ -483,7 +483,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
         <div class="quiz" data-page="lesson6.html#2" data-topic="A letter as numbers" data-right="Right. An embedding is one row of numbers for each letter, in one shared table.">
           <div class="q"><small>2. Embedding</small>What is an embedding?</div>
           <div class="options">
-            <button data-why="That is the counting table of Lesson 3.">A count of what comes after each letter</button>
+            <button data-why="That is the counting table.">A count of what comes after each letter</button>
             <button data-right>A short list of numbers, one row per letter</button>
             <button data-why="Chances come at the end, from softmax.">The chance of each next letter</button>
           </div>
@@ -512,7 +512,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           <div class="options">
             <button data-why="That is only the embedding table. The weights count too.">28</button>
             <button data-right>112</button>
-            <button data-why="That is the three small tables of Lesson 5.">588</button>
+            <button data-why="That is the three small tables.">588</button>
           </div>
           <div class="feedback"></div>
         </div>
