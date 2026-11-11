@@ -205,7 +205,12 @@
     .bk-go .bk-in { animation: bkIn 0.45s ease both; animation-delay: calc(var(--i, 0) * 0.45s); }
     .bk-go .bk-all .bk-in { animation-delay: calc(0.4s + var(--i, 0) * 0.15s); }
     @keyframes bkIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    @media (max-width: 560px) { .bk-all .mul { display: none; } .bk-big { font-size: 1.05rem; } }
+    .bk-try { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; margin: 8px 0; }
+    .bk-try .res { font-size: 0.95rem; }
+    .bk-two { display: grid; grid-template-columns: auto auto 1fr; gap: 6px 12px; align-items: baseline; font-family: var(--mono); margin: 8px 0; }
+    .bk-two .lab { font-family: var(--body, inherit); font-size: 0.9rem; }
+    .bk-score { font-size: 1.05rem; margin: 8px 0 4px; }
+    @media (max-width: 560px) { .bk-all .mul { display: none; } .bk-big { font-size: 1.05rem; } .bk-try { grid-template-columns: 1fr; } .bk-two { grid-template-columns: auto 1fr; } .bk-two .lab { grid-column: 1 / -1; } }
     @media (prefers-reduced-motion: reduce) { .bk-go .bk-in { animation: none; } }
   </style>
 </head>
@@ -305,19 +310,14 @@
     <!-- 4 -->
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
-      <p class="say">Before, the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
-      <p class="say">Every number that built a score gets <b>its own push</b>. Let's follow one number, step by step.</p>
-      <div hidden id="partnerPeek"><b>🤔 Why multiply by the weight?</b>
-        <p style="margin:6px 0 0">Take the product −0.04 × 1.31. Raise the embedding number by 1: the product changes by 1.31, the weight. Raise the weight by 1: the product changes by −0.04, the embedding number.</p>
-        <p style="margin:6px 0 0">So the weight says how strongly −0.04 moves this score. The same works the other way round for the weight.</p>
-      </div>
+      <p class="say">Before, the push moved the scores directly. Now a score is <b>built from</b> embedding numbers and weights, so those must move instead.</p>
+      <p class="say">Which ones, and by how much? <b>The ones that move the score most should move most.</b> Try it on one product.</p>
       <div class="activity">
-        <div class="do">Follow one embedding number, <b>−0.04</b> (the 1st number of “c” in “cat”). Press Next step.</div>
-        <button class="doubt" type="button" id="bkDoubt" data-peek-from="partnerPeek" aria-label="Why multiply by the weight?">🤔</button>
+        <div class="do">After “cat”, the score of space should go <b>up</b>. One of its 6 products is <b>−0.04 × 1.31</b>.</div>
         <div class="bk-cap" id="bkCap"></div>
-        <div class="bk-stage" id="bkStage"><div id="bk1"></div><div id="bk2"></div><div id="bk3"></div><div id="bk4"></div></div>
-        <div class="row" style="margin-top:6px"><button id="bkBack">← Back</button><button class="primary" id="bkNext">Next step →</button></div>
-        <div class="muted" style="margin-top:8px">A demo: one example, <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44.</div>
+        <div class="bk-stage" id="bkStage"><div id="bk1"></div><div id="bk2"></div><div id="bk3"></div></div>
+        <div class="row" style="margin-top:6px;min-height:2.9em"><button id="bkBack">← Back</button><button class="primary" id="bkNext">Next step →</button></div>
+        <div hidden id="bkAllPeek"></div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
     </section>
@@ -643,47 +643,59 @@ const start = fresh();
 
 // ---------- 4: the push goes back to the 6 numbers (one example) ----------
 (function backDemo() {
-  const $ = id => document.getElementById(id), g = "cat", c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[" "];
+  const $ = id => document.getElementById(id), c = [..."cat"].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[" "];
   const x = start.inputs(c), sc0 = start.scores(c), p = softmax(sc0), push = p.map((q, k) => q - (k === goal ? 1 : 0));
-  const x0 = x[0], w = start.weights[0][goal], ps = push[goal], g0 = start.weights[0].reduce((a, w2, k) => a + w2 * push[k], 0), nv = x0 - g0;
+  const e = x[0], w = start.weights[0][goal], S = sc0[goal], ps = push[goal];
+  const pe = w * ps, pw = e * ps, e2 = e - pe, w2 = w - pw, S2 = S - e * w + e2 * w2;
+  const g0 = start.weights[0].reduce((a, v, k) => a + v * push[k], 0);
   const minus = (a, b) => `${fmt(a)} − ${b < 0 ? `(${fmt(b)})` : fmt(b)}`, pad = (t, n = 5) => t.padStart(n, "\u00a0");
-  const chip = v => `<span class="bk-chip">${fmt(v)}</span>`;
-  const CAPS = ["", `1. ${fmt(x0)} helps build a score.`, `2. The score's push comes back to ${fmt(x0)}.`, `3. ${fmt(x0)} is in all 14 scores. Add their pushes.`, `4. ${fmt(x0)} moves.`];
-  $("bk1").innerHTML = `<div class="bk-big bk-in" style="--i:0">${chip(x0)} <span class="mul">×</span> ${fmt(w)} <span class="mul">=</span> ${fmt(x0 * w)}</div>
-    <p class="bk-say bk-in" style="--i:1">${fmt(w)} is its weight for the next letter <b>space</b>.</p>
-    <p class="bk-say bk-in" style="--i:2">This product and 5 others add up to the <b>score of space: ${fmt(sc0[goal])}</b>.</p>`;
-  $("bk2").innerHTML = `<p class="bk-say bk-in" style="--i:0">Score of space ${fmt(sc0[goal])} → chance ${(p[goal] * 100).toFixed(1)}% → push = chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b></p>
-    <p class="bk-say bk-in" style="--i:1">${fmt(x0)} gets: <b>its weight × the push</b></p>
-    <div class="bk-big bk-in" style="--i:2">${fmt(w)} <span class="mul">×</span> ${fmt(ps)} <span class="mul">=</span> <span class="bk-chip">${fmt(w * ps)}</span></div>`;
-  $("bk3").innerHTML = `<p class="bk-say bk-in" style="--i:0">Each next letter has a score, and ${fmt(x0)} is in every one, with a different weight. Each gives a push:</p>
-    <div class="bk-all">${CHARS.map((ch, k) => `<div class="bk-in${k === goal ? " hot" : ""}" style="--i:${k}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("")}<div class="tot bk-in" style="--i:14">added: ${fmt(g0)}</div></div>
-    <p class="bk-say bk-in" style="--i:15;animation-delay:3s">It can move only once, so it follows the total.</p>`;
-  $("bk4").innerHTML = `<div class="bk-big bk-in" style="--i:0">new = old − push = ${minus(x0, g0)} = <span class="bk-chip" id="bkNew">${fmt(nv)}</span></div>
-    <p class="bk-say bk-in" style="--i:1">Every embedding number moves this way.</p>
-    <p class="bk-say bk-in" style="--i:2">A weight is in only one score, so it stops at step 2. The weight ${fmt(w)} gets ${fmt(x0)} × ${fmt(ps)} = ${fmt(x0 * ps)}.</p>`;
-  let step = 1;
-  function steady() {   // the caption keeps the height of its longest step, so nothing jumps
-    const e = $("bkCap"); e.style.minHeight = ""; let m = 0;
-    CAPS.slice(1).forEach(t => { e.textContent = t; m = Math.max(m, e.offsetHeight); });
-    e.textContent = CAPS[step]; if (m) e.style.minHeight = m + "px";
-  }
+  const sgn = v => (v >= 0 ? "+" : "") + fmt(v);
+  const CAPS = ["", "1. Nudge each number. How much does the score move?", "2. Give each number its push.", "3. Move both. The score goes up."];
+  // step 1: try it
+  $("bk1").innerHTML = `<p class="bk-say">Score of space now: <b>${fmt(S)}</b></p>
+    <div class="bk-try"><button id="bkTryE">+1 to −0.04 (the embedding number)</button><span class="res" id="bkResE"></span>
+    <button id="bkTryW">+1 to 1.31 (the weight)</button><span class="res" id="bkResW"></span></div>
+    <p class="bk-say bk-off" id="bkSo"><b>Each number moves the score by the number it is multiplied with.</b> −0.04 moves it a lot (1.31 for each +1). 1.31 hardly moves it (−0.04 for each +1).</p>`;
+  // step 2: the push on each number
+  $("bk2").innerHTML = `<p class="bk-say bk-in" style="--i:0">The score's push is chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b>: “go up, strongly”.</p>
+    <p class="bk-say bk-in" style="--i:1">Each number's push = <b>how much it moves the score × the score's push</b>:</p>
+    <div class="bk-two bk-in" style="--i:2"><span class="lab">embedding number</span><span>1.31 × ${fmt(ps)} =</span><b>${fmt(pe)}</b>
+    <span class="lab">weight</span><span>−0.04 × ${fmt(ps)} =</span><b>${fmt(pw)}</b></div>
+    <p class="bk-say bk-in" style="--i:3">The embedding number gets a big push, the weight a tiny one.</p>`;
+  // step 3: move and see the score go up
+  $("bk3").innerHTML = `<p class="bk-say bk-in" style="--i:0">New value = old − push:</p>
+    <div class="bk-two bk-in" style="--i:1"><span class="lab">embedding number</span><span>${minus(e, pe)} =</span><b>${fmt(e2)}</b>
+    <span class="lab">weight</span><span>${minus(w, pw)} =</span><b>${fmt(w2)}</b></div>
+    <p class="bk-score bk-in" style="--i:2">Score of space: ${fmt(S)} → <span class="bk-chip" id="bkS2">${fmt(S2)}</span></p>
+    <p class="bk-say bk-in" style="--i:3">Every number in every score moves this way. One more thing: −0.04 is also in the other 13 scores, so its 14 pushes are <span data-peek-from="bkAllPeek">added first</span> (${fmt(g0)} in all).</p>`;
+  $("bkAllPeek").innerHTML = `<b>−0.04 is in all 14 scores</b><br><span style="font-size:0.85rem">From each: its weight there × that score's push. It moves only once, so the 14 are added.</span><div class="bk-all" style="margin-top:6px">${CHARS.map((ch, k) => `<div class="${k === goal ? "hot" : ""}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("")}<div class="tot">added: ${fmt(g0)}</div></div>`;
+  let step = 1, tried = { E: false, W: false };
+  $("bkTryE").onclick = () => { tried.E = true; $("bkResE").innerHTML = `${fmt(S)} → ${fmt(S + w)}: moved <b>${sgn(w)}</b>`; flash("bkResE"); show(false); };
+  $("bkTryW").onclick = () => { tried.W = true; $("bkResW").innerHTML = `${fmt(S)} → ${fmt(S + e)}: moved <b>${sgn(e)}</b>`; flash("bkResW"); show(false); };
+  function flash(id) { const el = $(id); el.classList.remove("bk-go"); el.classList.add("bk-in"); void el.offsetWidth; el.parentElement.classList.add("bk-go"); }
   function show(animate) {
     $("bkCap").textContent = CAPS[step];
-    [1, 2, 3, 4].forEach(n => { const e = $("bk" + n); e.classList.toggle("bk-off", n !== step); e.classList.remove("bk-go"); });
-    $("bkDoubt").style.display = step >= 2 ? "" : "none";
-    $("bkBack").hidden = step === 1; $("bkNext").hidden = step === 4;
+    [1, 2, 3].forEach(n => { const el = $("bk" + n); el.classList.toggle("bk-off", n !== step); if (animate) el.classList.remove("bk-go"); });
+    $("bkSo").classList.toggle("bk-off", !(tried.E && tried.W));
+    $("bkBack").hidden = step === 1;
+    $("bkNext").hidden = step === 3 || (step === 1 && !(tried.E && tried.W));
     if (!animate) return;
-    const e = $("bk" + step); void e.offsetWidth; e.classList.add("bk-go");
-    if (step === 4 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {   // count from old to new
-      const t0 = performance.now(), el = $("bkNew");
-      (function tick(t) { const f = Math.min(1, (t - t0) / 1000); el.textContent = fmt(x0 + (nv - x0) * f); if (f < 1) requestAnimationFrame(tick); })(t0);
+    const el = $("bk" + step); void el.offsetWidth; el.classList.add("bk-go");
+    if (step === 3 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {   // the score counts up
+      const t0 = performance.now() + 900, out = $("bkS2");
+      (function tick(t) { const f = Math.max(0, Math.min(1, (t - t0) / 900)); out.textContent = fmt(S + (S2 - S) * f); if (f < 1) requestAnimationFrame(tick); })(performance.now());
     }
   }
-  $("bkNext").onclick = () => { step = Math.min(4, step + 1); show(true); };
+  function steady() {   // the caption keeps the height of its longest step, so nothing jumps
+    const el = $("bkCap"); el.style.minHeight = ""; let m = 0;
+    CAPS.slice(1).forEach(t => { el.textContent = t; m = Math.max(m, el.offsetHeight); });
+    el.textContent = CAPS[step]; if (m) el.style.minHeight = m + "px";
+  }
+  $("bkNext").onclick = () => { step = Math.min(3, step + 1); show(true); };
   $("bkBack").onclick = () => { step = Math.max(1, step - 1); show(true); };
-  addReset($("bkNext"), () => { step = 1; show(true); });
+  addReset($("bkNext"), () => { step = 1; tried = { E: false, W: false }; $("bkResE").textContent = ""; $("bkResW").textContent = ""; show(true); });
   show(false); steady(); window.addEventListener("resize", steady);
-  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe($("bkNext"));
+  new IntersectionObserver(es => { if (es.some(en => en.isIntersecting)) steady(); }).observe($("bkNext"));
 })();
 
 // ---------- 5: train, and watch the map ----------
