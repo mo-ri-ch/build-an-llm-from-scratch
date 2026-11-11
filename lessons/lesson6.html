@@ -289,10 +289,13 @@
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move.</p>
       <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
-      <p class="say" style="position:relative">On page 3, a score was 6 products added, each one <b>embedding number × weight</b>. After the adding, the score gets its push (chance − goal). The push goes back into every product: each number gets <b>the other number × the push</b>.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why the other number?">🤔</button></p>
-      <div hidden id="partnerPeek"><b>🤔 Why the other number?</b>
+      <p class="say">On page 3, a score was 6 products added, each one <b>embedding number × weight</b>. After the adding, the score gets its push (chance − goal). For “cat” → space it is <b>−0.80</b>.</p>
+      <p class="say" style="position:relative">Every number that built the score now gets <b>its own push</b>. Take the product −0.04 × 1.31:<br>
+        The embedding number −0.04 gets <b>the weight × the score's push</b>: 1.31 × −0.80.<br>
+        The weight 1.31 gets <b>the embedding number × the score's push</b>: −0.04 × −0.80.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button></p>
+      <div hidden id="partnerPeek"><b>🤔 Why multiply by the number next to it?</b>
         <p style="margin:6px 0 0">Take the product −0.04 × 1.31. Raise the embedding number by 1: the product changes by 1.31, the weight. Raise the weight by 1: the product changes by −0.04, the embedding number.</p>
-        <p style="margin:6px 0 0">So the other number says how strongly a number moves the score.</p>
+        <p style="margin:6px 0 0">So the number next to it says how strongly it moves the score.</p>
       </div>
       <p class="say">The same embedding number helps build all 14 scores, one per next letter. It gets something from each, so add the 14. A weight is used in only one score. Let's see it work.</p>
       <div class="activity">
@@ -643,7 +646,7 @@ const start = fresh();
     x.forEach((v, j) => { const wt = start.weights[j][goal]; sum += v * wt; f += `<tr><td>${lab(j)}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(v * wt)}</td></tr>`; });
     document.getElementById("bkFwd").innerHTML = f + `<tr class="sum"><td>added</td><td></td><td></td><td></td><td></td><td>${fmt(sum)}</td></tr>`;
     // 2. the push on that score
-    document.getElementById("bkHead").innerHTML = `<b>2.</b> Score of <b>${nm(CHARS[goal])}</b> ${fmt(sum)} → chance ${(p[goal] * 100).toFixed(1)}% → push = chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b>.<br><b>3.</b> The push goes back. Each number gets the other number in its row × ${fmt(ps)}.`;
+    document.getElementById("bkHead").innerHTML = `<b>2.</b> Score of <b>${nm(CHARS[goal])}</b> ${fmt(sum)} → chance ${(p[goal] * 100).toFixed(1)}% → push = chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b>.<br><b>3.</b> The push goes back. An embedding number gets its weight × ${fmt(ps)}. A weight gets its embedding number × ${fmt(ps)}.`;
     // 3. backward: what each number gets from this score
     let h = `<tr><th>from</th><th>embedding number gets<br>weight × push</th><th>weight gets<br>embedding number × push</th></tr>`, peeks = "";
     x.forEach((v, j) => {
