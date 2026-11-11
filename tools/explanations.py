@@ -111,7 +111,7 @@ EXPLAIN = {
     "output = output + number_to_char[picked]": "Add the picked letter to the text.",
 
     # ---------- Lesson 6 ----------
-    "embedding = torch.randn((vocab_size, 2), requires_grad=True)": "The embedding: one table with a row of 2 random numbers for each of the 14 letters. Every position shares it.",
+    "embedding = torch.randn((vocab_size, 2), requires_grad=True)": "The embedding table: a row of 2 random numbers for each of the 14 letters. Each row is that letter's embedding, shared by every position.",
     "weights = torch.randn((6, vocab_size), requires_grad=True)": "The weights: for each next letter, 6 random weights, one for each of the 6 embedding numbers of a group.",
     'print("Numbers in the model:", embedding.numel() + weights.numel())': "14 × 2 = 28 embedding numbers, plus 6 × 14 = 84 weights: 112 numbers. Three small tables needed 588.",
     "learning_rate = 1": "The learning rate is 1 this time. 10 is too big for these numbers.",

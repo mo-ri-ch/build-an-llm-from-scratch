@@ -274,7 +274,7 @@
     <!-- 2 -->
     <section class="part" data-title="A letter as numbers">
       <h2>A letter as numbers</h2>
-      <p class="say" style="position:relative">Give every letter <b data-peek="2 is our choice. Real models use hundreds.">2 numbers</b>, like <code>a = [0.68, −1.23]</code>. All 14 letters share <b>one table</b>, with one row each. This table is called an <b>embedding</b>. We call its numbers <b>embedding numbers</b>.<button class="doubt" type="button" data-peek-from="twoPeek" aria-label="How can 2 numbers replace 14 scores?">🤔</button></p>
+      <p class="say" style="position:relative">Give every letter <b data-peek="2 is our choice. Real models use hundreds.">2 numbers</b>, like <code>a = [0.68, −1.23]</code>. All 14 letters share <b>one table</b>, with one row each. This table is the <b>embedding table</b>. Each row is a letter's <b>embedding</b>: its 2 <b>embedding numbers</b>.<button class="doubt" type="button" data-peek-from="twoPeek" aria-label="How can 2 numbers replace 14 scores?">🤔</button></p>
       <div hidden id="twoPeek"><b>🤔 How can 2 numbers replace 14 scores?</b>
         <p style="margin:6px 0 0">They don't hold the scores. They say what kind of letter this is. The next page turns them into 14 scores, using weights shared by every letter. So the model needs far fewer numbers.</p>
         <p style="margin:6px 0 0">The price: a slightly higher loss (0.178 against 0.174).</p>
@@ -512,7 +512,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
       </div>
       <div hidden id="codePeek"><b>🤔 What is new in this code?</b>
         <ul style="margin:6px 0 0; padding-left:1.2em">
-          <li><code>embedding</code> is one table: a row of 2 embedding numbers for every letter. <code>weights</code> is 6 rows, one weight for each of the 6 embedding numbers, for every next letter.</li>
+          <li><code>embedding</code> is the embedding table: a row of 2 embedding numbers for every letter. <code>weights</code> is 6 rows, one weight for each of the 6 embedding numbers, for every next letter.</li>
           <li><code>torch.cat([...], dim=1)</code> puts the 3 letters' numbers side by side: 6 embedding numbers for each example.</li>
           <li><code>numbers @ weights</code> multiplies each embedding number by its weight and adds, for every next letter at once.</li>
           <li>The learning rate is 1 this time: 10 is too big for these numbers.</li>
@@ -540,7 +540,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson6.html#2" data-topic="A letter as numbers" data-right="Right. An embedding is one row of numbers for each letter, in one shared table.">
+        <div class="quiz" data-page="lesson6.html#2" data-topic="A letter as numbers" data-right="Right. A letter's embedding is its row of numbers in the one shared embedding table.">
           <div class="q"><small>2. Embedding</small>What is an embedding?</div>
           <div class="options">
             <button data-why="That is the counting table.">A count of what comes after each letter</button>
@@ -553,7 +553,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           <div class="q"><small>3. Same numbers</small>“a” in “cat” and “a” in “sat”: which numbers does it have?</div>
           <div class="options">
             <button data-right>The same 2 numbers</button>
-            <button data-why="The embedding has one row for “a”. Neighbours do not change it.">Different numbers, because the neighbours differ</button>
+            <button data-why="The embedding table has one row for “a”. Neighbours do not change it.">Different numbers, because the neighbours differ</button>
             <button data-why="That was the three tables. Now “a” has one row, used in every position. The weights tell the positions apart.">Different numbers for each position (third-last, second-last, last)</button>
           </div>
           <div class="feedback"></div>
@@ -601,7 +601,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
     <!-- last -->
     <section class="part" data-title="Same numbers, any neighbours">
       <h2>Same numbers, any neighbours</h2>
-      <p class="say">A letter has <b>one</b> embedding, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
+      <p class="say">Each letter has <b>one</b> embedding (its 2 numbers), used in every position. That is why the model needs only 112 numbers. But it also means “a” has the same 2 numbers after “c” as after “s”: <b>its neighbours never change them</b>.</p>
       <div class="activity">
         <div class="do">Each letter adds its own part to a score. Change one letter: which parts change?</div>
         <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label><label>Score of <select id="smK" class="pick"></select></label></div>
