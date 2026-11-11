@@ -540,7 +540,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
           <div class="options">
             <button data-right>The same 2 numbers</button>
             <button data-why="The embedding has one row for “a”. Neighbours do not change it.">Different numbers, because the neighbours differ</button>
-            <button data-why="Every letter has 2 numbers. A group of 3 letters has 6.">2 numbers in “cat”, 6 in “sat”</button>
+            <button data-why="That was the three tables. Now “a” has one row, used in every position. The weights tell the positions apart.">Different numbers for each position (third-last, second-last, last)</button>
           </div>
           <div class="feedback"></div>
         </div>
@@ -562,12 +562,12 @@ the mat. the cat sat on the dog sat on the</pre></div>
           </div>
           <div class="feedback"></div>
         </div>
-        <div class="quiz" data-page="lesson6.html#5" data-topic="Learning reaches the letters" data-right="Right. A score was built from the 6 embedding numbers, so its push goes back to them, through the weights.">
-          <div class="q"><small>6. Learning</small>Why do the embedding numbers move when the model learns?</div>
+        <div class="quiz" data-page="lesson6.html#5" data-topic="Learning reaches the letters" data-right="Right. Each number's push is the number next to it × the score's push. −0.04 is next to 1.31, so it gets 1.31 × the push. 1.31 is next to −0.04, so it gets only −0.04 × the push.">
+          <div class="q"><small>6. Learning</small>A score contains the product <b>−0.04 × 1.31</b>. Which number gets the bigger push?</div>
           <div class="options">
-            <button data-why="The embedding numbers help make every score, so they get pushed too.">They don't. Only the weights move</button>
-            <button data-right>The push on a score goes back to the embedding numbers that built it</button>
-            <button data-why="Nothing tells them where to go. The pushes decide.">Each letter moves toward the next letter</button>
+            <button data-right>−0.04, because the number next to it (1.31) is big</button>
+            <button data-why="Its push is the number next to it, −0.04, × the score's push: tiny.">1.31, because it is the bigger number</button>
+            <button data-why="Each gets the number next to it × the score's push, and those differ a lot.">Both get the same push</button>
           </div>
           <div class="feedback"></div>
         </div>
