@@ -187,6 +187,20 @@
   .emb tr.p0 td:not(.pos), .emb tr.p1 td:not(.pos), .emb tr.p2 td:not(.pos) { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); color: var(--ink); }
   .emb tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
   .emb .mul { color: var(--pencil); }
+  .vt { display: grid; grid-template-columns: 7.2em 1fr 3.6em 5.4em; gap: 6px 10px; align-items: center; margin: 4px 0 8px; }
+  .vt .who { font-size: 0.9rem; } .vt .who b { font-family: var(--mono); font-size: 1rem; }
+  .vt .bar { height: 18px; position: relative; background: var(--paper); border: 1px solid var(--grid); border-radius: 4px; }
+  .vt .bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1.5px solid var(--pencil); }
+  .vt .fill { position: absolute; top: 0; bottom: 0; background: var(--hl-yellow); border: 1.5px solid var(--ink); border-radius: 3px; transition: left 0.45s ease, width 0.45s ease; }
+  .vt .val { font-family: var(--mono); text-align: right; }
+  .vt .tag { font-size: 0.8rem; color: var(--pencil); }
+  .vt .tag.chg { color: var(--pen); font-weight: 700; }
+  .vt .tot { border-top: 2px solid var(--ink); padding-top: 6px; font-weight: 700; }
+  .vt .bar.tot { padding: 0; border-top: 1px solid var(--grid); margin-top: 8px; }
+  .vt .fill.flash { animation: vtFlash 0.9s ease; }
+  @keyframes vtFlash { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--pen) 35%, transparent); } }
+  @media (max-width: 560px) { .vt { grid-template-columns: 5.6em 1fr 3.2em; } .vt .tag { grid-column: 2 / -1; margin-top: -4px; } #smNote { min-height: 8.2em !important; } }
+  @media (prefers-reduced-motion: reduce) { .vt .fill { transition: none; } .vt .fill.flash { animation: none; } }
   .six { font-family: var(--mono); font-size: 1.05rem; margin: 4px 0 10px; }
   .six b { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); padding: 1px 6px; border-radius: 4px; font-weight: 400; color: var(--ink); }
   .lm { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-start; margin-top: 6px; }
@@ -589,10 +603,10 @@ the mat. the cat sat on the dog sat on the</pre></div>
       <h2>Same numbers, any neighbours</h2>
       <p class="say">A letter has <b>one</b> embedding, wherever it is. That saved numbers. It also means neighbours can't change it.</p>
       <div class="activity">
-        <div class="do">Change the letters. A letter's embedding stays the same.</div>
-        <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label></div>
-        <div class="six" id="smSix"></div>
-        <div class="muted" id="smNote"></div>
+        <div class="do">Each letter adds its own part to a score. Change one letter: which parts change?</div>
+        <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label><label>Score of <select id="smK" class="pick"></select></label></div>
+        <div class="vt" id="smVotes"></div>
+        <div class="muted" id="smNote" style="min-height:4.4em"></div>
       </div>
       <p class="say">In “cat”, “a” has the same embedding as in “sat” and “mat”. It never looks at the letters around it.</p>
       <p class="neo-say">I only need 112 numbers! But each letter still votes alone.</p>
@@ -828,20 +842,38 @@ let three = null;
 
 // ---------- Last page: the same numbers, whatever the neighbours ----------
 (function sameDemo() {
-  const sels = [0, 1, 2].map(i => document.getElementById("sm" + i));
+  const $ = id => document.getElementById(id), sels = [0, 1, 2].map(i => $("sm" + i)), kSel = $("smK");
   sels.forEach(sel => sel.innerHTML = CHARS.map(c => `<option value="${c}">${sc(c)}</option>`).join(""));
-  const DEFAULT = ["c", "a", "t"];
+  kSel.innerHTML = CHARS.map((c, k) => `<option value="${k}">${nm(c)}</option>`).join("");
+  const DEFAULT = ["c", "a", "t"], WHO = ["third-last", "second-last", "last"];
+  const part = (c, pos, k) => { const e = trained.letters[CHAR_TO_NUMBER[c]]; return e[0] * trained.weights[2 * pos][k] + e[1] * trained.weights[2 * pos + 1][k]; };
+  // one fixed scale per next letter, so a bar only moves when its own number changes
+  const SCALE = CHARS.map((_, k) => { let m = 0.5; CHARS.forEach(c => [0, 1, 2].forEach(pos => m = Math.max(m, Math.abs(part(c, pos, k))))); return m * 1.08; });
+  const rows = [0, 1, 2, 3].map(r => `<div class="who" id="smW${r}"></div><div class="bar"><span class="fill" id="smF${r}"></span></div><div class="val" id="smV${r}"></div><div class="tag" id="smT${r}"></div>`).join("");
+  $("smVotes").innerHTML = rows;
+  ["smW3", "smV3", "smT3"].forEach(id => $(id).classList.add("tot")); $("smF3").parentElement.classList.add("tot");
   let prev = null;
+  function setBar(r, v, S) { const f = $("smF" + r), w = Math.min(50, Math.abs(v) / S * 50); f.style.width = w + "%"; f.style.left = (v >= 0 ? 50 : 50 - w) + "%"; }
   function render() {
-    const g = sels.map(s => s.value), nums = g.map(c => trained.letters[CHAR_TO_NUMBER[c]]);
-    document.getElementById("smSix").innerHTML = g.map((c, i) => `<b>${nums[i].map(v => fmt(v)).join("  ")}</b>`).join("  ");
-    const moved = g.map((c, i) => prev && prev[i] !== c ? POS[i] : null).filter(Boolean);
-    document.getElementById("smNote").textContent = moved.length ? `You changed the ${moved.join(" and ")} letter. Only its embedding changed.` : "The trained embeddings of c, a and t.";
-    prev = g.slice();
+    const g = sels.map(s => s.value), k = Number(kSel.value), parts = g.map((c, pos) => part(c, pos, k)), tot = parts.reduce((a, b) => a + b, 0);
+    const changed = prev ? g.map((c, i) => prev.g[i] !== c) : [false, false, false];
+    const kChanged = prev && prev.k !== k;
+    g.forEach((c, i) => {
+      $("smW" + i).innerHTML = `<b>${sc(c)}</b> ${WHO[i]}`;
+      setBar(i, parts[i], SCALE[k]); $("smV" + i).textContent = fmt(parts[i]);
+      const t = $("smT" + i), show = prev && !kChanged; t.textContent = show && changed[i] ? "changed" : "same as before"; t.style.visibility = show ? "" : "hidden"; t.classList.toggle("chg", !!(show && changed[i]));
+      if (changed[i] && !kChanged) { const f = $("smF" + i); f.classList.remove("flash"); void f.offsetWidth; f.classList.add("flash"); }
+    });
+    $("smW3").innerHTML = `score of <b>${sc(CHARS[k])}</b>`; setBar(3, tot, SCALE[k] * 2); $("smV3").textContent = fmt(tot); $("smT3").textContent = "the 3 parts added";
+    const which = g.map((c, i) => changed[i] ? WHO[i] : null).filter(Boolean);
+    $("smNote").innerHTML = prev && !kChanged && which.length
+      ? `You changed the ${which.join(" and ")} letter. Only its part changed. The other letters' parts stayed exactly the same: <b>each letter votes alone</b>, whoever its neighbours are.`
+      : "Each part depends only on that letter and its position.";
+    prev = { g: g.slice(), k };
   }
-  sels.forEach((sel, i) => sel.onchange = render);
-  const set = () => sels.forEach((s, i) => s.value = DEFAULT[i]);
-  addReset(document.getElementById("smSix"), () => { set(); prev = null; render(); });
+  sels.forEach(sel => sel.onchange = render); kSel.onchange = render;
+  const set = () => { sels.forEach((s, i) => s.value = DEFAULT[i]); kSel.value = String(CHAR_TO_NUMBER[" "]); };
+  addReset($("smVotes"), () => { set(); prev = null; render(); });
   set(); render();
 })();
 </script>
