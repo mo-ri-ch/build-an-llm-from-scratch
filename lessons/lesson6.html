@@ -193,17 +193,23 @@
     .bk-stage { display: grid; }
     .bk-stage > * { grid-area: 1 / 1; }
     .bk-stage > table { margin: 6px 0 10px; }
-    @media (max-width: 560px) { #bkTab .mul { display: none; } #bkTab th { white-space: normal; vertical-align: bottom; } #bkTab { width: 100%; } }
+    @media (max-width: 560px) { #bkTab .mul, #bkAll .mul { display: none; } #bkTab th { white-space: normal; vertical-align: bottom; } #bkTab { width: 100%; } }
     .bk-off { visibility: hidden; }
     .bk-cap { font-weight: 700; margin-top: 4px; }
     .bk-chain span, .bk-anim { display: inline-block; }
-    .bk-go .bk-chain span, .bk-go tr.bk-row, .bk-go.bk-anim { animation: bkIn 0.45s ease both; animation-delay: calc(var(--i, 0) * 0.28s); }
-    .bk-go tr.bk-row { animation-delay: calc(var(--i, 0) * 0.16s); }
+    .bk-go .bk-chain span, .bk-go .bk-row, .bk-go.bk-anim { animation: bkIn 0.45s ease both; animation-delay: calc(var(--i, 0) * 0.28s); }
+    .bk-go .bk-row { animation-delay: calc(var(--i, 0) * 0.16s); }
+    .bk-all { margin: 0 0 10px; }
+    .bk-all > div:last-child { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto) auto; gap: 3px 32px; justify-content: start; align-content: start; font-family: var(--mono); font-size: 0.95rem; margin: 2px 0 0; white-space: nowrap; }
+    .bk-all .mul { color: var(--pencil); }
+    .bk-lab { font-size: 0.8rem; color: var(--pencil); margin-top: 6px; }
+    .bk-all .tot { grid-column: 1 / -1; grid-row: 8; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
+    .bk-all .hot { background: var(--hl-yellow); color: var(--ink); border-radius: 4px; }
     @keyframes bkIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     .emb td.bk-hot { background: var(--hl-yellow); color: var(--ink); border-radius: 4px; }
     .bk-go td.bk-hot { animation: bkPulse 0.9s ease 2; }
     @keyframes bkPulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--hl-yellow) 70%, transparent); } }
-    @media (prefers-reduced-motion: reduce) { .bk-go .bk-chain span, .bk-go tr.bk-row, .bk-go.bk-anim, .bk-go td.bk-hot { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .bk-go .bk-chain span, .bk-go .bk-row, .bk-go.bk-anim, .bk-go td.bk-hot { animation: none; } }
   </style>
 </head>
 <body data-pen="orange">
@@ -313,7 +319,7 @@
         <button class="doubt" id="bkDoubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button>
         <div class="row" style="margin-bottom:8px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="bk-cap" id="bkCap"></div>
-        <div class="bk-stage" id="bkStage"><table class="emb" id="bkFwd"></table><table class="emb" id="bkTab"></table></div>
+        <div class="bk-stage" id="bkStage"><table class="emb" id="bkFwd"></table><table class="emb" id="bkTab"></table><div class="bk-all" id="bkAll"></div></div>
         <div hidden id="bkPeeks"></div>
         <div class="bk-stage"><div class="muted bk-chain" id="bkHead"></div><div class="muted" id="bkW"></div></div>
         <div class="row" style="margin-top:10px"><button id="bkBack">← Back</button><button class="primary" id="bkNext">Next step →</button></div>
@@ -646,14 +652,14 @@ const start = fresh();
   const sel = document.getElementById("bkGroup"), $ = id => document.getElementById(id);
   sel.innerHTML = PICKS.map(g => `<option value="${g}">${groupLabel(g)} → ${nm(GROUPS.find(x => x.g === g).next)}</option>`).join("");
   let step = 1;
-  const CAPS = ["", "1. Build the score: 6 products, added.", "2. The score gets its push: chance − goal.", "3. The push goes back. Every number gets its own push.", "4. An embedding number is used in all 14 scores. Add its 14 pushes."];
+  const CAPS = ["", "1. Build the score: 6 products, added.", "2. The score gets its push: chance − goal.", "3. The push goes back. Every number gets its own push.", ""];
   function render(animate) {
     const g = sel.value, c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
     const x = start.inputs(c), p = softmax(start.scores(c));
     const push = p.map((q, k) => q - (k === goal ? 1 : 0)), ps = push[goal];
     const lab = j => `${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"} of 2`;
     const minus = (a, b) => `${fmt(a)} − ${b < 0 ? `(${fmt(b)})` : fmt(b)}`;
-    $("bkCap").textContent = CAPS[step];
+    $("bkCap").textContent = step === 4 ? `4. ${fmt(x[0])} (${lab(0)}) is used in all 14 scores. Add its 14 pushes.` : CAPS[step];
     // steps 1–2: the score of the right next letter
     let f = `<tr><th>from</th><th>embedding number</th><th></th><th>weight</th><th></th><th>product</th></tr>`, sum = 0;
     x.forEach((v, j) => { const wt = start.weights[j][goal]; sum += v * wt; f += `<tr class="bk-row" style="--i:${j}"><td>${lab(j)}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(v * wt)}</td></tr>`; });
@@ -662,7 +668,7 @@ const start = fresh();
     let h = `<tr><th>from</th><th>embedding number's push<br>its weight × ${fmt(ps)}</th><th>weight's push<br>its embedding number × ${fmt(ps)}</th></tr>`, peeks = "";
     x.forEach((v, j) => {
       const wt = start.weights[j][goal], gx = start.weights[j].reduce((a, w2, k) => a + w2 * push[k], 0);
-      h += `<tr class="bk-row" style="--i:${j}"><td>${lab(j)}</td><td data-peek-from="bkP${j}" style="cursor:help" class="${step === 4 && j === 0 ? "bk-hot" : ""}"><span class="mul">${fmt(wt)} × ${fmt(ps)} = </span>${fmt(wt * ps)}</td><td><span class="mul">${fmt(v)} × ${fmt(ps)} = </span>${fmt(v * ps)}</td></tr>`;
+      h += `<tr class="bk-row" style="--i:${j}"><td>${lab(j)}</td><td data-peek-from="bkP${j}" style="cursor:help"><span class="mul">${fmt(wt)} × ${fmt(ps)} = </span>${fmt(wt * ps)}</td><td><span class="mul">${fmt(v)} × ${fmt(ps)} = </span>${fmt(v * ps)}</td></tr>`;
       let t = `<b>${lab(j)} is used in all 14 scores</b><br><span style="font-size:0.85rem">From each score it gets: its weight in that score × that score's push. Add all 14.</span><table class="l4t pk"><tr><th>score of</th><th>weight</th><th></th><th>push</th><th></th><th>gets</th></tr>`;
       CHARS.forEach((ch, k) => { const hc = k === goal ? ' class="hc"' : ""; t += `<tr><td${hc}>${sc(ch)}</td><td${hc}>${fmt(start.weights[j][k])}</td><td${hc}>×</td><td${hc}>${fmt(push[k])}</td><td${hc}>=</td><td${hc}>${fmt(start.weights[j][k] * push[k])}</td></tr>`; });
       peeks += `<div hidden id="bkP${j}">${t}<tr><td colspan="5"><b>Added: its push</b></td><td><b>${fmt(gx)}</b></td></tr></table><span style="font-size:0.85rem">New value: ${minus(v, gx)} = <b>${fmt(v - gx)}</b></span></div>`;
@@ -673,16 +679,19 @@ const start = fresh();
     $("bkHead").innerHTML = [`Score of <b>${nm(CHARS[goal])}</b>: ${fmt(sum)}`, `→ chance ${(p[goal] * 100).toFixed(1)}%`, `→ push = chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b>`].map((t, i) => `<span style="--i:${i}">${t}&nbsp;</span>`).join("");
     // step 4: all 14 scores for the first embedding number
     const g0 = start.weights[0].reduce((a, w2, k) => a + w2 * push[k], 0);
-    $("bkW").innerHTML = `<b>${lab(0)}</b>: ${fmt(start.weights[0][goal] * ps)} from the score of ${nm(CHARS[goal])}, plus 13 more, adds up to <b>${fmt(g0)}</b> (hover or tap its push to see all 14). New value = old − push: ${minus(x[0], g0)} = <b>${fmt(x[0] - g0)}</b>.<br>A weight is used in one score only, so its push is already complete.`;
+    const pad = (t, n = 5) => t.padStart(n, "\u00a0");
+    $("bkAll").innerHTML = `<div class="bk-lab">For the score of each next letter: its weight there × that score's push</div><div>` + CHARS.map((ch, k) => `<div class="bk-row${k === goal ? " hot" : ""}" style="--i:${k}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("") + `<div class="tot bk-row" style="--i:14">added: ${fmt(g0)}</div></div>`;
+    $("bkW").style.setProperty("--i", 9);
+    $("bkW").innerHTML = `New value = old − push: ${minus(x[0], g0)} = <b>${fmt(x[0] - g0)}</b>. The other 5 embedding numbers move the same way.<br>A weight is used in one score only, so its push from step 3 is complete.`;
     // what shows at this step (hidden parts keep their space, so nothing jumps)
-    $("bkFwd").classList.toggle("bk-off", step > 2); $("bkTab").classList.toggle("bk-off", step < 3);
+    $("bkFwd").classList.toggle("bk-off", step > 2); $("bkTab").classList.toggle("bk-off", step !== 3); $("bkAll").classList.toggle("bk-off", step !== 4);
     $("bkHead").classList.toggle("bk-off", step !== 2 && step !== 3); $("bkW").classList.toggle("bk-off", step < 4);
     $("bkDoubt").style.display = step >= 3 ? "" : "none";
     $("bkBack").hidden = step === 1; $("bkNext").hidden = step === 4;
     // animate only the part that is new at this step
-    const fresh = { 1: "bkFwd", 2: "bkHead", 3: "bkTab", 4: "bkW" }[step];
-    ["bkFwd", "bkHead", "bkTab", "bkW"].forEach(id => { $(id).classList.remove("bk-go"); $(id).classList.toggle("bk-anim", id === "bkW"); });
-    if (animate) { void $(fresh).offsetWidth; $(fresh).classList.add("bk-go"); if (step === 4) { void $("bkTab").offsetWidth; $("bkTab").classList.add("bk-go"); $("bkTab").querySelectorAll("tr.bk-row").forEach(r => r.style.animation = "none"); } if (step === 2) { $("bkFwd").classList.add("bk-go"); $("bkFwd").querySelectorAll("tr.bk-row").forEach(r => r.style.animation = "none"); } }
+    const fresh = { 1: "bkFwd", 2: "bkHead", 3: "bkTab", 4: "bkAll" }[step];
+    ["bkFwd", "bkHead", "bkTab", "bkW", "bkAll"].forEach(id => { $(id).classList.remove("bk-go"); $(id).classList.toggle("bk-anim", id === "bkW"); });
+    if (animate) { void $(fresh).offsetWidth; $(fresh).classList.add("bk-go"); if (step === 4) { void $("bkW").offsetWidth; $("bkW").classList.add("bk-go"); } if (step === 2) { $("bkFwd").classList.add("bk-go"); $("bkFwd").querySelectorAll(".bk-row").forEach(r => r.style.animation = "none"); } }
   }
   // keep the text lines the same height for every example, so nothing jumps
   function steady() {
