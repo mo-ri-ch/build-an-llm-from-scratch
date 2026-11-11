@@ -301,13 +301,14 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Before, the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
-      <p class="say" style="position:relative">Every number that built a score gets <b>its own push</b>. Follow one example, step by step.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button></p>
+      <p class="say">Every number that built a score gets <b>its own push</b>. Follow one example, step by step.</p>
       <div hidden id="partnerPeek"><b>🤔 Why multiply by the number next to it?</b>
         <p style="margin:6px 0 0">Take the product −0.04 × 1.31. Raise the embedding number by 1: the product changes by 1.31, the weight. Raise the weight by 1: the product changes by −0.04, the embedding number.</p>
         <p style="margin:6px 0 0">So the number next to it says how strongly it moves the score.</p>
       </div>
       <div class="activity">
         <div class="do">Pick an example, then press Next step.</div>
+        <button class="doubt" id="bkDoubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button>
         <div class="row" style="margin-bottom:8px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="bk-cap" id="bkCap"></div>
         <div class="bk-stage"><table class="emb" id="bkFwd"></table><table class="emb" id="bkTab"></table></div>
@@ -675,6 +676,7 @@ const start = fresh();
     // what shows at this step (hidden parts keep their space, so nothing jumps)
     $("bkFwd").classList.toggle("bk-off", step > 2); $("bkTab").classList.toggle("bk-off", step < 3);
     $("bkHead").classList.toggle("bk-off", step < 2); $("bkW").classList.toggle("bk-off", step < 4);
+    $("bkDoubt").style.display = step >= 3 ? "" : "none";
     $("bkBack").hidden = step === 1; $("bkNext").hidden = step === 4; $("bkStep").textContent = `Step ${step} of 4`;
     // animate only the part that is new at this step
     const fresh = { 1: "bkFwd", 2: "bkHead", 3: "bkTab", 4: "bkW" }[step];
