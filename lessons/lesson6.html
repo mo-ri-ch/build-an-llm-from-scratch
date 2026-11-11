@@ -668,8 +668,8 @@ const start = fresh();
   const CAP = [
     "Each pair is an embedding number × a weight. Play it forward to see what affects what.",
     "Each pair makes a product. The 6 products add up to the score. The score becomes a chance. The chance is too low (goal 100%), so the push is <b>" + fmt(ps) + "</b>: the score should go up.",
-    "The push goes back along the same arrows. Each number gets <b>the number it is multiplied with × " + fmt(ps) + "</b> (the blue “push” under it). A big partner means a big push.",
-    `Each number moves: new = old − learning rate × push (learning rate ${LR} here). The score of space goes up: ${fmt(S0)} → <b>${fmt(S1)}</b>, chance ${(chance(S0) * 100).toFixed(0)}% → <b>${(chance(S1) * 100).toFixed(0)}%</b>.`];
+    `The push goes back. Each number gets <b>the number next to it × ${fmt(ps)}</b>, because the number next to it says how much it changes the score. Row 1: −0.04 gets ${fmt(w[0])} × ${fmt(ps)} = <b>${fmt(pe[0])}</b> (big effect, big push). ${fmt(w[0])} gets ${fmt(x[0])} × ${fmt(ps)} = <b>${fmt(pw[0])}</b> (tiny).`,
+    `Each number moves: new = old − learning rate × push (learning rate ${LR} here). The products change, so the score goes up: ${fmt(S0)} → <b>${fmt(S1)}</b>, chance ${(chance(S0) * 100).toFixed(0)}% → <b>${(chance(S1) * 100).toFixed(0)}%</b>.`];
   const BTN = ["▶ Play forward", "◀ Send the push back", "Move the numbers", ""];
   let phase = 0, timers = [];
   const later = (ms, f) => timers.push(setTimeout(f, ms));
