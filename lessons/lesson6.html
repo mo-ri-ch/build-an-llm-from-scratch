@@ -327,7 +327,7 @@
           </div>
         </div>
         <div class="fl-cap" id="flCap"></div>
-        <div class="row" style="min-height:2.9em"><button class="primary" id="flGo"></button></div>
+        <div class="row" style="min-height:2.9em"><button id="flBack">← Back</button><button class="primary" id="flGo"></button></div>
         <div hidden id="bkAllPeek"></div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
@@ -679,31 +679,37 @@ const start = fresh();
     const S = xs.reduce((a, v, j) => a + v * ws[j], 0) + (S0 - x.reduce((a, v, j) => a + v * w[j], 0));
     $("flSv").textContent = fmt(S); $("flCv").textContent = (chance(S) * 100).toFixed(0) + "%";
   }
-  function reset() {
-    timers.forEach(clearTimeout); timers = []; phase = 0;
-    paint(x, w); $("flPv").textContent = `${fmt(p[goal])} − 1 = ${fmt(ps)}`;
-    x.forEach((v, j) => { lit("flR" + j, false); $("flA" + j).textContent = "→"; $("flU" + j).classList.add("fl-hide"); });
-    ["flS", "flC", "flP"].forEach(id => lit(id, false)); $("flSv").parentElement.classList.remove("fl-hide");
-    ["flSv", "flCv", "flPv"].forEach(id => $(id).style.visibility = "hidden");
-    $("flCap").innerHTML = CAP[0]; $("flGo").textContent = BTN[0]; $("flGo").hidden = false;
+  // the finished state of each part, shown at once (for Back, and at the end of each animation)
+  function state(n) {
+    timers.forEach(clearTimeout); timers = []; phase = n;
+    paint(n === 3 ? x1 : x, n === 3 ? w1 : w);
+    $("flPv").textContent = `${fmt(p[goal])} − 1 = ${fmt(ps)}`;
+    ["flSv", "flCv", "flPv"].forEach(id => $(id).style.visibility = n >= 1 ? "" : "hidden");
+    x.forEach((v, j) => { lit("flR" + j, false); $("flA" + j).textContent = n >= 2 ? "←" : "→"; $("flU" + j).classList.toggle("fl-hide", n < 2); });
+    lit("flS", n === 3); lit("flC", n === 3); lit("flP", n === 1);
+    $("flCap").innerHTML = CAP[n]; $("flGo").textContent = BTN[n];
+    $("flGo").hidden = n === 3; $("flBack").hidden = n === 0;
   }
+  const reset = () => state(0);
+  const busy = () => { $("flGo").hidden = true; $("flBack").hidden = true; };
   const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("flBack").onclick = () => state(Math.max(0, phase - 1));
   $("flGo").onclick = () => {
-    timers.forEach(clearTimeout); timers = []; phase++;
-    $("flGo").hidden = true; const sp = reduce() ? 0 : 1;
-    if (phase === 1) {           // forward: pairs → score → chance → push
-      x.forEach((v, j) => later(sp * j * 350, () => lit("flR" + j, true)));
-      later(sp * 2300, () => { x.forEach((v, j) => lit("flR" + j, false)); lit("flS", true); $("flSv").style.visibility = ""; });
-      later(sp * 3100, () => { lit("flS", false); lit("flC", true); $("flCv").style.visibility = ""; });
-      later(sp * 3900, () => { lit("flC", false); lit("flP", true); $("flPv").style.visibility = ""; });
-      later(sp * 4300, () => { $("flCap").innerHTML = CAP[1]; $("flGo").textContent = BTN[1]; $("flGo").hidden = false; });
-    } else if (phase === 2) {    // back: push → each pair
+    const n = phase + 1; if (reduce()) return state(n);
+    timers.forEach(clearTimeout); timers = []; phase = n; busy();
+    if (n === 1) {           // forward: pairs → score → chance → push
+      x.forEach((v, j) => later(j * 350, () => lit("flR" + j, true)));
+      later(2300, () => { x.forEach((v, j) => lit("flR" + j, false)); lit("flS", true); $("flSv").style.visibility = ""; });
+      later(3100, () => { lit("flS", false); lit("flC", true); $("flCv").style.visibility = ""; });
+      later(3900, () => { lit("flC", false); lit("flP", true); $("flPv").style.visibility = ""; });
+      later(4300, () => state(1));
+    } else if (n === 2) {    // back: push → each pair
       x.forEach((v, j) => $("flA" + j).textContent = "←");
-      x.forEach((v, j) => later(sp * (300 + j * 400), () => { lit("flR" + j, true); $("flU" + j).classList.remove("fl-hide"); }));
-      later(sp * 2900, () => { x.forEach((v, j) => lit("flR" + j, false)); lit("flP", false); $("flCap").innerHTML = CAP[2]; $("flGo").textContent = BTN[2]; $("flGo").hidden = false; });
-    } else if (phase === 3) {    // move: numbers glide, score and chance rise
-      const t0 = performance.now(), D = sp * 1400;
-      (function tick(t) { const f = D ? Math.min(1, (t - t0) / D) : 1; paint(x.map((v, j) => v + (x1[j] - v) * f), w.map((v, j) => v + (w1[j] - v) * f)); if (f < 1) requestAnimationFrame(tick); else { lit("flS", true); lit("flC", true); $("flCap").innerHTML = CAP[3]; } })(t0);
+      x.forEach((v, j) => later(300 + j * 400, () => { lit("flR" + j, true); $("flU" + j).classList.remove("fl-hide"); }));
+      later(2900, () => state(2));
+    } else if (n === 3) {    // move: numbers glide, score and chance rise
+      const t0 = performance.now(), D = 1400;
+      (function tick(t) { const f = Math.min(1, (t - t0) / D); paint(x.map((v, j) => v + (x1[j] - v) * f), w.map((v, j) => v + (w1[j] - v) * f)); if (f < 1) requestAnimationFrame(tick); else state(3); })(t0);
     }
   };
   function steady() {   // the caption keeps the height of its longest text, so nothing jumps
