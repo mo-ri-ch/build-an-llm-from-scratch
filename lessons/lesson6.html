@@ -189,20 +189,27 @@
   svg.map .dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
   svg.map .tick { fill: var(--pencil); font-size: 10px; }
 
-    /* page 4: two questions decide how much a number moves */
-    .tq { border-left: 3px solid var(--grid); padding: 2px 0 2px 12px; margin: 10px 0; }
-    .tq.now { border-left-color: var(--pen); }
-    .tq h4 { margin: 0 0 4px; font-size: 1rem; }
-    .tq p { margin: 3px 0; }
-    .tq .eq { font-family: var(--mono); }
-    .tq .chip { display: inline-block; background: var(--hl-yellow); color: var(--ink); border-radius: 5px; padding: 0 7px; font-weight: 700; font-family: var(--mono); }
-    .tq-off > :not(h4) { visibility: hidden; }
-    .tq-off h4 { color: var(--pencil); }
-    #tqAddSo.tq-hide { visibility: hidden; }
-    .tq-go > * { animation: tqIn 0.45s ease both; }
-    .tq-go > *:nth-child(2) { animation-delay: 0.35s; } .tq-go > *:nth-child(3) { animation-delay: 0.7s; } .tq-go > *:nth-child(4) { animation-delay: 1.05s; } .tq-go > *:nth-child(5) { animation-delay: 1.4s; }
-    @keyframes tqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) { .tq-go > * { animation: none; } }
+    /* page 4: the 6 pairs, forward then back */
+    .fl { display: grid; grid-template-columns: auto 1fr; gap: 10px 18px; align-items: center; margin: 8px 0 4px; }
+    .fl-pairs { display: grid; gap: 4px; }
+    .fl-row { display: grid; grid-template-columns: 4.6em 4.2em 1em 4.2em 1em 3.6em 1.6em; align-items: center; font-family: var(--mono); font-size: 0.95rem; padding: 2px 4px; border-radius: 6px; transition: background 0.25s; }
+    .fl-row .lab { font-family: var(--body, inherit); font-size: 0.85rem; font-weight: 700; }
+    .fl-row .n { text-align: right; padding: 1px 4px; border-radius: 4px; transition: background 0.25s; }
+    .fl-row .op { color: var(--pencil); text-align: center; }
+    .fl-row .arr { text-align: center; color: var(--pencil); font-family: var(--body, inherit); transition: color 0.25s; }
+    .fl-row .pu { grid-column: 1 / 7; display: grid; grid-template-columns: 4.6em 4.2em 1em 4.2em; font-size: 0.78rem; color: var(--pen); min-height: 1.2em; }
+    .fl-row .pu span { text-align: right; padding-right: 4px; }
+    .fl-row .pu span:first-child { text-align: left; font-family: var(--body, inherit); }
+    .fl-row.lit { background: color-mix(in srgb, var(--hl-yellow) 55%, transparent); }
+    .fl-row.lit .arr { color: var(--ink); font-weight: 700; }
+    .fl-side { display: grid; gap: 6px; justify-items: start; }
+    .fl-box { border: 1.5px solid var(--grid); border-radius: 8px; padding: 4px 10px; font-size: 0.95rem; transition: background 0.25s, border-color 0.25s; }
+    .fl-box b { font-family: var(--mono); }
+    .fl-box.lit { background: var(--hl-yellow); border-color: var(--ink); color: var(--ink); }
+    .fl-down { color: var(--pencil); padding-left: 14px; line-height: 1; }
+    .fl-cap { min-height: 3em; margin: 6px 0 2px; }
+    .fl-hide { visibility: hidden; }
+    @media (max-width: 640px) { .fl { grid-template-columns: 1fr; } .fl-row { grid-template-columns: 3.6em 3.8em 0.9em 3.8em 0.9em 3.4em 1.3em; font-size: 0.85rem; } .fl-row .pu { grid-template-columns: 3.6em 3.8em 0.9em 3.8em; } .fl-side { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .fl-box { white-space: nowrap; font-size: 0.88rem; } .fl-down { padding: 0; } .fl-down::before { content: "→"; } .fl-down span { display: none; } }
     .bk-all { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto) auto; gap: 3px 28px; justify-content: start; font-family: var(--mono); font-size: 0.9rem; margin: 6px 0 4px; white-space: nowrap; }
     .bk-all .mul { color: var(--pencil); }
     .bk-all .hot { background: var(--hl-yellow); color: var(--ink); border-radius: 4px; }
@@ -307,15 +314,20 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Before, the push moved the scores directly. Now a score is <b>built from</b> embedding numbers and weights, so those must move instead.</p>
-      <p class="say">How much should each one move? <b>Two questions</b> decide it.</p>
+      <p class="say">Watch what affects what, then how the push goes back the same way.</p>
       <div class="activity">
-        <div class="do">After “cat”, the score of space is <b>1.07</b>, built from 6 products. One is <b>−0.04 × 1.31</b>. How much should −0.04 move?</div>
-        <button class="doubt" type="button" data-peek-from="bkAllPeek" aria-label="−0.04 is in the other 13 scores too. What about them?">🤔</button>
-        <div class="tq" id="tq1"></div>
-        <div class="tq" id="tq2"></div>
-        <div class="tq" id="tq3"></div>
-        <div class="tq" id="tq4"></div>
-        <div class="row" style="min-height:2.9em"><button id="tqBack">← Back</button><button class="primary" id="tqNext">Next →</button></div>
+        <div class="do">After “cat”, the 6 pairs below build the score of space. Press the button to play each part.</div>
+        <button class="doubt" type="button" data-peek-from="bkAllPeek" aria-label="What about the other 13 scores?">🤔</button>
+        <div class="fl">
+          <div class="fl-pairs" id="flPairs"></div>
+          <div class="fl-side">
+            <div class="fl-box" id="flS">score of space <b id="flSv"></b></div><div class="fl-down"><span>↓</span></div>
+            <div class="fl-box" id="flC">chance <b id="flCv"></b></div><div class="fl-down"><span>↓</span></div>
+            <div class="fl-box" id="flP">push = chance − goal = <b id="flPv"></b></div>
+          </div>
+        </div>
+        <div class="fl-cap" id="flCap"></div>
+        <div class="row" style="min-height:2.9em"><button class="primary" id="flGo"></button></div>
         <div hidden id="bkAllPeek"></div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
@@ -642,44 +654,66 @@ const start = fresh();
 
 // ---------- 4: the push goes back to the 6 numbers (one example) ----------
 (function backDemo() {
-  const $ = id => document.getElementById(id), c = [..."cat"].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[" "];
+  const $ = id => document.getElementById(id), g = "cat", c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[" "];
   const x = start.inputs(c), sc0 = start.scores(c), p = softmax(sc0), push = p.map((q, k) => q - (k === goal ? 1 : 0));
-  const e0 = x[0], w0 = start.weights[0][goal], S0 = sc0[goal], ps = push[goal], pe = w0 * ps, pw = e0 * ps, e1 = e0 - pe;
-  const g0 = start.weights[0].reduce((a, v, k) => a + v * push[k], 0), pad = (t, n = 5) => t.padStart(n, "\u00a0");
-  const minus = (a, b) => `${fmt(a)} − ${b < 0 ? `(${fmt(b)})` : fmt(b)}`;
-  $("tq1").innerHTML = `<h4>1. How strongly does −0.04 change the score?</h4>
-    <p><button id="tqAdd">Add 1 to −0.04</button> <span id="tqAddRes" style="visibility:hidden">−0.04 → 0.96, and the score ${fmt(S0)} → <b>${fmt(S0 + w0)}</b></span></p>
-    <p id="tqAddSo" class="tq-hide">It changes the score by <span class="chip">${fmt(w0)}</span>, the weight it is multiplied with.</p>`;
-  $("tq2").innerHTML = `<h4>2. Which way should the score go, and how strongly?</h4>
-    <p>Space has a chance of ${(p[goal] * 100).toFixed(0)}%, but its goal is 100%. The score's push: <span class="eq">${fmt(p[goal])} − 1 =</span> <span class="chip">${fmt(ps)}</span>, meaning go <b>up</b>.</p>`;
-  $("tq3").innerHTML = `<h4>3. Multiply the two answers: that is the push on −0.04.</h4>
-    <p class="eq">${fmt(w0)} × ${fmt(ps)} = <b>${fmt(pe)}</b></p>
-    <p>New value = old − push: <span class="eq">${minus(e0, pe)} =</span> <span class="chip" id="tqNew">${fmt(e1)}</span></p>`;
-  $("tq4").innerHTML = `<h4>4. Every number gets the same two questions.</h4>
-    <p>The weight 1.31 changes the score by only −0.04, so its push is <span class="eq">−0.04 × ${fmt(ps)} = ${fmt(pw)}</span>: it hardly moves.</p>
-    <p>−0.04 is also used in the other 13 scores. Each gives it a push the same way, and the 14 are <b>added</b> before it moves (🤔 shows them).</p>`;
-  $("bkAllPeek").innerHTML = `<b>🤔 −0.04 is in the other 13 scores too. What about them?</b><br>It gets a push from all 14 scores<br><span style="font-size:0.85rem">From each: its weight there × that score's push. It moves only once, so they are added.</span><div class="bk-all">${CHARS.map((ch, k) => `<div class="${k === goal ? "hot" : ""}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("")}<div class="tot">added: ${fmt(g0)}</div></div>`;
-  let step = 1, added = false;
-  $("tqAdd").onclick = () => {
-    added = true;
-    $("tqAddRes").style.visibility = "";
-    const so = $("tqAddSo"); so.classList.remove("tq-hide"); so.style.animation = "none"; void so.offsetWidth; so.style.animation = "tqIn 0.45s ease 0.3s both";
-    show(false);
-  };
-  function show(animate) {
-    [1, 2, 3, 4].forEach(n => { const el = $("tq" + n); el.classList.toggle("tq-off", n > step); el.classList.toggle("now", n === step); el.classList.remove("tq-go"); });
-    $("tqBack").hidden = step === 1;
-    $("tqNext").hidden = step === 4 || (step === 1 && !added);
-    if (animate && step > 1) { const el = $("tq" + step); void el.offsetWidth; el.classList.add("tq-go"); }
-    if (animate && step === 3 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const t0 = performance.now() + 700, out = $("tqNew");
-      (function tick(t) { const f = Math.max(0, Math.min(1, (t - t0) / 900)); out.textContent = fmt(e0 + (e1 - e0) * f); if (f < 1) requestAnimationFrame(tick); })(performance.now());
-    }
+  const w = start.weights.map(r => r[goal]), ps = push[goal], LR = 0.1;
+  const rest = sc0.reduce((a, v, k) => a + (k === goal ? 0 : Math.exp(v)), 0), chance = S => Math.exp(S) / (Math.exp(S) + rest);
+  const pe = w.map(v => v * ps), pw = x.map(v => v * ps);
+  const x1 = x.map((v, j) => v - LR * pe[j]), w1 = w.map((v, j) => v - LR * pw[j]);
+  const S0 = sc0[goal], S1 = x1.reduce((a, v, j) => a + v * w1[j], 0) + (S0 - x.reduce((a, v, j) => a + v * w[j], 0));
+  const lab = j => `${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"}`;
+  const pad = (t, n = 5) => t.padStart(n, "\u00a0"), g0 = start.weights[0].reduce((a, v, k) => a + v * push[k], 0);
+  $("flPairs").innerHTML = x.map((v, j) => `<div class="fl-row" id="flR${j}"><span class="lab">${lab(j)}</span><span class="n" id="flE${j}"></span><span class="op">×</span><span class="n" id="flW${j}"></span><span class="op">=</span><span class="n" id="flX${j}"></span><span class="arr" id="flA${j}">→</span><span class="pu fl-hide" id="flU${j}"><span>push</span><span>${fmt(pe[j])}</span><span></span><span>${fmt(pw[j])}</span></span></div>`).join("");
+  $("bkAllPeek").innerHTML = `<b>🤔 What about the other 13 scores?</b><br><span style="font-size:0.85rem">The same pairs build every score, each with other weights. So every number gets a push from all 14 scores, and they are added. For −0.04 (c, 1st):</span><div class="bk-all">${CHARS.map((ch, k) => `<div class="${k === goal ? "hot" : ""}"><b>${sc(ch)}</b> <span class="mul">${pad(fmt(start.weights[0][k]))} × ${pad(fmt(push[k]))} = </span>${pad(fmt(start.weights[0][k] * push[k]))}</div>`).join("")}<div class="tot">added: ${fmt(g0)}</div></div><span style="font-size:0.85rem">This activity shows only the push from the score of space.</span>`;
+  const CAP = [
+    "Each pair is an embedding number × a weight. Play it forward to see what affects what.",
+    "Each pair makes a product. The 6 products add up to the score. The score becomes a chance. The chance is too low (goal 100%), so the push is <b>" + fmt(ps) + "</b>: the score should go up.",
+    "The push goes back along the same arrows. Each number gets <b>the number it is multiplied with × " + fmt(ps) + "</b> (the blue “push” under it). A big partner means a big push.",
+    `Each number moves: new = old − learning rate × push (learning rate ${LR} here). The score of space goes up: ${fmt(S0)} → <b>${fmt(S1)}</b>, chance ${(chance(S0) * 100).toFixed(0)}% → <b>${(chance(S1) * 100).toFixed(0)}%</b>.`];
+  const BTN = ["▶ Play forward", "◀ Send the push back", "Move the numbers", ""];
+  let phase = 0, timers = [];
+  const later = (ms, f) => timers.push(setTimeout(f, ms));
+  const lit = (id, on) => $(id).classList.toggle("lit", on);
+  function paint(xs, ws) {
+    xs.forEach((v, j) => { $("flE" + j).textContent = fmt(v); $("flW" + j).textContent = fmt(ws[j]); $("flX" + j).textContent = fmt(v * ws[j]); });
+    const S = xs.reduce((a, v, j) => a + v * ws[j], 0) + (S0 - x.reduce((a, v, j) => a + v * w[j], 0));
+    $("flSv").textContent = fmt(S); $("flCv").textContent = (chance(S) * 100).toFixed(0) + "%";
   }
-  $("tqNext").onclick = () => { step = Math.min(4, step + 1); show(true); };
-  $("tqBack").onclick = () => { step = Math.max(1, step - 1); show(false); };
-  addReset($("tqNext"), () => { step = 1; added = false; $("tqAddRes").style.visibility = "hidden"; $("tqAddSo").classList.add("tq-hide"); show(false); });
-  show(false);
+  function reset() {
+    timers.forEach(clearTimeout); timers = []; phase = 0;
+    paint(x, w); $("flPv").textContent = `${fmt(p[goal])} − 1 = ${fmt(ps)}`;
+    x.forEach((v, j) => { lit("flR" + j, false); $("flA" + j).textContent = "→"; $("flU" + j).classList.add("fl-hide"); });
+    ["flS", "flC", "flP"].forEach(id => lit(id, false)); $("flSv").parentElement.classList.remove("fl-hide");
+    ["flSv", "flCv", "flPv"].forEach(id => $(id).style.visibility = "hidden");
+    $("flCap").innerHTML = CAP[0]; $("flGo").textContent = BTN[0]; $("flGo").hidden = false;
+  }
+  const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("flGo").onclick = () => {
+    timers.forEach(clearTimeout); timers = []; phase++;
+    $("flGo").hidden = true; const sp = reduce() ? 0 : 1;
+    if (phase === 1) {           // forward: pairs → score → chance → push
+      x.forEach((v, j) => later(sp * j * 350, () => lit("flR" + j, true)));
+      later(sp * 2300, () => { x.forEach((v, j) => lit("flR" + j, false)); lit("flS", true); $("flSv").style.visibility = ""; });
+      later(sp * 3100, () => { lit("flS", false); lit("flC", true); $("flCv").style.visibility = ""; });
+      later(sp * 3900, () => { lit("flC", false); lit("flP", true); $("flPv").style.visibility = ""; });
+      later(sp * 4300, () => { $("flCap").innerHTML = CAP[1]; $("flGo").textContent = BTN[1]; $("flGo").hidden = false; });
+    } else if (phase === 2) {    // back: push → each pair
+      x.forEach((v, j) => $("flA" + j).textContent = "←");
+      x.forEach((v, j) => later(sp * (300 + j * 400), () => { lit("flR" + j, true); $("flU" + j).classList.remove("fl-hide"); }));
+      later(sp * 2900, () => { x.forEach((v, j) => lit("flR" + j, false)); lit("flP", false); $("flCap").innerHTML = CAP[2]; $("flGo").textContent = BTN[2]; $("flGo").hidden = false; });
+    } else if (phase === 3) {    // move: numbers glide, score and chance rise
+      const t0 = performance.now(), D = sp * 1400;
+      (function tick(t) { const f = D ? Math.min(1, (t - t0) / D) : 1; paint(x.map((v, j) => v + (x1[j] - v) * f), w.map((v, j) => v + (w1[j] - v) * f)); if (f < 1) requestAnimationFrame(tick); else { lit("flS", true); lit("flC", true); $("flCap").innerHTML = CAP[3]; } })(t0);
+    }
+  };
+  function steady() {   // the caption keeps the height of its longest text, so nothing jumps
+    const el = $("flCap"), now = el.innerHTML; el.style.minHeight = ""; let m = 0;
+    CAP.forEach(t => { el.innerHTML = t; m = Math.max(m, el.offsetHeight); });
+    el.innerHTML = now; if (m) el.style.minHeight = m + "px";
+  }
+  addReset($("flGo"), reset);
+  reset(); steady(); window.addEventListener("resize", steady);
+  new IntersectionObserver(es => { if (es.some(en => en.isIntersecting)) steady(); }).observe($("flGo"));
 })();
 
 // ---------- 5: train, and watch the map ----------
