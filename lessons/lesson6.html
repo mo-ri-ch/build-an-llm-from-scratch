@@ -288,10 +288,10 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
-      <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those are what must move. All 14 scores use the same <b>6 embedding numbers</b> (2 for each of the 3 letters you read).</p>
-      <p class="say">A score is <b>embedding number × weight</b>, added up. Change an embedding number by 1 and that score changes by <b>its weight</b>.</p>
-      <p class="say">Each score has a push: how much it should move. So an embedding number's push is <b>weight × the score's push</b>, added over all 14 scores.</p>
-      <p class="say">Weights move too. Changing a weight by 1 changes its score by the <b>embedding number</b>, so a weight's push is <b>embedding number × the score's push</b>. Let's see it work.</p>
+      <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move. All 14 scores use the same <b>6 embedding numbers</b> (2 for each of the 3 letters you read).</p>
+      <p class="say">A score adds up pieces like <b>embedding number × weight</b>. Take one piece: 2 × 3 = 6. Say the score should go <b>up</b>.</p>
+      <p class="say">Raise the embedding number by 1: 3 × 3 = 9. The score moved by 3, the <b>weight</b>. Raise the weight by 1: 2 × 4 = 8. It moved by 2, the <b>embedding number</b>.</p>
+      <p class="say">So each number's push is <b>its partner × the score's push</b>. An embedding number is in all 14 scores, so add the 14 pushes. Let's see it work.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 embedding numbers of its 3 letters would move. Hover (or tap) a push to see where it comes from.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
