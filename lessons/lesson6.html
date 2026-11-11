@@ -189,8 +189,7 @@
   svg.map .dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
   svg.map .tick { fill: var(--pencil); font-size: 10px; }
 
-    @media (max-width: 480px) { #bkHead { --bkh: 97.25px; } }
-  </style>
+</style>
 </head>
 <body data-pen="orange">
 <div class="wrap">
@@ -289,18 +288,23 @@
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
       <p class="say">Learning works as before: guess, measure, find the push, move.</p>
-      <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move. All 14 scores use the same <b>6 embedding numbers</b> (2 for each of the 3 letters you read).</p>
-      <p class="say">On page 3, the score of “space” for “cat” added up 6 pieces like <b>embedding number × weight</b>. Take the first: <b>−0.04 × 1.31</b>.</p>
-      <p class="say">Raise the embedding number by 1: the piece changes by 1.31, the <b>weight</b>. Raise the weight by 1: the piece changes by −0.04, the <b>embedding number</b>.</p>
-      <p class="say">The score's push (chance − goal) comes after the 6 pieces are added. It goes back to every piece: each number gets <b>its partner × that push</b>. An embedding number is in all 14 scores, so add the 14 pushes. Let's see it work.</p>
+      <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move.</p>
+      <p class="say" style="position:relative">The score's push (chance − goal) comes after the 6 pieces are added. It goes back into every piece: each number gets <b>its partner × the push</b>.<button class="doubt" type="button" data-peek-from="partnerPeek" aria-label="Why its partner?">🤔</button></p>
+      <div hidden id="partnerPeek"><b>🤔 Why its partner?</b>
+        <p style="margin:6px 0 0">Take the piece −0.04 × 1.31. Raise the embedding number by 1: the piece changes by 1.31, the weight. Raise the weight by 1: the piece changes by −0.04, the embedding number.</p>
+        <p style="margin:6px 0 0">So the partner says how strongly a number moves the score.</p>
+      </div>
+      <p class="say">An embedding number is in all 14 scores, so its 14 results are added. A weight is in only one. Let's see it work.</p>
       <div class="activity">
-        <div class="do">Pick an example. See how the 6 embedding numbers of its 3 letters would move. Hover (or tap) a push to see where it comes from.</div>
+        <div class="do">Pick an example. The table from page 3 runs backwards: the push goes back into the 6 pieces.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
-        <div class="muted" id="bkHead" style="min-height:var(--bkh,0)"></div>
-        <table class="emb" id="bkTab"></table>
+        <div class="muted"><b>1.</b> Build the score, as on page 3.</div>
+        <table class="emb" id="bkFwd"></table>
+        <div class="muted" id="bkHead"></div>
+        <table class="emb" id="bkTab" style="margin-top:6px"></table>
         <div hidden id="bkPeeks"></div>
-        <div class="muted" id="bkW" style="margin-top:8px;min-height:2.8em"></div>
-        <div class="muted">Only a demo: one example, one step with <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44 examples.</div>
+        <div class="muted" id="bkW"></div>
+        <div class="muted" style="margin-top:8px">Only a demo: one example, one step with <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44 examples.</div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
     </section>
@@ -631,20 +635,28 @@ const start = fresh();
   function render() {
     const g = sel.value, c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
     const x = start.inputs(c), p = softmax(start.scores(c));
-    const push = p.map((q, k) => q - (k === goal ? 1 : 0));
-    document.getElementById("bkHead").innerHTML = `Score of <b>${nm(CHARS[goal])}</b>: <b>${fmt(start.scores(c)[goal])}</b> (the 6 pieces added) → chance ${(p[goal] * 100).toFixed(1)}% → push = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b>. The other 13 scores get pushes too.`;
-    let h = `<tr><th>from</th><th>embedding number</th><th>push</th><th>embedding number − push</th></tr>`;
-    let peeks = "";
+    const push = p.map((q, k) => q - (k === goal ? 1 : 0)), ps = push[goal];
+    const lab = j => `${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"} of 2`;
+    const minus = (a, b) => `${fmt(a)} − ${b < 0 ? `(${fmt(b)})` : fmt(b)}`;
+    // 1. forward: the score of the right next letter
+    let f = `<tr><th>from</th><th>embedding number</th><th></th><th>weight</th><th></th><th>product</th></tr>`, sum = 0;
+    x.forEach((v, j) => { const wt = start.weights[j][goal]; sum += v * wt; f += `<tr><td>${lab(j)}</td><td>${fmt(v)}</td><td class="mul">×</td><td>${fmt(wt)}</td><td class="mul">=</td><td>${fmt(v * wt)}</td></tr>`; });
+    document.getElementById("bkFwd").innerHTML = f + `<tr class="sum"><td>added</td><td></td><td></td><td></td><td></td><td>${fmt(sum)}</td></tr>`;
+    // 2. the push on that score
+    document.getElementById("bkHead").innerHTML = `<b>2.</b> Score of <b>${nm(CHARS[goal])}</b> ${fmt(sum)} → chance ${(p[goal] * 100).toFixed(1)}% → push = ${fmt(p[goal])} − 1 = <b>${fmt(ps)}</b>.<br><b>3.</b> The push goes back. Each number gets its partner × ${fmt(ps)}.`;
+    // 3. backward: what each number gets from this score
+    let h = `<tr><th>from</th><th>embedding number gets</th><th>weight gets</th></tr>`, peeks = "";
     x.forEach((v, j) => {
-      const gx = start.weights[j].reduce((s, wt, k) => s + wt * push[k], 0);
-      h += `<tr><td>${sc(g[Math.floor(j / 2)])}, ${j % 2 ? "2nd" : "1st"} of 2</td><td>${fmt(v)}</td><td data-peek-from="bkP${j}" style="cursor:help;text-decoration:underline dotted">${fmt(gx)}</td><td>${fmt(v - gx)}</td></tr>`;
-      let t = `<b>Where ${fmt(gx)} comes from</b><br><span style="font-size:0.85rem">For each next letter: its weight on this embedding number × the push on its score. Add them all.</span><table class="l4t pk"><tr><th>next</th><th>weight</th><th></th><th>push</th><th></th><th></th></tr>`;
-      CHARS.forEach((ch, k) => { t += `<tr><td>${sc(ch)}</td><td>${fmt(start.weights[j][k])}</td><td>×</td><td>${fmt(push[k])}</td><td>=</td><td>${fmt(start.weights[j][k] * push[k])}</td></tr>`; });
-      peeks += `<div hidden id="bkP${j}">${t}<tr><td colspan="5"><b>Sum</b></td><td><b>${fmt(gx)}</b></td></tr></table></div>`;
+      const wt = start.weights[j][goal], gx = start.weights[j].reduce((s, w2, k) => s + w2 * push[k], 0);
+      h += `<tr><td>${lab(j)}</td><td data-peek-from="bkP${j}" style="cursor:help"><span class="mul">${fmt(wt)} × ${fmt(ps)} = </span>${fmt(wt * ps)}</td><td><span class="mul">${fmt(v)} × ${fmt(ps)} = </span>${fmt(v * ps)}</td></tr>`;
+      let t = `<b>${lab(j)} is in all 14 scores</b><br><span style="font-size:0.85rem">From each score it gets: that score's weight × that score's push. Add all 14.</span><table class="l4t pk"><tr><th>score of</th><th>weight</th><th></th><th>push</th><th></th><th>gets</th></tr>`;
+      CHARS.forEach((ch, k) => { const hc = k === goal ? ' class="hc"' : ""; t += `<tr><td${hc}>${sc(ch)}</td><td${hc}>${fmt(start.weights[j][k])}</td><td${hc}>×</td><td${hc}>${fmt(push[k])}</td><td${hc}>=</td><td${hc}>${fmt(start.weights[j][k] * push[k])}</td></tr>`; });
+      peeks += `<div hidden id="bkP${j}">${t}<tr><td colspan="5"><b>Added: its push</b></td><td><b>${fmt(gx)}</b></td></tr></table><span style="font-size:0.85rem">New value: ${minus(v, gx)} = <b>${fmt(v - gx)}</b></span></div>`;
     });
     document.getElementById("bkTab").innerHTML = h;
     document.getElementById("bkPeeks").innerHTML = peeks;
-    document.getElementById("bkW").innerHTML = `A weight moves too. The weight of <b>${nm(CHARS[goal])}</b> on the 1st embedding number is ${fmt(start.weights[0][goal])}. Its push is ${fmt(x[0])} × ${fmt(push[goal])} = <b>${fmt(x[0] * push[goal])}</b>.`;
+    const g0 = start.weights[0].reduce((s, w2, k) => s + w2 * push[k], 0);
+    document.getElementById("bkW").innerHTML = `<b>4.</b> <b>${lab(0)}</b> is in all 14 scores. Its 14 results add up to <b>${fmt(g0)}</b> (hover or tap an underlined number). It becomes ${minus(x[0], g0)} = <b>${fmt(x[0] - g0)}</b>.<br>A weight is in one score only, so what it gets here is its whole push.`;
   }
   sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();
 })();
