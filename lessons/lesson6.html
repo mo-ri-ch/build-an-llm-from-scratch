@@ -189,7 +189,8 @@
   svg.map .dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
   svg.map .tick { fill: var(--pencil); font-size: 10px; }
 
-</style>
+    @media (max-width: 480px) { #bkHead { --bkh: 97.25px; } }
+  </style>
 </head>
 <body data-pen="orange">
 <div class="wrap">
@@ -287,15 +288,15 @@
     <!-- 4 -->
     <section class="part" data-title="Learning reaches the letters">
       <h2>Learning reaches the letters</h2>
-      <p class="say">Learning works as before: guess, measure, find the push, move. The push on a <b>score</b> is still <b>chance − goal</b>.</p>
+      <p class="say">Learning works as before: guess, measure, find the push, move.</p>
       <p class="say">In Lesson 5 the push moved the scores directly. Now scores are <b>built from</b> embedding numbers and weights, so those must move. All 14 scores use the same <b>6 embedding numbers</b> (2 for each of the 3 letters you read).</p>
       <p class="say">On page 3, the score of “space” for “cat” added up 6 pieces like <b>embedding number × weight</b>. Take the first: <b>−0.04 × 1.31</b>.</p>
       <p class="say">Raise the embedding number by 1: the piece changes by 1.31, the <b>weight</b>. Raise the weight by 1: the piece changes by −0.04, the <b>embedding number</b>.</p>
-      <p class="say">So each number's push is <b>its partner × the score's push</b>. An embedding number is in all 14 scores, so add the 14 pushes. Let's see it work.</p>
+      <p class="say">The score's push (chance − goal) comes after the 6 pieces are added. It goes back to every piece: each number gets <b>its partner × that push</b>. An embedding number is in all 14 scores, so add the 14 pushes. Let's see it work.</p>
       <div class="activity">
         <div class="do">Pick an example. See how the 6 embedding numbers of its 3 letters would move. Hover (or tap) a push to see where it comes from.</div>
         <div class="row" style="margin-bottom:10px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
-        <div class="muted" id="bkHead"></div>
+        <div class="muted" id="bkHead" style="min-height:var(--bkh,0)"></div>
         <table class="emb" id="bkTab"></table>
         <div hidden id="bkPeeks"></div>
         <div class="muted" id="bkW" style="margin-top:8px;min-height:2.8em"></div>
@@ -631,7 +632,7 @@ const start = fresh();
     const g = sel.value, c = [...g].map(ch => CHAR_TO_NUMBER[ch]), goal = CHAR_TO_NUMBER[GROUPS.find(x => x.g === g).next];
     const x = start.inputs(c), p = softmax(start.scores(c));
     const push = p.map((q, k) => q - (k === goal ? 1 : 0));
-    document.getElementById("bkHead").innerHTML = `Chance of <b>${nm(CHARS[goal])}</b>: ${(p[goal] * 100).toFixed(1)}%. Its score's push: chance − goal = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b> (the other 13 letters get pushes too).`;
+    document.getElementById("bkHead").innerHTML = `Score of <b>${nm(CHARS[goal])}</b>: <b>${fmt(start.scores(c)[goal])}</b> (the 6 pieces added) → chance ${(p[goal] * 100).toFixed(1)}% → push = ${fmt(p[goal])} − 1 = <b>${fmt(push[goal])}</b>. The other 13 scores get pushes too.`;
     let h = `<tr><th>from</th><th>embedding number</th><th>push</th><th>embedding number − push</th></tr>`;
     let peeks = "";
     x.forEach((v, j) => {
