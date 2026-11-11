@@ -18,7 +18,7 @@ const COURSE_LESSONS = [
   { n: 5, step: "more letters", title: "Looking further back", file: "lesson5.html", ready: true, test: 12,
     summary: "Three small tables, one per letter, add up to one guess.",
     leaves: "Instead of 3 big rows for every letter, could each letter have just 2 numbers, used everywhere?" },
-  { n: 6, step: "meaning", title: "Embeddings", file: "lesson6.html", ready: true, test: 10,
+  { n: 6, step: "embeddings", title: "Embeddings", file: "lesson6.html", ready: true, test: 10,
     summary: "Give each letter 2 numbers, shared by every position.",
     leaves: "A letter has the same embedding whoever its neighbours are. How can letters look at each other?" },
   { n: 7, step: "attention", title: "Attention", file: "lesson7.html", ready: false,
