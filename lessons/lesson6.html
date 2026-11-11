@@ -170,6 +170,12 @@
   /* Page 8: writing */
   .written { font-family: var(--mono); font-size: 1.1rem; min-height: 2.6em; padding: 10px 12px; border: 1.5px dashed var(--ink); border-radius: var(--radius); background: var(--paper); word-break: break-word; white-space: pre-wrap; }
   .written-label { color: var(--pencil); font-size: 0.85rem; margin: 14px 0 4px; }
+  #writtenNow, #writtenBefore { line-height: 1.9; min-height: calc(3.8em + 24px); }
+  .written .seed { color: var(--pencil); }
+  .written .slip, .slip { text-decoration: underline wavy #d6453d; text-decoration-thickness: 1.5px; text-underline-offset: 4px; background: color-mix(in srgb, #d6453d 12%, transparent); border-radius: 2px; }
+  .written .cur { display: inline-block; width: 0.55em; border-bottom: 2px solid var(--pen); animation: blink 0.8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .slips { font-size: 0.85rem; color: var(--pencil); height: 1.5em; line-height: 1.5em; margin-top: 4px; }
   .try-in { font: inherit; font-family: var(--mono); font-size: 1.3rem; width: 5em; padding: 4px 10px; border: 2px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); }
 
   /* Lesson 6 */
@@ -400,12 +406,15 @@
       <h2>Write new text</h2>
       <p class="say">Same way to write: one letter at a time, picked by chance. Now the chances come from <b>embedding numbers and weights</b>.</p>
       <div class="activity">
-        <div class="do">Press Write. Compare with the three tables.</div>
-        <div class="row"><button class="primary" id="write">Write 40 letters</button></div>
+        <div class="do">Press Write. Both models start from “the” and pick 40 letters, one at a time. Compare with <span data-peek="the cat sat on the mat. the dog sat on the log.">our text</span>.</div>
+        <div class="row" style="min-height:2.9em"><button class="primary" id="write">Write 40 letters</button></div>
         <div class="written-label">Embedding model, 112 numbers (now)</div>
         <div class="written" id="writtenNow" aria-live="polite"></div>
+        <div class="slips" id="slipsNow"></div>
         <div class="written-label">Three tables, 588 numbers (before)</div>
         <div class="written" id="writtenBefore"></div>
+        <div class="slips" id="slipsBefore"></div>
+        <div class="muted" style="margin-top:8px"><span class="slip">underlined</span>: a made-up piece. These letters never come in this order in our text.</div>
       </div>
       <p class="say">Both mostly write pieces of our text. A rare letter can slip in, because each letter is picked by chance. The embedding model does it with 5 times fewer numbers.</p>
       <p class="hook">Here's all of it in Python.</p>
@@ -790,13 +799,31 @@ const model = fresh();
 // ---------- Write ----------
 const trained = fresh(); trained.train(300);
 let three = null;
-document.getElementById("write").onclick = () => {
-  if (!three) { three = new ThreeCharModel(); three.train(300); }
-  const go = predict => { let out = "the"; for (let s = 0; s < 40; s++) out += CHARS[pickByChance(predict(out.slice(-3)))]; return out; };
-  document.getElementById("writtenNow").textContent = go(g => trained.predict(g));
-  document.getElementById("writtenBefore").textContent = go(g => three.predict(g));
-};
-addReset(document.getElementById("writtenNow"), () => { document.getElementById("writtenNow").textContent = ""; document.getElementById("writtenBefore").textContent = ""; });
+(function writeDemo() {
+  const $ = id => document.getElementById(id), btn = $("write"), N = 40;
+  const T2 = TEXT + " " + TEXT, known = new Set(); for (let i = 0; i + 3 < T2.length; i++) known.add(T2.slice(i, i + 4));   // our text, read round again
+  const go = predict => { let out = "the"; for (let k = 0; k < N; k++) out += CHARS[pickByChance(predict(out.slice(-3)))]; return out; };
+  const slipAt = (t, i) => !known.has(t.slice(i - 3, i + 1));   // these 4 letters never appear together in our text
+  const show = (el, t, n, typing) => {
+    let h = `<span class="seed">${t.slice(0, 3)}</span>`;
+    for (let i = 3; i < 3 + n; i++) h += slipAt(t, i) ? `<span class="slip">${t[i]}</span>` : t[i].replace("&", "&amp;");
+    el.innerHTML = h + (typing ? `<span class="cur"></span>` : "");
+  };
+  const count = t => { let c = 0; for (let i = 3; i < t.length; i++) if (slipAt(t, i) && !(i > 3 && slipAt(t, i - 1))) c++; return c; };   // runs, not letters
+  let timer = 0;
+  btn.onclick = () => {
+    if (!three) { three = new ThreeCharModel(); three.train(300); }
+    const a = go(g => trained.predict(g)), b = go(g => three.predict(g));
+    clearInterval(timer); $("slipsNow").textContent = ""; $("slipsBefore").textContent = "";
+    const done = () => { show($("writtenNow"), a, N); show($("writtenBefore"), b, N); btn.style.visibility = "";
+      const sl = (t) => { const c = count(t); return c ? `${c} made-up piece${c > 1 ? "s" : ""}` : "only pieces of our text"; };
+      $("slipsNow").textContent = sl(a); $("slipsBefore").textContent = sl(b); };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
+    btn.style.visibility = "hidden"; let n = 0;
+    timer = setInterval(() => { n++; show($("writtenNow"), a, n, true); show($("writtenBefore"), b, n, true); if (n >= N) { clearInterval(timer); done(); } }, 45);
+  };
+  addReset($("writtenNow"), () => { clearInterval(timer); btn.style.visibility = ""; ["writtenNow", "writtenBefore", "slipsNow", "slipsBefore"].forEach(id => $(id).textContent = ""); });
+})();
 
 // ---------- Last page: the same numbers, whatever the neighbours ----------
 (function sameDemo() {
