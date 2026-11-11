@@ -183,10 +183,21 @@
   .emb .mul { color: var(--pencil); }
   .six { font-family: var(--mono); font-size: 1.05rem; margin: 4px 0 10px; }
   .six b { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); padding: 1px 6px; border-radius: 4px; font-weight: 400; color: var(--ink); }
-  svg.map { width: 100%; max-width: 420px; height: auto; display: block; margin: 8px 0; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  .lm { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-start; margin-top: 6px; }
+  .lm-side { flex: 1 1 220px; display: grid; gap: 10px; align-content: start; }
+  .lm-side .score-line { margin: 0; }
+  svg.map { width: 100%; max-width: 380px; flex: 0 1 380px; height: auto; display: block; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  svg.map .grid { stroke: var(--grid); stroke-width: 1; opacity: 0.55; }
+  svg.map .trail { fill: none; stroke: var(--pen); stroke-width: 1.5; opacity: 0.28; stroke-linecap: round; stroke-linejoin: round; }
+  svg.map .lab { font-family: var(--body, inherit); font-size: 11px; fill: var(--pencil); }
+  svg.map .dot { filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.18)); }
+  svg.lcurve { width: 100%; height: auto; display: block; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); }
+  svg.lcurve .ln { fill: none; stroke: var(--pen); stroke-width: 2; stroke-linejoin: round; }
+  svg.lcurve .ar { fill: color-mix(in srgb, var(--pen) 12%, transparent); stroke: none; }
+  svg.lcurve text { font-family: var(--body, inherit); font-size: 10px; fill: var(--pencil); }
+  svg.lcurve .ref { stroke: var(--pencil); stroke-dasharray: 3 3; stroke-width: 1; }
   svg.map text { font-family: var(--mono); font-size: 13px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
-  svg.map .ax { stroke: var(--grid); stroke-width: 1; vector-effect: non-scaling-stroke; }
-  svg.map .dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  svg.map circle.dot { fill: var(--hl-yellow); stroke: var(--ink); stroke-width: 1.5; }
   svg.map .tick { fill: var(--pencil); font-size: 10px; }
 
     /* page 4: the 6 pairs, forward then back */
@@ -336,15 +347,20 @@
     <!-- 5 -->
     <section class="part" data-title="Let it learn">
       <h2>Let it learn</h2>
-      <p class="say">The same step, repeated. Each letter's 2 numbers are a point on a map, so you can watch the embedding numbers move.</p>
+      <p class="say">The same step, repeated. Each letter's 2 embedding numbers are a point on a map, so you can watch them move.</p>
       <div class="activity">
         <div class="do">Press Train. Watch the letters move and the loss fall.</div>
-        <div class="row"><button class="primary" id="train">Train 300 steps</button></div>
-        <svg class="map" id="map" viewBox="-5 -5 10 10" role="img" aria-label="The 14 letters as points on a map"></svg>
-        <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
-        <div class="muted" id="mapNote" style="margin-top:8px"></div>
+        <div class="lm">
+          <svg class="map" id="map" viewBox="0 0 400 400" role="img" aria-label="The 14 letters as points on a map"></svg>
+          <div class="lm-side">
+            <div class="score-line"><div>Steps<b id="trainSteps">0</b></div><div>Loss (all 44 examples)<b id="trainLoss">–</b></div></div>
+            <svg class="lcurve" id="lcurve" viewBox="0 0 240 90" role="img" aria-label="The loss, step by step"></svg>
+            <div class="row" style="min-height:2.9em"><button class="primary" id="train">Train 300 steps</button></div>
+            <div class="muted" id="mapNote" style="min-height:4.2em"></div>
+          </div>
+        </div>
       </div>
-      <p class="say">112 numbers reach a loss of about <b>0.178</b>. The 588 numbers of three tables reached 0.174. <b>5 times fewer numbers, almost the same result.</b></p>
+      <p class="say">After 300 steps, the 112 numbers reach a loss of about <b>0.178</b>. The 588 numbers of three tables reached 0.174. <b>5 times fewer numbers, almost the same result.</b></p>
       <p class="say">With 1,000 letters it is 8,000 numbers against 3 million: they grow with the letters, not with letters × letters.</p>
       <p class="hook">Work the steps out on paper.</p>
     </section>
@@ -725,20 +741,50 @@ const start = fresh();
 // ---------- 5: train, and watch the map ----------
 const model = fresh();
 (function trainDemo() {
-  const svg = document.getElementById("map"), btn = document.getElementById("train");
-  const r = v => Math.max(-4.6, Math.min(4.6, v));
-  function draw() {
-    let h = `<line class="ax" x1="-5" y1="0" x2="5" y2="0"/><line class="ax" x1="0" y1="-5" x2="0" y2="5"/>`;
-    model.letters.forEach((l, i) => { h += `<circle class="dot" cx="${r(l[0])}" cy="${-r(l[1])}" r="0.42"/><text x="${r(l[0])}" y="${-r(l[1])}" style="font-size:0.5px;stroke:none">${sc(CHARS[i])}</text>`; });
+  const svg = document.getElementById("map"), cur = document.getElementById("lcurve"), btn = document.getElementById("train");
+  const W = 400, PAD = 34, $ = id => document.getElementById(id);
+  let half = 3, trails = [], losses = [], running = 0;
+  const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const need = () => Math.max(2, ...model.letters.flat().map(Math.abs)) * 1.12;   // zoom so every letter fits
+  const px = v => W / 2 + v / half * (W / 2 - PAD), py = v => W / 2 - v / half * (W / 2 - PAD);
+  function drawMap() {
+    let h = "", step = half > 6 ? 2 : 1;
+    for (let v = -Math.floor(half / step) * step; v <= half; v += step) h += `<line class="grid" x1="${px(v)}" y1="0" x2="${px(v)}" y2="${W}"/><line class="grid" x1="0" y1="${py(v)}" x2="${W}" y2="${py(v)}"/>`;
+    h += `<line class="grid" x1="${px(0)}" y1="0" x2="${px(0)}" y2="${W}" style="opacity:1"/><line class="grid" x1="0" y1="${py(0)}" x2="${W}" y2="${py(0)}" style="opacity:1"/>`;
+    h += `<text class="lab" x="${W - 8}" y="${W - 8}" style="text-anchor:end">1st number →</text><text class="lab" x="${px(0) + 6}" y="14" style="text-anchor:start">↑ 2nd number</text>`;
+    trails.forEach(t => { if (t.length > 1) h += `<polyline class="trail" points="${t.map(([a, b]) => px(a).toFixed(1) + "," + py(b).toFixed(1)).join(" ")}"/>`; });
+    model.letters.forEach((l, i) => { h += `<circle class="dot" cx="${px(l[0])}" cy="${py(l[1])}" r="13"/><text x="${px(l[0])}" y="${py(l[1])}" style="font-size:14px;stroke:none">${sc(CHARS[i])}</text>`; });
     svg.innerHTML = h;
-    document.getElementById("trainSteps").textContent = model.step;
-    document.getElementById("trainLoss").textContent = model.loss().toFixed(4);
-    document.getElementById("mapNote").innerHTML = model.step ? "Nobody told the letters where to go. Each moved to where the guesses got better." : "<b>Press Train: the positions are still random.</b>";
+  }
+  function drawCurve() {
+    const top = Math.max(...losses, 1), n = Math.max(losses.length - 1, 1), X = i => 8 + i / n * 224, Y = v => 80 - v / top * 66;
+    let h = `<text x="8" y="11" style="text-anchor:start">loss</text>`;
+    const ref = 0.1742; h += `<line class="ref" x1="8" x2="232" y1="${Y(ref)}" y2="${Y(ref)}"/><text x="232" y="${Y(ref) - 4}" style="text-anchor:end">three tables 0.174</text>`;
+    if (losses.length > 1) { const pts = losses.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" "); h += `<polygon class="ar" points="8,80 ${pts} ${X(n)},80"/><polyline class="ln" points="${pts}"/>`; }
+    cur.innerHTML = h;
+  }
+  function info() {
+    $("trainSteps").textContent = model.step; $("trainLoss").textContent = model.loss().toFixed(4);
+    $("mapNote").innerHTML = model.step ? "Nobody told the letters where to go. Each moved to where the guesses got better." : "The positions are random. Press Train.";
     btn.textContent = model.step ? "Train 300 more" : "Train 300 steps";
   }
-  btn.onclick = () => { model.train(300); draw(); };
-  addReset(btn, () => { model.reset(); draw(); });
-  draw();
+  function all() { drawMap(); drawCurve(); info(); }
+  function fresh0() { model.reset(); half = need(); trails = model.letters.map(l => [[...l]]); losses = [model.loss()]; all(); }
+  btn.onclick = () => {
+    if (running) return;
+    if (reduce()) { model.train(300); losses.push(model.loss()); model.letters.forEach((l, i) => trails[i].push([...l])); half = need(); all(); return; }
+    btn.style.visibility = "hidden"; let done = 0;
+    (function frame() {
+      model.train(5); done += 5;
+      model.letters.forEach((l, i) => trails[i].push([...l]));
+      if (done % 10 === 0) losses.push(model.loss());
+      half += (need() - half) * 0.15;          // zoom smoothly
+      drawMap(); drawCurve(); info();
+      if (done < 300) running = requestAnimationFrame(frame); else { running = 0; btn.style.visibility = ""; }
+    })();
+  };
+  addReset(btn, () => { cancelAnimationFrame(running); running = 0; btn.style.visibility = ""; fresh0(); });
+  fresh0();
 })();
 
 // ---------- Write ----------
