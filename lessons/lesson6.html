@@ -191,7 +191,9 @@
 
     /* page 4: the push goes back, one step at a time */
     .bk-stage { display: grid; }
-    .bk-stage > table { grid-area: 1 / 1; margin: 6px 0 10px; }
+    .bk-stage > * { grid-area: 1 / 1; }
+    .bk-stage > table { margin: 6px 0 10px; }
+    @media (max-width: 560px) { #bkTab .mul { display: none; } #bkTab th { white-space: normal; vertical-align: bottom; } #bkTab { width: 100%; } }
     .bk-off { visibility: hidden; }
     .bk-cap { font-weight: 700; margin-top: 4px; }
     .bk-chain span, .bk-anim { display: inline-block; }
@@ -311,11 +313,10 @@
         <button class="doubt" id="bkDoubt" type="button" data-peek-from="partnerPeek" aria-label="Why multiply by the number next to it?">🤔</button>
         <div class="row" style="margin-bottom:8px"><label>Example <select id="bkGroup" class="pick"></select></label></div>
         <div class="bk-cap" id="bkCap"></div>
-        <div class="bk-stage"><table class="emb" id="bkFwd"></table><table class="emb" id="bkTab"></table></div>
+        <div class="bk-stage" id="bkStage"><table class="emb" id="bkFwd"></table><table class="emb" id="bkTab"></table></div>
         <div hidden id="bkPeeks"></div>
-        <div class="muted bk-chain" id="bkHead"></div>
-        <div class="muted" id="bkW" style="margin-top:4px"></div>
-        <div class="row" style="margin-top:10px"><button id="bkBack">← Back</button><button class="primary" id="bkNext">Next step →</button><span class="muted" id="bkStep"></span></div>
+        <div class="bk-stage"><div class="muted bk-chain" id="bkHead"></div><div class="muted" id="bkW"></div></div>
+        <div class="row" style="margin-top:10px"><button id="bkBack">← Back</button><button class="primary" id="bkNext">Next step →</button></div>
         <div class="muted" style="margin-top:8px">A demo: one example, <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44.</div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
@@ -675,9 +676,9 @@ const start = fresh();
     $("bkW").innerHTML = `<b>${lab(0)}</b>: ${fmt(start.weights[0][goal] * ps)} from the score of ${nm(CHARS[goal])}, plus 13 more, adds up to <b>${fmt(g0)}</b> (hover or tap its push to see all 14). New value = old − push: ${minus(x[0], g0)} = <b>${fmt(x[0] - g0)}</b>.<br>A weight is used in one score only, so its push is already complete.`;
     // what shows at this step (hidden parts keep their space, so nothing jumps)
     $("bkFwd").classList.toggle("bk-off", step > 2); $("bkTab").classList.toggle("bk-off", step < 3);
-    $("bkHead").classList.toggle("bk-off", step < 2); $("bkW").classList.toggle("bk-off", step < 4);
+    $("bkHead").classList.toggle("bk-off", step !== 2 && step !== 3); $("bkW").classList.toggle("bk-off", step < 4);
     $("bkDoubt").style.display = step >= 3 ? "" : "none";
-    $("bkBack").hidden = step === 1; $("bkNext").hidden = step === 4; $("bkStep").textContent = `Step ${step} of 4`;
+    $("bkBack").hidden = step === 1; $("bkNext").hidden = step === 4;
     // animate only the part that is new at this step
     const fresh = { 1: "bkFwd", 2: "bkHead", 3: "bkTab", 4: "bkW" }[step];
     ["bkFwd", "bkHead", "bkTab", "bkW"].forEach(id => { $(id).classList.remove("bk-go"); $(id).classList.toggle("bk-anim", id === "bkW"); });
@@ -685,7 +686,7 @@ const start = fresh();
   }
   // keep the text lines the same height for every example, so nothing jumps
   function steady() {
-    const keep = sel.value, els = ["bkHead", "bkW", "bkCap"].map($), max = [0, 0, 0], st = step;
+    const keep = sel.value, els = ["bkHead", "bkW", "bkCap", "bkStage"].map($), max = [0, 0, 0, 0], st = step;
     els.forEach(e => e.style.minHeight = "");
     [...sel.options].forEach(o => { sel.value = o.value; for (step = 1; step <= 4; step++) { render(false); els.forEach((e, i) => max[i] = Math.max(max[i], e.offsetHeight)); } });
     sel.value = keep; step = st; render(false);
