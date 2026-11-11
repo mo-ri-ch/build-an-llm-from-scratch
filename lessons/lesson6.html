@@ -298,6 +298,7 @@
         <div class="muted" id="bkHead"></div>
         <table class="emb" id="bkTab"></table>
         <div hidden id="bkPeeks"></div>
+        <div class="muted" id="bkW" style="margin-top:8px;min-height:2.8em"></div>
         <div class="muted">Only a demo: one example, one step with <span data-peek="The learning rate says how big a move is. Here it is 1. 10 would be too big for these numbers.">learning rate</span> 1. A real step averages all 44 examples.</div>
       </div>
       <p class="hook">Repeat the step 300 times. What do the letters become?</p>
@@ -642,6 +643,7 @@ const start = fresh();
     });
     document.getElementById("bkTab").innerHTML = h;
     document.getElementById("bkPeeks").innerHTML = peeks;
+    document.getElementById("bkW").innerHTML = `A weight moves too. The weight of <b>${nm(CHARS[goal])}</b> on the 1st embedding number is ${fmt(start.weights[0][goal])}. Its push is ${fmt(x[0])} × ${fmt(push[goal])} = <b>${fmt(x[0] * push[goal])}</b>.`;
   }
   sel.onchange = render; addReset(sel, () => { sel.value = "cat"; render(); }); render();
 })();
