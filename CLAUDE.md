@@ -13,3 +13,6 @@
 - When a lesson that explains layers (inside a network) is ready, add a link to it in the Transformers & LLMs
   Lesson 1a 🤔 "What's inside the box?" (it links to Lesson 4 for now).
 - Rethink how the code is explained (Rishal wants to come back to it). Tried and undone: "In code" cells at the end of each idea page, and code lines inside the text with a Code switch. Concerns: the code comes at the end after all the theory; code repeats lines from earlier lessons; the page looks like an editor while the practice is in Colab. Ideas kept: fold repeated lines, line-by-line explanations with the page's real numbers, an automatic check that code output matches the page.
+
+## Before every push
+- Run `python3 tools/check_pages.py` (word limits) and `python3 tools/check_terms.py` (no word used before the page that teaches it, hidden 🤔 notes included). When a lesson teaches a new word, add it to the list in check_terms.py.
