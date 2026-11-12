@@ -262,6 +262,9 @@
   svg.dparrow line.a1 { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; } svg.dparrow circle.a1 { fill: var(--ink); }
   svg.dparrow line.a2 { stroke: var(--pen); stroke-width: 3; stroke-linecap: round; } svg.dparrow circle.a2 { fill: var(--pen); }
   svg.dparrow text { font-size: 0.42px; font-weight: 700; font-family: var(--body, inherit); } svg.dparrow .t1 { fill: var(--ink); } svg.dparrow .t2 { fill: var(--pen); }
+  table.l7.rows-go tr.l7-row { animation: l7In 0.4s ease both; animation-delay: calc(var(--i) * 0.07s); }
+  table.l7.rows-go tr.l7-row td.sum { animation: l7In 0.4s ease both; animation-delay: calc(0.6s + var(--i) * 0.07s); }
+  @media (prefers-reduced-motion: reduce) { table.l7.rows-go tr.l7-row, table.l7.rows-go tr.l7-row td.sum { animation: none; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -309,7 +312,7 @@
   table.l7 tr.me td { color: var(--pen); }
   .l7-go { animation: l7In 0.45s ease both; }
   @keyframes l7In { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  @media (max-width: 560px) { table.l7 .w { display: none; } table.l7 { font-size: 0.82rem; } }
+  @media (max-width: 560px) { table.l7 .w { display: none; } table.l7 { font-size: 0.82rem; } #lrTab { font-size: 0.72rem; } #lrTab td, #lrTab th { padding-right: 4px; } }
   @media (prefers-reduced-motion: reduce) { .l7-go { animation: none; } .att .bar, .floor .fill { transition: none; } }
 </style>
 </head>
@@ -367,15 +370,14 @@
     <!-- 3 -->
     <section class="part" data-title="Letters in a row">
       <h2>Letters in a row</h2>
-      <p class="say">Your model now reads the last <b>8 letters</b>. Each letter has <b>3</b> embedding numbers (2 are too few for what comes next).</p>
-      <p class="say" style="position:relative">Each of the 8 places in the row also has 3 numbers, its <b>position numbers</b>. A letter's numbers here = its embedding + its place's position numbers.<button class="doubt" type="button" data-peek-from="posPeek" aria-label="Why add the place's numbers?">🤔</button></p>
-      <div hidden id="posPeek"><b>🤔 Why add the place's numbers?</b>
-        <p style="margin:6px 0 0">The next pages compare letters only by their numbers. Without position numbers, a “t” in place 1 and a “t” in place 7 would look exactly the same, and the model couldn't tell near from far.</p>
-      </div>
+      <p class="say">Your model now reads the last <b>8 letters</b>. Each letter has <b>3</b> embedding numbers this time, one more than before, which gives it more room to learn.</p>
+      <p class="say">Each of the 8 places also has 3 numbers, its <b>position numbers</b>. A letter's numbers = <b>its embedding + its place's position numbers</b>.</p>
+      <p class="say">So a “t” in place 1 and a “t” in place 7 get different numbers. That is how the model can tell near from far.</p>
       <div class="activity">
         <div class="do">These numbers come from a model that has already learned. You will train one yourself later. Pick 8 letters.</div>
         <div class="row" style="margin-bottom:6px"><label>8 letters <select id="lrW" class="pick"></select></label></div>
         <table class="l7" id="lrTab"></table>
+        <div class="muted" id="lrNote" style="min-height:2.8em"></div>
       </div>
       <p class="hook">How does the last letter choose which of these to look at?</p>
     </section>
@@ -819,15 +821,23 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 (function rowDemo() {
   const sel = document.getElementById("lrW"); fillWin(sel);
   function render() {
-    const w = sel.value, f = trained.run(codes(w));
-    let h = `<tr><th>place</th><th>letter</th><th class="w">embedding</th><th class="w"></th><th class="w">position</th><th class="w"></th><th>its numbers</th></tr>`;
-    Array.from(w).forEach((c, i) => {
+    const w = sel.value, f = trained.run(codes(w)), L = Array.from(w);
+    const dg = matchMedia("(max-width: 560px)").matches ? 1 : 2, v3 = a => "[" + a.map(v => fmt(v, dg)).join(", ") + "]";   // fewer decimals on phones
+    const dupLetter = L.find((c, i) => L.indexOf(c) !== i);            // a letter that comes twice in these 8
+    const dups = L.map((c, i) => c === dupLetter ? i : -1).filter(i => i >= 0).slice(0, 2);
+    let h = `<tr><th class="w">place</th><th>letter</th><th>embedding</th><th class="w"></th><th class="w">position</th><th class="w"></th><th>its numbers</th></tr>`;
+    L.forEach((c, i) => {
       const e = trained.embedding[CHAR_TO_NUMBER[c]], p = trained.position[i];
-      h += `<tr class="${i === 7 ? "me" : ""}"><td>${i + 1}</td><td>${sc(c)}</td><td class="w">${v3(e)}</td><td class="op w">+</td><td class="w">${v3(p)}</td><td class="op w">=</td><td>${v3(f.x[i])}</td></tr>`;
+      h += `<tr class="l7-row${dups.includes(i) ? " hot" : ""}${i === 7 ? " me" : ""}" style="--i:${i}"><td class="w">${i + 1}</td><td>${sc(c)}</td><td>${v3(e)}</td><td class="op w">+</td><td class="w">${v3(p)}</td><td class="op w">=</td><td class="sum">${v3(f.x[i])}</td></tr>`;
     });
-    document.getElementById("lrTab").innerHTML = h; animate(document.getElementById("lrTab"));
+    const t = document.getElementById("lrTab"); t.innerHTML = h;
+    t.classList.remove("rows-go"); void t.offsetWidth; t.classList.add("rows-go");
+    document.getElementById("lrNote").innerHTML = dups.length === 2
+      ? `“${sc(dupLetter)}” is in places ${dups[0] + 1} and ${dups[1] + 1}: <b>same embedding, different position numbers</b>, so different numbers.`
+      : "Each letter's numbers are its embedding plus its place's position numbers.";
   }
   sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+  matchMedia("(max-width: 560px)").addEventListener("change", render);
 })();
 
 // ---------- 4: question, labels, matches ----------
