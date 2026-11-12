@@ -547,7 +547,7 @@
     <!-- 5 -->
     <section class="part" data-title="Matches">
       <h2>Matches</h2>
-      <p class="say" style="position:relative">To see how well a letter fits, take the dot product of the question and its label, then divide by 1.73. This is the letter's <b>match</b>. The bigger the match, the better that letter fits the question.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
+      <p class="say" style="position:relative">Now the last letter compares its question with each letter's label. Take the dot product of the question and the label, then divide by 1.73. This is that letter's <b>match</b>. The bigger the match, the better the label fits the question, so the more that letter can help.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
       <div hidden id="sqPeek"><b>🤔 Why divide by 1.73?</b>
         <p style="margin:6px 0 0">1.73 is √3, because there are 3 numbers in each list. Dividing keeps the matches from growing too big while the model learns. Real models with 64 numbers divide by √64 = 8.</p>
       </div>
