@@ -430,6 +430,25 @@
   .att .pct { font-family: var(--mono); font-size: 0.75rem; color: var(--pencil); }
   .att .ch { font-family: var(--mono); border: 1.5px solid var(--grid); border-radius: 5px; width: 100%; text-align: center; padding: 2px 0; }
   .att .ch.me { border-color: var(--pen); color: var(--pen); font-weight: 700; }
+  .ql-legend i.sh { background: var(--hl-yellow); } .ql-legend i.va, .ql-chip.va { background: color-mix(in srgb, var(--hl-green) 50%, transparent); }
+  .mx-sh { font-family: var(--mono); font-size: 0.72rem; text-align: center; border-radius: 6px; padding: 1px 0; background: color-mix(in srgb, var(--hl-yellow) calc(var(--a) * 100%), transparent); }
+  .ql-c.dim .ql-chip.va { opacity: 0.3; } .ql-chip.va { cursor: default; transition: opacity 0.5s; }
+  .ql-chip.va.pulse { animation: mxPulse 0.6s ease; }
+  @keyframes mxPulse { 50% { transform: scale(1.12); box-shadow: 0 0 0 2px var(--ink); } }
+  .mx-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 6px; transition: opacity 0.3s; }
+  .mx-line .who { font-family: var(--body); font-size: 0.82rem; min-width: 6.2em; }
+  .mx-line .sh { background: var(--hl-yellow); border-radius: 4px; padding: 0 5px; color: var(--ink); }
+  .mx-line .va { background: color-mix(in srgb, var(--hl-green) 45%, transparent); border-radius: 4px; padding: 0 5px; }
+  .mx-line .op { color: var(--pencil); }
+  .mx-line.sum { border-top: 1.5px solid var(--ink); padding-top: 6px; margin-top: 4px; font-weight: 700; }
+  .mx-line .res { background: var(--hl-yellow); color: var(--ink); border-radius: 4px; padding: 0 5px; }
+  .mx-note { font-size: 0.78rem; color: var(--pencil); margin: 2px 0 6px; transition: opacity 0.3s; }
+  .gs-line .who { min-width: 15em; }
+  #mxP .wait, #gsP .wait { opacity: 0; }
+  .gs-flow { margin-top: 12px; font-size: 0.85rem; color: var(--pencil); transition: opacity 0.3s; }
+  .gs-flow b { color: var(--ink); }
+  #gsP .top3 .fill { transition: width 0.7s ease; }
+  @media (max-width: 560px) { .mx-line { font-size: 0.74rem; gap: 3px 5px; } .mx-line .who { font-size: 0.74rem; } .mx-sh { font-size: 0.6rem; } .gs-line .who { min-width: 0; width: 100%; } }
   .sm-grid { display: grid; grid-template-columns: 3.6em repeat(8, minmax(0, 1fr)); gap: 4px; max-width: 620px; align-items: end; }
   .sm-grid .rl { font-size: 0.72rem; color: var(--pencil); align-self: center; line-height: 1.2; }
   .sm-m { display: grid; justify-items: center; gap: 2px; }
@@ -578,14 +597,27 @@
     <!-- 6 -->
     <section class="part" data-title="Mix">
       <h2>Mix</h2>
-      <p class="say">Every letter also makes 3 numbers to hand over, with 9 more weights. These are its <b>value</b>, and the weights the <b>value weights</b>.</p>
-      <p class="say">The last letter multiplies each value by its share and adds them up. The result is called the <b>mix</b>.</p>
-      <p class="say">Then it adds its own numbers back, so it doesn't forget itself. Finally, 42 more weights turn these 3 numbers into the 14 scores. They are called the <b>output weights</b>. Softmax gives the chances, as before.</p>
+      <p class="say">The last letter now knows how much to listen to each letter. What does it hear from them?</p>
+      <p class="say">Every letter turns its 3 numbers into 3 more numbers to hand over, with 9 more weights. These are its <b>value</b>, and the weights are the <b>value weights</b>.</p>
+      <p class="say">The last letter multiplies each value by its share and adds them up. The result is called the <b>mix</b>: mostly the values of the letters it listens to.</p>
       <div class="activity">
-        <div class="do">Pick 8 letters. See the mix, then the guess.</div>
-        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="mxW" class="pick"></select></label></div>
-        <table class="l7" id="mxTab"></table>
-        <div class="top3" id="mxTop"></div>
+        <div class="do">Pick 8 letters. Watch each value shrink by its share, then add up.</div>
+        <div class="row" style="margin-bottom:8px"><label>8 letters <select id="mxW" class="pick"></select></label></div>
+        <div class="ql-legend"><span><i class="sh"></i><b>share</b>: from the matches</span><span><i class="va"></i><b>value</b>: what each letter hands over</span></div>
+        <div class="ql-seats" id="mxSeats"></div>
+        <div class="ql-panel" id="mxP"></div>
+      </div>
+      <p class="hook">The mix is what the last letter heard. How does it become a guess?</p>
+    </section>
+
+    <section class="part" data-title="The guess">
+      <h2>The guess</h2>
+      <p class="say">The mix says what the last letter heard from the others. Now the last letter adds its own 3 numbers (its embedding + its seat's position numbers). So the guess knows both what it heard and which letter it is, for example a space.</p>
+      <p class="say">Then 42 more weights turn these 3 numbers into 14 scores, one for each next letter, as before. They are called the <b>output weights</b>. Softmax gives the chances.</p>
+      <div class="activity">
+        <div class="do">Pick 8 letters. Watch the 3 numbers being made, then the guess.</div>
+        <div class="row" style="margin-bottom:8px"><label>8 letters <select id="gsW" class="pick"></select></label></div>
+        <div class="ql-panel" id="gsP"></div>
       </div>
       <p class="say">Your model has <b>135 numbers</b>: 42 embedding + 24 position + 27 query, key and value + 42 output weights.</p>
       <p class="hook">Practise the three new steps.</p>
@@ -798,7 +830,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
     <!-- test -->
     <section class="part" data-title="Lesson test">
       <h2>Lesson 7 test</h2>
-      <p class="say">7 questions, one per idea. Get them all right to pass.</p>
+      <p class="say">9 questions, one per idea. Get them all right to pass.</p>
       <div class="test" data-test="7">
         <div class="quiz" data-page="lesson7.html#1" data-topic="The problem" data-right="Right. “cat␣” and “sat␣” both end in “at␣”, but different letters come next. Only looking further back tells them apart.">
           <div class="q"><small>1. The problem</small>Why can't a model that reads 3 letters tell what comes after “at␣”?</div>
@@ -816,16 +848,24 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
             <button data-why="That multiplies all four numbers. The dot product multiplies in pairs, then adds.">24</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#3" data-topic="Letters in a row" data-right="Right. Without position numbers, a “t” in place 1 and a “t” in place 7 would look the same.">
-          <div class="q"><small>3. Position</small>Why does each letter get its place's position numbers added?</div>
+        <div class="quiz" data-page="lesson7.html#3" data-topic="Letters in a row" data-right="Right. Without position numbers, a “t” in seat 1 and a “t” in seat 7 would look the same.">
+          <div class="q"><small>3. Position</small>Why does each letter get its seat's position numbers added?</div>
           <div class="options">
             <button data-right>So the same letter in different places looks different</button>
             <button data-why="The next letter isn't in the window. Position numbers say where each letter sits.">To mark which letter comes next</button>
             <button data-why="They add only 24 numbers. Their job is to show where each letter sits.">To make the model bigger</button>
           </div>
         </div>
+        <div class="quiz" data-page="lesson7.html#4" data-topic="A question and labels" data-right="Right. Every letter makes a label, the last one too. Only the last letter makes a question.">
+          <div class="q"><small>4. A question and labels</small>Which letters make a label?</div>
+          <div class="options">
+            <button data-right>All 8 letters, the last one too</button>
+            <button data-why="The last letter makes the question. Every letter makes a label.">Only the last letter</button>
+            <button data-why="The last letter makes a label too, so it can listen to itself.">Only the 7 letters before the last</button>
+          </div>
+        </div>
         <div class="quiz" data-page="lesson7.html#5" data-topic="Matches" data-right="Right. The match compares the last letter's question with each letter's label.">
-          <div class="q"><small>4. Matches</small>What does a big match for a letter mean?</div>
+          <div class="q"><small>5. Matches</small>What does a big match for a letter mean?</div>
           <div class="options">
             <button data-right>Its label fits the last letter's question</button>
             <button data-why="Matches compare letters that are already in the window.">It is the letter that comes next</button>
@@ -833,23 +873,31 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
           </div>
         </div>
         <div class="quiz" data-page="lesson7.html#6" data-topic="Who to listen to" data-right="Right. Softmax makes shares that always add up to 100%.">
-          <div class="q"><small>5. Attention</small>The attention shares for the 8 letters always…</div>
+          <div class="q"><small>6. Attention</small>The attention shares for the 8 letters always…</div>
           <div class="options">
             <button data-right>add up to 100%</button>
             <button data-why="Only when all matches are equal. Usually one or two letters get most of it.">are all equal</button>
             <button data-why="8 shares bigger than 50% would add up to more than 100%.">are each bigger than 50%</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#7" data-topic="Mix" data-right="Right. The mix of the values, plus the last letter's own numbers, goes to the output weights.">
-          <div class="q"><small>6. Mix</small>What 3 numbers go into the guess?</div>
+        <div class="quiz" data-page="lesson7.html#7" data-topic="Mix" data-right="Right. 0.75 × 8 + 0.25 × 4 = 6 + 1 = 7.">
+          <div class="q"><small>7. Mix</small>Shares are 75% and 25%. The values are 8 and 4 (one number each). What is the mix?</div>
+          <div class="options">
+            <button data-right>7</button>
+            <button data-why="That is the plain average. Multiply each value by its share first: 0.75 × 8 and 0.25 × 4.">6</button>
+            <button data-why="That adds the values without their shares. Multiply each by its share first.">12</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#8" data-topic="The guess" data-right="Right. The mix of the values, plus the last letter's own 3 numbers, goes to the output weights.">
+          <div class="q"><small>8. The guess</small>What 3 numbers go into the guess?</div>
           <div class="options">
             <button data-right>The values mixed by their shares, plus the last letter's own numbers</button>
             <button data-why="Then it couldn't use what it found by looking back.">Only the last letter's own numbers</button>
             <button data-why="Every letter's value counts, by its share. Small shares count a little.">The numbers of the letter with the biggest match, nothing else</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#10" data-topic="✏️ Practice 7.2" data-right="Right. Only the position numbers grow: 3 more for one more place.">
-          <div class="q"><small>7. Growth</small>Your model reads one more letter. How many more numbers does it need?</div>
+        <div class="quiz" data-page="lesson7.html#11" data-topic="✏️ Practice 7.2" data-right="Right. Only the position numbers grow: 3 more for one more place.">
+          <div class="q"><small>9. Growth</small>Your model reads one more letter. How many more numbers does it need?</div>
           <div class="options">
             <button data-right>3</button>
             <button data-why="That is the old way: 2 numbers × 14 next letters for every extra letter.">28</button>
@@ -891,7 +939,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202611121"></script>
-<script src="../assets/course.js?v=202611123"></script>
+<script src="../assets/course.js?v=202611124"></script>
 <script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
@@ -1148,22 +1196,65 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 
 // ---------- 6: mix and guess ----------
 (function mixDemo() {
-  const sel = document.getElementById("mxW"); fillWin(sel);
-  function render() {
-    const w = sel.value, f = trained.run(codes(w)), p = softmax(f.scores);
-    let h = `<tr><th>letter</th><th>share</th><th class="w"></th><th class="w">value</th><th class="w"></th><th>share × value</th></tr>`;
-    Array.from(w).forEach((c, i) => { if (f.att[i] < 0.01) return; h += `<tr><td>${sc(c)}</td><td>${Math.round(f.att[i] * 100)}%</td><td class="op w">×</td><td class="w">${v3(f.v[i])}</td><td class="op w">=</td><td>${v3(f.v[i].map(v => v * f.att[i]))}</td></tr>`; });
-    const small = f.att.filter(a => a < 0.01).length;
-    if (small) h += `<tr><td colspan="6" class="op" style="text-align:left;white-space:normal">(${small} letters with under 1% left out)</td></tr>`;
-    h += `<tr><td colspan="2" style="text-align:left"><b>mix</b></td><td class="w" colspan="3"></td><td><b>${v3(f.mixed)}</b></td></tr>`;
-    h += `<tr><td colspan="2" style="text-align:left">+ its own (${sc(w[7])})</td><td class="w" colspan="3"></td><td>${v3(f.x[7])}</td></tr>`;
-    h += `<tr class="hot"><td colspan="2" style="text-align:left"><b>= for the guess</b></td><td class="w" colspan="3"></td><td><b>${v3(f.h)}</b></td></tr>`;
-    document.getElementById("mxTab").innerHTML = h; animate(document.getElementById("mxTab"));
-    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3);
-    document.getElementById("mxTop").innerHTML = top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("");
+  const $ = id => document.getElementById(id), sel = $("mxW"); fillWin(sel);
+  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const pc = a => a < 0.005 ? "0%" : Math.round(a * 100) + "%";
+  function render(play) {
+    timers.forEach(clearTimeout); timers = [];
+    const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w));
+    const big = L.map((c, i) => i).filter(i => f.att[i] >= 0.01).sort((i, j) => f.att[j] - f.att[i]), W8 = anim ? " wait" : "";
+    $("mxSeats").innerHTML = L.map((c, i) => `<div class="ql-c${f.att[i] < 0.01 && !anim ? " dim" : ""}" data-i="${i}">
+      <span class="ql-seat${i === 7 ? " last" : ""}" style="cursor:default"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></span>
+      <span class="mx-sh" style="--a:${Math.min(1, f.att[i] + 0.15 * (f.att[i] >= 0.01))}">${pc(f.att[i])}</span>
+      <span class="ql-chip va">${f.v[i].map(v => `<span>${fmt(v, 1)}</span>`).join("")}</span></div>`).join("");
+    const left = 8 - big.length;
+    $("mxP").innerHTML = `<div class="ql-h">The mix for “${winLabel(w).slice(1, -1)}”</div>
+      <div class="ql-sub">Each value × its share, added up.</div>
+      ${big.map((i, r) => `<div class="mx-line r${r}${W8}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${pc(f.att[i])}</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => v * f.att[i]))}</span></div>`).join("")}
+      <div class="mx-note r9${W8}">${left} letter${left === 1 ? "" : "s"} with under 1%: almost nothing.</div>
+      <div class="mx-line sum r9${W8}"><span class="who">added up = mix</span><span class="res">${v3(f.mixed)}</span></div>`;
+    if (!anim) return;
+    const cols = $("mxSeats").children, show = c => $("mxP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
+    later(250, () => [...cols].forEach((col, i) => { if (f.att[i] < 0.01) col.classList.add("dim"); }));
+    big.forEach((i, r) => later(800 + r * 700, () => { const ch = cols[i].querySelector(".ql-chip"); ch.classList.remove("pulse"); void ch.offsetWidth; ch.classList.add("pulse"); show(".r" + r); }));
+    later(800 + big.length * 700, () => show(".r9"));
   }
-  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+  function steady() { const P = $("mxP"), keep = sel.value; P.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, P.offsetHeight); }); sel.value = keep; render(false); if (m) P.style.minHeight = m + "px"; }
+  sel.onchange = () => render(true); addReset(sel, () => { sel.value = PICKS7[0]; render(true); });
+  render(false); steady(); window.addEventListener("resize", steady);
+  let seen = false; new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { steady(); if (!seen) { seen = true; render(true); } } }, { threshold: 0.4 }).observe($("mxSeats"));
 })();
+
+// ---------- 8: the guess ----------
+(function guessDemo() {
+  const $ = id => document.getElementById(id), sel = $("gsW"); fillWin(sel);
+  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  function render(play) {
+    timers.forEach(clearTimeout); timers = [];
+    const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w)), p = softmax(f.scores), W8 = anim ? " wait" : "";
+    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3);
+    const row = (r, who, v) => `<div class="mx-line gs-line r${r}${W8}"><span class="who">${who}</span><span>${v}</span></div>`;
+    $("gsP").innerHTML = `<div class="ql-h">The guess after “${winLabel(w).slice(1, -1)}”</div>
+      <div class="ql-sub">Its next letter in our text: <b>${nm(WINDOWS.find(x => x.w === w).next)}</b></div>
+      ${row(0, "the mix (what it heard)", v3(f.mixed))}${row(1, `+ its own 3 numbers (“${sc(L[7])}” in seat 8)`, v3(f.x[7]))}
+      <div class="mx-line gs-line sum r2${W8}"><span class="who">= 3 numbers for the guess</span><span class="res">${v3(f.h)}</span></div>
+      <div class="gs-flow r3${W8}">× <b>42 output weights</b> → <b>14 scores</b> → softmax → <b>chances</b>:</div>
+      <div class="top3">${top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${anim ? 0 : (q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("")}</div>`;
+    if (!anim) return;
+    const show = c => $("gsP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
+    [0, 1, 2, 3].forEach(r => later(250 + r * 650, () => show(".r" + r)));
+    later(250 + 4 * 650, () => $("gsP").querySelectorAll(".top3 .fill").forEach((e, k) => e.style.width = (top[k][0] * 100).toFixed(1) + "%"));
+  }
+  function steady() { const P = $("gsP"), keep = sel.value; P.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, P.offsetHeight); }); sel.value = keep; render(false); if (m) P.style.minHeight = m + "px"; }
+  sel.onchange = () => render(true); addReset(sel, () => { sel.value = PICKS7[0]; render(true); });
+  render(false); steady(); window.addEventListener("resize", steady);
+  let seen = false; new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { steady(); if (!seen) { seen = true; render(true); } } }, { threshold: 0.4 }).observe($("gsP"));
+})();
+
 // ---------- 8: let it learn ----------
 (function trainDemo() {
   const $ = id => document.getElementById(id), sel = $("trW"), btn = $("trGo"), cur = $("trCurve");
