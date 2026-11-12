@@ -293,6 +293,7 @@
   .seat.on { background: var(--hl-yellow); color: var(--ink); }
   .seat.on .sn, .seat.on .sl { color: var(--ink); }
   .st-top { display: flow-root; }
+  #stCap { min-height: 3.2em; }
   .st-chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--paper); font-family: var(--mono); margin-bottom: 6px; }
   .st-chip .big { font-size: 1.6rem; font-weight: 700; }
   .st-each { font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; }
@@ -892,7 +893,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     for (step = 1; step <= 5; step++) { render(false); els.forEach((e, k) => m[k] = Math.max(m[k], e.offsetHeight)); }
     step = keep; render(false); els.forEach((e, k) => { if (m[k]) e.style.minHeight = m[k] + "px"; });
   }
-  $("stNext").onclick = () => { step = Math.min(5, step + 1); render(true); };
+  $("stNext").onclick = () => { if (step === 1) steady(); step = Math.min(5, step + 1); render(true); };
   $("stBack").onclick = () => { step = Math.max(1, step - 1); render(true); };
   addReset($("stNext"), () => { step = 1; render(true); });
   render(false); steady(); window.addEventListener("resize", steady);
