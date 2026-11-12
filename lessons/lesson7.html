@@ -262,7 +262,7 @@
   .floor .track { height: 18px; border: 1px solid var(--grid); border-radius: 4px; background: var(--paper); position: relative; overflow: hidden; }
   .floor .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hl-yellow); border-right: 2px solid var(--ink); transition: width 0.4s ease; }
   .floor .val { font-family: var(--mono); text-align: right; font-weight: 700; }
-  .unsure { display: flex; flex-wrap: wrap; gap: 6px; min-height: 2.2em; }
+  .unsure { display: flex; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; gap: 6px; min-height: 2.2em; }
   .unsure span { font-family: var(--mono); font-size: 0.9rem; border: 1px dashed var(--pencil); border-radius: 6px; padding: 2px 8px; }
   .dp { font-family: var(--mono); font-size: 1.05rem; margin: 8px 0; }
   .dp .op { color: var(--pencil); }
@@ -305,13 +305,13 @@
       <h2>The problem</h2>
       <p class="neo-say">I only see the last 3 letters, “at␣”, so I can't tell if I just wrote “cat” or “sat”. That's why I write “sat sat”.</p>
       <p class="say">Your model reads only the last 3 letters. After “cat␣” and after “sat␣” it sees the same 3 letters, “at␣”. But the next letter is different: “cat <b>s</b>at” and “sat <b>o</b>n”.</p>
-      <p class="say">To tell them apart, it must look further back. The model from before would need 28 more weights for every extra letter (2 numbers × 14 next letters), and each letter would still vote alone.</p>
+      <p class="say">To tell them apart, it must look further back. The model from before would need 28 more weights for every extra letter: its 2 embedding numbers each need a weight for each of the 14 next letters. And each letter would still vote alone.</p>
       <div class="activity">
-        <div class="do">Let the model see more letters. How good could its guesses get?</div>
+        <div class="do">Let the model see more letters. How many guesses stay a coin flip?</div>
         <div class="row"><label>Letters it sees: <b id="fwN">3</b></label><input type="range" id="fwR" min="1" max="8" value="3" style="flex:1 1 200px;accent-color:var(--ink)"></div>
         <div class="win" id="fwWin"></div>
-        <div class="floor"><span>Best loss any model could reach</span><span class="track"><span class="fill" id="fwFill"></span></span><span class="val" id="fwV"></span></div>
-        <div class="muted" style="margin-bottom:4px">Still a coin flip, even for a perfect model (it sees the same letters, but different letters came next):</div>
+        <div class="dp" id="fwC"></div>
+        <div class="muted" style="margin-bottom:4px">A coin flip, even for a perfect model: it sees the same letters, but different letters came next.</div>
         <div class="unsure" id="fwU"></div>
       </div>
       <p class="say"><b>Could the last letter look back and pick the letters that matter?</b></p>
@@ -732,14 +732,14 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     for (let i = 0; i + n < TEXT.length; i++) { const c = TEXT.slice(i, i + n), y = TEXT[i + n]; ex.push(c); (groups[c] = groups[c] || {})[y] = (groups[c][y] || 0) + 1; }
     let H = 0; Object.values(groups).forEach(g => { const t = Object.values(g).reduce((a, b) => a + b, 0); Object.values(g).forEach(v => H -= v * Math.log(v / t)); });
     const unsure = Object.entries(groups).filter(([, g]) => Object.keys(g).length > 1).map(([c, g]) => `${winLabel(c)} → ${Object.keys(g).map(nm).join(" or ")}`);
-    return { loss: H / ex.length, unsure };
+    const flips = ex.filter(c => Object.keys(groups[c]).length > 1).length;
+    return { loss: H / ex.length, unsure, flips, total: ex.length };
   };
-  const top = floorFor(1).loss;
   function render() {
     const n = +R.value, f = floorFor(n), sample = "the cat sat o";   // the letters before “o” in “cat sat on”
     $("fwN").textContent = n;
     $("fwWin").innerHTML = Array.from(sample).map((c, i) => `<span class="${i >= sample.length - 1 - n && i < sample.length - 1 ? "in" : i === sample.length - 1 ? "nx" : ""}">${sc(c)}</span>`).join("");
-    $("fwFill").style.width = (f.loss / top * 100) + "%"; $("fwV").textContent = f.loss.toFixed(3);
+    $("fwC").innerHTML = `Guesses that are a coin flip: <span class="res">${f.flips}</span> of ${f.total}`;
     $("fwU").innerHTML = f.unsure.slice(0, 4).map(u => `<span>${u}</span>`).join("") + (f.unsure.length > 4 ? `<span>+${f.unsure.length - 4} more</span>` : "") || "<span>none</span>";
   }
   function steady() {   // the chip list keeps the height of its fullest setting, so nothing jumps
