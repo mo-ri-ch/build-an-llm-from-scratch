@@ -961,6 +961,8 @@ const WINDOWS = [];
 for (let i = 0; i + W8 < TEXT.length; i++) WINDOWS.push({ w: TEXT.slice(i, i + W8), next: TEXT[i + W8] });
 const PICKS7 = ["the cat ", "cat sat ", "the dog ", "dog sat ", "at. the ", " the mat"];
 const winLabel = w => "“" + w.replace(/ /g, "␣") + "”";
+// a share as a whole percent, but never a rounded-up 100% (99.5% stays 99.5%)
+const pct7 = a => { const r = Math.round(a * 100); return r === 100 && a < 0.9995 ? (Math.floor(a * 1000) / 10).toFixed(1) + "%" : r + "%"; };
 const fillWin = sel => { sel.innerHTML = PICKS7.map(w => `<option value="${w}">${winLabel(w)}</option>`).join(""); };
 const codes = w => Array.from(w).map(c => CHAR_TO_NUMBER[c]);
 const fresh7 = () => new AttentionModel();
@@ -1174,7 +1176,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 (function attDemo() {
   const $ = id => document.getElementById(id), sel = $("atW"); fillWin(sel);
   const still = matchMedia("(prefers-reduced-motion: reduce)");
-  const pc = a => a < 0.005 ? "0%" : Math.round(a * 100) + "%";
+  const pc = pct7;
   function render(play) {
     const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w));
     const top = Math.max(...f.match.map(Math.abs)) * 1.05, order = f.att.map((a, i) => i).sort((i, j) => f.att[j] - f.att[i]);
@@ -1202,7 +1204,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   const $ = id => document.getElementById(id), sel = $("mxW"); fillWin(sel);
   const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [], pick = -1;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
-  const pc = a => a < 0.005 ? "0%" : Math.round(a * 100) + "%";
+  const pc = a => (a * 100).toFixed(1) + "%";   // one decimal here, so share × value can be checked
   const R = x => Math.round(x * 100) / 100;
   function render(play) {
     timers.forEach(clearTimeout); timers = [];
@@ -1221,7 +1223,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     const other = [0, 1, 2].map(d => { const r = R(R(f.mixed[d]) - rows.reduce((t, i) => t + R(f.att[i] * f.v[i][d]), 0)); return Math.abs(r) < 0.005 ? 0 : r; });
     $("mxP").innerHTML = `<div class="ql-h">The mix for “${winLabel(w).slice(1, -1)}”</div>
       <div class="ql-sub">Each value × its share, added up.</div>
-      ${rows.map((i, r) => `<div class="mx-line r${r}${W8}${i === pick ? " pk" : ""}" data-i="${i}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${(f.att[i] * 100).toFixed(1)}%</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => Math.abs(v * f.att[i]) < 0.005 ? 0 : v * f.att[i]))}</span></div>`).join("")}
+      ${rows.map((i, r) => `<div class="mx-line r${r}${W8}${i === pick ? " pk" : ""}" data-i="${i}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${pc(f.att[i])}</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => Math.abs(v * f.att[i]) < 0.005 ? 0 : v * f.att[i]))}</span></div>`).join("")}
       <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3(other)}</span></div>
       <div class="mx-line sum r9${W8}"><span class="who">added up = mix</span><span class="res">${v3(f.mixed)}</span></div>`;
     if (!anim) return;
@@ -1274,10 +1276,10 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   let losses = [], running = 0;
   function bars() {
     const w = sel.value, f = model.run(codes(w));
-    $("trBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${Math.round(f.att[i] * 100)}%</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
+    $("trBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${pct7(f.att[i])}</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
     const top = f.att.indexOf(Math.max(...f.att));
     $("trNote").textContent = model.step === 0 ? "Random numbers: the attention is spread out with no reason."
-      : `After ${model.step} steps, the last letter listens most to “${sc(w[top])}” in seat ${top + 1} (${Math.round(f.att[top] * 100)}%).`;
+      : `After ${model.step} steps, the last letter listens most to “${sc(w[top])}” in seat ${top + 1} (${pct7(f.att[top])}).`;
   }
   function curve() {
     const top = Math.max(...losses, 1), n = Math.max(losses.length - 1, 1), X = i => 8 + i / n * 224, Y = v => 80 - v / top * 66;
@@ -1341,7 +1343,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   const pick = j => {
     const r = rows[j], top = r.att.indexOf(Math.max(...r.att));
     $("hm").querySelectorAll(".hm-row").forEach((el, i) => el.classList.toggle("on", i === j));
-    $("hmNote").innerHTML = `${winLabel(r.w)} → ${nm(r.next)}: it looks at “${sc(r.w[top])}” in place ${top + 1} (${Math.round(r.att[top] * 100)}%).`;
+    $("hmNote").innerHTML = `${winLabel(r.w)} → ${nm(r.next)}: it listens most to “${sc(r.w[top])}” in seat ${top + 1} (${pct7(r.att[top])}).`;
   };
   $("hm").querySelectorAll(".hm-row").forEach(el => { const j = +el.dataset.j; el.onmouseenter = () => pick(j); el.onclick = () => pick(j); el.onfocus = () => pick(j); });
   addReset($("hm"), () => { $("hm").querySelectorAll(".hm-row").forEach(el => el.classList.remove("on")); $("hmNote").textContent = base; });
