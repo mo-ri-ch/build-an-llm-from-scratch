@@ -641,7 +641,10 @@
     <section class="part" data-title="The guess">
       <h2>The guess</h2>
       <p class="say">The mix says what the last letter heard from the others. Now the last letter adds its own 3 numbers (its embedding + its seat's position numbers). So the guess knows both what it heard and which letter it is, for example a space.</p>
-      <p class="say">Then 42 more weights turn these 3 numbers into 14 scores, one for each next letter, as before. They are called the <b>output weights</b>. Softmax gives the chances.</p>
+      <p class="say" style="position:relative">Every possible next letter has its own 3 weights: 14 × 3 = 42 in all. They are called the <b>output weights</b>. A letter's score is these 3 numbers × its 3 weights, added up. Softmax turns the 14 scores into chances.<button class="doubt" type="button" data-peek-from="owPeek" aria-label="What's the difference between an embedding and the output weights?">🤔</button></p>
+      <div hidden id="owPeek"><b>🤔 What's the difference between an embedding and the output weights?</b>
+        <p style="margin:6px 0 0">An embedding describes a letter we read.<br>Output weights describe what points to a letter we might write next.</p>
+      </div>
       <div class="activity">
         <div class="do">Pick 8 letters. Watch the 3 numbers being made, then the guess.</div>
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="gsW" class="pick"></select></label></div>
