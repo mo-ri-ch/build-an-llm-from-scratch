@@ -43,8 +43,8 @@ def guess(win):
     return (mixed + x[:, -1]) @ out, attention         # scores for every next letter
 
 # Learn: predict, measure, find directions, move
-learning_rate = 0.5
-for step in range(300):
+learning_rate = 0.3
+for step in range(500):
     scores, attention = guess(windows)
     loss = F.cross_entropy(scores, next_chars)
     for p in params:
@@ -52,7 +52,7 @@ for step in range(300):
     loss.backward()
     for p in params:
         p.data = p.data - learning_rate * p.grad
-    if step % 50 == 0:
+    if step % 100 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
 print("Final loss:", round(loss.item(), 3))
 

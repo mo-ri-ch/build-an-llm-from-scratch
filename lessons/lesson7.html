@@ -620,12 +620,12 @@
           <div class="lm-side">
             <div class="score-line"><div>Steps<b id="trSteps">0</b></div><div>Loss (all 39 examples)<b id="trLoss">–</b></div></div>
             <svg class="lcurve" id="trCurve" viewBox="0 0 240 90" role="img" aria-label="The loss, step by step"></svg>
-            <div class="row" style="min-height:2.9em"><button class="primary" id="trGo">Train 300 steps</button></div>
+            <div class="row" style="min-height:2.9em"><button class="primary" id="trGo">Train 500 steps</button></div>
           </div>
         </div>
         <div class="muted" id="trNote" style="min-height:2.8em"></div>
       </div>
-      <p class="say">After 300 steps the loss is about <b>0.05</b>. The best any model reading only 3 letters can reach is 0.169. Looking back pays off.</p>
+      <p class="say">After 500 steps the loss is about <b>0.05</b>. The best any model reading only 3 letters can reach is 0.169. Looking back pays off.</p>
       <p class="hook">Work the numbers out on paper.</p>
     </section>
 
@@ -727,8 +727,8 @@ def guess(win):
     return (mixed + x[:, -1]) @ out, attention<span class="c">         # scores for every next letter</span>
 
 <span class="c"># Learn: predict, measure, find directions, move</span>
-learning_rate = 0.5
-for step in range(300):
+learning_rate = 0.3
+for step in range(500):
     scores, attention = guess(windows)
     loss = F.cross_entropy(scores, next_chars)
     for p in params:
@@ -736,7 +736,7 @@ for step in range(300):
     loss.backward()
     for p in params:
         p.data = p.data - learning_rate * p.grad
-    if step % 50 == 0:
+    if step % 100 == 0:
         print("Step", step, "loss:", round(loss.item(), 3))
 print("Final loss:", round(loss.item(), 3))
 
@@ -757,11 +757,10 @@ print(output)</code></pre>
 Examples: 39
 Numbers in the model: 135
 Step 0 loss: 2.654
-Step 50 loss: 1.156
-Step 100 loss: 0.299
-Step 150 loss: 0.226
-Step 200 loss: 0.098
-Step 250 loss: 0.059
+Step 100 loss: 0.96
+Step 200 loss: 0.212
+Step 300 loss: 0.11
+Step 400 loss: 0.063
 Final loss: 0.048
 the cat sat on the mat. the dog sat on the log. </pre></div>
       </div>
@@ -877,7 +876,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
   </div>
 </nav>
 
-<script src="../assets/tinylm.js?v=202611111"></script>
+<script src="../assets/tinylm.js?v=202611121"></script>
 <script src="../assets/course.js?v=202611123"></script>
 <script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
@@ -897,7 +896,7 @@ const fillWin = sel => { sel.innerHTML = PICKS7.map(w => `<option value="${w}">$
 const codes = w => Array.from(w).map(c => CHAR_TO_NUMBER[c]);
 const fresh7 = () => new AttentionModel();
 const start = fresh7();
-const trained = fresh7(); trained.train(300);
+const trained = fresh7(); trained.train(500);
 const v3 = a => "[" + a.map(v => fmt(v)).join(", ") + "]";
 const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.classList.add("l7-go"); };
 
@@ -1158,16 +1157,16 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     if (losses.length > 1) { const pts = losses.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" "); h += `<polygon class="ar" points="8,80 ${pts} ${X(n)},80"/><polyline class="ln" points="${pts}"/>`; }
     cur.innerHTML = h;
   }
-  function info() { $("trSteps").textContent = model.step; $("trLoss").textContent = model.loss().toFixed(4); btn.textContent = model.step ? "Train 300 more" : "Train 300 steps"; }
+  function info() { $("trSteps").textContent = model.step; $("trLoss").textContent = model.loss().toFixed(4); btn.textContent = model.step ? "Train 500 more" : "Train 500 steps"; }
   function all() { bars(); curve(); info(); }
   btn.onclick = () => {
     if (running) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { model.train(300); losses.push(model.loss()); return all(); }
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { model.train(500); losses.push(model.loss()); return all(); }
     btn.style.visibility = "hidden"; let done = 0;
     (function frame() {
       model.train(5); done += 5; if (done % 10 === 0) losses.push(model.loss());
       all();
-      if (done < 300) running = requestAnimationFrame(frame); else { running = 0; btn.style.visibility = ""; }
+      if (done < 500) running = requestAnimationFrame(frame); else { running = 0; btn.style.visibility = ""; }
     })();
   };
   sel.onchange = bars;

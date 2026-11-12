@@ -262,7 +262,7 @@ class AttentionModel {
   }
   scores(c) { return this.run(c).scores; }
   loss() { let t = 0; for (const ex of this.examples) t += -Math.log(softmax(this.scores(ex.c))[ex.next]); return t / this.examples.length; }
-  trainStep(lr = 0.5) {
+  trainStep(lr = 0.3) {
     const D = this.D, W = this.W, n = this.examples.length, sq = Math.sqrt(D);
     const zero = M => M.map(r => r.map(() => 0));
     const gE = zero(this.embedding), gP = zero(this.position), gQ = zero(this.query), gK = zero(this.key), gV = zero(this.value), gO = zero(this.out);
@@ -296,7 +296,7 @@ class AttentionModel {
     this.step += 1;
     return total / n;
   }
-  train(steps = 300) { let l = 0; for (let i = 0; i < steps; i++) l = this.trainStep(); return l; }
+  train(steps = 500) { let l = 0; for (let i = 0; i < steps; i++) l = this.trainStep(); return l; }
   predict(lastLetters) {
     const c = Array.from(lastLetters.slice(-this.W)).map(ch => CHAR_TO_NUMBER[ch]);
     if (!c.length || c.some(v => v === undefined)) return null;

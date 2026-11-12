@@ -51,7 +51,7 @@ NOTES = {
         "**Examples.** Every example is the last 8 letters and the letter that came next.",
         "**The model.** Embeddings (3 numbers per letter), position numbers (3 per place), query, key and value weights, and output weights. All small random numbers to start.",
         "**One guess, step by step.** Each letter's numbers + its position. The last letter's question, every letter's label and value. Matches → attention shares → mix → scores.",
-        "**The model learns.** 300 times: guess, measure, find directions, move every number. Watch the loss fall.",
+        "**The model learns.** 500 times: guess, measure, find directions, move every number. Watch the loss fall.",
         "**Write new text.** Start from “the cat ” and pick 40 letters, each time looking back at the last 8.",
     ],
 }
