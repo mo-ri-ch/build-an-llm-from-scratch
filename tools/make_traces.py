@@ -169,6 +169,8 @@ def trace(path):
         if lineno not in spans:
             return   # the 2nd, 3rd… line of a statement that spans several lines
         fid = id(frame)
+        if skipping and fid not in {k[0] for k in skipping}:
+            return   # inside a function called from a loop we're skipping: skip it too
         # Are we inside a loop we're skipping?
         for (sfid, start), count in list(skipping.items()):
             if sfid != fid:

@@ -247,6 +247,12 @@
     .bk-all .tot { grid-column: 1 / -1; grid-row: 8; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
     @media (max-width: 560px) { .bk-all .mul { display: none; } }
   
+
+  .lm-left { flex: 1 1 300px; min-width: 0; }
+  .hm { display: grid; gap: 2px; max-width: 360px; margin: 8px 0; }
+  .hm-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; cursor: pointer; border-radius: 3px; outline-offset: 2px; }
+  .hm-row span { height: 9px; border-radius: 2px; background: color-mix(in srgb, var(--pen) calc(var(--a) * 100%), var(--paper)); border: 1px solid color-mix(in srgb, var(--grid) 60%, transparent); }
+  .hm-row.on span { border-color: var(--ink); }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -423,6 +429,266 @@
       </div>
       <p class="hook">Now train it yourself.</p>
     </section>
+    <!-- 8 -->
+    <section class="part" data-title="Let it learn">
+      <h2>Let it learn</h2>
+      <p class="say">Now train it yourself, from random numbers. Every number moves by its push, as in Lesson 6: the query, key and value weights too.</p>
+      <div class="activity">
+        <div class="do">Press Train. Watch where “the cat␣” looks, and watch the loss fall.</div>
+        <div class="lm">
+          <div class="lm-left">
+            <div class="row" style="margin-bottom:4px"><label>8 letters <select id="trW" class="pick"></select></label></div>
+            <div class="att-wrap"><div class="att" id="trBars" style="width:100%"></div></div>
+          </div>
+          <div class="lm-side">
+            <div class="score-line"><div>Steps<b id="trSteps">0</b></div><div>Loss (all 39 examples)<b id="trLoss">–</b></div></div>
+            <svg class="lcurve" id="trCurve" viewBox="0 0 240 90" role="img" aria-label="The loss, step by step"></svg>
+            <div class="row" style="min-height:2.9em"><button class="primary" id="trGo">Train 300 steps</button></div>
+          </div>
+        </div>
+        <div class="muted" id="trNote" style="min-height:2.8em"></div>
+      </div>
+      <p class="say">After 300 steps the loss is about <b>0.05</b>. The best any model reading only 3 letters can reach is 0.169. Looking back pays off.</p>
+      <p class="hook">Work the numbers out on paper.</p>
+    </section>
+
+    <!-- 9 -->
+    <section class="part" data-nonum data-title="✏️ Practice 7.2">
+      <h2>✏️ Practice 7.2</h2>
+      <p class="say">Count the numbers.<br>Remember: <b class="eqbox">position numbers = places × 3</b><br><b class="eqbox">your model: 42 embedding + 24 position + 27 query, key, value + 42 output = 135</b></p>
+      <div class="activity">
+        <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
+        <div class="pq" data-ans="27" data-tol="0.5" data-hint="Each of the 3 weight tables is 3 × 3." data-work="3 tables × 3 × 3 = 3 × 9 = 27.">
+          <div class="pq-q">The query, key and value weights are 3 tables of <b>3 × 3</b>. How many numbers in all?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="3" data-tol="0.01" data-hint="Only the position numbers grow with the number of places." data-work="One more place needs 3 more position numbers. Nothing else changes.">
+          <div class="pq-q">The model reads <b>9</b> letters instead of 8. How many <b>more</b> numbers does it need?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="25" data-tol="0.5" data-hint="Equal matches get equal shares, and the shares add up to 100%." data-work="4 equal matches: 100% ÷ 4 = 25% each.">
+          <div class="pq-q">4 letters all have the same match. What share (in %) does each one get?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Mix = share × value, added. Then add the last letter's own number." data-work="0.5 × 2 + 0.5 × 6 = 4. Then 4 + 1 = 5.">
+          <div class="pq-q">Shares <b>0.5</b> and <b>0.5</b>, values <b>2</b> and <b>6</b> (one number each). The last letter's own number is <b>1</b>. What number goes to the guess?</div>
+          <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
+          <div class="pq-fb" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="hook">Now let it write.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="part" data-title="Write new text">
+      <h2>Write new text</h2>
+      <p class="say">Your trained model picks one letter at a time, each time looking back at the last 8. Compare it with Lesson 6's model, which reads only 3.</p>
+      <div class="activity">
+        <div class="do">Press Write. Both start from “the cat␣” and pick 40 letters. Compare with <span data-peek="the cat sat on the mat. the dog sat on the log.">our text</span>.</div>
+        <div class="row" style="min-height:2.9em"><button class="primary" id="write">Write 40 letters</button></div>
+        <div class="written-label">Attention, 8 letters, 135 numbers (now)</div>
+        <div class="written" id="writtenNow" aria-live="polite"></div>
+        <div class="slips" id="slipsNow"></div>
+        <div class="written-label">Embeddings, 3 letters, 112 numbers (Lesson 6)</div>
+        <div class="written" id="writtenBefore"></div>
+        <div class="slips" id="slipsBefore"></div>
+        <div class="muted" style="margin-top:8px"><span class="slip">underlined</span>: made up. In our text, this letter never comes after the 5 letters before it.</div>
+      </div>
+      <p class="say">The attention model mostly writes our text exactly. Lesson 6's model mixes up “cat sat” and “sat on”, because after “at␣” it can't look back.</p>
+      <p class="hook">Here is the same model in Python.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="part" data-nonum data-title="The code">
+      <h2>The code</h2>
+      <p class="say">Guess what each <code>print</code> shows. Then press <b>▶ Run</b>.</p>
+<pre><code>import torch
+import torch.nn.functional as F
+
+text = "the cat sat on the mat. the dog sat on the log."
+unique_chars = sorted(set(text))
+vocab_size = len(unique_chars)
+char_to_number = {}
+number_to_char = {}
+for number, char in enumerate(unique_chars):
+    char_to_number[char] = number
+    number_to_char[number] = char
+
+<span class="c"># Examples: the last 8 letters, and the next one</span>
+windows = []
+next_chars = []
+for i in range(len(text) - 8):
+    windows.append([char_to_number[c] for c in text[i:i + 8]])
+    next_chars.append(char_to_number[text[i + 8]])
+windows = torch.tensor(windows)
+next_chars = torch.tensor(next_chars)
+print("Examples:", len(next_chars))
+
+<span class="c"># The model: small random numbers to start</span>
+torch.manual_seed(29)
+embedding = (torch.randn((vocab_size, 3)) * 0.5).requires_grad_()<span class="c">   # 3 numbers per letter</span>
+position = (torch.randn((8, 3)) * 0.5).requires_grad_()<span class="c">             # 3 numbers per position</span>
+query = (torch.randn((3, 3)) * 0.5).requires_grad_()
+key = (torch.randn((3, 3)) * 0.5).requires_grad_()
+value = (torch.randn((3, 3)) * 0.5).requires_grad_()
+out = (torch.randn((3, vocab_size)) * 0.5).requires_grad_()
+params = [embedding, position, query, key, value, out]
+print("Numbers in the model:", sum(p.numel() for p in params))
+
+<span class="c"># One guess: look back, weigh, mix</span>
+def guess(win):
+    x = embedding[win] + position<span class="c">                      # each letter's numbers, plus its position's</span>
+    q = x[:, -1] @ query<span class="c">                               # the last letter's question</span>
+    k = x @ key<span class="c">                                        # every letter's label</span>
+    v = x @ value<span class="c">                                      # what every letter offers</span>
+    match = (k @ q.unsqueeze(2)).squeeze(2) / 3 ** 0.5<span class="c">  # how well each label fits the question</span>
+    attention = F.softmax(match, dim=1)<span class="c">                # shares that add up to 1</span>
+    mixed = (attention.unsqueeze(2) * v).sum(dim=1)<span class="c">    # mix the offers by those shares</span>
+    return (mixed + x[:, -1]) @ out, attention<span class="c">         # scores for every next letter</span>
+
+<span class="c"># Learn: predict, measure, find directions, move</span>
+learning_rate = 0.5
+for step in range(300):
+    scores, attention = guess(windows)
+    loss = F.cross_entropy(scores, next_chars)
+    for p in params:
+        p.grad = None
+    loss.backward()
+    for p in params:
+        p.data = p.data - learning_rate * p.grad
+    if step % 50 == 0:
+        print("Step", step, "loss:", round(loss.item(), 3))
+print("Final loss:", round(loss.item(), 3))
+
+<span class="c"># Write 40 new letters, starting from "the cat "</span>
+torch.manual_seed(42)
+output = "the cat "
+for step in range(40):
+    win = torch.tensor([[char_to_number[c] for c in output[-8:]]])
+    scores, attention = guess(win)
+    chances = F.softmax(scores[0], dim=0)
+    picked = torch.multinomial(chances, num_samples=1).item()
+    output = output + number_to_char[picked]
+print(output)</code></pre>
+      <div class="run-area" style="position:relative">
+        <button class="doubt" type="button" data-peek-from="codePeek" aria-label="What is new in this code?">🤔</button>
+        <button class="run-code" type="button" aria-expanded="false">▶ Run</button>
+        <div class="terminal" hidden><div class="term-bar">Terminal</div><pre class="term-out" id="termOut"><span class="prompt">$ python lesson7.py</span>
+Examples: 39
+Numbers in the model: 135
+Step 0 loss: 2.654
+Step 50 loss: 1.156
+Step 100 loss: 0.299
+Step 150 loss: 0.226
+Step 200 loss: 0.098
+Step 250 loss: 0.059
+Final loss: 0.048
+the cat sat on the mat. the dog sat on the log. </pre></div>
+      </div>
+      <div hidden id="codePeek"><b>🤔 What is new in this code?</b>
+        <ul style="margin:6px 0 0; padding-left:1.2em">
+          <li><code>windows</code> holds every example's last 8 letters: a table of 39 rows × 8 numbers.</li>
+          <li><code>embedding[win] + position</code> gives each letter its embedding plus its place's position numbers.</li>
+          <li><code>query</code>, <code>key</code> and <code>value</code> are 3 × 3 weight tables. <code>x @ key</code> multiplies and adds, for every letter at once.</li>
+          <li><code>F.softmax(match, dim=1)</code> turns each example's 8 matches into shares that add up to 1.</li>
+          <li><code>unsqueeze</code> and <code>squeeze</code> only add or remove a size-1 direction so the tables line up. They don't change any number.</li>
+        </ul>
+      </div>
+      <p class="muted-note">Want to run it yourself?</p>
+      <p>
+        <a class="btn primary" href="https://colab.research.google.com/github/mo-ri-ch/build-an-llm-from-scratch/blob/main/notebooks/lesson7.ipynb" target="_blank" rel="noopener">▶ Run it in Google Colab</a>
+      </p>
+      <p class="muted-note">Colab runs Python with PyTorch in your browser for free. You just need a Google account.</p>
+      <p class="hook">Time to check what you learned.</p>
+    </section>
+
+    <!-- test -->
+    <section class="part" data-title="Lesson test">
+      <h2>Lesson 7 test</h2>
+      <p class="say">7 questions, one per idea. Get them all right to pass.</p>
+      <div class="test" data-test="7">
+        <div class="quiz" data-page="lesson7.html#1" data-topic="The problem" data-right="Right. “cat␣” and “sat␣” both end in “at␣”, but different letters come next. Only looking further back tells them apart.">
+          <div class="q"><small>1. The problem</small>Why can't a model that reads 3 letters tell what comes after “at␣”?</div>
+          <div class="options">
+            <button data-right>“cat␣” and “sat␣” end in the same 3 letters, but a different letter comes next</button>
+            <button data-why="Even a perfect model with 3 letters can't tell them apart: the 3 letters are the same.">It has too few numbers</button>
+            <button data-why="It saw it 4 times. The trouble is that different letters follow it.">It never saw “at␣” in our text</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#2" data-topic="The dot product" data-right="Right. 1×3 + 2×4 = 3 + 8 = 11.">
+          <div class="q"><small>2. Dot product</small>What is the dot product of [1, 2] and [3, 4]?</div>
+          <div class="options">
+            <button data-right>11</button>
+            <button data-why="Multiply in pairs first: 1×3 and 2×4. Then add.">10</button>
+            <button data-why="That multiplies all four numbers. The dot product multiplies in pairs, then adds.">24</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#3" data-topic="Letters in a row" data-right="Right. Without position numbers, a “t” in place 1 and a “t” in place 7 would look the same.">
+          <div class="q"><small>3. Position</small>Why does each letter get its place's position numbers added?</div>
+          <div class="options">
+            <button data-right>So the same letter in different places looks different</button>
+            <button data-why="The next letter isn't in the window. Position numbers say where each letter sits.">To mark which letter comes next</button>
+            <button data-why="They add only 24 numbers. Their job is to show where each letter sits.">To make the model bigger</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#4" data-topic="A question and labels" data-right="Right. The match compares the last letter's question with each letter's label.">
+          <div class="q"><small>4. Matches</small>What does a big match for a letter mean?</div>
+          <div class="options">
+            <button data-right>Its label fits the last letter's question</button>
+            <button data-why="Matches compare letters that are already in the window.">It is the letter that comes next</button>
+            <button data-why="The match comes from the question and the label, not from counting.">It appears often in our text</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#5" data-topic="Who to listen to" data-right="Right. Softmax makes shares that always add up to 100%.">
+          <div class="q"><small>5. Attention</small>The attention shares for the 8 letters always…</div>
+          <div class="options">
+            <button data-right>add up to 100%</button>
+            <button data-why="Only when all matches are equal. Usually one or two letters get most of it.">are all equal</button>
+            <button data-why="8 shares bigger than 50% would add up to more than 100%.">are each bigger than 50%</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#6" data-topic="Mix" data-right="Right. The mix of the values, plus the last letter's own numbers, goes to the output weights.">
+          <div class="q"><small>6. Mix</small>What 3 numbers go into the guess?</div>
+          <div class="options">
+            <button data-right>The values mixed by their shares, plus the last letter's own numbers</button>
+            <button data-why="Then it couldn't use what it found by looking back.">Only the last letter's own numbers</button>
+            <button data-why="Every letter's value counts, by its share. Small shares count a little.">The numbers of the letter with the biggest match, nothing else</button>
+          </div>
+        </div>
+        <div class="quiz" data-page="lesson7.html#9" data-topic="✏️ Practice 7.2" data-right="Right. Only the position numbers grow: 3 more for one more place.">
+          <div class="q"><small>7. Growth</small>Your model reads one more letter. How many more numbers does it need?</div>
+          <div class="options">
+            <button data-right>3</button>
+            <button data-why="That is Lesson 6's way: 2 numbers × 14 next letters for every extra letter.">28</button>
+            <button data-why="That is the whole model. Only the position numbers grow.">135</button>
+          </div>
+        </div>
+      </div>
+      <p class="hook">One more thing the model still can't do.</p>
+    </section>
+
+    <!-- last -->
+    <section class="part" data-title="One look, then guess">
+      <h2>One look, then guess</h2>
+      <p class="say">Each row below is one of the 39 examples, and each square is one of its 8 letters. The brighter the square, the bigger the attention share.</p>
+      <div class="activity">
+        <div class="do">Hover or tap a row to see the example.</div>
+        <div class="hm" id="hm"></div>
+        <div class="muted" id="hmNote" style="min-height:2.8em"></div>
+      </div>
+      <p class="say">In most rows one square is bright: the model listens to <b>one letter at a time</b>. Then it guesses straight away, with no step to think about what it found.</p>
+      <p class="neo-say">I can look back now! But only one way at a time, and I guess right after looking.</p>
+      <div class="open-question">
+        <div>This leaves a question</div>
+        <div class="big">How can a model look in several ways at once, and think about what it found?</div>
+        <div>Lesson 8 answers it. (Coming soon.)</div>
+      </div>
+      <p><button class="done-toggle" data-done="7">Mark lesson as done</button></p>
+    </section>
+
   </main>
 </div>
 
@@ -435,7 +701,7 @@
 </nav>
 
 <script src="../assets/tinylm.js?v=202611111"></script>
-<script src="../assets/course.js?v=202611112"></script>
+<script src="../assets/course.js?v=202611121"></script>
 <script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
@@ -555,6 +821,86 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     document.getElementById("mxTop").innerHTML = top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${(q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("");
   }
   sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+})();
+// ---------- 8: let it learn ----------
+(function trainDemo() {
+  const $ = id => document.getElementById(id), sel = $("trW"), btn = $("trGo"), cur = $("trCurve");
+  fillWin(sel);
+  const model = fresh7();
+  let losses = [], running = 0;
+  function bars() {
+    const w = sel.value, f = model.run(codes(w));
+    $("trBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${Math.round(f.att[i] * 100)}%</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
+    const top = f.att.indexOf(Math.max(...f.att));
+    $("trNote").textContent = model.step === 0 ? "Random numbers: the attention is spread out with no reason."
+      : `After ${model.step} steps, “${winLabel(w).slice(1, -1)}” looks most at “${sc(w[top])}” (${Math.round(f.att[top] * 100)}%).`;
+  }
+  function curve() {
+    const top = Math.max(...losses, 1), n = Math.max(losses.length - 1, 1), X = i => 8 + i / n * 224, Y = v => 80 - v / top * 66;
+    let h = `<text x="8" y="11" style="text-anchor:start">loss</text>`;
+    [[0.178, "Lesson 6: 0.178", -4], [0.169, "best with 3 letters: 0.169", 10]].forEach(([v, t, dy]) => { h += `<line class="ref" x1="8" x2="232" y1="${Y(v)}" y2="${Y(v)}"/><text x="232" y="${Y(v) + dy}" style="text-anchor:end">${t}</text>`; });
+    if (losses.length > 1) { const pts = losses.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" "); h += `<polygon class="ar" points="8,80 ${pts} ${X(n)},80"/><polyline class="ln" points="${pts}"/>`; }
+    cur.innerHTML = h;
+  }
+  function info() { $("trSteps").textContent = model.step; $("trLoss").textContent = model.loss().toFixed(4); btn.textContent = model.step ? "Train 300 more" : "Train 300 steps"; }
+  function all() { bars(); curve(); info(); }
+  btn.onclick = () => {
+    if (running) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { model.train(300); losses.push(model.loss()); return all(); }
+    btn.style.visibility = "hidden"; let done = 0;
+    (function frame() {
+      model.train(5); done += 5; if (done % 10 === 0) losses.push(model.loss());
+      all();
+      if (done < 300) running = requestAnimationFrame(frame); else { running = 0; btn.style.visibility = ""; }
+    })();
+  };
+  sel.onchange = bars;
+  addReset(btn, () => { cancelAnimationFrame(running); running = 0; btn.style.visibility = ""; model.reset(); losses = [model.loss()]; sel.value = PICKS7[0]; all(); });
+  losses = [model.loss()]; all();
+})();
+
+// ---------- 10: write ----------
+(function writeDemo() {
+  const $ = id => document.getElementById(id), btn = $("write"), N = 40, SEED = "the cat ";
+  const L = 6, T2 = TEXT + " " + TEXT, known = new Set(); for (let i = 0; i + L <= T2.length; i++) known.add(T2.slice(i, i + L));   // our text, read round again
+  let three = null;
+  const go = predict => { let out = SEED; for (let k = 0; k < N; k++) out += CHARS[pickByChance(predict(out))]; return out; };
+  const S = SEED.length, slipAt = (t, i) => !known.has(t.slice(i - L + 1, i + 1));   // this letter never follows the 5 before it in our text
+  const show = (el, t, n, typing) => {
+    let h = `<span class="seed">${t.slice(0, S)}</span>`;
+    for (let i = S; i < S + n; i++) h += slipAt(t, i) ? `<span class="slip">${t[i]}</span>` : t[i];
+    el.innerHTML = h + (typing ? `<span class="cur"></span>` : "");
+  };
+  const count = t => { let c = 0; for (let i = S; i < t.length; i++) if (slipAt(t, i) && !(i > S && slipAt(t, i - 1))) c++; return c; };
+  const sl = t => { const c = count(t); return c ? `${c} made-up piece${c > 1 ? "s" : ""}` : "only pieces of our text"; };
+  let timer = 0;
+  btn.onclick = () => {
+    if (!three) { three = new EmbeddingModel(); three.train(300); }
+    const a = go(t => trained.predict(t.slice(-8))), b = go(t => three.predict(t.slice(-3)));
+    clearInterval(timer); $("slipsNow").textContent = ""; $("slipsBefore").textContent = "";
+    const done = () => { show($("writtenNow"), a, N); show($("writtenBefore"), b, N); btn.style.visibility = ""; $("slipsNow").textContent = sl(a); $("slipsBefore").textContent = sl(b); };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
+    btn.style.visibility = "hidden"; let n = 0;
+    timer = setInterval(() => { n++; show($("writtenNow"), a, n, true); show($("writtenBefore"), b, n, true); if (n >= N) { clearInterval(timer); done(); } }, 45);
+  };
+  addReset($("writtenNow"), () => { clearInterval(timer); btn.style.visibility = ""; ["writtenNow", "writtenBefore", "slipsNow", "slipsBefore"].forEach(id => $(id).textContent = ""); });
+})();
+
+// ---------- 13: one look ----------
+(function heatDemo() {
+  const $ = id => document.getElementById(id);
+  const rows = WINDOWS.map(x => ({ ...x, att: trained.run(codes(x.w)).att }));
+  const sharp = rows.filter(r => Math.max(...r.att) > 0.9).length;
+  $("hm").innerHTML = rows.map((r, j) => `<div class="hm-row" data-j="${j}" tabindex="0">${r.att.map(a => `<span style="--a:${a.toFixed(3)}"></span>`).join("")}</div>`).join("");
+  const base = `In ${sharp} of the 39 examples, one letter gets more than 90% of the attention.`;
+  $("hmNote").textContent = base;
+  const pick = j => {
+    const r = rows[j], top = r.att.indexOf(Math.max(...r.att));
+    $("hm").querySelectorAll(".hm-row").forEach((el, i) => el.classList.toggle("on", i === j));
+    $("hmNote").innerHTML = `${winLabel(r.w)} → ${nm(r.next)}: it looks at “${sc(r.w[top])}” in place ${top + 1} (${Math.round(r.att[top] * 100)}%).`;
+  };
+  $("hm").querySelectorAll(".hm-row").forEach(el => { const j = +el.dataset.j; el.onmouseenter = () => pick(j); el.onclick = () => pick(j); el.onfocus = () => pick(j); });
+  addReset($("hm"), () => { $("hm").querySelectorAll(".hm-row").forEach(el => el.classList.remove("on")); $("hmNote").textContent = base; });
 })();
 </script>
 </body>
