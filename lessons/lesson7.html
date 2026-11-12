@@ -450,18 +450,26 @@
   .gs-flow b { color: var(--ink); }
   #gsP .top3 .fill { transition: width 0.7s ease; }
   @media (max-width: 560px) { .mx-line { font-size: 0.74rem; gap: 3px 5px; } .mx-line .who { font-size: 0.74rem; } .mx-sh { font-size: 0.6rem; } .gs-line .who { min-width: 0; width: 100%; } }
-  .gs-top { display: grid; gap: 4px; margin-top: 6px; transition: opacity 0.3s; }
-  .gs-row { display: grid; grid-template-columns: 5.5em 6.5em 1fr 3.4em; align-items: center; gap: 8px; padding: 3px 6px; border: 1.5px solid transparent; border-radius: 8px; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+  .gs-step { border-top: 1.5px dashed var(--grid); padding-top: 10px; margin-top: 10px; transition: opacity 0.3s; }
+  .gs-sh { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; }
+  .gs-sh .n { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 0.72rem; }
+  .gs-hint { font-size: 0.8rem; color: var(--pencil); margin-bottom: 6px; }
+  .mx-line .outl { border: 1.5px solid var(--ink); border-radius: 4px; padding: 0 5px; font-weight: 700; }
+  .gs-top { display: grid; gap: 4px; max-width: 540px; }
+  .gs-row { display: grid; grid-template-columns: 4.6em 6.2em minmax(60px, 1fr) 3.4em 9.5em; align-items: center; gap: 8px; padding: 3px 6px; border: 1.5px solid transparent; border-radius: 8px; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+  .gs-row .nm { font-weight: 700; }
   .gs-row:hover { border-color: var(--ink); background: none; color: inherit; }
-  .gs-row.on:hover { background: color-mix(in srgb, var(--hl-yellow) 25%, transparent); }
-  .gs-row.on { border-color: var(--ink); background: color-mix(in srgb, var(--hl-yellow) 25%, transparent); }
+  .gs-row.on, .gs-row.on:hover { border-color: var(--ink); background: color-mix(in srgb, var(--hl-blue) 25%, transparent); }
   .gs-row .scv, .gs-row .pct { font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); }
   .gs-row .pct { text-align: right; color: var(--ink); }
   .gs-row .track { height: 12px; border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; }
-  .gs-row .fill { display: block; height: 100%; background: var(--hl-yellow); transition: width 0.7s ease; }
+  .gs-row .fill { display: block; height: 100%; background: color-mix(in srgb, var(--pen) 55%, transparent); transition: width 0.7s ease; }
+  .gs-row .ok { font-size: 0.75rem; color: var(--ink); white-space: nowrap; }
+  .gs-row .ok:not(:empty) { background: color-mix(in srgb, var(--hl-green) 55%, transparent); border-radius: 10px; padding: 1px 7px; justify-self: start; }
   .gs-work { margin-top: 12px; transition: opacity 0.3s; }
   .gs-work .t { font-size: 0.85rem; margin-bottom: 4px; }
-  @media (max-width: 560px) { .gs-row { grid-template-columns: 4.2em 5.4em 1fr 3em; gap: 5px; font-size: 0.85rem; } .gs-row .scv, .gs-row .pct { font-size: 0.7rem; } }
+  .ql-rows .hd { font-family: var(--body); font-size: 0.7rem; color: var(--pencil); text-align: right; white-space: nowrap; }
+  @media (max-width: 560px) { .gs-row { grid-template-columns: 3.9em 5.2em minmax(40px, 1fr) 2.8em 1.6em; gap: 5px; font-size: 0.85rem; } .gs-row .scv, .gs-row .pct { font-size: 0.7rem; } .gs-row .ok .w { display: none; } }
   .sm-grid { display: grid; grid-template-columns: 3.6em repeat(8, minmax(0, 1fr)); gap: 4px; max-width: 620px; align-items: end; }
   .sm-grid .rl { font-size: 0.72rem; color: var(--pencil); align-self: center; line-height: 1.2; }
   .sm-m { display: grid; justify-items: center; gap: 2px; }
@@ -1271,16 +1279,17 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     timers.forEach(clearTimeout); timers = [];
     const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w)), p = softmax(f.scores), W8 = anim ? " wait" : "";
     const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3), c = top[pick][1], O = trained.out;
-    const row = (r, who, v) => `<div class="mx-line gs-line r${r}${W8}"><span class="who">${who}</span><span>${v}</span></div>`;
+    const row = (r, who, v, cls = "", extra = "") => `<div class="mx-line gs-line r${r}${W8}${extra}"><span class="who">${who}</span><span class="${cls}">${v}</span></div>`, next = CHAR_TO_NUMBER[WINDOWS.find(x => x.w === w).next];
     $("gsP").innerHTML = `<div class="ql-h">The guess after “${winLabel(w).slice(1, -1)}”</div>
-      <div class="ql-sub">Its next letter in our text: <b>${nm(WINDOWS.find(x => x.w === w).next)}</b></div>
-      ${row(0, "the mix (what it heard)", v3(f.mixed))}${row(1, `+ its own 3 numbers (“${sc(L[7])}” in seat 8)`, v3(f.x[7]))}
-      <div class="mx-line gs-line sum r2${W8}"><span class="who">= 3 numbers for the guess</span><span class="res">${v3(f.h)}</span></div>
-      <div class="gs-flow r3${W8}">× <b>42 output weights</b> → <b>14 scores</b> → softmax → <b>chances</b>. The top 3 (click one to see its score worked out):</div>
-      <div class="gs-top r3${W8}">${top.map(([q, i], k) => `<button type="button" class="gs-row${k === pick ? " on" : ""}" data-k="${k}"><span class="nm">${nm(CHARS[i])}</span><span class="scv">score ${fmt(f.scores[i], 1)}</span><span class="track"><span class="fill" style="width:${anim ? 0 : (q * 100).toFixed(1)}%"></span></span><span class="pct">${pct7(q)}</span></button>`).join("")}</div>
-      <div class="gs-work r4${W8}"><div class="t">The score of <b>${nm(CHARS[c])}</b>: each of the 3 numbers × its output weight for ${nm(CHARS[c])}, added up.</div>
-        <div class="ql-rows">${[0, 1, 2].map(d => `<span>${fmt(f.h[d])}</span><span class="op">×</span><span>${fmt(O[d][c])}</span><span class="op">=</span><span>${fmt(f.h[d] * O[d][c])}</span>`).join("")}
-        <span class="tl">added up = score</span><span class="tot">${fmt(f.scores[c])}</span></div></div>`;
+      <div class="gs-step"><div class="gs-sh"><span class="n">1</span>3 numbers for the guess</div>
+        ${row(0, "the mix (what it heard)", v3(f.mixed), "res")}${row(1, `+ its own 3 numbers (“${sc(L[7])}” in seat 8)`, v3(f.x[7]), "plain")}
+        ${row(2, "= 3 numbers for the guess", v3(f.h), "outl", " sum")}</div>
+      <div class="gs-step r3${W8}"><div class="gs-sh"><span class="n">2</span>The guess</div>
+        <div class="gs-hint">× 42 output weights → 14 scores → softmax → chances. The top 3 are below. Click one to see its score.</div>
+        <div class="gs-top">${top.map(([q, i], k) => `<button type="button" class="gs-row${k === pick ? " on" : ""}" data-k="${k}"><span class="nm">${nm(CHARS[i])}</span><span class="scv">score ${fmt(f.scores[i], 1)}</span><span class="track"><span class="fill" style="width:${anim ? 0 : (q * 100).toFixed(1)}%"></span></span><span class="pct">${pct7(q)}</span><span class="ok">${i === next ? `✓<span class="w"> next in our text</span>` : ""}</span></button>`).join("")}</div>
+        <div class="gs-work r4${W8}"><div class="t">The score of <b>${nm(CHARS[c])}</b>: each of the 3 numbers × its output weight for ${nm(CHARS[c])}, added up.</div>
+          <div class="ql-rows"><span class="hd">3 numbers</span><span></span><span class="hd">weight</span><span></span><span></span>${[0, 1, 2].map(d => `<span>${fmt(f.h[d])}</span><span class="op">×</span><span>${fmt(O[d][c])}</span><span class="op">=</span><span>${fmt(f.h[d] * O[d][c])}</span>`).join("")}
+          <span class="tl">added up = score</span><span class="tot">${fmt(f.scores[c])}</span></div></div></div>`;
     $("gsP").querySelectorAll(".gs-row").forEach(btn => btn.onclick = () => { pick = +btn.dataset.k; render(false); if (!still.matches) animate($("gsP").querySelector(".gs-work")); });
     if (!anim) return;
     const show = c => $("gsP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
