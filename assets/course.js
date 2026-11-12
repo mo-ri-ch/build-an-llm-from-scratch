@@ -21,7 +21,7 @@ const COURSE_LESSONS = [
   { n: 6, step: "embeddings", title: "Embeddings", file: "lesson6.html", ready: true, test: 10,
     summary: "Give each letter 2 numbers, shared by every position.",
     leaves: "A letter has the same embedding whoever its neighbours are. How can letters look at each other?" },
-  { n: 7, step: "attention", title: "Attention", file: "lesson7.html", ready: false, test: 12,
+  { n: 7, step: "attention", title: "Attention", file: "lesson7.html", ready: true, test: 12,
     summary: "The last letter looks back and chooses which letters matter.",
     leaves: "How can a model look in several ways at once, and think about what it found?" },
   { n: 8, step: "transformer", title: "The Transformer block", file: "lesson8.html", ready: false,
