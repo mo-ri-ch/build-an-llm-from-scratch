@@ -1213,8 +1213,8 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     const left = 8 - big.length;
     $("mxP").innerHTML = `<div class="ql-h">The mix for “${winLabel(w).slice(1, -1)}”</div>
       <div class="ql-sub">Each value × its share, added up.</div>
-      ${big.map((i, r) => `<div class="mx-line r${r}${W8}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${pc(f.att[i])}</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => v * f.att[i]))}</span></div>`).join("")}
-      <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3([0, 1, 2].map(d => { const r = f.mixed[d] - big.reduce((t, i) => t + f.att[i] * f.v[i][d], 0); return Math.abs(r) < 0.005 ? 0 : r; }))}</span></div>
+      ${big.map((i, r) => `<div class="mx-line r${r}${W8}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${(f.att[i] * 100).toFixed(1)}%</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => v * f.att[i]))}</span></div>`).join("")}
+      <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3([0, 1, 2].map(d => { const R = x => Math.round(x * 100) / 100, r = R(R(f.mixed[d]) - big.reduce((t, i) => t + R(f.att[i] * f.v[i][d]), 0)); return Math.abs(r) < 0.005 ? 0 : r; }))}</span></div>
       <div class="mx-line sum r9${W8}"><span class="who">added up = mix</span><span class="res">${v3(f.mixed)}</span></div>`;
     if (!anim) return;
     const cols = $("mxSeats").children, show = c => $("mxP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
