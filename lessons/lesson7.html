@@ -601,8 +601,11 @@
     <section class="part" data-title="Mix">
       <h2>Mix</h2>
       <p class="say">The last letter now knows how much to listen to each letter. What does it hear from them?</p>
-      <p class="say">Every letter turns its 3 numbers into 3 more numbers to hand over, with 9 more weights. These are its <b>value</b>, and the weights are the <b>value weights</b>.</p>
-      <p class="say">The last letter multiplies each value by its share and adds them up. The result is called the <b>mix</b>: mostly the values of the letters it listens to.</p>
+      <p class="say" style="position:relative">Every letter turns its 3 numbers into 3 more numbers to hand over, with 9 more weights. These are its <b>value</b>, and the weights are the <b>value weights</b>.<button class="doubt" type="button" data-peek-from="vlPeek" aria-label="Why not hand over the label?">🤔</button></p>
+      <div hidden id="vlPeek"><b>🤔 Why not hand over the label?</b>
+        <p style="margin:6px 0 0">The label has one job: to be found by the question. The value has another: to help the guess. Two jobs need two sets of numbers, so each gets its own weights, and learning tunes them for their job.</p>
+      </div>
+      <p class="say">The last letter multiplies each value by its share and adds them up. The result is called the <b>mix</b>: mostly the values of the letters it listens to. It is like listening to two friends at once: you take away mostly what the one you listen to more said.</p>
       <div class="activity">
         <div class="do">Pick 8 letters. Watch each value shrink by its share, then add up.</div>
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="mxW" class="pick"></select></label></div>
