@@ -436,6 +436,7 @@
   .ql-chip.va.pulse { animation: mxPulse 0.6s ease; }
   @keyframes mxPulse { 50% { transform: scale(1.12); box-shadow: 0 0 0 2px var(--ink); } }
   .mx-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 6px; transition: opacity 0.3s; }
+  .mx-line.pk { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
   .mx-line .who { font-family: var(--body); font-size: 0.82rem; min-width: 6.2em; }
   .mx-line .sh { background: var(--hl-yellow); border-radius: 4px; padding: 0 5px; color: var(--ink); }
   .mx-line .va { background: color-mix(in srgb, var(--hl-green) 45%, transparent); border-radius: 4px; padding: 0 5px; }
@@ -607,7 +608,7 @@
       </div>
       <p class="say">The last letter multiplies each value by its share and adds them up. The result is called the <b>mix</b>: mostly the values of the letters it listens to. It is like listening to two friends at once: you take away mostly what the one you listen to more said.</p>
       <div class="activity">
-        <div class="do">Pick 8 letters. Watch each value shrink by its share, then add up.</div>
+        <div class="do">Pick 8 letters. Watch each value shrink by its share, then add up. Click a letter to see its part.</div>
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="mxW" class="pick"></select></label></div>
         <div class="ql-legend"><span><i class="sh"></i><b>share</b>: from the matches</span><span><i class="va"></i><b>value</b>: what each letter hands over</span></div>
         <div class="ql-seats" id="mxSeats"></div>
@@ -1199,32 +1200,40 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 // ---------- 6: mix and guess ----------
 (function mixDemo() {
   const $ = id => document.getElementById(id), sel = $("mxW"); fillWin(sel);
-  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [];
+  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [], pick = -1;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
   const pc = a => a < 0.005 ? "0%" : Math.round(a * 100) + "%";
+  const R = x => Math.round(x * 100) / 100;
   function render(play) {
     timers.forEach(clearTimeout); timers = [];
     const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w));
     const big = L.map((c, i) => i).filter(i => f.att[i] >= 0.01).sort((i, j) => f.att[j] - f.att[i]), W8 = anim ? " wait" : "";
+    const rows = pick >= 0 && !big.includes(pick) ? [...big, pick] : big, left = 8 - rows.length;
     $("mxSeats").innerHTML = L.map((c, i) => `<div class="ql-c${f.att[i] < 0.01 && !anim ? " dim" : ""}" data-i="${i}">
-      <span class="ql-seat${i === 7 ? " last" : ""}" style="cursor:default"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></span>
+      <button type="button" class="ql-seat${i === 7 ? " last" : ""}${i === pick ? " on" : ""}" data-i="${i}"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></button>
       <span class="mx-sh" style="--a:${Math.min(1, f.att[i] + 0.15 * (f.att[i] >= 0.01))}">${pc(f.att[i])}</span>
       <span class="ql-chip va">${f.v[i].map(v => `<span>${fmt(v, 1)}</span>`).join("")}</span></div>`).join("");
-    const left = 8 - big.length;
+    $("mxSeats").querySelectorAll(".ql-seat").forEach(btn => btn.onclick = () => {
+      const i = +btn.dataset.i; pick = pick === i ? -1 : i; render(false);
+      const ch = $("mxSeats").children[i].querySelector(".ql-chip"); ch.classList.add("pulse");
+      const row = $("mxP").querySelector(`.mx-line[data-i="${i}"]`); if (row && pick === i && !still.matches) animate(row);
+    });
+    const other = [0, 1, 2].map(d => { const r = R(R(f.mixed[d]) - rows.reduce((t, i) => t + R(f.att[i] * f.v[i][d]), 0)); return Math.abs(r) < 0.005 ? 0 : r; });
     $("mxP").innerHTML = `<div class="ql-h">The mix for “${winLabel(w).slice(1, -1)}”</div>
       <div class="ql-sub">Each value × its share, added up.</div>
-      ${big.map((i, r) => `<div class="mx-line r${r}${W8}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${(f.att[i] * 100).toFixed(1)}%</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => v * f.att[i]))}</span></div>`).join("")}
-      <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3([0, 1, 2].map(d => { const R = x => Math.round(x * 100) / 100, r = R(R(f.mixed[d]) - big.reduce((t, i) => t + R(f.att[i] * f.v[i][d]), 0)); return Math.abs(r) < 0.005 ? 0 : r; }))}</span></div>
+      ${rows.map((i, r) => `<div class="mx-line r${r}${W8}${i === pick ? " pk" : ""}" data-i="${i}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${(f.att[i] * 100).toFixed(1)}%</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => Math.abs(v * f.att[i]) < 0.005 ? 0 : v * f.att[i]))}</span></div>`).join("")}
+      <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3(other)}</span></div>
       <div class="mx-line sum r9${W8}"><span class="who">added up = mix</span><span class="res">${v3(f.mixed)}</span></div>`;
     if (!anim) return;
     const cols = $("mxSeats").children, show = c => $("mxP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
     later(250, () => [...cols].forEach((col, i) => { if (f.att[i] < 0.01) col.classList.add("dim"); }));
-    big.forEach((i, r) => later(800 + r * 700, () => { const ch = cols[i].querySelector(".ql-chip"); ch.classList.remove("pulse"); void ch.offsetWidth; ch.classList.add("pulse"); show(".r" + r); }));
-    later(800 + big.length * 700, () => show(".r8")); later(1300 + big.length * 700, () => show(".r9"));
+    rows.forEach((i, r) => later(800 + r * 700, () => { const ch = cols[i].querySelector(".ql-chip"); ch.classList.remove("pulse"); void ch.offsetWidth; ch.classList.add("pulse"); show(".r" + r); }));
+    later(800 + rows.length * 700, () => show(".r8")); later(1300 + rows.length * 700, () => show(".r9"));
   }
-  function steady() { const P = $("mxP"), keep = sel.value; P.style.minHeight = ""; let m = 0;
-    [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, P.offsetHeight); }); sel.value = keep; render(false); if (m) P.style.minHeight = m + "px"; }
-  sel.onchange = () => render(true); addReset(sel, () => { sel.value = PICKS7[0]; render(true); });
+  function steady() { const P = $("mxP"), keep = [sel.value, pick]; P.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; for (pick = -1; pick < 8; pick++) { render(false); m = Math.max(m, P.offsetHeight); } });
+    [sel.value, pick] = keep; render(false); if (m) P.style.minHeight = m + "px"; }
+  sel.onchange = () => { pick = -1; render(true); }; addReset(sel, () => { sel.value = PICKS7[0]; pick = -1; render(true); });
   render(false); steady(); window.addEventListener("resize", steady);
   let seen = false; new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { steady(); if (!seen) { seen = true; render(true); } } }, { threshold: 0.4 }).observe($("mxSeats"));
 })();
