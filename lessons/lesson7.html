@@ -337,6 +337,26 @@
   .qk-detail { display: grid; gap: 6px; max-width: 620px; }
   @media (max-width: 560px) { .qk-bars { gap: 3px; } .qk-sl { font-size: 0.55rem; } .qk-val { font-size: 0.62rem; } .qk-track { height: 70px; } .qk-q { font-size: 0.85rem; flex-wrap: wrap; } }
   @media (prefers-reduced-motion: reduce) { .qk-fill { transition: none; } }
+  .ql-seats { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; max-width: 560px; margin-bottom: 12px; }
+  .ql-seat { display: grid; justify-items: center; gap: 2px; padding: 6px 0 4px; border: 1.5px solid var(--grid); border-radius: 10px; background: var(--paper); cursor: pointer; font: inherit; color: inherit; }
+  .ql-seat:hover { border-color: var(--ink); }
+  .ql-seat .ch { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; }
+  .ql-seat .sl { font-size: 0.65rem; color: var(--pencil); white-space: nowrap; }
+  .ql-seat.last { border-style: dashed; border-color: var(--pen); }
+  .ql-seat.on { background: var(--hl-yellow); border-color: var(--ink); border-style: solid; color: var(--ink); }
+  .ql-seat.on .sl { color: var(--ink); }
+  .ql-flows { display: grid; gap: 10px; }
+  .ql-flow { border: 1.5px solid var(--grid); border-radius: 10px; padding: 8px 12px; background: var(--paper); }
+  .ql-h { font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; }
+  .ql-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .ql-v { display: grid; gap: 2px; justify-items: start; }
+  .ql-v small { font-size: 0.72rem; color: var(--pencil); }
+  .ql-v b { font-family: var(--mono); font-weight: 400; white-space: nowrap; }
+  .ql-v.out b { font-weight: 700; background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); border-radius: 4px; padding: 0 4px; }
+  .ql-arr { color: var(--pencil); font-size: 1.2rem; }
+  .ql-grid { display: grid; grid-template-columns: repeat(3, auto); gap: 1px 8px; font-family: var(--mono); font-size: 0.72rem; border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); padding: 1px 5px; border-radius: 3px; }
+  .ql-grid span { text-align: right; }
+  @media (max-width: 560px) { .ql-seats { gap: 3px; } .ql-seat .sl { font-size: 0.55rem; } .ql-v b { font-size: 0.85rem; } .ql-h { font-size: 0.88rem; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -461,15 +481,30 @@
     <!-- 4 -->
     <section class="part" data-title="A question and labels">
       <h2>A question and labels</h2>
-      <p class="say">Now the last letter looks back at all 8 letters to find the ones that help.</p>
-      <p class="say">The last letter turns its 3 numbers into 3 numbers that say what it is looking for. We call them its <b>question</b>. They are made with 9 weights, multiplying and adding as when making a score. These are the <b>query weights</b>: query means question.</p>
+      <p class="say">Now the last letter looks back at all 8 letters to find the ones that help. First, every letter needs something to compare.</p>
+      <p class="say">The last letter takes its 3 numbers (its embedding + its seat's position numbers) and turns them into 3 numbers that say what it is looking for. We call them its <b>question</b>. They are made with 9 weights, multiplying and adding as when making a score. These are the <b>query weights</b>: query means question.</p>
       <p class="say">Every letter, the last one too, turns its 3 numbers into 3 numbers that say what it has. We call them its <b>label</b>. They are made the same way, with 9 other weights: the <b>key weights</b>.</p>
+      <div class="activity">
+        <div class="do">Click a seat to see its letter's label being made. The question is made only by the last letter.</div>
+        <div class="row" style="margin-bottom:8px"><label>8 letters <select id="qlW" class="pick"></select></label></div>
+        <div class="ql-seats" id="qlSeats"></div>
+        <div class="ql-flows">
+          <div class="ql-flow" id="qlQ"></div>
+          <div class="ql-flow" id="qlK"></div>
+        </div>
+      </div>
+      <p class="hook">The question and the labels are ready. How well does each label fit the question?</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="part" data-title="Matches">
+      <h2>Matches</h2>
       <p class="say" style="position:relative">To see how well a letter fits, take the dot product of the question and its label, then divide by 1.73. This is the letter's <b>match</b>. The bigger the match, the better that letter fits the question.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
       <div hidden id="sqPeek"><b>🤔 Why divide by 1.73?</b>
         <p style="margin:6px 0 0">1.73 is √3, because there are 3 numbers in each list. Dividing keeps the matches from growing too big while the model learns. Real models with 64 numbers divide by √64 = 8.</p>
       </div>
       <div class="activity">
-        <div class="do">The last letter asks its question. Every letter's match is a bar: click one to see how it is worked out.</div>
+        <div class="do">Every letter's match is a bar. Click one to see how it is worked out.</div>
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="qkW" class="pick"></select></label></div>
         <div class="qk-q" id="qkQ"></div>
         <div class="qk-bars" id="qkBars"></div>
@@ -742,7 +777,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
             <button data-why="They add only 24 numbers. Their job is to show where each letter sits.">To make the model bigger</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#4" data-topic="A question and labels" data-right="Right. The match compares the last letter's question with each letter's label.">
+        <div class="quiz" data-page="lesson7.html#5" data-topic="Matches" data-right="Right. The match compares the last letter's question with each letter's label.">
           <div class="q"><small>4. Matches</small>What does a big match for a letter mean?</div>
           <div class="options">
             <button data-right>Its label fits the last letter's question</button>
@@ -750,7 +785,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
             <button data-why="The match comes from the question and the label, not from counting.">It appears often in our text</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#5" data-topic="Who to listen to" data-right="Right. Softmax makes shares that always add up to 100%.">
+        <div class="quiz" data-page="lesson7.html#6" data-topic="Who to listen to" data-right="Right. Softmax makes shares that always add up to 100%.">
           <div class="q"><small>5. Attention</small>The attention shares for the 8 letters always…</div>
           <div class="options">
             <button data-right>add up to 100%</button>
@@ -758,7 +793,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
             <button data-why="8 shares bigger than 50% would add up to more than 100%.">are each bigger than 50%</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#6" data-topic="Mix" data-right="Right. The mix of the values, plus the last letter's own numbers, goes to the output weights.">
+        <div class="quiz" data-page="lesson7.html#7" data-topic="Mix" data-right="Right. The mix of the values, plus the last letter's own numbers, goes to the output weights.">
           <div class="q"><small>6. Mix</small>What 3 numbers go into the guess?</div>
           <div class="options">
             <button data-right>The values mixed by their shares, plus the last letter's own numbers</button>
@@ -766,7 +801,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
             <button data-why="Every letter's value counts, by its share. Small shares count a little.">The numbers of the letter with the biggest match, nothing else</button>
           </div>
         </div>
-        <div class="quiz" data-page="lesson7.html#9" data-topic="✏️ Practice 7.2" data-right="Right. Only the position numbers grow: 3 more for one more place.">
+        <div class="quiz" data-page="lesson7.html#10" data-topic="✏️ Practice 7.2" data-right="Right. Only the position numbers grow: 3 more for one more place.">
           <div class="q"><small>7. Growth</small>Your model reads one more letter. How many more numbers does it need?</div>
           <div class="options">
             <button data-right>3</button>
@@ -809,7 +844,7 @@ the cat sat on the mat. the dog sat on the log. </pre></div>
 </nav>
 
 <script src="../assets/tinylm.js?v=202611111"></script>
-<script src="../assets/course.js?v=202611122"></script>
+<script src="../assets/course.js?v=202611123"></script>
 <script src="../assets/practice.js?v=2"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/common.js"></script>
 <script src="https://mo-ri-ch.github.io/study-notebook-design/v1/pen.js"></script>
@@ -918,7 +953,35 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   render(false);
 })();
 
-// ---------- 4: question, labels, matches ----------
+// ---------- 4: question and labels ----------
+(function qlDemo() {
+  const $ = id => document.getElementById(id), sel = $("qlW"); fillWin(sel);
+  let pick = 0;
+  const grid = M => `<span class="ql-grid">${M.map(r => r.map(v => `<span>${fmt(v, 1)}</span>`).join("")).join("")}</span>`;
+  const flow = (title, x, M, out, outName, wName) => `<div class="ql-h">${title}</div>
+    <div class="ql-line"><span class="ql-v"><small>its 3 numbers</small><b>${v3(x)}</b></span><span class="ql-arr">→</span>
+    <span class="ql-v"><small>× ${wName}</small>${grid(M)}</span><span class="ql-arr">→</span>
+    <span class="ql-v out"><small>${outName}</small><b>${v3(out)}</b></span></div>`;
+  function render(animate) {
+    const w = sel.value, L = Array.from(w), f = trained.run(codes(w));
+    $("qlSeats").innerHTML = L.map((c, i) => `<button type="button" class="ql-seat${i === pick ? " on" : ""}${i === 7 ? " last" : ""}" data-i="${i}"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></button>`).join("");
+    $("qlSeats").querySelectorAll(".ql-seat").forEach(b => b.onclick = () => { pick = +b.dataset.i; render(true); });
+    $("qlQ").innerHTML = flow(`The question of “${sc(L[7])}” in seat 8 (the last letter)`, f.x[7], trained.query, f.q, "question", "query weights");
+    $("qlK").innerHTML = flow(`The label of “${sc(L[pick])}” in seat ${pick + 1}`, f.x[pick], trained.key, f.k[pick], "label", "key weights");
+    if (animate) { const k = $("qlK"); k.classList.remove("l7-go"); void k.offsetWidth; k.classList.add("l7-go"); }
+  }
+  function steady() {   // both cards keep their tallest size, so nothing jumps
+    const Q = $("qlQ"), K = $("qlK"), keep = [sel.value, pick]; Q.style.minHeight = K.style.minHeight = ""; let a = 0, b = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; for (pick = 0; pick < 8; pick++) { render(false); a = Math.max(a, Q.offsetHeight); b = Math.max(b, K.offsetHeight); } });
+    [sel.value, pick] = keep; render(false); if (a) Q.style.minHeight = a + "px"; if (b) K.style.minHeight = b + "px";
+  }
+  sel.onchange = () => render(true);
+  addReset(sel, () => { sel.value = PICKS7[0]; pick = 0; render(true); });
+  render(false); steady(); window.addEventListener("resize", steady);
+  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe(sel);
+})();
+
+// ---------- 5: matches ----------
 (function qkDemo() {
   const $ = id => document.getElementById(id), sel = $("qkW"); fillWin(sel);
   let pick = -1;

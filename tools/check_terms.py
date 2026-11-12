@@ -10,7 +10,7 @@ TAUGHT = {   # lesson -> {word (lowercase, as it appears): title of the page tha
     6: {"embedding": "A letter as numbers", "weight": "Numbers to a guess"},
     7: {"dot product": "✏️ Quick basics: the dot product", "seat": "Letters in a row",
         "position number": "Letters in a row", "question": "A question and labels", "label": "A question and labels",
-        "query": "A question and labels", "key weight": "A question and labels", "match": "A question and labels",
+        "query": "A question and labels", "key weight": "A question and labels", "match": "Matches",
         "attention": "Who to listen to", "share": "Who to listen to", "value": "Mix", "mix": "Mix",
         "output weight": "Mix"},
 }
