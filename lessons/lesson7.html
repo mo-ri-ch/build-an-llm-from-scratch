@@ -253,6 +253,15 @@
   .hm-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; cursor: pointer; border-radius: 3px; outline-offset: 2px; }
   .hm-row span { height: 9px; border-radius: 2px; background: color-mix(in srgb, var(--pen) calc(var(--a) * 100%), var(--paper)); border: 1px solid color-mix(in srgb, var(--grid) 60%, transparent); }
   .hm-row.on span { border-color: var(--ink); }
+  @media (max-width: 560px) { #dpOut { min-height: 4.7em; } }
+  .dpwrap { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  svg.dparrow { width: 170px; height: 170px; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); flex: 0 0 auto; }
+  svg.dparrow line { vector-effect: non-scaling-stroke; }
+  svg.dparrow .gr { stroke: var(--grid); stroke-width: 1; opacity: 0.6; }
+  svg.dparrow .ax { stroke: var(--pencil); stroke-width: 1; }
+  svg.dparrow line.a1 { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; } svg.dparrow circle.a1 { fill: var(--ink); }
+  svg.dparrow line.a2 { stroke: var(--pen); stroke-width: 3; stroke-linecap: round; } svg.dparrow circle.a2 { fill: var(--pen); }
+  svg.dparrow text { font-size: 0.38px; font-family: var(--body, inherit); } svg.dparrow .t1 { fill: var(--ink); } svg.dparrow .t2 { fill: var(--pen); }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -336,19 +345,22 @@
     <!-- 2 -->
     <section class="part" data-title="✏️ Quick basics: the dot product">
       <h2>✏️ Quick basics: the dot product</h2>
-      <p class="say">You already did this in Lesson 6: multiply the numbers in pairs, then add. It has a name: the <b>dot product</b>.</p>
-      <p class="say">It also tells you how alike two lists are. Big and positive: alike. Near 0: unrelated. Negative: opposite.</p>
+      <p class="say">You already did this when making a score: multiply the numbers in pairs, then add. It has a name: the <b>dot product</b>.</p>
+      <p class="say">It also says how alike two lists are. Draw each list as an arrow. Same direction: big and positive. At a right angle: 0. Opposite: negative.</p>
       <div class="activity">
-        <div class="do">Keep the first list. Pick the second list and watch the dot product.</div>
-        <div class="row" style="margin-bottom:6px"><label>Second list <select id="dpB" class="pick">
-          <option value="2,1,0">[2, 1, 0]: the same</option>
-          <option value="1,2,0">[1, 2, 0]: a bit alike</option>
-          <option value="0,0,3">[0, 0, 3]: unrelated</option>
-          <option value="-2,-1,0">[−2, −1, 0]: opposite</option>
+        <div class="do">Keep the first list. Pick the second and watch the arrows and the dot product.</div>
+        <div class="row" style="margin-bottom:6px"><label>Second list <select id="dpB" class="pick" style="min-width:15em">
+          <option value="2,1">[2, 1]: the same</option>
+          <option value="1,2">[1, 2]: a bit alike</option>
+          <option value="-1,2">[−1, 2]: at a right angle</option>
+          <option value="-2,-1">[−2, −1]: opposite</option>
         </select></label></div>
-        <div class="dp" id="dpOut"></div>
-        <div class="muted" id="dpNote"></div>
+        <div class="dpwrap">
+          <svg class="dparrow" id="dpSvg" viewBox="-3.2 -3.2 6.4 6.4" role="img" aria-label="The two lists drawn as arrows"></svg>
+          <div><div class="dp" id="dpOut"></div><div class="muted" id="dpNote" style="min-height:2.8em"></div></div>
+        </div>
       </div>
+      <p class="say">The next pages use it to measure how well two letters fit together.</p>
       <p class="hook">Now each letter gets numbers to compare.</p>
     </section>
 
@@ -767,15 +779,22 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 
 // ---------- 2: dot product ----------
 (function dotDemo() {
-  const $ = id => document.getElementById(id), A = [2, 1, 0], sel = $("dpB");
-  const n = v => v < 0 ? "(−" + Math.abs(v) + ")" : String(v);
+  const $ = id => document.getElementById(id), A = [2, 1], sel = $("dpB");
+  const n = v => v < 0 ? "(−" + Math.abs(v) + ")" : String(v), m = v => v < 0 ? "−" + Math.abs(v) : String(v);
+  const NOTE = { 5: "They point the same way: big and positive.", 4: "Fairly alike: still positive.", 0: "At a right angle: they have nothing in common, so 0.", "-5": "They point opposite ways: negative." };
+  const arrow = (v, cls) => `<line class="${cls}" x1="0" y1="0" x2="${v[0]}" y2="${-v[1]}"/><circle class="${cls}" cx="${v[0]}" cy="${-v[1]}" r="0.13"/>`;
   function render() {
-    const B = sel.value.split(",").map(Number), d = A.reduce((s, a, i) => s + a * B[i], 0);
-    $("dpOut").innerHTML = `[2, 1, 0] · [${B.map(v => v < 0 ? "−" + Math.abs(v) : v).join(", ")}] <span class="op">=</span> ${A.map((a, i) => `${a}×${n(B[i])}`).join(" <span class='op'>+</span> ")} <span class="op">=</span> <span class="res">${d < 0 ? "−" + Math.abs(d) : d}</span>`;
-    $("dpNote").textContent = d >= 5 ? "The biggest it gets for these lists: they point the same way." : d > 0 ? "Positive: fairly alike." : d === 0 ? "Zero: the lists have nothing in common." : "Negative: they point opposite ways.";
+    const B = sel.value.split(",").map(Number), d = A[0] * B[0] + A[1] * B[1];
+    let h = "";
+    for (let g = -2; g <= 2; g++) h += `<line class="gr" x1="${g}" y1="-3" x2="${g}" y2="3"/><line class="gr" x1="-3" y1="${g}" x2="3" y2="${g}"/>`;
+    h += `<line class="ax" x1="-3" y1="0" x2="3" y2="0"/><line class="ax" x1="0" y1="-3" x2="0" y2="3"/>` + arrow(A, "a1") + arrow(B, "a2");
+    h += `<text class="t1" x="${A[0] + 0.15}" y="${-A[1] - 0.15}">first</text><text class="t2" x="${B[0] < 0 ? B[0] + 0.1 : B[0] + 0.15}" y="${B[1] < 0 ? -B[1] + 0.5 : -B[1] - 0.2}" style="text-anchor:start">second</text>`;
+    $("dpSvg").innerHTML = h;
+    $("dpOut").innerHTML = `dot product of [2, 1] and [${B.map(m).join(", ")}]<br><span class="op">=</span> ${A.map((a, i) => `${a}×${n(B[i])}`).join(" <span class='op'>+</span> ")} <span class="op">=</span> <span class="res">${m(d)}</span>`;
+    $("dpNote").textContent = NOTE[d];
     animate($("dpOut"));
   }
-  sel.onchange = render; addReset(sel, () => { sel.value = "2,1,0"; render(); }); render();
+  sel.onchange = render; addReset(sel, () => { sel.value = "2,1"; render(); }); render();
 })();
 
 // ---------- 3: letters in a row ----------
