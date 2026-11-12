@@ -337,26 +337,50 @@
   .qk-detail { display: grid; gap: 6px; max-width: 620px; }
   @media (max-width: 560px) { .qk-bars { gap: 3px; } .qk-sl { font-size: 0.55rem; } .qk-val { font-size: 0.62rem; } .qk-track { height: 70px; } .qk-q { font-size: 0.85rem; flex-wrap: wrap; } }
   @media (prefers-reduced-motion: reduce) { .qk-fill { transition: none; } }
-  .ql-seats { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; max-width: 560px; margin-bottom: 12px; }
+  .ql-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.8rem; color: var(--pencil); margin-bottom: 8px; }
+  .ql-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; }
+  .ql-legend b { color: var(--ink); }
+  .ql-legend i.lab, .ql-chip.lab { background: color-mix(in srgb, var(--hl-blue) 55%, transparent); }
+  .ql-legend i.qu, .ql-chip.qu { background: color-mix(in srgb, var(--hl-orange) 60%, transparent); }
+  .ql-seats { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; max-width: 600px; margin-bottom: 12px; }
+  .ql-c { display: grid; align-content: start; gap: 4px; }
   .ql-seat { display: grid; justify-items: center; gap: 2px; padding: 6px 0 4px; border: 1.5px solid var(--grid); border-radius: 10px; background: var(--paper); cursor: pointer; font: inherit; color: inherit; }
-  .ql-seat:hover { border-color: var(--ink); }
   .ql-seat .ch { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; }
   .ql-seat .sl { font-size: 0.65rem; color: var(--pencil); white-space: nowrap; }
   .ql-seat.last { border-style: dashed; border-color: var(--pen); }
+  .ql-seat:hover, .ql-chip:not(.none):hover { border-color: var(--ink); }
   .ql-seat.on { background: var(--hl-yellow); border-color: var(--ink); border-style: solid; color: var(--ink); }
   .ql-seat.on .sl { color: var(--ink); }
-  .ql-flows { display: grid; gap: 10px; }
-  .ql-flow { border: 1.5px solid var(--grid); border-radius: 10px; padding: 8px 12px; background: var(--paper); }
-  .ql-h { font-weight: 700; margin-bottom: 6px; font-size: 0.95rem; }
-  .ql-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-  .ql-v { display: grid; gap: 2px; justify-items: start; }
-  .ql-v small { font-size: 0.72rem; color: var(--pencil); }
-  .ql-v b { font-family: var(--mono); font-weight: 400; white-space: nowrap; }
-  .ql-v.out b { font-weight: 700; background: color-mix(in srgb, var(--hl-yellow) 70%, transparent); border-radius: 4px; padding: 0 4px; }
-  .ql-arr { color: var(--pencil); font-size: 1.2rem; }
-  .ql-grid { display: grid; grid-template-columns: repeat(3, auto); gap: 1px 8px; font-family: var(--mono); font-size: 0.72rem; border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); padding: 1px 5px; border-radius: 3px; }
-  .ql-grid span { text-align: right; }
-  @media (max-width: 560px) { .ql-seats { gap: 3px; } .ql-seat .sl { font-size: 0.55rem; } .ql-v b { font-size: 0.85rem; } .ql-h { font-size: 0.88rem; } }
+  .ql-chip { display: grid; padding: 3px 0; border: 1.5px solid transparent; border-radius: 8px; font-family: var(--mono); font-size: 0.72rem; line-height: 1.35; color: var(--ink); cursor: pointer; text-align: center; }
+  .ql-chip.none { background: none; cursor: default; }
+  .ql-chip.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--hl-yellow); }
+  .ql-panel { border: 1.5px solid var(--grid); border-radius: 12px; padding: 10px 14px; background: var(--paper); }
+  .ql-h { font-weight: 700; font-size: 0.95rem; }
+  .ql-sub { font-size: 0.8rem; color: var(--pencil); margin-bottom: 10px; }
+  .ql-eq { display: flex; align-items: center; gap: 8px; }
+  .ql-part { display: grid; gap: 3px; justify-items: center; }
+  .ql-part small { font-size: 0.7rem; color: var(--pencil); white-space: nowrap; }
+  .ql-op { color: var(--pencil); font-size: 1.1rem; padding-top: 14px; }
+  .ql-col, .ql-grid { display: grid; gap: 2px 0; font-family: var(--mono); font-size: 0.85rem; border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); border-radius: 4px; padding: 0 2px; }
+  .ql-grid { grid-template-columns: repeat(3, auto); }
+  .ql-col span, .ql-grid span, .ql-col button { padding: 1px 6px; text-align: right; border-radius: 4px; transition: background 0.25s; }
+  .ql-grid span.cur { background: color-mix(in srgb, var(--hl-yellow) 35%, transparent); }
+  .ql-col .hot, .ql-grid .hot { background: var(--hl-yellow); color: var(--ink); }
+  .ql-col.out.lab { background: color-mix(in srgb, var(--hl-blue) 30%, transparent); }
+  .ql-col.out.qu { background: color-mix(in srgb, var(--hl-orange) 35%, transparent); }
+  .ql-col button { font: inherit; color: var(--ink); background: none; border: 1.5px solid transparent; cursor: pointer; }
+  .ql-col button:hover { border-color: var(--ink); }
+  .ql-col button.on { background: var(--hl-yellow); font-weight: 700; }
+  .ql-sum { margin-top: 12px; }
+  .ql-sum .t { font-size: 0.85rem; margin-bottom: 4px; }
+  .ql-rows { display: grid; grid-template-columns: repeat(5, auto); justify-content: start; gap: 2px 8px; font-family: var(--mono); font-size: 0.85rem; }
+  .ql-rows span { text-align: right; transition: opacity 0.3s; }
+  .ql-rows .op { color: var(--pencil); }
+  .ql-rows .tot { border-top: 1.5px solid var(--ink); padding-top: 2px; font-weight: 700; }
+  .ql-rows .tl { grid-column: 1 / 5; text-align: left; font-family: var(--body); color: var(--pencil); border-top: 1.5px solid var(--ink); padding-top: 2px; }
+  .ql-rows .wait { opacity: 0; }
+  @media (max-width: 560px) { .ql-seats { gap: 3px; } .ql-seat .sl { font-size: 0.55rem; } .ql-chip { font-size: 0.62rem; } .ql-col, .ql-grid, .ql-rows { font-size: 0.74rem; } .ql-col span, .ql-grid span, .ql-col button { padding: 1px 3px; } .ql-eq { gap: 4px; } .ql-h { font-size: 0.88rem; } .ql-panel { padding: 10px 8px; } }
+  @media (max-width: 400px) { .ql-col, .ql-grid, .ql-rows { font-size: 0.68rem; } .ql-col span, .ql-grid span, .ql-col button { padding: 1px 2px; } .ql-op { font-size: 0.95rem; } .ql-part small { font-size: 0.62rem; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -485,13 +509,11 @@
       <p class="say">The last letter takes its 3 numbers (its embedding + its seat's position numbers) and turns them into 3 numbers that say what it is looking for. We call them its <b>question</b>. They are made with 9 weights, multiplying and adding as when making a score. These are the <b>query weights</b>: query means question.</p>
       <p class="say">Every letter, the last one too, turns its 3 numbers into 3 numbers that say what it has. We call them its <b>label</b>. They are made the same way, with 9 other weights: the <b>key weights</b>.</p>
       <div class="activity">
-        <div class="do">Click a seat to see its letter's label being made. The question is made only by the last letter.</div>
+        <div class="do">Click a letter's label, or the question, to see how it is made.</div>
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="qlW" class="pick"></select></label></div>
+        <div class="ql-legend"><span><i class="lab"></i><b>8 labels</b>: what each letter has</span><span><i class="qu"></i><b>1 question</b>: what the last letter looks for</span></div>
         <div class="ql-seats" id="qlSeats"></div>
-        <div class="ql-flows">
-          <div class="ql-flow" id="qlQ"></div>
-          <div class="ql-flow" id="qlK"></div>
-        </div>
+        <div class="ql-panel" id="qlP"></div>
       </div>
       <p class="hook">The question and the labels are ready. How well does each label fit the question?</p>
     </section>
@@ -956,27 +978,64 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 // ---------- 4: question and labels ----------
 (function qlDemo() {
   const $ = id => document.getElementById(id), sel = $("qlW"); fillWin(sel);
-  let pick = 0;
-  const grid = M => `<span class="ql-grid">${M.map(r => r.map(v => `<span>${fmt(v, 1)}</span>`).join("")).join("")}</span>`;
-  const flow = (title, x, M, out, outName, wName) => `<div class="ql-h">${title}</div>
-    <div class="ql-line"><span class="ql-v"><small>its 3 numbers</small><b>${v3(x)}</b></span><span class="ql-arr">→</span>
-    <span class="ql-v"><small>× ${wName}</small>${grid(M)}</span><span class="ql-arr">→</span>
-    <span class="ql-v out"><small>${outName}</small><b>${v3(out)}</b></span></div>`;
-  function render(animate) {
+  const ORD = ["1st", "2nd", "3rd"], still = matchMedia("(prefers-reduced-motion: reduce)");
+  let pick = 2, kind = "label", d = 0, timers = [];
+  const stop = () => { timers.forEach(clearTimeout); timers = []; };
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const chip = (i, k, a, on) => `<button type="button" class="ql-chip ${k === "label" ? "lab" : "qu"}${on ? " on" : ""}" data-i="${i}" data-k="${k}" aria-label="${k} of seat ${i + 1}">${a.map(v => `<span>${fmt(v, 1)}</span>`).join("")}</button>`;
+  function render(play) {
+    stop();
     const w = sel.value, L = Array.from(w), f = trained.run(codes(w));
-    $("qlSeats").innerHTML = L.map((c, i) => `<button type="button" class="ql-seat${i === pick ? " on" : ""}${i === 7 ? " last" : ""}" data-i="${i}"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></button>`).join("");
-    $("qlSeats").querySelectorAll(".ql-seat").forEach(b => b.onclick = () => { pick = +b.dataset.i; render(true); });
-    $("qlQ").innerHTML = flow(`The question of “${sc(L[7])}” in seat 8 (the last letter)`, f.x[7], trained.query, f.q, "question", "query weights");
-    $("qlK").innerHTML = flow(`The label of “${sc(L[pick])}” in seat ${pick + 1}`, f.x[pick], trained.key, f.k[pick], "label", "key weights");
-    if (animate) { const k = $("qlK"); k.classList.remove("l7-go"); void k.offsetWidth; k.classList.add("l7-go"); }
+    $("qlSeats").innerHTML = L.map((c, i) => `<div class="ql-c">
+      <button type="button" class="ql-seat${i === 7 ? " last" : ""}${i === pick ? " on" : ""}" data-i="${i}" data-k="label"><span class="ch">${sc(c)}</span><span class="sl">seat ${i + 1}</span></button>
+      ${chip(i, "label", f.k[i], i === pick && kind === "label")}
+      ${i === 7 ? chip(7, "question", f.q, kind === "question") : `<span class="ql-chip none"></span>`}</div>`).join("");
+    $("qlSeats").querySelectorAll("button").forEach(b => b.onclick = () => { pick = +b.dataset.i; kind = b.dataset.k; d = 0; render(true); });
+    const isQ = kind === "question", x = f.x[pick], M = isQ ? trained.query : trained.key, out = isQ ? f.q : f.k[pick], nm = isQ ? "question" : "label";
+    const P = $("qlP");
+    P.innerHTML = `<div class="ql-h">${isQ ? `The question of “${sc(L[7])}” in seat 8` : `The label of “${sc(L[pick])}” in seat ${pick + 1}`}</div>
+      <div class="ql-sub">${isQ ? "Only the last letter makes a question, with the 9 query weights." : "The same 9 key weights make every letter's label."}</div>
+      <div class="ql-eq">
+        <span class="ql-part"><small>its 3 numbers</small><span class="ql-col in">${x.map(v => `<span>${fmt(v)}</span>`).join("")}</span></span>
+        <span class="ql-op">×</span>
+        <span class="ql-part"><small>${isQ ? "query" : "key"} weights</small><span class="ql-grid">${M.map(r => r.map(v => `<span>${fmt(v)}</span>`).join("")).join("")}</span></span>
+        <span class="ql-op">=</span>
+        <span class="ql-part"><small>${nm}</small><span class="ql-col out ${isQ ? "qu" : "lab"}">${out.map((v, j) => `<button type="button" data-d="${j}">${fmt(v)}</button>`).join("")}</span></span>
+      </div>
+      <div class="ql-sum"><div class="t"></div><div class="ql-rows"></div></div>`;
+    const ins = P.querySelectorAll(".ql-col.in span"), cells = P.querySelectorAll(".ql-grid span"), outs = P.querySelectorAll(".ql-col.out button");
+    outs.forEach(b => b.onclick = () => { stop(); show(+b.dataset.d, true, false); });
+    function show(j, anim, chain) {
+      d = j;
+      outs.forEach((b, k) => b.classList.toggle("on", k === j));
+      cells.forEach((c, k) => { c.classList.toggle("cur", k % 3 === j); c.classList.remove("hot"); });
+      ins.forEach(c => c.classList.remove("hot"));
+      P.querySelector(".ql-sum .t").innerHTML = `The <b>${ORD[j]}</b> number of the ${nm}: each of its 3 numbers × the weight beside it in the ${ORD[j]} column, added up.`;
+      const R = P.querySelector(".ql-rows"), w8 = anim ? " wait" : "";
+      R.innerHTML = [0, 1, 2].map(a => `<span class="r${a}${w8}">${fmt(x[a])}</span><span class="op r${a}${w8}">×</span><span class="r${a}${w8}">${fmt(M[a][j])}</span><span class="op r${a}${w8}">=</span><span class="r${a}${w8}">${fmt(x[a] * M[a][j])}</span>`).join("")
+        + `<span class="tl r3${w8}">added up</span><span class="tot r3${w8}">${fmt(out[j])}</span>`;
+      if (!anim) return;
+      [0, 1, 2].forEach(a => later(150 + a * 550, () => {
+        ins.forEach((c, k) => c.classList.toggle("hot", k === a));
+        cells.forEach((c, k) => c.classList.toggle("hot", k === a * 3 + j));
+        R.querySelectorAll(".r" + a).forEach(e => e.classList.remove("wait"));
+      }));
+      later(150 + 3 * 550, () => {
+        ins.forEach(c => c.classList.remove("hot")); cells.forEach(c => c.classList.remove("hot"));
+        R.querySelectorAll(".r3").forEach(e => e.classList.remove("wait")); animate(outs[j]);
+        if (chain && j < 2) later(1300, () => show(j + 1, true, true));
+      });
+    }
+    if (play) animate(P);
+    show(d, play && !still.matches, play);
   }
-  function steady() {   // both cards keep their tallest size, so nothing jumps
-    const Q = $("qlQ"), K = $("qlK"), keep = [sel.value, pick]; Q.style.minHeight = K.style.minHeight = ""; let a = 0, b = 0;
-    [...sel.options].forEach(o => { sel.value = o.value; for (pick = 0; pick < 8; pick++) { render(false); a = Math.max(a, Q.offsetHeight); b = Math.max(b, K.offsetHeight); } });
-    [sel.value, pick] = keep; render(false); if (a) Q.style.minHeight = a + "px"; if (b) K.style.minHeight = b + "px";
+  function steady() {   // the panel keeps its tallest size, so nothing jumps
+    const P = $("qlP"), keep = [sel.value, pick, kind, d]; P.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; for (let i = 0; i < 9; i++) { pick = Math.min(i, 7); kind = i === 8 ? "question" : "label"; d = 0; render(false); m = Math.max(m, P.offsetHeight); } });
+    [sel.value, pick, kind, d] = keep; render(false); if (m) P.style.minHeight = m + "px";
   }
-  sel.onchange = () => render(true);
-  addReset(sel, () => { sel.value = PICKS7[0]; pick = 0; render(true); });
+  sel.onchange = () => { d = 0; render(true); };
+  addReset(sel, () => { sel.value = PICKS7[0]; pick = 2; kind = "label"; d = 0; render(true); });
   render(false); steady(); window.addEventListener("resize", steady);
   new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe(sel);
 })();
