@@ -470,6 +470,7 @@
   .gs-work .t { font-size: 0.85rem; margin-bottom: 4px; }
   .ql-rows .hd { font-family: var(--body); font-size: 0.7rem; color: var(--pencil); text-align: right; white-space: nowrap; }
   @media (max-width: 560px) { .gs-row { grid-template-columns: 3.9em 5.2em minmax(40px, 1fr) 2.8em 1.6em; gap: 5px; font-size: 0.85rem; } .gs-row .scv, .gs-row .pct { font-size: 0.7rem; } .gs-row .ok .w { display: none; } }
+  .tr-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; align-items: end; margin-top: 8px; }
   .sm-grid { display: grid; grid-template-columns: 3.6em repeat(8, minmax(0, 1fr)); gap: 4px; max-width: 620px; align-items: end; }
   .sm-grid .rl { font-size: 0.72rem; color: var(--pencil); align-self: center; line-height: 1.2; }
   .sm-m { display: grid; justify-items: center; gap: 2px; }
@@ -694,11 +695,11 @@
       <h2>Let it learn</h2>
       <p class="say">Now train it yourself, from random numbers. Every number moves by its push, as before: the query, key and value weights too.</p>
       <div class="activity">
-        <div class="do">Press Train. Watch where “the cat␣” looks, and watch the loss fall.</div>
+        <div class="do">Press Train. Watch who the last letter listens to, and watch the loss fall.</div>
         <div class="lm">
           <div class="lm-left">
             <div class="row" style="margin-bottom:4px"><label>8 letters <select id="trW" class="pick"></select></label></div>
-            <div class="att-wrap"><div class="att" id="trBars" style="width:100%"></div></div>
+            <div class="tr-grid" id="trBars"></div>
           </div>
           <div class="lm-side">
             <div class="score-line"><div>Steps<b id="trSteps">0</b></div><div>Loss (all 39 examples)<b id="trLoss">–</b></div></div>
@@ -1313,7 +1314,9 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   let losses = [], running = 0;
   function bars() {
     const w = sel.value, f = model.run(codes(w));
-    $("trBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${pct7(f.att[i])}</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
+    const L = Array.from(w);
+    $("trBars").innerHTML = L.map((c, i) => `<span class="sm-s"><span class="v">${pct7(f.att[i])}</span><span class="bar" style="height:${Math.max(1, f.att[i] * 92)}px;transition:none"></span></span>`).join("")
+      + L.map((c, i) => `<span class="sm-ch${i === 7 ? " me" : ""}">${sc(c)}<small>seat ${i + 1}</small></span>`).join("");
     const top = f.att.indexOf(Math.max(...f.att));
     $("trNote").textContent = model.step === 0 ? "Random numbers: the attention is spread out with no reason."
       : `After ${model.step} steps, the last letter listens most to “${sc(w[top])}” in seat ${top + 1} (${pct7(f.att[top])}).`;
@@ -1321,7 +1324,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
   function curve() {
     const top = Math.max(...losses, 1), n = Math.max(losses.length - 1, 1), X = i => 8 + i / n * 224, Y = v => 80 - v / top * 66;
     let h = `<text x="8" y="11" style="text-anchor:start">loss</text>`;
-    [[0.178, "embeddings: 0.178", -4], [0.169, "best with 3 letters: 0.169", 10]].forEach(([v, t, dy]) => { h += `<line class="ref" x1="8" x2="232" y1="${Y(v)}" y2="${Y(v)}"/><text x="232" y="${Y(v) + dy}" style="text-anchor:end">${t}</text>`; });
+    [[0.169, "best with 3 letters: 0.169", -4]].forEach(([v, t, dy]) => { h += `<line class="ref" x1="8" x2="232" y1="${Y(v)}" y2="${Y(v)}"/><text x="232" y="${Y(v) + dy}" style="text-anchor:end">${t}</text>`; });
     if (losses.length > 1) { const pts = losses.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" "); h += `<polygon class="ar" points="8,80 ${pts} ${X(n)},80"/><polyline class="ln" points="${pts}"/>`; }
     cur.innerHTML = h;
   }
