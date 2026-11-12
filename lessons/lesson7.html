@@ -583,7 +583,10 @@
     <!-- 5 -->
     <section class="part" data-title="Who to listen to">
       <h2>Who to listen to</h2>
-      <p class="say">Softmax turns the 8 matches into shares that add up to 100%, the way it turned scores into chances. The shares say how much the last letter listens to each letter. They are called the <b>attention</b>.</p>
+      <p class="say" style="position:relative">Softmax turns the 8 matches into shares that add up to 100%, the way it turned scores into chances. The shares say how much the last letter listens to each letter. They are called the <b>attention</b>.<button class="doubt" type="button" data-peek-from="smPeek" aria-label="Why does a smaller match get almost nothing?">🤔</button></p>
+      <div hidden id="smPeek"><b>🤔 Why does a smaller match get almost nothing?</b>
+        <p style="margin:6px 0 0">With softmax, a match that is 1 bigger gets about 2.7 times the share. For “the␣cat␣”, “e” has 11.7 and the “t” in seat 7 has 5.8: about 6 smaller. 2.7 × 2.7 × 2.7 × 2.7 × 2.7 × 2.7 ≈ 390, so “e” gets hundreds of times the share of that “t”: 99% against under 1%.</p>
+      </div>
       <div class="activity">
         <div class="do">Pick 8 letters. Watch the matches turn into shares.</div>
         <div class="row" style="margin-bottom:10px"><label>8 letters <select id="atW" class="pick"></select></label></div>
