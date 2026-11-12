@@ -283,6 +283,23 @@
   .cards.go .cr { animation: l7In 0.4s ease both; animation-delay: calc(var(--i) * 0.35s); }
   @media (max-width: 560px) { .slot .pl { font-size: 0.6rem; } .slot .ch { font-size: 1rem; } .cr { font-size: 0.8rem; } }
   @media (prefers-reduced-motion: reduce) { .cards.go .cr { animation: none; } }
+  .seats { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin: 6px 0 12px; }
+  .seat { display: grid; justify-items: center; gap: 2px; padding: 5px 2px; border: 1.5px solid var(--grid); border-radius: 8px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
+  .seat .sl { font-size: 0.68rem; color: var(--pencil); white-space: nowrap; }
+  .seat .sc { font-family: var(--mono); font-size: 1.1rem; min-height: 1.3em; }
+  .seat .sn { display: grid; font-family: var(--mono); font-size: 0.72rem; color: var(--pencil); text-align: center; }
+  .seat .sn.res { color: var(--ink); font-weight: 700; }
+  .seat.full { border-color: var(--ink); }
+  .seat.on { background: var(--hl-yellow); color: var(--ink); }
+  .seat.on .sn, .seat.on .sl { color: var(--ink); }
+  .st-top { display: flow-root; }
+  .st-chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--paper); font-family: var(--mono); margin-bottom: 6px; }
+  .st-chip .big { font-size: 1.6rem; font-weight: 700; }
+  .st-each { font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; }
+  .st-top.go > *, .st-top.go .cr, .st-top.go .st-each { animation: l7In 0.4s ease both; animation-delay: calc(var(--i, 0) * 0.35s); }
+  .seats.go .seat { animation: l7In 0.35s ease both; }
+  @media (max-width: 560px) { .seat .sl { font-size: 0.55rem; } .seat .sn { font-size: 0.6rem; } .seat .sc { font-size: 0.95rem; } .seats { gap: 2px; } }
+  @media (prefers-reduced-motion: reduce) { .st-top.go > *, .st-top.go .cr, .st-top.go .st-each, .seats.go .seat { animation: none; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -388,19 +405,19 @@
     <!-- 3 -->
     <section class="part" data-title="Letters in a row">
       <h2>Letters in a row</h2>
-      <p class="say" style="position:relative">Your model now reads the last <b>8 letters</b>, each in its own place: place 1 is the oldest, place 8 the newest. Each letter has <b>3</b> embedding numbers this time.<button class="doubt" type="button" data-peek-from="threePeek" aria-label="Why 3 numbers, and what do they mean?">🤔</button></p>
+      <p class="say" style="position:relative">Your model now reads the last <b>8 letters</b>, sitting in <b>8 seats</b>: seat 1 holds the oldest letter, seat 8 the newest.<button class="doubt" type="button" data-peek-from="threePeek" aria-label="Why 3 numbers, and what do they mean?">🤔</button></p>
       <div hidden id="threePeek"><b>🤔 Why 3 numbers, and what do they mean?</b>
-        <p style="margin:6px 0 0">We choose how many: 3 here, 2 before. They still start random. With 2, this model learned badly: the same few numbers must carry the letter, its place, the question, the label and the value. 3 gives just enough room.</p>
+        <p style="margin:6px 0 0">We choose how many: 3 here, 2 before. They still start random. With 2, this model learned badly: the same few numbers must carry the letter, its seat, the question, the label and the value. 3 gives just enough room.</p>
         <p style="margin:6px 0 0">No single number means one thing. Learning moves them to whatever helps the guesses, so together they are a description that only the model uses.</p>
       </div>
-      <p class="say">Each of the 8 places also has its own 3 numbers, its <b>position numbers</b>. A letter's numbers = <b>its 3 embedding numbers + the 3 position numbers of its place</b>.</p>
-      <p class="say">So the same letter in two places gets different numbers. Before, letters sat side by side, and every extra letter needed more weights. Now every letter stays 3 numbers, whatever its place.</p>
+      <p class="say">Each letter brings its <b>embedding</b>: 3 numbers, always the same for that letter. Each seat adds its <b>position numbers</b>: 3 numbers, always the same for that seat. Both start random and are learned.</p>
+      <p class="say">A letter's numbers = <b>embedding + position numbers</b>, added one by one. So the same letter in two seats gets different numbers: that is how the model tells near from far.</p>
       <div class="activity">
-        <div class="do">Click a letter in the row and see how its numbers are made. These numbers come from a model that has already learned; you will train one later.</div>
-        <div class="row" style="margin-bottom:8px"><label>8 letters <select id="lrW" class="pick"></select></label></div>
-        <div class="slots" id="lrSlots"></div>
-        <div class="cards" id="lrCards"></div>
-        <div class="muted" id="lrNote" style="min-height:2.8em"></div>
+        <div class="do">Follow “the cat␣” into its 8 seats. These numbers come from a model that has already learned; you will train one later.</div>
+        <div class="bk-cap" id="stCap"></div>
+        <div class="seats" id="stSeats"></div>
+        <div class="st-top" id="stTop"></div>
+        <div class="row" style="margin-top:10px;min-height:2.9em"><button id="stBack">← Back</button><button class="primary" id="stNext">Next step →</button></div>
       </div>
       <p class="hook">How does the last letter choose which of these to look at?</p>
     </section>
@@ -841,36 +858,45 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 })();
 
 // ---------- 3: letters in a row ----------
-(function rowDemo() {
-  const $ = id => document.getElementById(id), sel = $("lrW"); fillWin(sel);
-  let pick = 0;
-  const card = (w, i, f, same) => {
-    const c = w[i], e = trained.embedding[CHAR_TO_NUMBER[c]], p = trained.position[i];
-    return `<div class="card"><div class="card-h">“${sc(c)}” in place ${i + 1}</div>
-      <div class="cr" style="--i:0"><span>embedding of “${sc(c)}”</span><b class="${same ? "same" : ""}">${v3(e)}</b></div>
-      <div class="cr" style="--i:1"><span>+ position numbers of place ${i + 1}</span><b>${v3(p)}</b></div>
+(function seatDemo() {
+  const $ = id => document.getElementById(id), W = "the cat ", L = Array.from(W), f = trained.run(codes(W));
+  const E = c => trained.embedding[CHAR_TO_NUMBER[c]], P = i => trained.position[i];
+  const phone = () => matchMedia("(max-width: 560px)").matches;
+  const col = v => v.map(x => `<span>${fmt(x, phone() ? 1 : 2)}</span>`).join("");
+  const CAPS = ["", "1. A letter brings its numbers: its embedding.", "2. Each seat has numbers too: its position numbers.", "3. “t” sits in seat 1. Add the two, number by number.", "4. “t” also sits in seat 7. Same embedding, different seat: different numbers.", "5. All 8 seats filled: 8 rows of 3 numbers, ready for the next step."];
+  const sumCard = (i, same) => `<div class="card st-card"><div class="card-h">“${sc(L[i])}” in seat ${i + 1}</div>
+      <div class="cr" style="--i:0"><span>embedding of “${sc(L[i])}”</span><b class="${same ? "same" : ""}">${v3(E(L[i]))}</b></div>
+      <div class="cr" style="--i:1"><span>+ position numbers of seat ${i + 1}</span><b>${v3(P(i))}</b></div>
       <div class="cr tot" style="--i:2"><span>= its numbers</span><b>${v3(f.x[i])}</b></div></div>`;
-  };
+  const byNumber = i => `<div class="st-each" style="--i:3">${[0, 1, 2].map(d => `${fmt(E(L[i])[d])} + ${P(i)[d] < 0 ? "(" + fmt(P(i)[d]) + ")" : fmt(P(i)[d])} = <b>${fmt(f.x[i][d])}</b>`).join("<br>")}</div>`;
+  let step = 1;
   function render(animate) {
-    const w = sel.value, f = trained.run(codes(w)), L = Array.from(w);
-    const other = L.findIndex((c, i) => c === L[pick] && i !== pick);
-    $("lrSlots").innerHTML = L.map((c, i) => `<button type="button" class="slot${i === pick ? " on" : ""}${i === other ? " twin" : ""}" data-i="${i}"><span class="ch">${sc(c)}</span><span class="pl">place ${i + 1}</span></button>`).join("");
-    $("lrSlots").querySelectorAll(".slot").forEach(b => b.onclick = () => { pick = +b.dataset.i; render(true); });
-    $("lrCards").innerHTML = card(L, pick, f, other >= 0) + (other >= 0 ? card(L, other, f, true) : `<div class="card ghost">${card(L, pick, f, false).replace(/^<div class="card">|<\/div>$/g, "")}</div>`);
-    $("lrNote").innerHTML = other >= 0
-      ? `“${sc(L[pick])}” is also in place ${other + 1}: <b>same embedding</b>, different position numbers, so <b>different numbers</b>.`
-      : `“${sc(L[pick])}” is here only once. Try a letter that comes twice, like ${L.filter((c, i) => L.indexOf(c) !== i).map(c => "“" + sc(c) + "”")[0] || "another one"}.`;
-    if (animate) { const cs = $("lrCards"); cs.classList.remove("go"); void cs.offsetWidth; cs.classList.add("go"); }
+    $("stCap").textContent = CAPS[step];
+    // top area: what this step is about
+    const top = $("stTop");
+    if (step === 1) top.innerHTML = `<div class="st-chip" style="--i:0"><span class="big">t</span> brings <b>${v3(E("t"))}</b></div><div class="muted" style="--i:1">Every “t”, anywhere, brings exactly these 3 numbers.</div>`;
+    else if (step === 2) top.innerHTML = `<div class="muted">Each seat below shows its own 3 position numbers. Seat 1 always adds ${v3(P(0))}, whatever letter sits there.</div>`;
+    else if (step === 3) top.innerHTML = `<div class="cards">${sumCard(0, false)}<div class="card st-card">${byNumber(0)}</div></div>`;
+    else if (step === 4) top.innerHTML = `<div class="cards">${sumCard(0, true)}${sumCard(6, true)}</div>`;
+    else top.innerHTML = `<div class="muted">Same letter, different seat, different numbers: compare seat 1 and seat 7. The next pages work with these 8 rows.</div>`;
+    // the seats
+    const filled = i => step >= 5 || (step >= 3 && i === 0) || (step >= 4 && i === 6);
+    $("stSeats").innerHTML = L.map((c, i) => `<div class="seat${filled(i) ? " full" : ""}${(step === 3 && i === 0) || (step === 4 && (i === 0 || i === 6)) ? " on" : ""}">
+        <span class="sl">seat ${i + 1}</span><span class="sc">${filled(i) ? sc(c) : "·"}</span><span class="sn${filled(i) ? " res" : ""}">${col(filled(i) ? f.x[i] : P(i))}</span></div>`).join("");
+    $("stSeats").style.visibility = step === 1 ? "hidden" : "";
+    $("stBack").hidden = step === 1; $("stNext").hidden = step === 5;
+    if (animate) [top, $("stSeats")].forEach(el => { el.classList.remove("go"); void el.offsetWidth; el.classList.add("go"); });
   }
-  function steady() {   // the cards and note keep their tallest size, so nothing jumps
-    const els = ["lrCards", "lrNote"].map($), keep = [sel.value, pick], m = [0, 0]; els.forEach(e => e.style.minHeight = "");
-    [...sel.options].forEach(o => { sel.value = o.value; for (pick = 0; pick < 8; pick++) { render(false); els.forEach((e, k) => m[k] = Math.max(m[k], e.offsetHeight)); } });
-    [sel.value, pick] = keep; render(false); els.forEach((e, k) => { if (m[k]) e.style.minHeight = m[k] + "px"; });
+  function steady() {   // every part keeps its tallest size, so nothing jumps
+    const els = ["stTop", "stCap"].map($), keep = step, m = [0, 0]; els.forEach(e => e.style.minHeight = "");
+    for (step = 1; step <= 5; step++) { render(false); els.forEach((e, k) => m[k] = Math.max(m[k], e.offsetHeight)); }
+    step = keep; render(false); els.forEach((e, k) => { if (m[k]) e.style.minHeight = m[k] + "px"; });
   }
-  sel.onchange = () => { pick = 0; render(true); };
-  addReset(sel, () => { sel.value = PICKS7[0]; pick = 0; render(true); });
+  $("stNext").onclick = () => { step = Math.min(5, step + 1); render(true); };
+  $("stBack").onclick = () => { step = Math.max(1, step - 1); render(true); };
+  addReset($("stNext"), () => { step = 1; render(true); });
   render(false); steady(); window.addEventListener("resize", steady);
-  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe(sel);
+  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe($("stNext"));
 })();
 
 // ---------- 4: question, labels, matches ----------
