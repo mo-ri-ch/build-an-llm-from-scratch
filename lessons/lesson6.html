@@ -187,8 +187,8 @@
   .emb tr.p0 td:not(.pos), .emb tr.p1 td:not(.pos), .emb tr.p2 td:not(.pos) { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); color: var(--ink); }
   .emb tr.sum td { border-top: 2px solid var(--ink); font-weight: 700; }
   .emb .mul { color: var(--pencil); }
-  .vt { display: grid; grid-template-columns: 9.6em 1fr 3.6em 5.4em; gap: 6px 10px; align-items: center; margin: 4px 0 8px; }
-  .vt .who { font-size: 0.9rem; white-space: nowrap; } .vt .who b { font-family: var(--mono); font-size: 1rem; }
+  .vt { display: grid; grid-template-columns: 7.2em 1fr 3.6em 5.4em; gap: 6px 10px; align-items: center; margin: 4px 0 8px; }
+  .vt .who { font-size: 0.9rem; } .vt .who b { font-family: var(--mono); font-size: 1rem; }
   .vt .bar { height: 18px; position: relative; background: var(--paper); border: 1px solid var(--grid); border-radius: 4px; }
   .vt .bar::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; border-left: 1.5px solid var(--pencil); }
   .vt .fill { position: absolute; top: 0; bottom: 0; background: var(--hl-yellow); border: 1.5px solid var(--ink); border-radius: 3px; transition: left 0.45s ease, width 0.45s ease; }
@@ -196,13 +196,10 @@
   .vt .tag { font-size: 0.8rem; color: var(--pencil); }
   .vt .tag.chg { color: var(--pen); font-weight: 700; }
   .vt .tot { border-top: 2px solid var(--ink); padding-top: 6px; font-weight: 700; }
-  .vt .how { grid-column: 1 / -1; font-family: var(--mono); font-size: 0.78rem; color: var(--pencil); margin: -4px 0 4px; white-space: nowrap; overflow: hidden; height: 1.5em; }
-  .vt .how .emb-n { color: var(--ink); border-radius: 3px; padding: 0 2px; }
-  .vt .how .emb-n.chg { background: var(--hl-yellow); }
   .vt .bar.tot { padding: 0; border-top: 1px solid var(--grid); margin-top: 8px; }
   .vt .fill.flash { animation: vtFlash 0.9s ease; }
   @keyframes vtFlash { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--pen) 35%, transparent); } }
-  @media (max-width: 560px) { .vt { grid-template-columns: 6em 1fr 3.2em; } .vt .tag { grid-column: 2 / -1; margin-top: -4px; } #smNote { min-height: 8.2em !important; } .vt .how { white-space: normal; height: 2.7em; } .vt .how .long { display: none; } .vt .who { white-space: normal; } #smW3 { min-height: 4.4em; } }
+  @media (max-width: 560px) { .vt { grid-template-columns: 5.6em 1fr 3.2em; } .vt .tag { grid-column: 2 / -1; margin-top: -4px; } #smNote { min-height: 8.2em !important; } }
   @media (prefers-reduced-motion: reduce) { .vt .fill { transition: none; } .vt .fill.flash { animation: none; } }
   .six { font-family: var(--mono); font-size: 1.05rem; margin: 4px 0 10px; }
   .six b { background: color-mix(in srgb, var(--hl-yellow) 65%, transparent); padding: 1px 6px; border-radius: 4px; font-weight: 400; color: var(--ink); }
@@ -607,7 +604,7 @@ the mat. the cat sat on the dog sat on the</pre></div>
       <p class="say">Each letter has <b>one</b> embedding (its 2 numbers), used in every position. That is why the model needs only 112 numbers. But it also means “a” has the same 2 numbers after “c” as after “s”: <b>its neighbours never change them</b>.</p>
       <div class="activity">
         <div class="do">Each letter adds its own part to a score: its embedding × the weights for its place. Change one letter: which parts change?</div>
-        <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label><label>Score of <select id="smK" class="pick" style="width:7.5em"></select></label></div>
+        <div class="row" style="margin-bottom:10px"><label>Third-last <select id="sm0" class="pick"></select></label><label>Second-last <select id="sm1" class="pick"></select></label><label>Last <select id="sm2" class="pick"></select></label><label>Score of <select id="smK" class="pick"></select></label></div>
         <div class="vt" id="smVotes"></div>
         <div class="muted" id="smNote" style="min-height:4.4em"></div>
       </div>
@@ -853,7 +850,7 @@ let three = null;
   // one scale for every bar of a score (the parts and their total), fixed per next letter,
   // so a bar only moves when its own number changes. It fits the groups in our text; bigger values are cut at the edge.
   const SCALE = CHARS.map((_, k) => { let m = 0.5; for (let i = 0; i + 3 <= TEXT.length; i++) { const g = TEXT.slice(i, i + 3), ps = [0, 1, 2].map(pos => part(g[pos], pos, k)); m = Math.max(m, ...ps.map(Math.abs), Math.abs(ps[0] + ps[1] + ps[2])); } return m * 1.1; });
-  const rows = [0, 1, 2, 3].map(r => `<div class="who" id="smW${r}"></div><div class="bar"><span class="fill" id="smF${r}"></span></div><div class="val" id="smV${r}"></div><div class="tag" id="smT${r}"></div>` + (r < 3 ? `<div class="how" id="smH${r}"></div>` : "")).join("");
+  const rows = [0, 1, 2, 3].map(r => `<div class="who" id="smW${r}"></div><div class="bar"><span class="fill" id="smF${r}"></span></div><div class="val" id="smV${r}"></div><div class="tag" id="smT${r}"></div>`).join("");
   $("smVotes").innerHTML = rows;
   ["smW3", "smV3", "smT3"].forEach(id => $(id).classList.add("tot")); $("smF3").parentElement.classList.add("tot");
   let prev = null;
@@ -864,8 +861,6 @@ let three = null;
     const kChanged = prev && prev.k !== k;
     g.forEach((c, i) => {
       $("smW" + i).innerHTML = `<b>${sc(c)}</b> ${WHO[i]}`;
-      const e = trained.letters[CHAR_TO_NUMBER[c]], wa = trained.weights[2 * i][k], wb = trained.weights[2 * i + 1][k];
-      $("smH" + i).innerHTML = `embedding <span class="emb-n${changed[i] && !kChanged ? " chg" : ""}">[${fmt(e[0])}, ${fmt(e[1])}]</span> × weights ${2 * i + 1}–${2 * i + 2} [${fmt(wa)}, ${fmt(wb)}] <span class="long"> = ${fmt(e[0])}×${fmt(wa)} + ${fmt(e[1])}×${fmt(wb)}</span>`;
       setBar(i, parts[i], SCALE[k]); $("smV" + i).textContent = fmt(parts[i]);
       const t = $("smT" + i), show = prev && !kChanged; t.textContent = show && changed[i] ? "changed" : "same as before"; t.style.visibility = show ? "" : "hidden"; t.classList.toggle("chg", !!(show && changed[i]));
       if (changed[i] && !kChanged) { const f = $("smF" + i); f.classList.remove("flash"); void f.offsetWidth; f.classList.add("flash"); }
