@@ -450,6 +450,18 @@
   .gs-flow b { color: var(--ink); }
   #gsP .top3 .fill { transition: width 0.7s ease; }
   @media (max-width: 560px) { .mx-line { font-size: 0.74rem; gap: 3px 5px; } .mx-line .who { font-size: 0.74rem; } .mx-sh { font-size: 0.6rem; } .gs-line .who { min-width: 0; width: 100%; } }
+  .gs-top { display: grid; gap: 4px; margin-top: 6px; transition: opacity 0.3s; }
+  .gs-row { display: grid; grid-template-columns: 5.5em 6.5em 1fr 3.4em; align-items: center; gap: 8px; padding: 3px 6px; border: 1.5px solid transparent; border-radius: 8px; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+  .gs-row:hover { border-color: var(--ink); background: none; color: inherit; }
+  .gs-row.on:hover { background: color-mix(in srgb, var(--hl-yellow) 25%, transparent); }
+  .gs-row.on { border-color: var(--ink); background: color-mix(in srgb, var(--hl-yellow) 25%, transparent); }
+  .gs-row .scv, .gs-row .pct { font-family: var(--mono); font-size: 0.8rem; color: var(--pencil); }
+  .gs-row .pct { text-align: right; color: var(--ink); }
+  .gs-row .track { height: 12px; border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; }
+  .gs-row .fill { display: block; height: 100%; background: var(--hl-yellow); transition: width 0.7s ease; }
+  .gs-work { margin-top: 12px; transition: opacity 0.3s; }
+  .gs-work .t { font-size: 0.85rem; margin-bottom: 4px; }
+  @media (max-width: 560px) { .gs-row { grid-template-columns: 4.2em 5.4em 1fr 3em; gap: 5px; font-size: 0.85rem; } .gs-row .scv, .gs-row .pct { font-size: 0.7rem; } }
   .sm-grid { display: grid; grid-template-columns: 3.6em repeat(8, minmax(0, 1fr)); gap: 4px; max-width: 620px; align-items: end; }
   .sm-grid .rl { font-size: 0.72rem; color: var(--pencil); align-self: center; line-height: 1.2; }
   .sm-m { display: grid; justify-items: center; gap: 2px; }
@@ -626,8 +638,8 @@
         <div class="row" style="margin-bottom:8px"><label>8 letters <select id="gsW" class="pick"></select></label></div>
         <div class="ql-panel" id="gsP"></div>
       </div>
-      <p class="say">Your model has <b>135 numbers</b>: 42 embedding + 24 position + 27 query, key and value + 42 output weights.</p>
-      <p class="hook">Practise the three new steps.</p>
+      <p class="say">Your model has <b>135 numbers</b>: 42 embedding + 24 position + 27 query, key and value weights + 42 output weights.</p>
+      <p class="hook">Practise matches, shares and the mix.</p>
     </section>
 
     <!-- 7 -->
@@ -1243,27 +1255,33 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 // ---------- 8: the guess ----------
 (function guessDemo() {
   const $ = id => document.getElementById(id), sel = $("gsW"); fillWin(sel);
-  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [];
+  const still = matchMedia("(prefers-reduced-motion: reduce)"); let timers = [], pick = 0;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
   function render(play) {
     timers.forEach(clearTimeout); timers = [];
     const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w)), p = softmax(f.scores), W8 = anim ? " wait" : "";
-    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3);
+    const top = p.map((q, i) => [q, i]).sort((a, b) => b[0] - a[0]).slice(0, 3), c = top[pick][1], O = trained.out;
     const row = (r, who, v) => `<div class="mx-line gs-line r${r}${W8}"><span class="who">${who}</span><span>${v}</span></div>`;
     $("gsP").innerHTML = `<div class="ql-h">The guess after “${winLabel(w).slice(1, -1)}”</div>
       <div class="ql-sub">Its next letter in our text: <b>${nm(WINDOWS.find(x => x.w === w).next)}</b></div>
       ${row(0, "the mix (what it heard)", v3(f.mixed))}${row(1, `+ its own 3 numbers (“${sc(L[7])}” in seat 8)`, v3(f.x[7]))}
       <div class="mx-line gs-line sum r2${W8}"><span class="who">= 3 numbers for the guess</span><span class="res">${v3(f.h)}</span></div>
-      <div class="gs-flow r3${W8}">× <b>42 output weights</b> → <b>14 scores</b> → softmax → <b>chances</b>:</div>
-      <div class="top3">${top.map(([q, i]) => `<span>${nm(CHARS[i])}</span><span class="track"><span class="fill" style="width:${anim ? 0 : (q * 100).toFixed(1)}%"></span></span><span class="pct">${Math.round(q * 100)}%</span>`).join("")}</div>`;
+      <div class="gs-flow r3${W8}">× <b>42 output weights</b> → <b>14 scores</b> → softmax → <b>chances</b>. The top 3 (click one to see its score worked out):</div>
+      <div class="gs-top r3${W8}">${top.map(([q, i], k) => `<button type="button" class="gs-row${k === pick ? " on" : ""}" data-k="${k}"><span class="nm">${nm(CHARS[i])}</span><span class="scv">score ${fmt(f.scores[i], 1)}</span><span class="track"><span class="fill" style="width:${anim ? 0 : (q * 100).toFixed(1)}%"></span></span><span class="pct">${pct7(q)}</span></button>`).join("")}</div>
+      <div class="gs-work r4${W8}"><div class="t">The score of <b>${nm(CHARS[c])}</b>: each of the 3 numbers × its output weight for ${nm(CHARS[c])}, added up.</div>
+        <div class="ql-rows">${[0, 1, 2].map(d => `<span>${fmt(f.h[d])}</span><span class="op">×</span><span>${fmt(O[d][c])}</span><span class="op">=</span><span>${fmt(f.h[d] * O[d][c])}</span>`).join("")}
+        <span class="tl">added up = score</span><span class="tot">${fmt(f.scores[c])}</span></div></div>`;
+    $("gsP").querySelectorAll(".gs-row").forEach(btn => btn.onclick = () => { pick = +btn.dataset.k; render(false); if (!still.matches) animate($("gsP").querySelector(".gs-work")); });
     if (!anim) return;
     const show = c => $("gsP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
     [0, 1, 2, 3].forEach(r => later(250 + r * 650, () => show(".r" + r)));
-    later(250 + 4 * 650, () => $("gsP").querySelectorAll(".top3 .fill").forEach((e, k) => e.style.width = (top[k][0] * 100).toFixed(1) + "%"));
+    later(250 + 4 * 650, () => $("gsP").querySelectorAll(".gs-top .fill").forEach((e, k) => e.style.width = (top[k][0] * 100).toFixed(1) + "%"));
+    later(250 + 5 * 650, () => show(".r4"));
   }
-  function steady() { const P = $("gsP"), keep = sel.value; P.style.minHeight = ""; let m = 0;
-    [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, P.offsetHeight); }); sel.value = keep; render(false); if (m) P.style.minHeight = m + "px"; }
-  sel.onchange = () => render(true); addReset(sel, () => { sel.value = PICKS7[0]; render(true); });
+  function steady() { const P = $("gsP"), keep = [sel.value, pick]; P.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; for (pick = 0; pick < 3; pick++) { render(false); m = Math.max(m, P.offsetHeight); } });
+    [sel.value, pick] = keep; render(false); if (m) P.style.minHeight = m + "px"; }
+  sel.onchange = () => { pick = 0; render(true); }; addReset(sel, () => { sel.value = PICKS7[0]; pick = 0; render(true); });
   render(false); steady(); window.addEventListener("resize", steady);
   let seen = false; new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { steady(); if (!seen) { seen = true; render(true); } } }, { threshold: 0.4 }).observe($("gsP"));
 })();
