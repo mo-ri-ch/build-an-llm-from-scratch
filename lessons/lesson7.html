@@ -719,7 +719,7 @@
     <!-- 9 -->
     <section class="part" data-nonum data-title="✏️ Practice 7.2">
       <h2>✏️ Practice 7.2</h2>
-      <p class="say">Count the numbers.<br>Remember: <b class="eqbox">position numbers = places × 3</b><br><b class="eqbox">your model: 42 embedding + 24 position + 27 query, key, value + 42 output = 135</b></p>
+      <p class="say">Count the numbers, then follow one guess.<br>Remember: <b class="eqbox">position numbers = seats × 3</b><br><b class="eqbox">your model: 42 embedding + 24 position + 27 query, key and value weights + 42 output weights = 135</b><br><b class="eqbox">score = 3 numbers × the letter's 3 output weights, added up</b></p>
       <div class="activity">
         <div class="do"><span data-peek="Take a pen and paper, or use the ✎ pen on this page, and write each step. It sticks better than guessing.">Work each one out.</span> Type the answer, press Check.</div>
         <div class="pq" data-ans="27" data-tol="0.5" data-hint="Each of the 3 weight tables is 3 × 3." data-work="3 tables × 3 × 3 = 3 × 9 = 27.">
@@ -727,18 +727,18 @@
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="3" data-tol="0.01" data-hint="Only the position numbers grow with the number of places." data-work="One more place needs 3 more position numbers. Nothing else changes.">
+        <div class="pq" data-ans="3" data-tol="0.01" data-hint="Only the position numbers grow with the number of seats." data-work="One more seat needs 3 more position numbers. Nothing else changes.">
           <div class="pq-q">The model reads <b>9</b> letters instead of 8. How many <b>more</b> numbers does it need?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="25" data-tol="0.5" data-hint="Equal matches get equal shares, and the shares add up to 100%." data-work="4 equal matches: 100% ÷ 4 = 25% each.">
-          <div class="pq-q">4 letters all have the same match. What share (in %) does each one get?</div>
+        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Multiply in pairs: 2 × 1, 1 × 3, 0 × 5. Then add." data-work="2×1 + 1×3 + 0×5 = 2 + 3 + 0 = 5.">
+          <div class="pq-q">The 3 numbers for the guess are <b>[2, 1, 0]</b>. The output weights for “s” are <b>[1, 3, 5]</b>. What is the score of “s”?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
-        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Mix = share × value, added. Then add the last letter's own number." data-work="0.5 × 2 + 0.5 × 6 = 4. Then 4 + 1 = 5.">
-          <div class="pq-q">Shares <b>0.5</b> and <b>0.5</b>, values <b>2</b> and <b>6</b> (one number each). The last letter's own number is <b>1</b>. What number goes to the guess?</div>
+        <div class="pq" data-ans="5" data-tol="0.01" data-hint="Mix = share × value, added. 50% is 0.5. Then add the last letter's own number." data-work="0.5 × 2 + 0.5 × 6 = 4. Then 4 + 1 = 5.">
+          <div class="pq-q">Shares <b>50%</b> and <b>50%</b>, values <b>2</b> and <b>6</b> (one number each). The last letter's own number is <b>1</b>. What number goes to the guess?</div>
           <div class="pq-in"><input type="text" inputmode="decimal" autocomplete="off" aria-label="Your answer"><button class="primary pq-check" type="button" hidden>Check</button></div>
           <div class="pq-fb" aria-live="polite"></div>
         </div>
