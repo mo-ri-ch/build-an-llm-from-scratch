@@ -324,7 +324,7 @@
       <p class="say">Your model reads only the last 3 letters. After “cat␣” and after “sat␣” it sees the same 3 letters, “at␣”. But the next letter is different: “cat <b>s</b>at” and “sat <b>o</b>n”.</p>
       <p class="say">To tell them apart, it must look further back. The model from before would need 28 more weights for every extra letter: its 2 embedding numbers each need a weight for each of the 14 next letters. And each letter would still vote alone.</p>
       <div class="activity">
-        <div class="do">Two places in our text. The model must guess the dashed letter. Slide to let it see more letters.</div>
+        <div class="do">“at␣” comes 3 times in our text. Each time, the model sees the <b>yellow</b> letters and must guess the <b>blue</b> one. Slide to let it see more letters.</div>
         <div class="row"><label>Letters it sees: <b id="fwN">3</b></label><input type="range" id="fwR" min="1" max="8" value="3" style="flex:1 1 200px;accent-color:var(--ink)"></div>
         <div class="pair" id="fwPair"></div>
         <div class="verdict" id="fwV" aria-live="polite"></div>
@@ -742,16 +742,18 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 // ---------- 1: how far back? ----------
 (function farDemo() {
   const $ = id => document.getElementById(id), R = $("fwR");
-  const A = "the cat s", B = "cat sat o";             // the letters before “s” in “cat sat”, and before “o” in “sat on”
+  const ROWS = ["the cat s", "cat sat o", "dog sat o"];   // the 3 times “at␣” comes in our text, and the letter after it
   const row = (t, n) => `<div class="ln">${Array.from(t).map((c, i) => `<span class="${i === t.length - 1 ? "nx" : i >= t.length - 1 - n ? "in" : ""}">${sc(c)}</span>`).join("")}</div>`;
   function render() {
-    const n = +R.value, a = A.slice(-1 - n, -1), b = B.slice(-1 - n, -1), same = a === b;
+    const n = +R.value, seen = ROWS.map(t => t.slice(-1 - n, -1)), next = ROWS.map(t => t[t.length - 1]);
     $("fwN").textContent = n;
-    $("fwPair").innerHTML = row(A, n) + row(B, n);
-    const v = $("fwV"); v.className = "verdict " + (same ? "bad" : "good");
-    v.innerHTML = same
-      ? `It sees ${winLabel(a)} both times. <b class="bad">Same letters, different next letter</b>: it can't tell which one comes next.`
-      : `It sees ${winLabel(a)} and ${winLabel(b)}. <b class="good">Different letters</b>: now it can tell, s after ${winLabel(a)}, o after ${winLabel(b)}.`;
+    $("fwPair").innerHTML = ROWS.map(t => row(t, n)).join("");
+    const groups = {}; seen.forEach((w, i) => (groups[w] = groups[w] || new Set()).add(next[i]));
+    const sure = Object.values(groups).every(g => g.size === 1);
+    const v = $("fwV"); v.className = "verdict " + (sure ? "good" : "bad");
+    v.innerHTML = !sure
+      ? `It sees ${winLabel(seen[0])} all 3 times, but the blue letter is s once and o twice. <b class="bad">Same letters, different next letter</b>: it can't be sure.`
+      : `It sees ${winLabel(seen[0])} before s, and ${[...new Set(seen.slice(1))].map(winLabel).join(" or ")} before o. <b class="good">Different letters</b>: now it can tell which comes next.`;
   }
   function steady() {   // the verdict keeps the height of its longest text, so nothing jumps
     const v = $("fwV"), keep = R.value; v.style.minHeight = ""; let m = 0;
