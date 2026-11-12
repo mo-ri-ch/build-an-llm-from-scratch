@@ -301,6 +301,24 @@
   .seats.go .seat { animation: l7In 0.35s ease both; }
   @media (max-width: 560px) { .seat .sl { font-size: 0.55rem; } .seat .sn { font-size: 0.6rem; } .seat .sc { font-size: 0.95rem; } .seats { gap: 2px; } }
   @media (prefers-reduced-motion: reduce) { .st-top.go > *, .st-top.go .cr, .st-top.go .st-each, .seats.go .seat { animation: none; } }
+  .mv-seats { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin: 10px 0 14px; max-width: 560px; }
+  .mv-seat { display: grid; justify-items: center; gap: 3px; padding: 8px 0 5px; border: 1.5px dashed var(--grid); border-radius: 10px; background: var(--paper); cursor: pointer; font: inherit; color: inherit; }
+  .mv-seat:hover { border-color: var(--ink); }
+  .mv-seat .tok { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; width: 1.7em; height: 1.7em; display: grid; place-items: center; border-radius: 50%; opacity: 0; transform: scale(0.6); transition: opacity 0.25s, transform 0.25s; }
+  .mv-seat .sl { font-size: 0.7rem; color: var(--pencil); white-space: nowrap; }
+  .mv-seat.on { border-style: solid; border-color: var(--ink); }
+  .mv-seat.on .tok { opacity: 1; transform: none; background: var(--hl-yellow); color: var(--ink); border: 1.5px solid var(--ink); }
+  .mv-eq { display: grid; gap: 6px; max-width: 620px; }
+  .mv-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "lab val" "tag tag"; gap: 0 12px; align-items: baseline; padding: 6px 10px; border-radius: 8px; background: var(--paper); border: 1px solid var(--grid); }
+  .mv-row .lab { grid-area: lab; font-size: 0.92rem; }
+  .mv-row b { grid-area: val; font-family: var(--mono); font-weight: 400; white-space: nowrap; border-radius: 4px; padding: 0 4px; }
+  .mv-row .tag { grid-area: tag; font-size: 0.75rem; color: var(--pencil); }
+  .mv-row .tag.chg { color: var(--pen); }
+  .mv-row.tot { border-color: var(--ink); } .mv-row.tot b { font-weight: 700; }
+  .mv-row b.flash { animation: mvFlash 0.9s ease; }
+  @keyframes mvFlash { 0% { background: var(--hl-yellow); } 100% { background: transparent; } }
+  @media (max-width: 560px) { .mv-seat .sl { font-size: 0.58rem; } .mv-seat .tok { font-size: 1rem; } .mv-seats { gap: 3px; } .mv-row { grid-template-columns: 1fr; grid-template-areas: "lab" "val" "tag"; } .mv-row b { justify-self: start; font-size: 0.95rem; padding: 0; margin: 2px 0; } .mv-row .lab { font-size: 0.85rem; } }
+  @media (prefers-reduced-motion: reduce) { .mv-row b.flash { animation: none; } .mv-seat .tok { transition: none; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -415,11 +433,9 @@
       <p class="say">Each seat also has 3 numbers of its own, always the same for that seat. These are called <b>position numbers</b>. They start random and are learned, like embeddings.</p>
       <p class="say">A letter's numbers = <b>embedding + position numbers</b>, added one by one. So the same letter in two seats gets different numbers: that is how the model tells near from far.</p>
       <div class="activity">
-        <div class="do">Follow “the cat␣” into its 8 seats. These numbers come from a model that has already learned; you will train one later.</div>
-        <div class="bk-cap" id="stCap"></div>
-        <div class="seats" id="stSeats"></div>
-        <div class="st-top" id="stTop"></div>
-        <div class="row" style="margin-top:10px;min-height:2.9em"><button id="stBack">← Back</button><button class="primary" id="stNext">Next step →</button></div>
+        <div class="do">Click a seat to move “t” there. Watch which numbers change.</div>
+        <div class="mv-seats" id="mvSeats"></div>
+        <div class="mv-eq" id="mvEq"></div>
       </div>
       <p class="hook">How does the last letter choose which of these to look at?</p>
     </section>
@@ -862,44 +878,24 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 
 // ---------- 3: letters in a row ----------
 (function seatDemo() {
-  const $ = id => document.getElementById(id), W = "the cat ", L = Array.from(W), f = trained.run(codes(W));
-  const E = c => trained.embedding[CHAR_TO_NUMBER[c]], P = i => trained.position[i];
-  const phone = () => matchMedia("(max-width: 560px)").matches;
-  const col = v => v.map(x => `<span>${fmt(x, phone() ? 1 : 2)}</span>`).join("");
-  const CAPS = ["", "1. A letter brings its numbers: its embedding.", "2. Each seat has numbers too: its position numbers.", "3. “t” sits in seat 1. Add the two, number by number.", "4. “t” also sits in seat 7. Same embedding, different seat: different numbers.", "5. All 8 seats filled: 8 rows of 3 numbers, ready for the next step."];
-  const sumCard = (i, same) => `<div class="card st-card"><div class="card-h">“${sc(L[i])}” in seat ${i + 1}</div>
-      <div class="cr" style="--i:0"><span>embedding of “${sc(L[i])}”</span><b class="${same ? "same" : ""}">${v3(E(L[i]))}</b></div>
-      <div class="cr" style="--i:1"><span>+ position numbers of seat ${i + 1}</span><b>${v3(P(i))}</b></div>
-      <div class="cr tot" style="--i:2"><span>= its numbers</span><b>${v3(f.x[i])}</b></div></div>`;
-  const byNumber = i => `<div class="st-each" style="--i:3">${[0, 1, 2].map(d => `${fmt(E(L[i])[d])} + ${P(i)[d] < 0 ? "(" + fmt(P(i)[d]) + ")" : fmt(P(i)[d])} = <b>${fmt(f.x[i][d])}</b>`).join("<br>")}</div>`;
-  let step = 1;
+  const $ = id => document.getElementById(id), e = trained.embedding[CHAR_TO_NUMBER["t"]];
+  let seat = 0;
+  $("mvSeats").innerHTML = Array.from({ length: 8 }, (_, i) => `<button type="button" class="mv-seat" data-i="${i}" aria-label="Seat ${i + 1}"><span class="tok">t</span><span class="sl">seat ${i + 1}</span></button>`).join("");
+  $("mvEq").innerHTML = `
+    <div class="mv-row"><span class="lab">embedding of “t”</span><b id="mvE"></b><span class="tag">never changes</span></div>
+    <div class="mv-row"><span class="lab">+ position numbers of <span id="mvS1"></span></span><b id="mvP"></b><span class="tag chg">changes with the seat</span></div>
+    <div class="mv-row tot"><span class="lab">= “t” in <span id="mvS2"></span></span><b id="mvX"></b><span class="tag chg">so this changes too</span></div>`;
+  const flash = el => { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); };
   function render(animate) {
-    $("stCap").textContent = CAPS[step];
-    // top area: what this step is about
-    const top = $("stTop");
-    if (step === 1) top.innerHTML = `<div class="st-chip" style="--i:0"><span class="big">t</span> brings <b>${v3(E("t"))}</b></div><div class="muted" style="--i:1">Every “t”, anywhere, brings exactly these 3 numbers.</div>`;
-    else if (step === 2) top.innerHTML = `<div class="muted">Each seat below shows its own 3 position numbers. Seat 1 always adds ${v3(P(0))}, whatever letter sits there.</div>`;
-    else if (step === 3) top.innerHTML = `<div class="cards">${sumCard(0, false)}<div class="card st-card">${byNumber(0)}</div></div>`;
-    else if (step === 4) top.innerHTML = `<div class="cards">${sumCard(0, true)}${sumCard(6, true)}</div>`;
-    else top.innerHTML = `<div class="muted">Same letter, different seat, different numbers: compare seat 1 and seat 7. The next pages work with these 8 rows.</div>`;
-    // the seats
-    const filled = i => step >= 5 || (step >= 3 && i === 0) || (step >= 4 && i === 6);
-    $("stSeats").innerHTML = L.map((c, i) => `<div class="seat${filled(i) ? " full" : ""}${(step === 3 && i === 0) || (step === 4 && (i === 0 || i === 6)) ? " on" : ""}">
-        <span class="sl">seat ${i + 1}</span><span class="sc">${filled(i) ? sc(c) : "·"}</span><span class="sn${filled(i) ? " res" : ""}">${col(filled(i) ? f.x[i] : P(i))}</span></div>`).join("");
-    $("stSeats").style.visibility = step === 1 ? "hidden" : "";
-    $("stBack").hidden = step === 1; $("stNext").hidden = step === 5;
-    if (animate) [top, $("stSeats")].forEach(el => { el.classList.remove("go"); void el.offsetWidth; el.classList.add("go"); });
+    const p = trained.position[seat], x = e.map((v, d) => v + p[d]);
+    $("mvSeats").querySelectorAll(".mv-seat").forEach((b, i) => b.classList.toggle("on", i === seat));
+    $("mvE").textContent = v3(e); $("mvP").textContent = v3(p); $("mvX").textContent = v3(x);
+    $("mvS1").textContent = $("mvS2").textContent = `seat ${seat + 1}`;
+    if (animate) { flash($("mvP")); flash($("mvX")); }
   }
-  function steady() {   // every part keeps its tallest size, so nothing jumps
-    const els = ["stTop", "stCap"].map($), keep = step, m = [0, 0]; els.forEach(e => e.style.minHeight = "");
-    for (step = 1; step <= 5; step++) { render(false); els.forEach((e, k) => m[k] = Math.max(m[k], e.offsetHeight)); }
-    step = keep; render(false); els.forEach((e, k) => { if (m[k]) e.style.minHeight = m[k] + "px"; });
-  }
-  $("stNext").onclick = () => { if (step === 1) steady(); step = Math.min(5, step + 1); render(true); };
-  $("stBack").onclick = () => { step = Math.max(1, step - 1); render(true); };
-  addReset($("stNext"), () => { step = 1; render(true); });
-  render(false); steady(); window.addEventListener("resize", steady);
-  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe($("stNext"));
+  $("mvSeats").querySelectorAll(".mv-seat").forEach(b => b.onclick = () => { seat = +b.dataset.i; render(true); });
+  addReset($("mvSeats"), () => { seat = 0; render(true); });
+  render(false);
 })();
 
 // ---------- 4: question, labels, matches ----------
