@@ -12,6 +12,7 @@ import sys
 
 sys.path.insert(0, "tools")
 from outputs import mark_outputs
+from cell_notes import NOTES
 
 for path in sorted(glob.glob("lessons/lesson*.html")):
     n = int(re.search(r"lesson(\d+)", path).group(1))
@@ -32,14 +33,18 @@ for path in sorted(glob.glob("lessons/lesson*.html")):
             f"From [Build a Tiny LLM](https://gradlabs.in/learn/tiny-llm/lessons/lesson{n}.html).",
         ],
     }]
-    for part in re.split(r"\n\n(?=#)", code):
+    notes = NOTES.get(n, [])
+    for index, part in enumerate(re.split(r"\n\n(?=#)", code)):
         lines = part.strip("\n").split("\n")
         marks = mark_outputs(lines)
         lines = [line for line, is_answer in zip(lines, marks) if not is_answer]   # no answers in Colab
         while lines and not lines[-1].strip():
             lines.pop()
+        note = [notes[index]] if index < len(notes) else []
         if any("print(" in line for line in lines):
-            cells.append({"cell_type": "markdown", "metadata": {}, "source": ["🤔 *Guess what this prints, then press ▶.*"]})
+            note.append("🤔 *Guess what this prints, then press ▶.*")
+        if note:
+            cells.append({"cell_type": "markdown", "metadata": {}, "source": ["\n\n".join(note)]})
         cells.append({
             "cell_type": "code", "execution_count": None, "metadata": {}, "outputs": [],
             "source": [line + "\n" for line in lines[:-1]] + [lines[-1]],
