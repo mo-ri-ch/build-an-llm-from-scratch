@@ -370,7 +370,11 @@
     <!-- 3 -->
     <section class="part" data-title="Letters in a row">
       <h2>Letters in a row</h2>
-      <p class="say">Your model now reads the last <b>8 letters</b>. Each letter has <b>3</b> embedding numbers this time, one more than before, which gives it more room to learn.</p>
+      <p class="say" style="position:relative">Your model now reads the last <b>8 letters</b>. Each letter has <b>3</b> embedding numbers this time, one more than before, which gives it more room to learn.<button class="doubt" type="button" data-peek-from="threePeek" aria-label="Why 3 numbers, and what do they mean?">🤔</button></p>
+      <div hidden id="threePeek"><b>🤔 Why 3 numbers, and what do they mean?</b>
+        <p style="margin:6px 0 0">We choose how many: 3 here, 2 before. They still start random. With 2, this model learned badly: the same few numbers must carry the letter, its place, the question, the label and the value. 3 gives just enough room.</p>
+        <p style="margin:6px 0 0">No single number means one thing. Learning moves them to whatever helps the guesses, so together they are a description that only the model uses.</p>
+      </div>
       <p class="say">Each of the 8 places also has 3 numbers, its <b>position numbers</b>. A letter's numbers = <b>its embedding + its place's position numbers</b>.</p>
       <p class="say">So a “t” in place 1 and a “t” in place 7 get different numbers. That is how the model can tell near from far.</p>
       <div class="activity">
