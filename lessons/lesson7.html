@@ -253,7 +253,7 @@
   .hm-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; cursor: pointer; border-radius: 3px; outline-offset: 2px; }
   .hm-row span { height: 9px; border-radius: 2px; background: color-mix(in srgb, var(--pen) calc(var(--a) * 100%), var(--paper)); border: 1px solid color-mix(in srgb, var(--grid) 60%, transparent); }
   .hm-row.on span { border-color: var(--ink); }
-  @media (max-width: 560px) { #dpOut { min-height: 4.7em; } }
+  @media (max-width: 560px) { #dpOut { min-height: 4.7em; } #dpNote { min-height: 4.3em !important; } }
   .dpwrap { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
   svg.dparrow { width: 170px; height: 170px; background: var(--paper); border: 1.5px solid var(--grid); border-radius: var(--radius); flex: 0 0 auto; }
   svg.dparrow line { vector-effect: non-scaling-stroke; }
