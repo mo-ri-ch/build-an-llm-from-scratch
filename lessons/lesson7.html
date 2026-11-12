@@ -461,9 +461,10 @@
     <!-- 4 -->
     <section class="part" data-title="A question and labels">
       <h2>A question and labels</h2>
-      <p class="say">The last letter makes 3 numbers from its own numbers, using 9 weights (multiply and add, as when making a score). They say what it is looking for, so we call them its <b>question</b>, and the 9 weights the <b>query weights</b>.</p>
-      <p class="say">Every letter makes 3 more numbers the same way, with 9 other weights. They say what it has to offer, so we call them its <b>label</b>, and the weights the <b>key weights</b>.</p>
-      <p class="say" style="position:relative">Compare the question with a letter's label: their dot product, ÷ 1.73. This is the letter's <b>match</b>. A big match means: this letter is what the question asks about.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
+      <p class="say">Now the last letter looks back at all 8 letters to find the ones that help.</p>
+      <p class="say">The last letter turns its 3 numbers into 3 numbers that say what it is looking for. We call them its <b>question</b>. They are made with 9 weights, multiplying and adding as when making a score. These are the <b>query weights</b>: query means question.</p>
+      <p class="say">Every letter, the last one too, turns its 3 numbers into 3 numbers that say what it has. We call them its <b>label</b>. They are made the same way, with 9 other weights: the <b>key weights</b>.</p>
+      <p class="say" style="position:relative">To see how well a letter fits, take the dot product of the question and its label, then divide by 1.73. This is the letter's <b>match</b>. The bigger the match, the better that letter fits the question.<button class="doubt" type="button" data-peek-from="sqPeek" aria-label="Why divide by 1.73?">🤔</button></p>
       <div hidden id="sqPeek"><b>🤔 Why divide by 1.73?</b>
         <p style="margin:6px 0 0">1.73 is √3, because there are 3 numbers in each list. Dividing keeps the matches from growing too big while the model learns. Real models with 64 numbers divide by √64 = 8.</p>
       </div>
