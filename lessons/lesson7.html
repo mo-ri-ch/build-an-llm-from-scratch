@@ -761,7 +761,7 @@
         <div class="slips" id="slipsBefore"></div>
         <div class="muted" style="margin-top:8px"><span class="slip">underlined</span>: made up. In our text, this letter never comes after the 5 letters before it.</div>
       </div>
-      <p class="say">The attention model mostly writes our text exactly. The embedding model mixes up “cat sat” and “sat on”, because after “at␣” it can't look back.</p>
+      <p class="say">The attention model makes far fewer made-up pieces: about 1 per text, against 2 for the embedding model. It rarely mixes up “cat sat” and “sat on”, because it can look back past “at␣”. After “log.” our text ends, so neither model has learned what comes next.</p>
       <p class="hook">Here is the same model in Python.</p>
     </section>
 
@@ -1372,6 +1372,13 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     btn.style.visibility = "hidden"; let n = 0;
     timer = setInterval(() => { n++; show($("writtenNow"), a, n, true); show($("writtenBefore"), b, n, true); if (n >= N) { clearInterval(timer); done(); } }, 45);
   };
+  function steady() {   // each box keeps room for the longest text, so nothing jumps while typing
+    ["writtenNow", "writtenBefore"].forEach(id => { const el = $(id), keep = el.innerHTML; el.style.minHeight = ""; let m = 0;
+      ["the cat sat on the mat. the dog sat on the log. the", "the cat on the cat on the cat on the mat. the log."].forEach(t => { el.textContent = t; m = Math.max(m, el.offsetHeight); });
+      el.innerHTML = keep; el.style.minHeight = m + "px"; });
+  }
+  steady(); window.addEventListener("resize", steady);
+  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe(btn);
   addReset($("writtenNow"), () => { clearInterval(timer); btn.style.visibility = ""; ["writtenNow", "writtenBefore", "slipsNow", "slipsBefore"].forEach(id => $(id).textContent = ""); });
 })();
 
