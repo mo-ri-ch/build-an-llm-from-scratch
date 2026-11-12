@@ -408,7 +408,7 @@
       <h2>Letters in a row</h2>
       <p class="say" style="position:relative">Your model now reads the last <b>8 letters</b>, sitting in <b>8 seats</b>: seat 1 holds the oldest letter, seat 8 the newest.<button class="doubt" type="button" data-peek-from="threePeek" aria-label="Why 3 numbers, and what do they mean?">🤔</button></p>
       <div hidden id="threePeek"><b>🤔 Why 3 numbers, and what do they mean?</b>
-        <p style="margin:6px 0 0">We choose how many: 3 here, 2 before. They still start random. With 2, this model learned badly: the same few numbers must carry the letter, its seat, the question, the label and the value. 3 gives just enough room.</p>
+        <p style="margin:6px 0 0">We choose how many: 3 here, 2 before. They still start random. With 2, this model learned badly: the same few numbers must say which letter it is, which seat it sits in, and do the jobs the next pages give them. 3 gives just enough room.</p>
         <p style="margin:6px 0 0">No single number means one thing. Learning moves them to whatever helps the guesses, so together they are a description that only the model uses.</p>
       </div>
       <p class="say">Each letter brings its <b>embedding</b>: 3 numbers, always the same for that letter. Each seat adds its <b>position numbers</b>: 3 numbers, always the same for that seat. Both start random and are learned.</p>
