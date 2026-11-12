@@ -319,6 +319,24 @@
   @keyframes mvFlash { 0% { background: var(--hl-yellow); } 100% { background: transparent; } }
   @media (max-width: 560px) { .mv-seat .sl { font-size: 0.58rem; } .mv-seat .tok { font-size: 1rem; } .mv-seats { gap: 3px; } .mv-row { grid-template-columns: 1fr; grid-template-areas: "lab" "val" "tag"; } .mv-row b { justify-self: start; font-size: 0.95rem; padding: 0; margin: 2px 0; } .mv-row .lab { font-size: 0.85rem; } }
   @media (prefers-reduced-motion: reduce) { .mv-row b.flash { animation: none; } .mv-seat .tok { transition: none; } }
+  .qk-q { display: flex; align-items: center; gap: 10px; font-family: var(--mono); margin-bottom: 8px; }
+  .qk-q .tok, .qk-ch { font-family: var(--mono); font-weight: 700; }
+  .qk-q .tok { width: 1.8em; height: 1.8em; display: grid; place-items: center; border-radius: 50%; background: var(--hl-yellow); color: var(--ink); border: 1.5px solid var(--ink); }
+  .qk-bars { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; max-width: 560px; margin-bottom: 10px; }
+  .qk-col { display: grid; justify-items: center; gap: 2px; padding: 6px 0 4px; border: 1.5px solid var(--grid); border-radius: 10px; background: var(--paper); cursor: pointer; font: inherit; color: inherit; }
+  .qk-col:hover { border-color: var(--ink); }
+  .qk-col.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--hl-yellow); }
+  .qk-track { position: relative; width: 60%; height: 90px; border-bottom: 0; }
+  .qk-track::after { content: ""; position: absolute; left: -20%; right: -20%; top: 50%; border-top: 1px solid var(--pencil); }
+  .qk-fill { position: absolute; left: 0; right: 0; background: var(--pen); border-radius: 3px; transition: height 0.45s ease; }
+  .qk-fill.neg { background: #d6453d; }
+  .qk-col.best .qk-fill { background: var(--hl-yellow); border: 1.5px solid var(--ink); }
+  .qk-val { font-family: var(--mono); font-size: 0.72rem; color: var(--pencil); }
+  .qk-ch { font-size: 1.05rem; }
+  .qk-sl { font-size: 0.65rem; color: var(--pencil); white-space: nowrap; }
+  .qk-detail { display: grid; gap: 6px; max-width: 620px; }
+  @media (max-width: 560px) { .qk-bars { gap: 3px; } .qk-sl { font-size: 0.55rem; } .qk-val { font-size: 0.62rem; } .qk-track { height: 70px; } .qk-q { font-size: 0.85rem; flex-wrap: wrap; } }
+  @media (prefers-reduced-motion: reduce) { .qk-fill { transition: none; } }
   /* Lesson 7 */
   .win { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
   .win span { font-family: var(--mono); width: 2.1em; text-align: center; padding: 4px 0; border: 1.5px solid var(--grid); border-radius: 6px; background: var(--paper); transition: background 0.3s, border-color 0.3s; }
@@ -450,10 +468,11 @@
         <p style="margin:6px 0 0">1.73 is √3, because there are 3 numbers in each list. Dividing keeps the matches from growing too big while the model learns. Real models with 64 numbers divide by √64 = 8.</p>
       </div>
       <div class="activity">
-        <div class="do">Pick 8 letters. Which letter matches the last letter's question best?</div>
-        <div class="row" style="margin-bottom:6px"><label>8 letters <select id="qkW" class="pick"></select></label></div>
-        <div class="dp" id="qkQ"></div>
-        <table class="l7" id="qkTab"></table>
+        <div class="do">The last letter asks its question. Every letter's match is a bar: click one to see how it is worked out.</div>
+        <div class="row" style="margin-bottom:8px"><label>8 letters <select id="qkW" class="pick"></select></label></div>
+        <div class="qk-q" id="qkQ"></div>
+        <div class="qk-bars" id="qkBars"></div>
+        <div class="qk-detail" id="qkD"></div>
       </div>
       <p class="hook">Matches are just numbers. How much should the last letter listen to each?</p>
     </section>
@@ -900,15 +919,36 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 
 // ---------- 4: question, labels, matches ----------
 (function qkDemo() {
-  const sel = document.getElementById("qkW"); fillWin(sel);
-  function render() {
-    const w = sel.value, f = trained.run(codes(w)), best = f.match.indexOf(Math.max(...f.match));
-    document.getElementById("qkQ").innerHTML = `The last letter (${sc(w[7])}) asks: question = <span class="res">${v3(f.q)}</span>`;
-    let h = `<tr><th>place</th><th>letter</th><th>label</th><th>match</th></tr>`;
-    Array.from(w).forEach((c, i) => { h += `<tr class="${i === best ? "hot" : ""}${i === 7 ? " me" : ""}"><td>${i + 1}</td><td>${sc(c)}</td><td>${v3(f.k[i])}</td><td><b>${fmt(f.match[i])}</b></td></tr>`; });
-    document.getElementById("qkTab").innerHTML = h; animate(document.getElementById("qkTab"));
+  const $ = id => document.getElementById(id), sel = $("qkW"); fillWin(sel);
+  let pick = -1;
+  const par = v => v < 0 ? `(${fmt(v)})` : fmt(v);
+  function render(animate) {
+    const w = sel.value, L = Array.from(w), f = trained.run(codes(w));
+    const best = f.match.indexOf(Math.max(...f.match)); if (pick < 0) pick = best;
+    const top = Math.max(...f.match.map(Math.abs)) * 1.05;
+    $("qkQ").innerHTML = `<span class="tok">${sc(L[7])}</span> in seat 8 asks: question <b>${v3(f.q)}</b>`;
+    $("qkBars").innerHTML = L.map((c, i) => {
+      const m = f.match[i], h = Math.abs(m) / top * 50;
+      return `<button type="button" class="qk-col${i === pick ? " on" : ""}${i === best ? " best" : ""}" data-i="${i}">
+        <span class="qk-track"><span class="qk-fill ${m < 0 ? "neg" : ""}" style="height:${h}%;${m < 0 ? "top:50%" : "bottom:50%"}"></span></span>
+        <span class="qk-val">${fmt(m, 1)}</span><span class="qk-ch">${sc(c)}</span><span class="qk-sl">seat ${i + 1}</span></button>`;
+    }).join("");
+    $("qkBars").querySelectorAll(".qk-col").forEach(b => b.onclick = () => { pick = +b.dataset.i; render(true); });
+    const k = f.k[pick], q = f.q;
+    $("qkD").innerHTML = `<div class="mv-row"><span class="lab">label of “${sc(L[pick])}” in seat ${pick + 1}</span><b>${v3(k)}</b></div>
+      <div class="mv-row tot"><span class="lab">match = (${q.map((v, d) => `${par(v)}×${par(k[d])}`).join(" + ")}) ÷ 1.73</span><b>${fmt(f.match[pick])}</b></div>
+      <div class="muted" style="margin-top:4px">${pick === best ? `The best match: “${sc(L[pick])}” in seat ${pick + 1} is what the question asks about.` : `The best match is “${sc(L[best])}” in seat ${best + 1}.`}</div>`;
+    if (animate) { const d = $("qkD"); d.classList.remove("l7-go"); void d.offsetWidth; d.classList.add("l7-go"); }
   }
-  sel.onchange = render; addReset(sel, () => { sel.value = PICKS7[0]; render(); }); render();
+  function steady() {   // the detail keeps its tallest size, so nothing jumps
+    const d = $("qkD"), keep = [sel.value, pick]; d.style.minHeight = ""; let m = 0;
+    [...sel.options].forEach(o => { sel.value = o.value; for (pick = 0; pick < 8; pick++) { render(false); m = Math.max(m, d.offsetHeight); } });
+    [sel.value, pick] = keep; render(false); if (m) d.style.minHeight = m + "px";
+  }
+  sel.onchange = () => { pick = -1; render(true); };
+  addReset(sel, () => { sel.value = PICKS7[0]; pick = -1; render(true); });
+  render(false); steady(); window.addEventListener("resize", steady);
+  new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) steady(); }).observe(sel);
 })();
 
 // ---------- 5: attention shares ----------
