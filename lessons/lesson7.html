@@ -303,7 +303,7 @@
     <!-- 1 -->
     <section class="part" data-title="The problem">
       <h2>The problem</h2>
-      <p class="neo-say">I keep writing “sat sat”. After “at␣” I can't tell if it was “cat” or “sat”.</p>
+      <p class="neo-say">I only see the last 3 letters, “at␣”, so I can't tell if I just wrote “cat” or “sat”. That's why I write “sat sat”.</p>
       <p class="say">Your model reads only the last 3 letters. After “cat␣” and after “sat␣” it sees the same 3 letters, “at␣”. But the next letter is different: “cat <b>s</b>at” and “sat <b>o</b>n”.</p>
       <p class="say">To tell them apart, it must look further back. The model from before would need 28 more weights for every extra letter (2 numbers × 14 next letters), and each letter would still vote alone.</p>
       <div class="activity">
