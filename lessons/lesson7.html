@@ -957,7 +957,7 @@ const WINDOWS = [];
 for (let i = 0; i + W8 < TEXT.length; i++) WINDOWS.push({ w: TEXT.slice(i, i + W8), next: TEXT[i + W8] });
 const PICKS7 = ["the cat ", "cat sat ", "the dog ", "dog sat ", "at. the ", " the mat"];
 const winLabel = w => "“" + w.replace(/ /g, "␣") + "”";
-const fillWin = sel => { sel.innerHTML = PICKS7.map(w => `<option value="${w}">${winLabel(w)} → ${nm(WINDOWS.find(x => x.w === w).next)}</option>`).join(""); };
+const fillWin = sel => { sel.innerHTML = PICKS7.map(w => `<option value="${w}">${winLabel(w)}</option>`).join(""); };
 const codes = w => Array.from(w).map(c => CHAR_TO_NUMBER[c]);
 const fresh7 = () => new AttentionModel();
 const start = fresh7();
