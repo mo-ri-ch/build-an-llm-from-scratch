@@ -1170,10 +1170,6 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
 (function attDemo() {
   const $ = id => document.getElementById(id), sel = $("atW"); fillWin(sel);
   const still = matchMedia("(prefers-reduced-motion: reduce)");
-  const WHY = {
-    "the cat ": " The “e” ends “the”, so a thing came right after “the”: next comes “sat”.",
-    "the dog ": " The “e” ends “the”, so a thing came right after “the”: next comes “sat”.",
-  };
   const pc = a => a < 0.005 ? "0%" : Math.round(a * 100) + "%";
   function render(play) {
     const anim = play && !still.matches, w = sel.value, L = Array.from(w), f = trained.run(codes(w));
@@ -1185,10 +1181,10 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
       + `<span class="rl">share</span>` + L.map((c, i) => `<span class="sm-s${i === order[0] ? " top" : ""}"><span class="v">${pc(f.att[i])}</span><span class="bar" style="height:${anim ? 1 : S(i)}px"></span></span>`).join("")
       + `<span></span>` + L.map((c, i) => `<span class="sm-ch${i === 7 ? " me" : ""}">${sc(c)}<small>seat ${i + 1}</small></span>`).join("");
     if (anim) requestAnimationFrame(() => requestAnimationFrame(() => $("atBars").querySelectorAll(".sm-s .bar").forEach((b, i) => { b.style.transitionDelay = (i * 0.05) + "s"; b.style.height = S(i) + "px"; })));
-    const [a, b] = order, nm1 = `“${sc(L[a])}” in seat ${a + 1}`, nm2 = `“${sc(L[b])}” in seat ${b + 1}`;
-    let t = `The biggest match, ${fmt(f.match[a], 1)} for ${nm1}, gets ${pc(f.att[a])}. `;
-    t += f.att[b] >= 0.005 ? `The next, ${fmt(f.match[b], 1)} for ${nm2}, gets ${pc(f.att[b])}.` : `The next, ${fmt(f.match[b], 1)} for ${nm2}, is ${fmt(f.match[a] - f.match[b], 1)} smaller and gets under 1%.`;
-    $("atNote").textContent = t + (WHY[w] || "");
+    const [a, b] = order, who = i => `“${sc(L[i])}” in seat ${i + 1}`;
+    $("atNote").innerHTML = f.att[b] < 0.005
+      ? `${who(a)} has the biggest match (${fmt(f.match[a], 1)}), so it gets almost all the attention: ${pc(f.att[a])}.<br>Every other letter gets under 1%, even ${who(b)} with the next biggest match (${fmt(f.match[b], 1)}).`
+      : `${who(a)} has the biggest match (${fmt(f.match[a], 1)}), so it gets the most attention: ${pc(f.att[a])}.<br>${who(b)} is close behind (${fmt(f.match[b], 1)}), so it gets ${pc(f.att[b])}. Every other letter gets under 1%.`;
   }
   function steady() { const n = $("atNote"), keep = sel.value; n.style.minHeight = ""; let m = 0;
     [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, n.offsetHeight); }); sel.value = keep; render(false); if (m) n.style.minHeight = m + "px"; }
@@ -1215,13 +1211,13 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     $("mxP").innerHTML = `<div class="ql-h">The mix for “${winLabel(w).slice(1, -1)}”</div>
       <div class="ql-sub">Each value × its share, added up.</div>
       ${big.map((i, r) => `<div class="mx-line r${r}${W8}"><span class="who">“${sc(L[i])}” seat ${i + 1}</span><span class="sh">${pc(f.att[i])}</span><span class="op">×</span><span class="va">${v3(f.v[i])}</span><span class="op">=</span><span>${v3(f.v[i].map(v => v * f.att[i]))}</span></div>`).join("")}
-      <div class="mx-note r9${W8}">${left} letter${left === 1 ? "" : "s"} with under 1%: almost nothing.</div>
+      <div class="mx-line r8${W8}"><span class="who">the other ${left} letters</span><span class="op" style="font-family:var(--body)">under 1% each, together</span><span class="op">=</span><span>${v3([0, 1, 2].map(d => { const r = f.mixed[d] - big.reduce((t, i) => t + f.att[i] * f.v[i][d], 0); return Math.abs(r) < 0.005 ? 0 : r; }))}</span></div>
       <div class="mx-line sum r9${W8}"><span class="who">added up = mix</span><span class="res">${v3(f.mixed)}</span></div>`;
     if (!anim) return;
     const cols = $("mxSeats").children, show = c => $("mxP").querySelectorAll(c).forEach(e => e.classList.remove("wait"));
     later(250, () => [...cols].forEach((col, i) => { if (f.att[i] < 0.01) col.classList.add("dim"); }));
     big.forEach((i, r) => later(800 + r * 700, () => { const ch = cols[i].querySelector(".ql-chip"); ch.classList.remove("pulse"); void ch.offsetWidth; ch.classList.add("pulse"); show(".r" + r); }));
-    later(800 + big.length * 700, () => show(".r9"));
+    later(800 + big.length * 700, () => show(".r8")); later(1300 + big.length * 700, () => show(".r9"));
   }
   function steady() { const P = $("mxP"), keep = sel.value; P.style.minHeight = ""; let m = 0;
     [...sel.options].forEach(o => { sel.value = o.value; render(false); m = Math.max(m, P.offsetHeight); }); sel.value = keep; render(false); if (m) P.style.minHeight = m + "px"; }
@@ -1269,7 +1265,7 @@ const animate = el => { el.classList.remove("l7-go"); void el.offsetWidth; el.cl
     $("trBars").innerHTML = Array.from(w).map((c, i) => `<div class="col"><span class="pct">${Math.round(f.att[i] * 100)}%</span><div class="bar" style="height:${Math.max(1, f.att[i] * 95)}px"></div><span class="ch${i === 7 ? " me" : ""}">${sc(c)}</span></div>`).join("");
     const top = f.att.indexOf(Math.max(...f.att));
     $("trNote").textContent = model.step === 0 ? "Random numbers: the attention is spread out with no reason."
-      : `After ${model.step} steps, “${winLabel(w).slice(1, -1)}” looks most at “${sc(w[top])}” (${Math.round(f.att[top] * 100)}%).`;
+      : `After ${model.step} steps, the last letter listens most to “${sc(w[top])}” in seat ${top + 1} (${Math.round(f.att[top] * 100)}%).`;
   }
   function curve() {
     const top = Math.max(...losses, 1), n = Math.max(losses.length - 1, 1), X = i => 8 + i / n * 224, Y = v => 80 - v / top * 66;
